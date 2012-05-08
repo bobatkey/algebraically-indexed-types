@@ -1,0 +1,682 @@
+\documentclass{article}
+
+\usepackage[usenames]{color}
+\definecolor{citationcolour}{rgb}{0,0.4,0.2}
+\definecolor{linkcolour}{rgb}{0,0,0.8}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,
+            urlcolor=linkcolour,
+            linkcolor=linkcolour,
+            citecolor=citationcolour,
+            pdftitle=Geometric Invariance and Relational Parametricity,
+            pdfauthor={Robert Atkey},
+            pdfkeywords={}}
+\def\sectionautorefname{Section}
+\def\subsectionautorefname{Section}
+
+\usepackage{amssymb}
+\usepackage{stmaryrd}
+
+\newcommand{\sepbar}{\mathrel|}
+
+\newcommand{\GA}{\mathrm{GA}}
+\newcommand{\GL}{\mathrm{GL}}
+\newcommand{\Is}{\mathrm{Is}}
+\newcommand{\Orth}{\mathrm{O}}
+\newcommand{\SOrth}{\mathrm{SO}}
+\newcommand{\Transl}{\mathrm{T}}
+\newcommand{\Scale}{\mathrm{Scale}}
+
+\newcommand{\sem}[1]{\llbracket #1 \rrbracket}
+\newcommand{\isDefinedAs}{\stackrel{\mathit{def}}=}
+
+\newcommand{\statementref}[1]{\hyperref[#1]{Statement \ref*{#1}}}
+
+\newenvironment{example}{\vspace{0.1in}\noindent\textbf{Example}\quad}{}
+
+\newcommand{\ignore}[1]{}
+
+\title{Geometric Invariance and Relational Parametricity}
+\author{Robert Atkey}
+
+\begin{document}
+
+\maketitle
+
+\section{Coordinate-free Geometry and Invariance}
+
+When writing programs that manipulate $n$-dimensional geometric data,
+the basic data structure is the $n$-tuple of numbers. In the
+two-dimensional case, tuples $\vec{v} = (x,y)$ can be called upon to
+represent both points -- as offsets from some origin -- and vectors --
+as offsets in their own right. Geometrically, the two notions of
+\emph{point} and \emph{vector} are very different despite their common
+representation. By representing a point concretely as an offset from
+some privileged origin, we inadvertently fix a particular origin,
+$(0,0)$. However, as made clear by Gallieo, many of the laws of
+physics are invariant under change of the frame of reference: if we
+change where we think the origin is, then we do not change the
+fundamental laws. Putting this in concrete terms, if we have two
+frames of reference, one with $(0,0)$ as the origin, and one with
+$(10,20)$ as the origin, then the tuple $(1,1)$ with respect to the
+first frame and $(11,21)$ with respect to the second frame represent
+the \emph{same} point. It is merely an artifact of our representation
+of points as pairs of numbers that these appear to be
+different. Therefore, when we write programs that manipulate data that
+represents points, then we ought to follow the general principle that
+our programs are invariant with respect to changes in the choice of
+origin.
+
+Vectors are not intended to be regarded as invariant under change of
+choice of origin. Vectors represent offsets, or movements, and the
+vector $(0,0)$ always represents the zero offset. However, they are
+intended to be invariant under change of basis: the vector $(2,3)$,
+with respect to the basis $(1,0),(0,1)$, and the vector $(1,1)$, with
+respect to the basis $(2,0),(0,3)$, should be regarded as the same
+vector. Invariance under change of basis also applies to the
+representation of points. We therefore refine the principle of
+invariance under change of origin for points to also include invariant
+under change of basis for points and vectors. A particular choice of
+origin and basis is called a \emph{frame} (\cite{gallier11geometric},
+Chapter 2). In general, the technique of maintaining geometric
+invariants such as frame invariance has been referred to as
+\emph{coordinate-free geometry}: we should aim to think in terms of
+abstract concepts such as points and vectors, rather than their actual
+representation as tuples of numbers.
+
+Invariance under change of representation immediately recalls
+Reynolds' famous story of two professors teaching the theory of
+complex numbers to students \cite{reynolds83types}. One professor
+chooses rectangular coordinates ($x + iy$), while the other chooses
+polar coordinates ($\alpha\cos\theta + i\alpha\sin\theta$). Happily,
+the two classes can interact because the theory of complex numbers is
+invariant with respect to the choice of representation. Reynolds
+formalises the idea of invariance with respect to changes of
+representation by using the notion of preservation of relations. If a
+binary relation $R$ relates two representations of a concept---for
+example the rectangular and polar representations of the same complex
+number are related---then a program that manipulates complex numbers
+at a level of abstraction above their specific representation should
+preserve the relation $R$. Concretely, let $f$ be a program taking
+complex numbers to complex numbers that is intended to respect
+invariance under change of representation. Then if $c$ is a complex
+number in rectangular form, and $c'$ is a complex number in polar form
+such that $R$ relates them, which we write as $(c,c') \in R$, then it
+should be the case that $(f(c), f(c')) \in R$.
+
+We now apply Reynolds' relational approach to defining invariance
+under changes of representation to the geometric setting. Following
+Reynolds, we express the fact that two tuples in $\mathbb{R}^2$ are
+representatives of the same point or vector by defining binary
+relations over $\mathbb{R}^2$. We wish to ensure that invariance with
+respect to all choices of frame is respected, so we parameterise our
+relations by the particular choice made. A neat way to represent a
+choice of frame is as an invertible affine map from $\mathbb{R}^2$ to
+$\mathbb{R}^2$. Affine maps are of the form $F(\vec{v})^\top =
+A\vec{v}^\top + b$, where $A$ is an invertible real $2 \mathord\times
+2$-matrix and $b$ is a vector in $\mathbb{R}^2$. The matrix $A$
+represents the change of basis, and $b$ represents the change of
+origin. The map $F$ tells us how to translate the representative of a
+point in our chosen frame to the representative of the same point in
+the ``standard frame'' with origin represented by $(0,0)$ and basis
+$(1,0),(0,1)$. The set of all such maps forms the general affine group
+$\GA(2)$.
+
+We define a $\GA(2)$-parameterised family of binary relations $\{
+R_{\texttt{pt}}(F) \subseteq \mathbb{R}^2 \times \mathbb{R}^2 \}_{F
+  \in \GA(2)}$. We intend that two tuples $\vec{v_1} = (x_1,y_1)$ and
+$\vec{v_2} = (x_2,y_2)$ are related for $F \in \GA(2)$, if, when the
+former is interpreted with respect to the standard frame and the
+latter is interpreted with respect to the frame described by $F$, the
+two tuples represent the same point.
+\begin{displaymath}
+  R_{\texttt{pt}}(F) = \{ (\vec{v_1}, \vec{v_2}) \sepbar F\vec{v_2} = \vec{v_1} \}
+\end{displaymath}
+
+Now consider a function $f$ that, for example, takes two tuples in
+$\mathbb{R}^2$ and returns a single tuple in $\mathbb{R}^2$. We intend
+that all these tuples represent points in the same frame, but that the
+function itself should be invariant with respect to the choice of
+frame. We use Reynolds' idea of preservation of relations to formalise
+this: for any $F \in \GA(2)$ (i.e.~any choice of frame), the function
+$f$ should satisfy the following statement:
+\begin{equation}\label{eq:f-preserve-rel-frame}
+  \forall (\vec{v_1},\vec{v'_1}) \in R_{\texttt{pt}}(F), (\vec{v_2},\vec{v'_2}) \in R_{\texttt{pt}}(F).\ (f(\vec{v_1}, \vec{v_2}), f(\vec{v'_1}, \vec{v'_2})) \in R_{\texttt{pt}}(F).
+\end{equation}
+Unfolding the definition of $R_{\texttt{pt}}$, we can see that this
+statement is equivalent to the following statement expressing
+invariance of $f$ with respect to changes of frame: for all $F \in
+\GA(2)$,
+\begin{equation}\label{eq:f-invariant-frame}
+  \forall \vec{v_1}, \vec{v_2}.\ f(F\vec{v_1},F\vec{v_2}) = F(f(\vec{v_1},\vec{v_2})).
+\end{equation}
+So Reynolds' idea of preservation of relations, when instantiated with
+the family of relations $R_{\texttt{pt}}$, yields exactly the
+geometric property of invariance under change of frame.
+
+An example function $f$ that satisfies
+\statementref{eq:f-invariant-frame} is the following function that
+computes a particular affine combination of two points by working
+directly on their coordinate representation:
+\begin{displaymath}
+  f(\vec{v_1}, \vec{v_2}) = \frac{1}{2}\vec{v_1} + \frac{1}{2}\vec{v_2}.
+\end{displaymath}
+In general, affine combinations of points $\lambda_1\vec{v_1} +
+\lambda_2\vec{v_2}$, where $\lambda_1 + \lambda_2 = 1$, satisfy
+\statementref{eq:f-invariant-frame}. Affine combination is one of the
+fundamental building blocks of affine geometry -- the properties of
+points invariant under invertible affine maps
+(\cite{gallier11geometric}, Chapter 2). If we drop the condition that
+$\lambda_1 + \lambda_2 = 1$, then we are dealing with linear
+combinations of vectors, and we are no longer invariant with respect
+to changes of frame. However, linear combinations are invariant with
+respect to change of basis. We can represent changes of basis as
+linear invertible maps $B : \mathbb{R}^2 \to \mathbb{R}^2$. The set of
+all such maps forms the general linear group $\GL(2)$. We now define
+another family of relations $\{R_{\texttt{vec}}(B) \subseteq
+\mathbb{R}^2 \times \mathbb{R}^2 \}_{B \in \GL(2)}$ that relates two
+points up to change of basis:
+\begin{displaymath}
+  R_{\texttt{vec}}(B) = \{ (\vec{v_1},\vec{v_2}) \sepbar B\vec{v_2} = \vec{v_1} \}.
+\end{displaymath}
+Now the functions $f_{\lambda_1\lambda_2}(\vec{v_1},\vec{v_2}) =
+\lambda_1\vec{v_1} + \lambda_2\vec{v_2}$, for arbitrary $\lambda_1$
+and $\lambda_2$, do preserve the relations $R_{\texttt{vec}}(B)$, for
+all $B \in \GL(2)$. Unfolding the definition of $R_{\texttt{vec}}(B)$
+in the analogous statement to \statementref{eq:f-preserve-rel-frame}
+for $R_{\texttt{vec}}$ instead of $R_{\texttt{pt}}$, we can see that
+preservation of the relations $R_{\texttt{vec}}$ characterises the
+functions that are invariant under change of basis. For all $B \in \GL(2)$, we have
+\begin{displaymath}
+  \forall \vec{v_1}, \vec{v_2}.\ f(B\vec{v_1},B\vec{v_2}) = B(f(\vec{v_1},\vec{v_2})),
+\end{displaymath}
+and this is exactly the property of invariance under change of basis
+we required above of programs manipulating vectors.
+
+Note that the family of relations $R_{\texttt{vec}}$ is just
+$R_{\texttt{pt}}$ when restricted to elements of the group
+$\GL(2)$. In the type system we introduce in the next section, we
+combine points and vectors into the same data type. Whether it
+represents a point or a vector depends on the group of geometric
+transformations that we expect it to be invariant under.
+
+\section{A Type System for Geometric Invariance}
+\label{sec:type-system-geom-intro}
+
+In the last section, we saw how Reynolds' notion of preservation of
+relations can be used to define when it is the case that programs
+manipulating representatives of points and vectors make geometric
+sense. Reynolds further insight was to see how preservation of
+relations can automatically be established by following a typing
+discipline. In Reynolds' case, the typing discipline was the
+second-order polymorphic $\lambda$-calculus, also known as System F,
+where new types can be constructed by universal quantification over
+all types. Universal type quantification is commonly written $\forall
+\alpha. A$, which denotes a type that may be instantiated with any
+other type $B$ by replacing the type variable $\alpha$ with $B$ in
+$A$.
+
+In terms of relations, Reynolds interprets universal quantification
+over types as quantification over binary relations between denotations
+of types. In the statements of geometric invariance that we stated in
+the previous section (e.g., \statementref{eq:f-invariant-frame}), we
+did not quantify over all relations. Instead, we quantified over all
+elements of a geometric group such as $\GA(2)$ or $\GL(2)$, and used
+those elements to select relations from the families $R_{\texttt{pt}}$
+and $R_{\texttt{vec}}$. Driven by this observation, we introduce
+quantification over elements of geometric groups into the language of
+types. We use the notation $\forall X \mathord: G. A$ for
+quantification over elements of geometric groups, where $G$ is the
+name of some geometric group, and $X$ is a variable name standing for
+an element of $G$. We refer to $G$ as the \emph{sort} of $X$. As we
+proceed, we will introduce the sorts representing geometric groups
+that we will be using in addition to $\GA(2)$ and $\GL(2)$.
+
+The sorts $\GA(2)$ and $\GL(2)$ represent groups, so we can combine
+their elements using the usual group operations. We write operations
+multiplicatively, using juxtaposition ($e_1e_2$) for multiplication,
+$e^{-1}$ for inverse and $1$ for the unit. We overload the same
+notation to stand for the group operations in both $\GA(2)$ and
+$\GL(2)$. We also regard expressions built from variables and the
+group operations up to the group axioms. So, for example,
+$F_1(F_2F_3)$ and $(F_1F_2)F_3$ are to be regarded as equivalent.
+
+Our language of types also includes the common type constructors for
+function types, $A \to B$, sum types $A + B$, unit type
+$\mathsf{Unit}$ and tuple types $A \times B$. We also assume a
+primitive type $\mathsf{real}$, used to represent scalars. As we noted
+at the start of the previous section, the central data structure in
+geometric applications is the tuple of real numbers for representing
+points and vectors. However, we cannot simply express this as the type
+$\mathsf{real} \times \mathsf{real}$ because it will not have the
+correct relational interpretation. (Two elements of type
+$\mathsf{real}$ will be related if and only if they are equal, and
+hence two elements of $\mathsf{real} \times \mathsf{real}$ will be
+related if and only if they are equal, by Reynolds' definition of the
+relational interpretation of tuple types.) Therefore, we introduce a
+new type parameterised by expressions $e$ of sort $\GA(2)$ to
+represent points (and later, vectors): $\mathsf{vec}\langle e
+\rangle$. We have used the name $\mathsf{vec}$, even though we have
+taken pains to separate geometric points and vectors, to recall the
+computer science notion of vector as a sequence of values of
+homogeneous type which has a known length (in this case two).
+
+% FIXME: Denotational semantics of $\mathsf{vec}$? and transformation
+% quantification?
+
+Equipped with quantification over the group $\GA(2)$ of invertible
+affine maps, and the parameterised types $\mathsf{vec}\langle \cdot
+\rangle$, we can now express geometric invariance properties as
+types. In the previous section, we gave examples of functions $f :
+\mathbb{R}^2 \times \mathbb{R}^2 \to \mathbb{R}^2$ that have the
+property that they preserve all invertible affine maps. We can now
+express this property as a type:
+\begin{displaymath}
+  \mathrm{f} : \forall F \mathord: \GA(2).\ \mathsf{vec}\langle F \rangle \times \mathsf{vec}\langle F \rangle \to \mathsf{vec}\langle F \rangle
+\end{displaymath}
+We use the variable name $F$ for elements of $\GA(2)$ to suggest the
+intuition that this typing indicates that $\mathrm{f}$ takes a pair of
+points in the $F$rame $F$ and returns a point in the same frame.
+
+\subsection{Affine Combination of Points}
+\label{sec:affine-combination}
+
+As we stated in the previous section, the primitive operation of
+affine geometry is affine combination of points: $\lambda_1\vec{v_1} +
+\lambda_2\vec{v_2}$, where $\lambda_1 + \lambda_2 = 1$. Geometrically,
+affine combination can be interpreted as interpolation between the
+points represented by $\vec{v_1}$ and $\vec{v_2}$. We add affine
+combination of points to our calculus, with the following typing and
+intended denotation.
+\begin{displaymath}
+  \begin{array}{l}
+    \mathrm{affineCombination} : \forall F \mathord: \GA(2).\ \mathsf{vec}\langle F \rangle \to \mathsf{real} \to \mathsf{vec}\langle F \rangle \to \mathsf{vec}\langle F \rangle \\
+    \sem{\mathrm{affineCombination}}\ (x_1,y_1)\ t\ (x_2,y_2) = ((1-t)x_1 + tx_2, (1-t)y_1 + ty_2)
+  \end{array}
+\end{displaymath}
+By defining the primitive function $\mathrm{affineCombination}$ to
+take a single $\mathsf{real}$ parameter $t$, we can easily ensure that
+we are taking the affine combination of two representatives of points,
+and not just an arbitrary linear combination. Note that the intended
+denotation in the second line does not take any argument corresponding
+to the universally quantified $F$ in the type. In our calculus,
+geometric group expressions are erased at runtime.
+
+% In Linear Algebra notation, we could have written the right-hand side
+% as $(1-t)\vec{v_1} + t\vec{v_2}$, where $\vec{v_1} = (x_1,y_1)$ and
+% $\vec{v_2} = (x_2,y_2)$. 
+
+\begin{example}
+  With just the single primitive operation of affine combination, we
+  can already express some useful programs. For example, the
+  evaluation of quadratic B\'{e}zier curves (B\'{e}zier curves with
+  two endpoints and a single control point) can be expressed using the
+  affine combination primitive and three steps of De Casteljau's
+  algorithm:
+  \begin{displaymath}
+    \begin{array}{l}
+      \mathrm{quadraticB\acute{e}zier} : \forall F \mathord:\GA(2).\ \mathsf{vec}\langle F \rangle \to \mathsf{vec}\langle F \rangle \to \mathsf{vec}\langle F \rangle \to \mathsf{real} \to \mathsf{vec}\langle F \rangle \\
+      \mathrm{quadraticB\acute{e}zier}\ [F]\ p_0\ p_1\ p_2\ t = \\
+      \quad
+      \begin{array}{l@{\hspace{-0.002cm}}l}
+        \mathrm{affineCombination}\ [F]\ & (\mathrm{affineCombination}\ [F]\ p_0\ t\ p_1) \\
+        & t \\
+        & (\mathrm{affineCombination}\ [F]\ p_1\ t\ p_2)
+      \end{array}
+    \end{array}
+  \end{displaymath}
+  For two endpoints $p_0$ and $p_2$ and a control point $p_1$,
+  $\mathrm{quadraticB\acute{e}zier}\ p_0\ p_1\ p_2\ t$ for $t \in
+  [0,1]$ gives us the point on the curve at ``time'' $t$. Note that
+  the type of $\mathrm{quadraticB\acute{e}zier}$ tells us immediately
+  that it preserves all invertible affine maps.
+  %FIXME: forward ref to ``free theorem''.
+\end{example}
+
+\subsection{Vector Space Operations}
+\label{sec:vector-space-ops}
+
+Affine combination only provides us with an operation on points. For
+the purposes of computational geometry, we are also interested in
+operations on the vectors representing offsets between points. We now
+examine the correct types to assign to the vector space operations of
+addition of vectors, negation of vectors, multiplication by a scalar
+and the zero vector.
+
+In our discussion in the previous section, we observed that vector
+operations are those that are preserved by change-of-basis operations
+-- i.e.~under the action of elements of the group $\GL(2)$ of
+invertible linear maps. Since $\GL(2)$ is a subgroup of $\GA(2)$ we
+may form the type $\mathsf{vec}\langle e \rangle$ when $e$ is of sort
+$\GL(2)$ as well as $\GA(2)$. The obvious type assignment for vector
+addition is now the following:
+\begin{displaymath}
+  (+) : \forall B\mathord:\GL(2).\ \mathsf{vec}\langle B \rangle \to \mathsf{vec}\langle B \rangle \to \mathsf{vec}\langle B \rangle
+\end{displaymath}
+(we write binary operators intended to be used infix in parentheses
+when not appearing in infix position, following the Haskell
+syntax.) The use of $B$ for names of elements of $\GL(2)$ is meant to
+suggest that the type $\mathsf{vec}\langle B \rangle$ denotes vectors
+with respect to the $B$asis $B$.
+
+However, it is possible to give vector addition a more precise type
+that describes its effect on the chosen origin as well as its
+invariance under change of basis. We now introduce a new sort
+$\Transl(2)$ of translations. Translations form an abelian group,
+which we write additively, using $+$,$-$ and $0$, and we use lower
+case $t$, $t_1$, etc.~for $t$ranslation variables. Invertible affine
+maps are constructed from invertible linear maps and translations, so
+given a $B : \GL(2)$ and a $t : \Transl(2)$, we can form an invertible
+affine map $B \ltimes t : \GA(2)$. Conversely, given $F : \GA(2)$, we
+have an invertible linear map $\pi_L(F) : \GL(2)$, and a translation
+$\pi_T(F) : \Transl(2)$. Thinking of elements of $\GA(2)$ as frames,
+$\pi_L$ returns the basis of the frame, and $\pi_T$ returns the
+origin.
+
+We can now give vector addition a more general type, which
+demonstrates how adding vectors has an effect on translations:
+\begin{displaymath}
+  (+) : \forall B \mathord: \GL(2), t_1, t_2 \mathord: T(2).\ \mathsf{vec}\langle B \ltimes t_1\rangle \to \mathsf{vec}\langle B \ltimes t_2 \rangle \to \mathsf{vec}\langle B \ltimes (t_1 + t_2)\rangle
+\end{displaymath}
+We can also negate vectors, yielding a vector which points in the
+opposite direction. Negation is invariant under invertible linear maps
+but negates translations:
+\begin{displaymath}
+  \mathrm{negate} : \forall B \mathord: \GL(2), t \mathord: T(2).\ \mathsf{vec}\langle B \ltimes t\rangle \to \mathsf{vec}\langle B\ltimes(-t)\rangle
+\end{displaymath}
+With addition and negation of vectors, we can define the derived
+operation of vector subtraction with the following type:
+\begin{displaymath}
+  \begin{array}{l}
+    (-) : \forall B \mathord:\GL(2), t_1,t_2 \mathord:T(2).\ \mathsf{vec}\langle B \ltimes t_1\rangle \to \mathsf{vec}\langle B \ltimes t_2\rangle \to \mathsf{vec}\langle B \ltimes (t_1 - t_2)\rangle \\
+    (-)\ [B]\ [t_1]\ [t_2]\ p_1\ p_2 = p_1 + \mathrm{negate}\ p_2
+\end{array}
+\end{displaymath}
+
+Given two points in the same frame---i.e.~two values of type
+$\mathsf{vec}\langle F \rangle$---we can compute their offset, which
+is a vector expressed with respect to the basis part of $F$, as a
+special case of vector subtraction:
+\begin{displaymath}
+  \begin{array}{l}
+    \mathrm{offset} : \forall F \mathord:\GA(2).\ \mathsf{vec}\langle F \rangle \to \mathsf{vec}\langle F \rangle \to \mathsf{vec}\langle \pi_L(F) \ltimes 0 \rangle \\
+    \mathrm{offset}\ [F]\ p_1\ p_2 = p_1 - p_2
+  \end{array}
+\end{displaymath}
+The subtraction operation in the body of $\mathrm{offset}$ is
+instantiated with $B = \pi_L(F)$, $t_1 = \pi_T(F)$ and $t_2 =
+\pi_T(F)$. The translation $\pi_T(F)$ cancels itself out, and we are
+left with a vector in the basis $\pi_L(F)$ of the frame $F$.
+
+Similarly, the type of the vector addition operation can be
+specialised to the case of moving a point by an offset represented by
+a vector:
+\begin{displaymath}
+  \begin{array}{l}
+    \mathrm{moveBy} : \forall F \mathord:\GA(2).\ \mathsf{vec}\langle F \rangle \to \mathsf{vec}\langle \pi_L(F) \ltimes 0 \rangle \to \mathsf{vec}\langle F \rangle \\
+    \mathrm{moveBy}\ [F]\ p\ v = p + v
+  \end{array}
+\end{displaymath}
+The addition operation in the body of $\mathrm{moveBy}$ is
+instantiated with $B = \pi_L(F)$, $t_1 = \pi_T(F)$ and $t_2 =
+0$. Since $t_1 + t_2 = \pi_T(F) + 0 = \pi_T(F)$ in this case, we are
+left with a value of type $\mathsf{vec}\langle \pi_L(F) \ltimes
+\pi_T(F) \rangle$, which is equivalent to the type
+$\mathsf{vec}\langle F \rangle$.
+
+The types we assign to the remaining vector space primitives, the zero
+vector and multiplication by a scalar, do not describe any interesting
+effect on translations%\footnote{but they could...}
+. The zero vector has the following polymorphic type, indicating that
+for any basis $B$, there is a zero vector.
+\begin{displaymath}
+  \mathrm{0} : \forall B \mathord: \GL(2).\ \mathsf{vec}\langle B \ltimes 0 \rangle
+\end{displaymath}
+Intuitively, there cannot be a zero vector for any frame $F$, because
+this would entail picking a privileged origin. For multiplication of a
+vector by a scalar, we assign the following type:
+\begin{displaymath}
+  (*) : \forall B \mathord: \GL(2).\ \mathsf{real} \to \mathsf{vec}\langle B \ltimes 0 \rangle \to \mathsf{vec}\langle B \ltimes 0 \rangle
+\end{displaymath}
+This type indicates that scaling a vector is preserved by change of
+basis.
+
+\begin{example}
+  The vector space primitives we have defined in this section, along
+  with the geometric invariance properties that follow from their
+  types, allow us to establish a useful type isomorphism. Consider
+  functions with types conforming to the following schema:
+  \begin{displaymath}
+    \tau_{n,A} \isDefinedAs \forall F\mathord:\GA(2).\ \mathsf{vec}\langle F \rangle^{n+1} \to A[F]
+  \end{displaymath}
+  We take $n$ to be a natural number, and $A^n$ for some type $A$
+  denotes the $n$-ary tupling of $A$ with itself: i.e.~$A \times
+  ... \times A$, with $A$ repeated $n$ times. The notation $A[-]$
+  denotes a type with a ``hole'' that can be filled with an
+  expression. In this case, we require that $A[e]$ be a well-formed
+  type when $e$ has sort $\GA(2)$.
+
+  Just by looking at the types $\tau_{n,A}$, we know that their
+  inhabitants will be invariant under change of frame, due to the
+  quantification over all $F$ in $\GA(2)$. Therefore, we may as well
+  pick one of the input points as the origin and assume that all the
+  other points are defined with respect to this chosen origin. This is
+  similar to the common mathematical step of stating that, ``without
+  loss of generality'', we may pick some point in a description of a
+  problem to be the origin, as long as the problem statement is
+  invariant under translation.
+
+  The types $\tau_{n,A}$ are isomorphic to the corresponding types
+  $\sigma_{n,A}$, defined below. Inhabitants of the types
+  $\sigma_{n,A}$ take one fewer points (now seen as vector offsets
+  from some origin), but are invariant only under change of basis.
+  \begin{displaymath}
+    \sigma_{n,A} \isDefinedAs \forall B\mathord:\GL(2).\ \mathsf{vec}\langle B \rangle^n \to A[B \ltimes 0]
+  \end{displaymath}
+  The isomorphism between these two families of types can be witnessed
+  by the following two functions.
+  \begin{displaymath}
+    \begin{array}{l}
+      i_{n,A} : \tau_{n,A} \to \sigma_{n,A} \\
+      i_{n,A}\ f\ [B]\ (p_1, p_2, ..., p_n) = f\ [B \ltimes 0]\ (0, p_1, ..., p_n) \\
+      \\
+      i^{-1}_{n,A} : \sigma_{n,A} \to \tau_{n,A} \\
+      i^{-1}_{n,A}\ g\ [F]\ (p_0, ..., p_n) = g\ [\pi_L(F)]\ (p_1-p_0, ..., p_n-p_0)
+    \end{array}
+  \end{displaymath}
+  The direction defined by the function $i_{n,A}$ treats the inputs
+  $p_1,...,p_n$ as vector offsets from the origin $0$. The direction
+  witnessed by $i^{-1}_{n,A}$ picks the first point to act as the
+  origin, and uses the operation of vector subtraction we defined
+  above to turn each of the other points into offsets from this
+  point. Note that this isomorphism is not unique: for each $n$ we can
+  pick any of the $n+1$ inputs to act as the distinguished
+  origin. Thus the families of types $\tau_{n,A}$ and $\sigma_{n,A}$
+  are isomorphic, but not uniquely isomorphic.
+\end{example}
+
+\subsection{Euclidean Geometry}
+\label{sec:euclidean-geom}
+
+\subsubsection{Dot Product}
+
+Euclidean geometry extends affine geometry with the operation of
+\emph{dot product} (also known as the \emph{inner product}) of two
+vectors, which produces a real number. The standard Euclidean dot
+product is defined on the coordinate representation in the following
+way:
+\begin{displaymath}
+  (x_1,y_1) \cdot (x_2,y_2) = x_1x_2 + y_1y_2
+\end{displaymath}
+The dot product is used to define properties of vectors such as their
+\emph{norm} $||\vec{v}|| = \vec{v}\cdot\vec{v}$, which is the square
+of the length of the vector $\vec{v}$, and the notion of
+orthogonality: two vectors $\vec{v_1}$ and $\vec{v_2}$ are orthogonal
+if $\vec{v_1}\cdot\vec{v_2} = 0$.
+
+To incorporate the operation of dot product into our calculus, we must
+give it a type. It is not the case that the dot product is invariant
+under the action of any of the groups $\GA(2)$, $\GL(2)$ or
+$\Transl(2)$ that we have considered so far. In fact, the dot product
+is invariant under the subgroup $\Orth(2)$ of $\GL(2)$ of
+\emph{orthogonal} linear transformations. The group $\Orth(2)$
+consists of invertible linear maps whose determinant is either $1$ or
+$-1$. We introduce orthogonal transformations as a new sort
+$\Orth(2)$, and overload the multiplicative group operations syntax
+for inhabitants of $\Orth(2)$. We also assume a function $\iota_O$
+that takes $e : \Orth(2)$ to $\iota_O(e) : \GL(2)$.
+
+We may now assign the following type to the dot product primitive:
+\begin{displaymath}
+  (\cdot) : \forall O \mathord: \Orth(2).\ \mathsf{vec}\langle \iota_O(O) \ltimes 0 \rangle \to \mathsf{vec}\langle \iota_O(O) \ltimes 0 \rangle \to \mathsf{real}
+\end{displaymath}
+With dot product as a primitive operation, we can define several other
+useful derived operations. First, the norm of a vector, which in the
+case of standard Euclidean geometry is the square of the length of the
+vector. The norm is invariant under orthogonal changes of basis, but
+not arbitrary changes of basis. Hence, we quantify over all orthogonal
+transformations in the type of $\mathrm{norm}$:
+\begin{displaymath}
+  \begin{array}{l}
+    \mathrm{norm} : \forall O \mathord: \Orth(2).\ \mathsf{vec}\langle O \rangle \to \mathsf{real} \\
+    \mathrm{norm}\ [O]\ v = v \cdot v
+  \end{array}
+\end{displaymath}
+Given the norm function, we can compute the distance between a pair of
+points in a frame, provided that the frame has an orthogonal basis
+described by some orthogonal transformation $O$:
+\begin{displaymath}
+  \begin{array}{l}
+    \mathrm{distance} : \forall O \mathord: \Orth(2), t \mathord: \Transl(2).\ \mathsf{vec}\langle O \ltimes t \rangle \to \mathsf{vec}\langle O \ltimes t \rangle \to \mathsf{real} \\
+    \mathrm{distance}\ [O]\ [t]\ p_1\ p_2 = \mathrm{sqrt}\ (\mathrm{norm}\ (\mathrm{offset}\ p_1\ p_2))
+  \end{array}
+\end{displaymath}
+In the definition of $\mathrm{distance}$, we have made use of a square
+root function on the reals $\mathrm{sqrt} : \mathsf{real} \to
+\mathsf{real}$.
+
+The dot product is also used to determine whether two vectors are
+orthogonal to one another. In the case of the standard dot product in
+$2$-dimensional space, two vectors are orthogonal if they are at right
+angles to one another.
+\begin{displaymath}
+  \begin{array}{l}
+    \mathrm{orthogonal} : \forall O \mathord: \Orth(2).\ \mathsf{vec}\langle O \rangle \to \mathsf{vec}\langle O \rangle \to \mathsf{bool} \\
+    \mathrm{orthogonal}\ [O]\ v_1\ v_2 = v_1 \cdot v_2 \equiv 0
+  \end{array}
+\end{displaymath}
+
+\subsubsection{Cross Product}
+
+\begin{figure}[t]
+  \centering
+  \begin{eqnarray*}
+    0   &:& \forall S \mathord:\Scale.\ \mathsf{real}\langle S \rangle \\
+    1   &:& \mathsf{real}\langle 1 \rangle \\
+    (+) &:& \forall S \mathord:\Scale.\ \mathsf{real}\langle S \rangle \to \mathsf{real}\langle S \rangle \to \mathsf{real}\langle S \rangle \\
+    (-) &:& \forall S \mathord:\Scale.\ \mathsf{real}\langle S \rangle \to \mathsf{real}\langle S \rangle \to \mathsf{real}\langle S \rangle \\
+    (*) &:& \forall S_1,S_2 \mathord:\Scale.\ \mathsf{real}\langle S_1 \rangle \to \mathsf{real}\langle S_2 \rangle \to \mathsf{real}\langle S_1S_2 \rangle \\
+    (/) &:& \forall S_1,S_2 \mathord:\Scale.\ \mathsf{real}\langle S_1 \rangle \to \mathsf{real}\langle S_2 \rangle \to \mathsf{real}\langle S_1S_2^{-1} \rangle + 1 \\
+    \mathrm{abs} &:& \forall S \mathord:\Scale.\ \mathsf{real}\langle S \rangle \to \mathsf{real}\langle |S| \rangle \\
+    \mathrm{sqrt} &:& \mathsf{real}\langle 1 \rangle \to \mathsf{real}\langle 1 \rangle
+  \end{eqnarray*}
+  \caption{Operations on scaled real numbers}
+  \label{fig:real-ops}
+\end{figure}
+
+The cross product is another operation that takes pairs of vectors and
+produces a real number. Algebraically, the cross product is defined on
+coordinate representations as follows:
+\begin{displaymath}
+  (x_1,y_1) \times (x_2,y_2) = x_1y_2 - x_2y_1
+\end{displaymath}
+Geometrically, the cross product of two vectors is the signed area of
+the parallelogram described by the pair of input vectors. It turns out
+that the value of the cross product of two vectors varies with the
+determinant of the matrix describing the basis of the vector space. We
+therefore augment our calculus with a new sort $\Scale$ of scale
+factors. Semantically, $\Scale$ ranges over the non-zero real numbers
+and forms an abelian group, which we write multiplicatively. We also
+add two new operations: determinant, $\det B$, which takes an
+inhabitant of $\GL(2)$ to its determinant in $\Scale$, and the
+operation of absolute value that takes scaling factors to scaling
+factors which we write as $|e|$. We also refine the type
+$\mathsf{real}$ of real numbers to take a parameter of sort $\Scale$:
+$\mathsf{real}\langle e \rangle$, where the old type $\mathsf{real}$
+is just $\mathsf{real}\langle 1 \rangle$. The collection of operations
+on real numbers with scaling factors is shown in
+\autoref{fig:real-ops}.
+
+With the additional sort $\Scale$, and the refined type of real
+numbers, we can state the type of the cross product.
+\begin{displaymath}
+  (\times) : \forall B \mathord: \GL(2).\ \mathsf{vec}\langle B \rangle \to \mathsf{vec}\langle B \rangle \to \mathsf{real}\langle \det B \rangle
+\end{displaymath}
+
+For $O : \Orth(2)$, the absolute value of the determinant is always
+$1$, so we assume the equation $|\det O| = 1$ to hold.
+
+\begin{example}
+  Using the structure we have defined in this subsection, we can
+  define the following function that computes the area of a
+  triangle. By the type of this function, we can see that the area of
+  a triangle is invariant under orthognal transformations and
+  arbitrary translations.
+  \begin{displaymath}
+    \begin{array}{l}
+      \mathrm{area} : \forall O\mathord:\Orth(2), t\mathord:\Transl(2).\ \mathsf{vec}\langle O \ltimes t \rangle \to \mathsf{vec}\langle O \ltimes t \rangle \to \mathsf{vec}\langle O \ltimes t \rangle \to \mathsf{real}\langle 1 \rangle \\
+      \mathrm{area}\ [O]\ [t]\ p_1\ p_2\ p_3 = \frac{1}{2} * \mathrm{abs}\ ((p_2 - p_1) \times (p_3 - p_1))
+    \end{array}
+  \end{displaymath}
+  In the body of this function, we have performed the calculation in
+  several steps, each of which removes some of the symmetry described
+  by the types. First we have computed the two offset vectors $p_2 -
+  p_1$ and $p_3 - p_1$. These operations remove the effect of
+  translations on the result, in exactly the same way as the type
+  isomorphism we demonstrated above. We then compute the cross product
+  of the two vectors to determine the area of the parallelogram
+  described by the sides of the triangle. This value has type
+  $\mathsf{real}\langle \det O \rangle$. We know that the determinant
+  of an orthogonal transformation is always either $-1$ or $1$, so we
+  have a result which varies according to possible reflections of the
+  space. To remove this variation, we apply the $\mathrm{abs}$
+  function to leave us with a value of type $\mathsf{real}\langle
+  |\det O| \rangle$. This type is equal to the type
+  $\mathsf{real}\langle 1 \rangle$. Finally, we multiply by
+  $\frac{1}{2}$ to recover the area of the triangle, rather than the
+  whole parallelogram.
+\end{example}
+
+% \subsection{Transformations Within and Between Frames}
+% \label{sec:runtime-rep-frames}
+
+% \begin{enumerate}
+% \item A translation with respect to some frame is simply a vector with
+%   respect to that frame's basis. We can apply it to points just by 
+% \item 
+% \end{enumerate}
+
+% Singleton types
+
+% Representing frames, a type representing translations:
+% \begin{displaymath}
+%   \mathsf{translation}\langle T \rangle
+% \end{displaymath}
+% And representing bases, as linear maps
+% \begin{displaymath}
+%   \mathsf{invLinearMap}\langle B \rangle
+% \end{displaymath}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FIXME: write down all the groups, and the functions between them
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bibliographystyle{plain}
+\bibliography{paper}
+
+
+\end{document}

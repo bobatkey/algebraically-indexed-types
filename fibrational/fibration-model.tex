@@ -1,0 +1,311 @@
+\documentclass{article}
+
+\usepackage[usenames]{color}
+\definecolor{citationcolour}{rgb}{0,0.4,0.2}
+\definecolor{linkcolour}{rgb}{0,0,0.8}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,
+            urlcolor=linkcolour,
+            linkcolor=linkcolour,
+            citecolor=citationcolour,
+%            pdftitle=Relational Parametricity for Algebraically-Indexed Types,
+%            pdfauthor={Robert Atkey, Patricia Johann, Neil Ghani},
+            pdfkeywords={}}  
+\def\sectionautorefname{Section}
+\def\subsectionautorefname{Section}
+
+\usepackage{stmaryrd}
+\usepackage{amssymb}
+\usepackage[all]{xy}
+
+\newcommand{\cat}[1]{\mathbb{#1}}
+\newcommand{\pair}[2]{\langle #1, #2 \rangle}
+\newcommand{\id}{\mathit{id}}
+\newcommand{\Id}{\mathit{Id}}
+\newcommand{\sem}[1]{\llbracket #1 \rrbracket}
+\newcommand{\Set}{\mathrm{Set}}
+\newcommand{\Sub}{\mathrm{Sub}}
+
+\newenvironment{example}{\noindent\textbf{Example}}{\medskip}
+
+% copied from Andrej Bauer
+% http://www.tug.org/pipermail/xy-pic/2001-July/000015.html
+% (but they were the wrong way round?)
+\newcommand{\pushoutcorner}[1][dr]{\save*!/#1+1.2pc/#1:(1,-1)@^{|-}\restore}
+\newcommand{\pullbackcorner}[1][dr]{\save*!/#1-1.2pc/#1:(-1,1)@^{|-}\restore}
+
+\title{Fibrational Models of Units of Measure \\ \textbf{Draft}}
+\author{Robert Atkey}
+
+\begin{document}
+
+\maketitle
+
+\section{Fibrational Models of Units of Measure Types}
+\label{sec:fibrational-models}
+
+A fibrational model of Andrew's units of measure type system consists
+of a fibration $p : \cat{E} \to \cat{B}$, with the following
+conditions:
+\begin{enumerate}
+\item The category $\cat{B}$ has finite products. We write $1$ for the
+  terminal object, $! : A \to 1$ for the unique map from any object
+  $A$ to $1$, $\mathsf{fst}_{AB} : A \times B \to A$ for the left
+  projection and $\mathsf{snd}_{AB} : A \times B \to B$ for the right
+  projection. Given any two arrows $f : C \to A$ and $g : C \to B$ we
+  write their pairing as $\pair{f}{g} : C \to A \times B$. For arrows
+  $f : A \to B$ and $g : C \to D$, their product $f \times g : A
+  \times C \to B \times D$ is defined as $f \times g = \pair{f \circ
+    \mathsf{fst}_{AC}}{g \circ \mathsf{snd}_{AC}}$. We write
+  $\alpha_{ABC} : A \times (B \times C) \to (A \times B) \times C$ for
+  the canonical associativity maps defined using the pairing and
+  projections. We use $\sigma_{AB} : A \times B \to B \times A$ for
+  the swapping morphism defined as $\sigma_{AB} =
+  \pair{\mathsf{snd}_{AB}}{\mathsf{fst}_{AB}}$.
+\item The category $\cat{B}$ has an abelian group object: this
+  consists of an object $G$ of $\cat{B}$, along with morphisms $1
+  \stackrel{e}\longrightarrow G$, $G \times G
+  \stackrel{m}\longrightarrow G$ and $G
+  \stackrel{\cdot^{-1}}\longrightarrow G$ making the following
+  diagrams commute:
+
+  \begin{tabular*}{1.0\linewidth}{@{\extracolsep{\fill}}rr}
+    $\xymatrix{
+      {G} \ar[r]^(.4){\pair{e \circ !}{\id}} \ar[dr]_\id & {G \times G} \ar[d]^m & {G} \ar[l]_(.4){\pair{\id}{e \circ !}} \ar[dl]^\id \\
+      & {G}
+    }$
+    &(left and right unit)
+  \end{tabular*}
+  
+  \begin{tabular*}{1.0\linewidth}{@{\extracolsep{\fill}}rr}
+    $\xymatrix{
+      {G \times (G \times G)} \ar[r]^\alpha \ar[d]_{\id_G \times m} & {(G \times G) \times G} \ar[d]^{m \times \id_G} \\
+      {G \times G} \ar[dr]_m & {G \times G} \ar[d]^m \\
+      & {G}
+    }$
+    &(associativity)
+  \end{tabular*}
+
+  \begin{tabular*}{1.0\linewidth}{@{\extracolsep{\fill}}rr}
+    $\xymatrix{
+      {G \times G} \ar[r]^\sigma \ar[dr]_m & {G \times G} \ar[d]^m \\
+      & {G}
+    }$
+    &(commutativity)
+  \end{tabular*}
+
+  \begin{tabular*}{1.0\linewidth}{@{\extracolsep{\fill}}rr}
+    $\xymatrix{
+      {G} \ar[r]^(.4){\pair{\id}{\cdot^{-1}}} \ar[d]_{!} & {G \times G} \ar[d]^m \\
+      {1} \ar[r]^e & {G}
+    }$
+    &(inverses)
+  \end{tabular*}
+\item Each fibre of the fibration $p : \cat{E} \to \cat{B}$ is
+  cartesian closed and re-indexing preserves the cartesian closed
+  structure.
+\item For every object $A$ in $\cat{B}$, the re-indexing functor along
+  the projection morphism $\mathsf{fst}_{AG} : A \times G \to A$
+  (where $G$ is the abelian group object in $\cat{B}$),
+  $\mathsf{fst}_{AG}^* : \cat{E}_A \to \cat{E}_{A \times G}$, has a
+  right adjoint $\Pi_A : \cat{E}_{A \times G} \to \cat{E}_A$. We write
+  $\eta : \Id \Rightarrow \Pi_A \mathsf{fst}^*_{AG}$ for the unit of
+  this adjunction and $\epsilon : \mathsf{fst}^*_{AG} \Pi_A
+  \Rightarrow \Id$ for the counit.
+
+  This adjunction must satisfy the Beck-Chevalley condition: for any
+  morphism $u : A \to A'$ in $\cat{B}$, the natural transformation
+  \begin{displaymath}
+    \xymatrix{
+      {u^* \Pi_{A'}} \ar[r]^(.37){\eta_{u^*\Pi_{A'}}}
+      &
+      {\Pi_A \mathsf{fst}^*_{AG} u^* \Pi_{A'}} \ar[r]^(.4){\cong}
+      &
+      {\Pi_A (u \times \id_G)^* \mathsf{fst}^*_{A'G} \Pi_{A'}} \ar[r]^(.6){\Pi_A(u \times \id_G)^*\epsilon}
+      &
+      {\Pi_A (u \times \id_G)^*}
+    }
+  \end{displaymath}
+  is an isomorphism.
+
+\item The fibre over $G$ contains a distinguished object
+  $\mathsf{num}$.
+\end{enumerate}
+
+\section{Sketch of the Interpretation of the Syntax}
+
+I'll use Andrew's notation for this section: unit variable contexts
+are ranged over by $\mathcal{V}$ and consist of sequences of distinct
+unit variable names: $u_1, ..., u_n$, unit expressions are ranged over
+by $\mu, \mu_1, \mu_2$ and are built from unit variables (from some
+unit variable context), group multiplication, inverses and units.
+
+\paragraph{Caveat} As is normal with fibrational models, the
+interpretation of substitution here is only up-to isomorphism, not
+equality. The usual way to deal with this is to switch to using a
+split fibration.
+
+\medskip
+
+Unit contexts $\mathcal{V} = u_1,...,u_n$ are interpreted as $n$-ary
+products of the abelian group object in $\cat{B}$: $\sem{\mathcal{V}}
+= G^{|\mathcal{V}|}$, where $|\mathcal{V}|$ is the number of variables
+in $\mathcal{V}$.
+
+Unit expressions $\mathcal{V} \vdash \mu$ are interpreted as morphisms
+$\sem{\mu} : \sem{\mathcal{V}} \to G$ in $\cat{B}$. Multiplication of
+unit expressions is interpreted using the morphism $m : G \times G \to
+G$, the unit $1$ is interpreted using the morphism $e : 1 \to G$ and
+unit inverses are interpreted using $\cdot^{-1} : G \to G$. The
+commuting diagrams required above ensure that if $\mu_1 = \mu_2$ under
+the abelian group axioms, then $\sem{\mu_1} = \sem{\mu_2}$.
+
+Well-formed types $\mathcal{V} \vdash A$ are interpreted as objects in
+the fibre over $\sem{\mathcal{V}}$: objects $\sem{A}$ in the category
+$\cat{E}_{\sem{\mathcal{V}}}$. The types $\texttt{num}\ \mu$, where
+$\mathcal{V} \vdash \mu$, are interpreted as $\sem{\mu}^*\mathsf{num}
+\in \cat{E}_{\sem{\mathcal{V}}}$. To interpret the $\forall$-types, we
+use the $\Pi_A$ functors: given a type $\mathcal{V}, u \vdash A$,
+which is interpreted as an object $\sem{A} \in
+\cat{E}_{\sem{\mathcal{V},u}}$ then the type $\mathcal{V} \vdash
+\forall u. A$ is interpreted as $\Pi_{\sem{\mathcal{V}}}\sem{A} \in
+\cat{E}_{\sem{\mathcal{V}}}$. The rest of the type structure is
+interpreted using the cartesian closed structure of the fibres.
+
+Simultaneous substitutions $u$ of unit expressions for unit variables
+are modelled as morphisms $\sem{u} : \sem{\mathcal{V}} \to
+\sem{\mathcal{V'}}$ in $\cat{B}$. Given a type $\mathcal{V'} \vdash A$
+and a simultaneous substitution $u$ of unit expressions well-formed in
+$\mathcal{V}$ for all unit variables in $\mathcal{V'}$, then it is the
+case that $\sem{u}^*\sem{A} \cong \sem{u^*A}$, by the preservation of
+cartesian closed structure by re-indexing, and the Beck-Chevalley
+condition.
+
+For a unit variable context $\mathcal{V}$, well-formed typing contexts
+$\mathcal{V} \vdash \Gamma$ consist of lists of variable name/type
+pairs $x_i : A_i$, where $\mathcal{V} \vdash A_i$, for all $i$. A
+typing context $\mathcal{V} \vdash \Gamma$ is interpreted as the
+object $\sem{A_1} \times ... \times \sem{A_n}$ in the fibre
+$\cat{E}_{\sem{\mathcal{V}}}$, using the finite products of the fibre.
+
+A term $\mathcal{V}; \Gamma \vdash M : A$ is interpreted as an arrow
+$\sem{\Gamma} \to \sem{A}$ in the category
+$\cat{E}_{\sem{\mathcal{V}}}$. For example, $\forall$-introduction is
+interpreted as follows: given $\mathcal{V}, u; \Gamma \vdash e : A$,
+where $u \not\in \mathit{fv}(\Gamma)$, then $e$ has an interpetation
+$\sem{e} : \mathsf{fst}^*_{\sem{\mathcal{V}}G}\sem{\Gamma} \to
+\sem{A}$ in $\cat{E}_{\sem{\mathcal{V},u}}$. The interpretation of
+$\mathcal{V}; \Gamma \vdash \Lambda u. e : \forall u. A$ is then given
+by $\phi_{\sem{\Gamma}\sem{A}}(\sem{e}) : \sem{\Gamma} \to \Pi_{\sem{\mathcal{V}}}\sem{A}$
+in $\cat{E}_{\sem{\mathcal{V}}}$, where $\phi_{XY} :
+\cat{E}_{\sem{\mathcal{V},u}}(\mathsf{fst}^*_{\sem{\mathcal{V}}G}X,Y)
+\to \cat{E}_{\sem{\mathcal{V}}}(X,\Pi_{\sem{\mathcal{V}}}Y)$ is one
+half of the isomorphism of homsets derived from the adjunction
+$\mathsf{fst}^*_{\sem{\mathcal{V}}G} \dashv \Pi_{\sem{\mathcal{V}}}$.
+
+\section{A Class of Logical Relation Models}
+
+I'll now show that there exists a large class of examples of
+fibrations satisfying the conditions in
+\autoref{sec:fibrational-models}, built from fibrations describing a
+logic, and some additional data which I describe below. All of these
+examples will share the same base category $\cat{B}$ which is defined
+as follows:
+\begin{itemize}
+\item Objects of $\cat{B}$ are natural numbers;
+\item The set of morphisms $n \to 1$ in $\cat{B}$ is the set of terms
+  in the theory of abelian groups over $n$ free variables, quotiented
+  by the equational theory of abelian groups. Morphisms $n \to n'$
+  consist of $n'$-many morphisms $n \to 1$.
+\end{itemize}
+Note that $\cat{B}$ has finite products: the terminal object is $0$,
+and the product of $n$ and $n'$ is $n + n'$. The object $1$ is an
+abelian group object in this category. More abstractly, $\cat{B}$ is
+the Lawvere theory describing the theory of abelian groups.
+
+To build a model of the units of measure system, we require:
+\begin{enumerate}
+\item A fibration $q : \cat{P} \to \cat{C}$, with right adjoints to
+  all re-indexing functors (satisfying Beck-Chevalley), and such that
+  all fibres are cartesian closed and re-indexing preserves the
+  cartesian closed structure. The category $\cat{C}$ must have finite
+  products.
+\item A functor $R : \cat{B} \to \cat{C}$ satisfying the following
+  property: for any arrow $u : m \to n$ in $\cat{B}$, the following
+  diagram is a pullback:
+  \begin{displaymath}
+    \xymatrix{
+      {R(m + 1)} \ar[r]^{\mathsf{fst}} \ar[d]_{R(u + 1)} \pullbackcorner & {R(m)} \ar[d]^{R(u)} \\
+      {R(n + 1)} \ar[r]^{\mathsf{fst}} & {R(n)}
+    }
+  \end{displaymath}
+  The functor $R$ is used to interpret unit expressions as objects
+  that can be quantified over in the internal logic of $q$. The
+  pullback condition is used to ensure that the Beck-Chevalley
+  condition required in \autoref{sec:fibrational-models} holds.
+\item A chosen object $N$ of $\cat{C}$ and a chosen object $P_N$ of
+  $\cat{P}_{R(1) \times N \times N}$. This will be used for the
+  $\mathsf{num}$ object.
+\end{enumerate}
+
+\begin{example}
+  Let the fibration $q$ be the sub-object fibration over sets, $q :
+  \Sub(\Set) \to \Set$, where objects of $\Sub(\Set)$ are pairs of
+  sets $A$ and a predicate $P$ on $A$. This has right-adjoints to
+  re-indexing and fibred cartesian closed structure.
+
+  Define the functor $R : \cat{B} \to \Set$ on objects as $R(n) =
+  (\mathbb{Q}^{>0})^n$, where $\mathbb{Q}^{>0}$ is the set of strictly
+  positive rational numbers. Morphisms $u : n \to 1$ are exactly terms
+  in the theory of abelian groups, so we interpret them as functions
+  $R(u) : (\mathbb{Q}^{>0})^n \to \mathbb{Q}^{>0}$ using the
+  multiplicative abelian group structure of $\mathbb{Q}^{>0}$. It can
+  be checked that the pullback property required of $R$ holds.
+
+  Choose $N$ to be the set $\mathbb{Q}$, and $P(k \in \mathbb{Q}^{>0},
+  q, q') \Leftrightarrow q' = kq$.
+\end{example}
+
+Given the data above, we can now generate an instance of the structure
+in \autoref{sec:fibrational-models}. We first generate a new fibration
+via a pullback:
+\begin{displaymath}
+  \xymatrix{
+    {\cat{E}} \ar[d]_r \ar[rr] \pullbackcorner
+    &
+    &
+    {\cat{P}} \ar[d]^q
+    \\
+    {\cat{B} \times \cat{C}} \ar[r]^(.4){R \times \Delta}
+    &
+    {\cat{C} \times (\cat{C} \times \cat{C})} \ar[r]^(.7)\times
+    &
+    {\cat{C}}
+  }
+\end{displaymath}
+In this diagram, the functor $\Delta : \cat{C} \to \cat{C} \times
+\cat{C}$ duplicates, and the functor $\times : \cat{C} \times (\cat{C}
+\times \cat{C}) \to \cat{C}$ uses the finite product structure of
+$\cat{C}$ to turn triples $(A,(B,C))$ of objects of $\cat{C}$ into
+objects $A \times B \times C$ of $\cat{C}$.
+
+Concretely, the objects of $\cat{E}$ are triple $(n, A, P)$, where $n$
+is an object of $\cat{B}$ (i.e. a natural number), $A$ is an object of
+$\cat{C}$ and $P$ is an object of the fibre $\cat{P}_{R(n) \times A
+  \times A}$.
+
+Set $p = \mathsf{fst} \circ r : \cat{E} \to \cat{B}$. We know $p$ to
+be a fibration because $r$ is a fibration by construction as a
+pullback, $\mathsf{fst}$ is trivially a fibration, and the composition
+of fibrations always gives fibrations.
+
+We now show that $p : \cat{E} \to \cat{B}$ has all the structure we
+required in \autoref{sec:fibrational-models}. We already know that
+$\cat{B}$ has finite products and an abelian group object, so it
+remains to show that $p$ is fibred cartesian closed, and that the
+required right adjoints to re-indexing along projections $\mathsf{fst}
+: n + 1 \to n$ exist.
+
+{\huge Not finished yet...}
+
+\end{document}
