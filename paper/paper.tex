@@ -879,13 +879,16 @@ type $A$.
   \rsem{A + B}{\relEnv{E}}\rho & = & \rsem{A}{\relEnv{E}}\rho \relSum \rsem{B}{\relEnv{E}}\rho \\
   \rsem{\forall i\mathord:s.A}{\relEnv{E}}\rho & = & \bigcap\{ \rsem{A}{\relEnv{E}}\rho' \sepbar \rho' \in \extends{\rho}{i:s} \}
 \end{eqnarray*}
-In this definition we have made use of the following two constructions
-on binary relations. If $R \in \Rel(X)$ and $S \in \Rel(Y)$, then $R
-\relArrow S \in \Rel(X \to Y)$ is defined as $\{ (f_1,f_2) \sepbar
-\forall (a_1,a_2) \in R.\ (f_1a_1,f_2a_2) \in S \}$. With the same
-assumptions on $R$ and $S$, the relation $R \relTimes S \in \Rel(X
-\times Y)$ is defined as $\{ ((a_1,b_1),(a_2,b_2)) \sepbar (a_1,a_2)
-\in R \land (b_1,b_2) \in S \}$. FIXME: do $\relSum$.
+In this definition we have made use of the following three
+constructions on binary relations. If $R \in \Rel(X)$ and $S \in
+\Rel(Y)$, then $R \relArrow S \in \Rel(X \to Y)$ is defined as $\{
+(f_1,f_2) \sepbar \forall (a_1,a_2) \in R.\ (f_1a_1,f_2a_2) \in S
+\}$. With the same assumptions on $R$ and $S$, the relation $R
+\relTimes S \in \Rel(X \times Y)$ is defined as $\{
+((a_1,b_1),(a_2,b_2)) \sepbar (a_1,a_2) \in R \land (b_1,b_2) \in S
+\}$. Finally, the relation $R \relSum S \in \Rel(X + Y)$ is defined as
+$\{ (\mathrm{inl}\ x, \mathrm{inl}\ x') \sepbar (x,x') \in R \} \cup
+\{ (\mathrm{inr}\ y, \mathrm{inr}\ y') \sepbar (y,y') \in S \}$.
 
 We extend the relational semantics to contexts of well-formed types by
 the following clauses:
