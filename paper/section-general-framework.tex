@@ -1,0 +1,618 @@
+\section{A General Framework}
+\label{sec:a-general-framework}
+
+We now develop a general framework for discussing
+algebraically-indexed types and their relational interpretations. We
+have chosen a particular order for our presentation: presenting the
+semantics of types before we present the syntax of programs and their
+typing relation. We have deliberately selected this order to emphasise
+the importance of establishing what types \emph{mean} over the
+language used to write programs.
+
+We first present, in \autoref{sec:algebraically-indexed-types}, the
+syntax of the language of algebraically-indexed types. Our general
+framework is parameterised by a choice of multi-sorted algebraic
+theory to be used for indexing types, and the collections of primitive
+types and
+operations. %FIXME: refer forwards to the names of the parameters
+We define substitution of index terms, and what it means for two types
+to be equal. Equality on types is generated from the chosen
+multi-sorted algebraic theory.
+
+We next present the semantics of types in
+\autoref{sec:semantics-algebraically-indexed-types}. Types are first
+interpreted without reference to the indexing terms: an
+\emph{index-erasure} semantics. The index-erasure semantics provides
+FIXME. Relational semantics...
+
+Throughout this section, we use Kennedy's original units of measure
+system as a running example in order to provide a concrete example of
+our general framework, and also to demonstrate that we have in fact
+generalised Kennedy's original development.
+
+\subsection{Algebraically-Indexed Types}
+\label{sec:algebraically-indexed-types}
+
+The indexing terms and types of our system are derived from the
+following data:
+\begin{enumerate}
+\item A collection $\SortSet$ of index sorts. We will use the
+  meta-syntactic variables $s,s_1,s_2,...$ and so on to stand for
+  arbitrary sorts taken from $\SortSet$.
+\item A collection $\IndexOpSet$ of index operations, with an
+  accompanying function $\indexOpArity : \IndexOpSet \to \SortSet^*
+  \times \SortSet$ (we use the notation $A^*$ to denote the set of
+  lists of elements of some set $A$). 
+\item A collection $\PrimTypeSet$ of primitive types, with an
+  accompanying function $\primTyArity : \PrimTypeSet \to
+  \SortSet^*$.
+\end{enumerate}
+
+\begin{example}[Units of Measure]
+  To instantiate our general framework as Kennedy's original units
+  of measure system, we would take the following settings. For the
+  collection of sorts we take $\SortSet = \{ \mathsf{unit} \}$. For
+  the collection of index operations, we take $\mathit{IndexOp} = \{1,
+  -\cdot-, -^{-1}\}$, with:
+  \begin{eqnarray*}
+    \indexOpArity{(1)} &=& ([],\mathsf{unit}) \\
+    \indexOpArity{(-\cdot-)} & = & ([\mathsf{unit},\mathsf{unit}],\mathsf{unit}) \\
+    \indexOpArity{(-^{-1})} & = & ([\mathsf{unit}],\mathsf{unit})
+  \end{eqnarray*}
+  The intended interpretation of these operations is group unit, group
+  multiplication and group inverse, respectively. When we discuss
+  equational theories for index expressions in
+  \autoref{sec:type-equality} below, we will impose the abelian group
+  laws on these operations.
+
+  The primitive types for the units of measure example are taken to be
+  $\PrimTypeSet = \{ \mathsf{num} \}$, with
+  $\primTyArity(\mathsf{num}) = [\mathsf{unit}]$.
+\end{example}
+
+We also assume a countably infinite collection of index expression
+variables. We will use meta-syntactic variables $i, i_1, i_2, ...$ and
+so on to stand for index expression variables. \emph{Index contexts}
+$\Delta = i_1 : s_1, ..., i_n : s_n$ are built from the index
+expression variable/sort pairs, such that all the index variable names
+are distinct.
+
+\begin{figure*}[t]
+  \centering
+  \textbf{Index contexts}\\
+
+  $\Delta = i_1 : s_1, ..., i_n : s_n$, where each $s_i \in \SortSet$ and no variable name is repeated.
+
+  \bigskip
+
+  \textbf{Well-sorted index expressions}
+  \begin{mathpar}
+    \inferrule* [right=IVar]
+    {i : s \in \Delta}
+    {\Delta \vdash i : s}
+    
+    \inferrule* [right=IOp]
+    {\indexOp{f} \in \mathit{IndexOp} \\
+      \indexOpArity(\indexOp{f}) = ([s_1,...,s_n], s) \\
+      \{\Delta \vdash e_j : s_j\}_{1 \leq j \leq n}}
+    {\Delta \vdash \indexOp{f}(e_1, ..., e_n) : s}
+  \end{mathpar}
+
+  \bigskip
+
+  \textbf{Well-indexed types}
+  \begin{mathpar}
+    \inferrule* [right=TyPrim]
+    {\tyPrimNm{X} \in \mathit{PrimType} \\\\
+      \primTyArity(\tyPrimNm{X}) = [s_1,...,s_n] \\
+      \{\Delta \vdash e_j : s_j\}_{1\leq j \leq n}}
+    {\Delta \vdash \tyPrim{X}{e_1,...,e_n} \isType}
+
+    \inferrule* [right=TyUnit]
+    { }
+    {\Delta \vdash \tyUnit \isType}
+
+    \inferrule* [right=TyArr]
+    {\Delta \vdash A \isType \\ \Delta \vdash B \isType}
+    {\Delta \vdash A \tyArr B \isType}
+
+    \inferrule* [right=TyTuple]
+    {\Delta \vdash A \isType \\ \Delta \vdash B \isType}
+    {\Delta \vdash A \tyProduct B \isType}
+
+    \inferrule* [right=TySum]
+    {\Delta \vdash A \isType \\ \Delta \vdash B \isType}
+    {\Delta \vdash A + B \isType}
+    
+    \inferrule* [right=TyForall] %FIXME: macroize forall
+    {\Delta, i : s \vdash A \isType}
+    {\Delta \vdash \forall i \mathord: s. A \isType}
+  \end{mathpar}
+  \caption{Index expressions and types}
+  \label{fig:indexes-and-types}
+\end{figure*}
+
+Given the above data, the rules in \autoref{fig:indexes-and-types}
+generate two judgements: well-sorted index terms $\Delta \vdash e : s$
+and well-indexed types $\Delta \vdash A \isType$. Since index
+variables may appear in types, types are only well-indexed with
+respect to some index context $\Delta$. The rules for well-sorted
+index terms are particularly simple: either an index term is a
+variable that appears in the context (rule \TirName{IVar}), or it is
+an application of an index operation taken from $\IndexOpSet$ to other
+index terms (rule \TirName{IOp}). The rules for well-indexed types
+include the usual rules for constructing types of the simply-typed
+$\lambda$-calculus with unit, sum and tuple types (rules
+\TirName{TyUnit}, \TirName{TyArr}, \TirName{TyTuple} and
+\TirName{TySum}). The rule \TirName{TyPrim} allows us to form, from a
+a primitive type $\tyPrimNm{X}$ and appropriately sorted index terms
+$e_1,...,e_n$, the well-indexed type $\tyPrim{X}{e_1,...,e_n}$. The
+rule \TirName{TyForall} permits the formation of universally
+quantified types, where the universal quantification ranges over all
+index terms of some sort.
+
+\subsubsection{Simultaneous Substitutions of Index Terms}
+\label{sec:simultaneous-substitution}
+
+We now define simultaneous substitutions of index terms. Given a pair
+of index contexts $\Delta$ and $\Delta' = i_1 \mathord: s_1, ..., i_n
+\mathord: s_n$, a simultaneous substitution $\sigma : \Delta
+\Rightarrow \Delta'$ is a sequence of terms $\sigma = (e_1,...,e_n)$
+such that for each $j$ such that $1 \leq j \leq n$, $\Delta \vdash e_j
+: s_j$. Given a simultaneous substitution $\sigma = (e_1,...,e_n) :
+\Delta \Rightarrow \Delta'$ and a particular variable $i_j : s_j$ in
+$\Delta'$, we write $\sigma(i_j)$ to stand for the index term $e_j$.
+
+
+
+\begin{enumerate}
+\item Define the action of simultaneous substitutions on index terms
+  and types: $\sigma^*e$ and $\sigma^*A$. State that simultaneous
+  substitution preserves well-sorted-ness and well-indexed-ness.
+\item Define composition of simultaneous substitutions
+\item Define lifting of simultaneous substitutions
+\item Define projection simultaneous substitutions
+\end{enumerate}
+
+\begin{lemma}
+  Let $\sigma : \Delta \Rightarrow \Delta'$ be a simultaneous
+  substitution.
+  \begin{enumerate}
+  \item If $\Delta' \vdash e : s$, then $\Delta \vdash \sigma^*e : s$; and
+  \item If $\Delta' \vdash A \isType$, then $\Delta \vdash \sigma^*A
+    \isType$.
+  \end{enumerate}
+\end{lemma}
+
+\subsubsection{Index Term Equality and Type Equality}
+\label{sec:type-equality}
+
+Much of the power of indexing types by the terms of an algebraic
+theory comes from the equations of the theory, and the fact that these
+equations are inherited by the types. In the units of measure example,
+the well-indexed types $\tyPrim{X}{u_1\cdot u_2}$ and $\tyPrim{X}{u_2
+  \cdot u_1}$ are considered equal by the type system, due to the
+commutativity of the $-\cdot-$ operation in the theory of abelian
+groups.
+
+In our general framework, the equations between types are derived from
+a set $\IndexAxiomSet$ of axioms $\Delta \vdash e \stackrel{ax}\equiv
+e' : s$ between well-sorted index terms. The constraint that axioms
+are well-sorted means that both $\Delta \vdash e : s$ and $\Delta
+\vdash e' : s$ for all axioms $(\Delta \vdash e \stackrel{ax}\equiv e'
+: s) \in \IndexAxiomSet$.
+
+Given a set $\IndexAxiomSet$ of axioms, we generate the judgmental
+equality between index terms $\Delta \vdash e \equiv e' : s$ by the
+following rules, which allow us to use substitution instances of
+axioms, and ensure that judgmental equality is a congruence relation
+with respect to the index operations in $\IndexOpSet$:
+\begin{mathpar}
+  \inferrule*
+  {(\Delta \vdash e \stackrel{ax}\equiv e' : s) \in \IndexAxiomSet \\
+    \sigma : \Delta' \Rightarrow \Delta}
+  {\Delta' \vdash \sigma^*e \equiv \sigma^*e' : s}
+
+  \inferrule*
+  {\Delta \vdash e_1 \equiv e'_1 : s_1 \\
+    \dots \\
+    \Delta \vdash e_n \equiv e'_n : s_n}
+  {\Delta \vdash \indexOp{f}(e_1, ..., e_n) \equiv \indexOp{f}(e'_1, ..., e'_n) : s}
+\end{mathpar}
+We also assume the standard reflexivity, symmetry and transitivity
+rules for equality.
+
+\begin{example}[Units of Measure]
+  For the units of measure system, seen as an instantiation of our
+  general framework, the set $\IndexAxiomSet$ consists of the abelian
+  group axioms:
+  \begin{displaymath}
+    \begin{array}{l}
+      u : \mathsf{unit} \vdash u \cdot 1 \stackrel{ax}\equiv u : \mathsf{unit} \\
+      u_1, u_2, u_3 : \mathsf{unit} \vdash u_1 \cdot (u_2 \cdot u_3) \stackrel{ax}\equiv (u_1 \cdot u_2) \cdot u_3 : \mathsf{unit} \\
+      u_1, u_2 : \mathsf{unit} \vdash u_1 \cdot u_2 \stackrel{ax}\equiv u_2 \cdot u_1 : \mathsf{unit} \\
+      u : \mathsf{unit} \vdash u \cdot u^{-1} \stackrel{ax}\equiv 1 : \mathsf{unit} \\
+    \end{array}
+  \end{displaymath}
+\end{example}
+
+The judgmental equality $\Delta \vdash e \equiv e' : s$ on index
+terms generates the judgmental equality $\Delta \vdash A \equiv B
+\isType$ on types. The basic rule generating judgmental equality on
+types states that two applications of primitive types are equal if
+their index term arguments are equal:
+\begin{displaymath}
+  \inferrule*
+  {\{ \Delta \vdash e_j \equiv e'_j : s_j\}_{1\leq j \leq n}}
+  {\Delta \vdash \tyPrim{X}{e_1,...,e_n} \equiv \tyPrim{X}{e'_1,...,e'_n} \isType}
+\end{displaymath}
+The rest of the rules for judgmental equality on types ensure that it
+is a congruence relation on types, and that it is an equivalence
+relation (i.e.~judgmental equality on types is reflexive, symmetric
+and transitive). For example, for universally quantified types we have
+the following congruence rule:
+\begin{displaymath}
+  \inferrule*
+  {\Delta, i : s \vdash A \equiv B \isType}
+  {\Delta \vdash \forall i\mathord:s.A \equiv \forall i\mathord:s.B \isType}
+\end{displaymath}
+The congruence rules for the other type formers are similar.
+
+The judgmental equalities on index terms and on types are preserved by
+substitution:
+\begin{lemma}
+  Let $\sigma : \Delta \Rightarrow \Delta'$ be a simultaneous
+  substitution.
+  \begin{enumerate}
+  \item If $\Delta' \vdash e \equiv e' : s$ then $\Delta \vdash
+    \sigma^*e \equiv \sigma^*e' : s$; and
+  \item If $\Delta' \vdash A \equiv B \isType$ then $\Delta \vdash
+    \sigma^*A \equiv \sigma^* B \isType$.
+  \end{enumerate}
+\end{lemma}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Semantics of Algebraically-Indexed Types}
+\label{sec:semantics-algebraically-indexed-types}
+
+Having defined the language of algebraically-indexed types that we
+will consider, we now turn to the denotational semantics of these
+types. In \autoref{sec:index-erasure-semantics} we define an
+\emph{index-erasure} interpretation of types that interprets every
+well-indexed type as a set, ignoring the indexing by algebraic
+terms. In the index erasure semantics, the semantics of a well-indexed
+type $\tyPrim{X}{e_1,...,e_n}$ is determined solely by the primitive
+type $\tyPrimNm{X}$ and not by the index terms $e_1,...,e_n$. Building
+on the index-erasure semantics, we define in
+\autoref{sec:relational-semantics} the \emph{relational}
+interpretation of types.
+
+% For both of our semantics of types, we state and prove two properties:
+% types that are syntactically equal have equal denotations, and that
+% substitution of index terms is interpreted via composition. These
+% properties ensure that our semantics of types is well-behaved.
+
+\subsubsection{The Index-Erasure Interpretation of Types}
+\label{sec:index-erasure-semantics}
+
+For each primitive type $\tyPrimNm{X} \in \PrimTypeSet$, we assume
+that $\tyPrimNm{X}$ is assigned a set $\tyPrimSem{\tyPrimNm{X}}$. We
+extend this to assign a set to every well-formed type by induction on
+the type structure by the following clauses.
+\begin{displaymath}
+  \begin{array}{cc}
+    \begin{array}{l}
+      \tySem{\tyUnit} \isDefinedAs \{*\} \\
+      \tySem{A \tyProduct B} \isDefinedAs \tySem{A} \times \tySem{B} \\
+      \tySem{A \tyArr B} \isDefinedAs \tySem{A} \to \tySem{B} \\
+    \end{array}
+    &
+    \begin{array}{l}
+      \tySem{A + B} \isDefinedAs \tySem{A} + \tySem{B} \\
+      \tySem{\tyPrim{X}{e_1,...,e_n}} \isDefinedAs \tyPrimSem{\tyPrimNm{X}} \\
+      \tySem{\forall i\mathord:s. A} \isDefinedAs \tySem{A}
+    \end{array}
+  \end{array}
+\end{displaymath}
+The interpretation of the unit type is a chosen one element set, and
+the interpretations of the function, tuple and sum types is simply by
+the corresponding construction on sets. The interpretation of the
+universal quantifier simply ignores the indexing: the interpretation
+of the type $\forall i\mathord:s.A$ is exactly the interpretation of
+the type $A$.
+
+\begin{example}[Units of Measure] Kennedy's original units of measure
+  system seen as an instantiation of our system uses the assignment
+  $\tyPrimSem{\mathsf{unit}} = \mathbb{Q}$, where $\mathbb{Q}$ is the
+  set of rational numbers.
+\end{example}
+
+Since the definition of the index-erasure interpretation has
+completely ignored the indexing, and type equality is defined as an
+extension of index equality, it is straightforward to prove that equal
+types have equal denotations when interpreted in the index-erasure
+semantics, and that substitution of index terms has no effect on the
+index-erasure interpretation of types:
+\begin{lemma}\label{lem:tyeqsubst-erasure}
+  \begin{enumerate}
+  \item If $\Delta \vdash A \equiv B \isType$ then $\tySem{A} =
+    \tySem{B}$; and
+  \item If $\Delta \vdash A \isType$ and $\sigma : \Delta' \Rightarrow
+    \Delta$, then $\tySem{\sigma^*A} = \tySem{A}$.
+  \end{enumerate}
+\end{lemma}
+
+\subsubsection{The Relational Interpretation of Types}
+\label{sec:relational-semantics}
+
+We now define the relational semantics of each well-indexed type
+$\Delta \vdash A \isType$ as some binary relation on the index-erasure
+interpretation of $A$. The relational interpretation that we define
+will be a \emph{logical relation}, so the relational interpretation of
+the function type will be the standard definition relating two
+functions if they take related inputs to related outputs. We also use
+the standard binary relational interpretations for the unit, tuple and
+sum types. (We define the standard relational interpretations formally
+below.)
+
+It remains to devise the relational interpretation of primitive types
+instantiated with index terms ($\tyPrim{X}{e_1,...,e_n}$), and
+universally quantified types ($\forall i\mathord:s. A$). In the
+index-erasure semantics, we assumed an assignment of a set
+$\tyPrimSem{\tyPrimNm{X}}$ to each primitive type $\tyPrimNm{X} \in
+\PrimTypeSet$. For the relational semantics of types
+$\tyPrim{X}{e_1,...,e_n}$, we will assume some assignment of a binary
+relation on $\tyPrimSem{\tyPrimNm{X}}$ to each primitive type
+$\tyPrimNm{X}$ \emph{and} sequence of appropriately sorted (in some
+index context $\Delta$) index terms $e_1,...,e_n$. Unlike the index
+erasure interpretation, we do not assume a fixed relational
+interpretation of the primitive types: in order to interpret the
+universal quantification type, 
+
+FIXME: explain that we must deal with the fact that we wish to
+quantify over extensions to the index context when we interpret the
+universal quantification type.
+
+For a set $X$, let $\Rel(X)$ be the set of binary relations $R
+\subseteq X \times X$ on $X$.
+
+Given an index context $\Delta$, a relation environment is a
+(dependently typed) function:
+\begin{displaymath}
+  \rho : (\tyPrimNm{X} \in \PrimTypeSet) \to (\Delta \Rightarrow \primTyArity(\tyPrimNm{X})) \to \Rel(\tyPrimSem{X})
+\end{displaymath}
+that respects equality on index terms: for any $\tyPrimNm{X} \in
+\PrimTypeSet$ and pair of simultaneous substitutions $\sigma : \Delta
+\Rightarrow \primTyArity(\tyPrimNm{X})$ and $\sigma' : \Delta
+\Rightarrow \primTyArity(\tyPrimNm{X})$ such that $\Delta \vdash
+\sigma \equiv \sigma' : \primTyArity(\tyPrimNm{X})$, then $\rho\
+\tyPrimNm{X}\ \sigma = \rho\ \tyPrimNm{X}\ \sigma'$.
+
+\textbf{FIXME: define the composition of a relational environment with
+  a simultaneous substitution}
+
+\textbf{FIXME: reword this part} We define our relational semantics of
+types with respect to a given collection of relation environments: we
+assume that, for each index context $\Delta$, we are given a set of
+relation environments $\relEnv{E}(\Delta)$. Note that this assignment
+of sets of relation environments to index contexts is not assumed to
+be compositional: it is not necessarily the case that the set of
+relational environments $\relEnv{E}(\Delta_1,\Delta_2)$ is defined in
+terms of $\relEnv{E}(\Delta_1)$ and $\relEnv{E}(\Delta_2)$. However,
+it must satisfy the following two properties:
+\begin{enumerate}
+\item Closure under simultaneous substitution of index terms: if $\rho
+  \in \relEnv{E}(\Delta)$ and $\sigma : \Delta' \Rightarrow \Delta$,
+  then $\rho \circ \sigma \in \relEnv{E}(\Delta')$.
+\item \textbf{FIXME: update the formulation of this condition} If we
+  have a pair of relation environments $\rho_1 \in \relEnv{E}(\Delta',
+  i\mathord:s')$ and $\rho_2 \in \relEnv{E}(\Delta)$, along with an
+  index context morphism $\sigma : \Delta' \Rightarrow \Delta$, such
+  that the outer edges of the following diagram commute, for all
+  primitive types $\tyPrimNm{X} \in \mathit{PrimType}$:
+  \begin{displaymath}
+    \xymatrix{
+      {\idxTms{\Delta}{s}} \ar[r]^(.45){\pi^*_{i\mathord:s'}} \ar[d]_{\sigma^*}
+      &
+      {\idxTms{\Delta,i\mathord:s'}{s}} \ar[d]^{\sigma_{s'}^*} \ar@/^/[rdd]^{\rho_1}
+      \\
+      {\idxTms{\Delta'}{s}} \ar[r]^(.45){\pi^*_{i\mathord:s'}} \ar@/_/[rrd]_{\rho_2}
+      &
+      {\idxTms{\Delta',i\mathord:s'}{s}} \ar@{.>}[dr]_\rho
+      \\
+      &
+      &
+      {\Rel(\tyPrimSem{\tyPrimNm{X}})}
+    }
+  \end{displaymath}
+  Then there exists a relation environment $\rho \in
+  \relEnv{E}(\Delta,i\mathord:s')$ such that the two triangles in the
+  bottom right of the diagram commute.
+\end{enumerate}
+
+\begin{example}[Units of Measure]
+  FIXME: give two examples of relational environments.
+\end{example}
+
+Given a relation environment $\rho \in \relEnv{E}(\Delta)$, we define
+the set of extensions $\extends{\rho}{i\mathord:s}$ of $\rho$ by an
+additional index variable $i\mathord:s$ to be the following:
+\begin{displaymath}
+  \extends{\rho}{i\mathord:s} = \{ \rho' \in \relEnv{E}(\Delta,i\mathord:s) \sepbar \rho' \circ \pi^*_{i\mathord:s} = \rho \}
+\end{displaymath}
+
+A given relation context $\rho \in \relEnv{E}(\Delta)$ is extended to
+a relation interpretation of any type $\Delta \vdash A \isType$ by
+induction its derivation. Thus, we define a relation
+$\rsem{A}{\relEnv{E}}{\rho} \in \Rel(\tySem{A})$ for each well-indexed
+type.
+\begin{eqnarray*}
+  \rsem{\tyUnit}{\relEnv{E}}\rho & \isDefinedAs & \{(*,*)\} \\
+  \rsem{\tyPrim{X}{e_1,...,e_n}}{\relEnv{E}}\rho & \isDefinedAs & \rho\ {\tyPrimNm{X}}\ (e_1,...,e_n) \\
+  \rsem{A \tyArr B}{\relEnv{E}}\rho & \isDefinedAs & \rsem{A}{\relEnv{E}}\rho \relArrow \rsem{B}{\relEnv{E}}\rho \\
+  \rsem{A \tyProduct B}{\relEnv{E}}\rho & \isDefinedAs & \rsem{A}{\relEnv{E}}\rho \relTimes \rsem{B}{\relEnv{E}}\rho \\
+  \rsem{A + B}{\relEnv{E}}\rho & \isDefinedAs & \rsem{A}{\relEnv{E}}\rho \relSum \rsem{B}{\relEnv{E}}\rho \\
+  \rsem{\forall i\mathord:s.A}{\relEnv{E}}\rho & \isDefinedAs & \bigcap\{ \rsem{A}{\relEnv{E}}\rho' \sepbar \rho' \in \extends{\rho}{i:s} \}
+\end{eqnarray*}
+In this definition we have made use of the following three
+constructions on binary relations. If $R \in \Rel(X)$ and $S \in
+\Rel(Y)$, then $R \relArrow S \in \Rel(X \to Y)$ is defined as $\{
+(f_1,f_2) \sepbar \forall (a_1,a_2) \in R.\ (f_1a_1,f_2a_2) \in S
+\}$. With the same assumptions on $R$ and $S$, the relation $R
+\relTimes S \in \Rel(X \times Y)$ is defined as $\{
+((a_1,b_1),(a_2,b_2)) \sepbar (a_1,a_2) \in R \land (b_1,b_2) \in S
+\}$. Finally, the relation $R \relSum S \in \Rel(X + Y)$ is defined as
+$\{ (\mathrm{inl}\ x, \mathrm{inl}\ x') \sepbar (x,x') \in R \} \cup
+\{ (\mathrm{inr}\ y, \mathrm{inr}\ y') \sepbar (y,y') \in S \}$.
+
+The following lemma states that the relation interpretation of types
+that we have defined in this section behaves well: the first part of
+the lemma states that two types that are judgmentally equal are given
+equal relational interpretations, and the second part states that
+substitution of index terms in types can be interpreted by the
+composition of relational environments with simultaneous
+substitutions. Note that both parts of the lemma depend on
+\lemref{lem:tyeqsubst-erasure} to be ``well-typed''.
+\begin{lemma}\label{lem:tyeqsubst-relational}
+  \begin{enumerate}
+  \item If $\Delta \vdash A \equiv B \isType$, then for all $\rho \in
+    \relEnv{E}(\Delta)$, $\rsem{A}{\relEnv{E}}{\rho} =
+    \rsem{B}{\relEnv{E}}{\rho}$;
+  \item If $\Delta \vdash A \isType$ and $\sigma : \Delta' \Rightarrow
+    \Delta$, then for all $\rho \in \relEnv{E}(\Delta')$,
+    $\rsem{\sigma^*A}{\relEnv{E}}\rho = \rsem{A}{\relEnv{E}}(\rho
+    \circ \sigma)$.
+  \end{enumerate}
+\end{lemma}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Well-typed Programs}
+\label{sec:well-typed-programs}
+
+The well-typed programs are defined in
+\autoref{fig:programs}. \textbf{FIXME: define the erasure
+  interpretation of terms}.
+
+\begin{figure*}[t]
+  \centering
+  \begin{mathpar}
+    \inferrule* [right=Var]
+    {\Delta \vdash \Gamma \isCtxt \\ x : A \in \Gamma}
+    {\Delta; \Gamma \vdash x : A}
+
+    \inferrule* [right=TyEq]
+    {\Delta; \Gamma \vdash M : A \\ \Delta \vdash A \equiv B \isType}
+    {\Delta; \Gamma \vdash M : B}
+
+    \inferrule* [right=Unit]
+    { }
+    {\Delta; \Gamma \vdash * : 1}
+
+    \inferrule* [right=Pair]
+    {\Delta; \Gamma \vdash M : A \\
+      \Delta; \Gamma \vdash N : B}
+    {\Delta; \Gamma \vdash (M, N) : A \tyProduct B}
+
+    \inferrule* [right=Proj1]
+    {\Delta; \Gamma \vdash M : A \tyProduct B}
+    {\Delta; \Gamma \vdash \pi_1 M : A}
+
+    \inferrule* [right=Proj2]
+    {\Delta; \Gamma \vdash M : A \tyProduct B}
+    {\Delta; \Gamma \vdash \pi_2 M : B}
+
+    \inferrule* [right=Inl]
+    {\Delta; \Gamma \vdash M : A}
+    {\Delta; \Gamma \vdash \mathrm{inl}\ M : A + B}
+
+    \inferrule* [right=Inr]
+    {\Delta; \Gamma \vdash M : B}
+    {\Delta; \Gamma \vdash \mathrm{inr}\ M : A + B}
+
+    \inferrule* [right=Cond]
+    {\Delta; \Gamma \vdash M : A + B \\
+      \Delta; \Gamma, x : A \vdash N_1 : C \\
+      \Delta; \Gamma, y : B \vdash N_2 : C}
+    {\Delta; \Gamma \vdash \textrm{case}\ M\ \textrm{of}\ \textrm{inl}\ x.N_1; \textrm{inr}\ y.N_2 : C}
+
+    \inferrule* [right=Abs]
+    {\Delta; \Gamma, x : A \vdash M : B}
+    {\Delta; \Gamma \vdash \lambda x.M : A \tyArr B}
+
+    \inferrule* [right=App]
+    {\Delta; \Gamma \vdash M : A \tyArr B \\
+      \Delta; \Gamma \vdash N : A}
+    {\Delta; \Gamma \vdash M N : B}
+
+    \inferrule* [right=UnivAbs]
+    {\Delta, i : s; \pi_{i\mathord:s}^*\Gamma \vdash M : A}
+    {\Delta; \Gamma \vdash \Lambda i. M : \forall i\mathord:s. A}
+
+    \inferrule* [right=UnivApp]
+    {\Delta; \Gamma \vdash M : \forall i\mathord:s. A \\ \Delta \vdash e : s}
+    {\Delta; \Gamma \vdash M [e] : (\id_\Delta, e)^*A}
+  \end{mathpar}
+  
+  \caption{Well-typed Programs}
+  \label{fig:programs}
+\end{figure*}
+
+% For any typing context $\Delta \vdash \Gamma \isCtxt$, we define its
+% index-erasure semantics $\ctxtSem{\Gamma}$ by induction on its
+% structure: $\ctxtSem{\epsilon} = 1$ and $\ctxtSem{\Gamma, x : A} =
+% \ctxtSem{\Gamma} \times \tySem{A}$, where $1$ is the canonical
+% one-element set.
+
+\begin{theorem}[Parametricity]
+  If $\Delta; \Gamma \vdash M : A$, then for all $\rho \in
+  \relEnv{E}(\Delta)$ and $\eta_1, \eta_2 \in \ctxtSem{\Gamma}$ such
+  that $(\eta_1, \eta_2) \in \rsem{\Gamma}{\relEnv{E}}\rho$, we have
+  $(\tmSem{M}\eta_1, \tmSem{M}\eta_2) \in \rsem{A}{\relEnv{E}}\rho$.
+\end{theorem}
+
+\begin{proof}
+  By induction on the derivation of $\Delta; \Gamma \vdash M : A$. The
+  three interesting cases follow:
+  \begin{description}
+  \item[Case \TirName{TyEq}] This case follows directly from
+    \lemref{lem:tyeqsubst-relational}.
+  \item[Case \TirName{UnivAbs}] In this case, $M = \Lambda i.M'$ and
+    $A = \forall i\mathord:s. A'$. We know from the induction
+    hypothesis that for all $\rho' \in \relEnv{E}(\Delta, i:s)$ and
+    $(\eta_1,\eta_2) \in \rsem{\pi_{i:s}^*\Gamma}{\relEnv{E}}\rho'$,
+    we have $(\tmSem{M'}\eta_1,\tmSem{M'}\eta_2) \in
+    \rsem{A'}{\relEnv{E}}\rho'$. We are given $\rho \in
+    \relEnv{E}(\Delta)$, $(\eta_1,\eta_2) \in
+    \rsem{\Gamma}{\relEnv{E}}\rho$ and $\rho'' \in
+    \extends{\rho}{i:s}$. Since $\rho'' \circ \pi^*_{i:s} = \rho$, we
+    have $(\eta_1,\eta_2) \in \rsem{\Gamma}{\relEnv{E}}\rho$ implies
+    $(\eta_1,\eta_2) \in \rsem{\Gamma}{\relEnv{E}}{(\rho'' \circ
+      \pi^*_{i:s})}$, and therefore $(\eta_1,\eta_2) \in
+    \rsem{\pi_{i:s}^*\Gamma}\rho''$ by \lemref{lem:tysubst-rel}. So we
+    can apply the induction hypothesis to get $(\tmSem{M'}\eta_1,
+    \tmSem{M'}\eta_2) \in \rsem{A'}{\relEnv{E}}\rho''$, and thus
+    $(\tmSem{\Lambda i.M'}\eta_1,\tmSem{\Lambda i.M'}\eta_2) \in
+    \rsem{A'}{\relEnv{E}}\rho''$, by the definition of $\tmSem{\Lambda
+      i. M'}$. Hence $(\tmSem{\Lambda i.M'}\eta_1,\tmSem{\Lambda
+      i.M'}\eta_2) \in \rsem{\forall
+      i\mathord:s. A'}{\relEnv{E}}\rho$, as required.
+  \item[Case \TirName{UnivApp}] In this case, $M = M'[e]$ and $A =
+    (\id_\Delta, e)^*A'$. By the induction hypothesis, and the
+    definition of $\rsem{\forall i\mathord:s.A'}{\relEnv{E}}\rho$, we
+    know that for all $\rho' \in \extends{\rho}{i:s}$,
+    $(\tmSem{M'}\eta_1, \tmSem{M'}\eta_2) \in
+    \rsem{A'}{\relEnv{E}}\rho'$. If we let $\rho' = \rho \circ
+    (\id_\Delta, e)^*$, we know that $\rho' \in \extends{\rho}{i:s}$,
+    because $\rho' \circ \pi^*_{i:s} = \rho \circ (\id_\Delta, e)^*
+    \circ \pi^*_{i:s} = \rho$. Hence we may deduce that
+    $(\tmSem{M'}\eta_1,\tmSem{M'}\eta_2) \in
+    \rsem{A'}{\relEnv{E}}{(\rho \circ (\id_\Delta,e)^*)}$ and thence,
+    by \lemref{lem:tysubst-rel}, conclude that $(\tmSem{M'}\eta_1,
+    \tmSem{M'}\eta_2) \in \rsem{(\id_\Delta,e)^*A'}{\relEnv{E}}\rho$,
+    as required.
+  \end{description}
+  The remaining cases are standard for proofs of the fundamental lemma
+  of logical relations for simply-typed systems.
+\end{proof}

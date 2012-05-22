@@ -1,0 +1,647 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Example Systems}\label{sec:example-systems}
+
+\subsection{Units of Measure}\label{sec:units-example}
+
+We now show that our general framework encompasses Kennedy's
+units-of-measure system \cite{kennedy97relational}. For our indexing
+algebraic theory, we have a single sort $\mathsf{unit}$ intended to
+represent composite units such as $\mathit{m}\ \mathit{s}^{-1}$ or
+$\mathit{kg}\ \mathit{m}^{-2}$. Units of measure form an abelian
+group, so we have three operations:
+\begin{mathpar}
+  1 : \mathsf{unit},
+
+  \cdot : \mathsf{unit}, \mathsf{unit} \to \mathsf{unit},
+
+  -^{-1} : \mathsf{unit} \to \mathsf{unit},
+\end{mathpar}
+subject to the normal abelian group axioms. We will elide the group
+multiplication operation and just write multiplication as
+juxtaposition: $u_1u_2$.
+
+We let $\mathit{PrimType}(\mathsf{unit}) = \{\tyPrimNm{num}$, and
+$\mathit{PrimType}(\cdot) = \{\tyPrimNm{rational}\}$. The intended
+reading is that the type $\tyPrim{num}{u_1u^2_2}$ represents
+quantities in units of $u_1u^2_2$, while values of type
+$\tyPrimNm{rational}$ represent dimensionless constants. We make a
+distinction between $\tyPrim{num}{1}$ and $\tyPrimNm{rational}$ for
+technical reasons arising from the relational interpretation below: we
+want the relation on $\tyPrim{num}{1}$ to be the identity relation,
+and the existence of $\mathit{toRat}$ and $\mathit{fromRat}$ forces
+this\footnote{Kennedy assumes that all relational environments set the
+  relation on $\tyPrim{num}{1}$ to be the identity relation, but we
+  cannot do this in general, because we do not necessarily have a
+  group structure in the indexing theory.}. To write programs using
+the $\tyPrimNm{num}$ type, we assume an typing context
+$\Gamma_{\textrm{units}}$ consisting of the following typed
+operations:
+\begin{eqnarray*}
+  \mathit{toRat} & : & \tyPrim{num}{1} \to \tyPrimNm{rational} \\
+  \mathit{fromRat} & : & \tyPrim{num}{1} \to \tyPrimNm{rational} \\
+  0 & : & \forall u. \tyPrim{num}{u} \\
+  1 & : & \tyPrim{num}{1} \\
+  + & : & \forall u. \tyPrim{num}{u} \to \tyPrim{num}{u} \to \tyPrim{num}{u} \\
+  - & : & \forall u. \tyPrim{num}{u} \to \tyPrim{num}{u} \to \tyPrim{num}{u} \\
+  * & : & \forall u_1 u_2. \tyPrim{num}{u_1} \to \tyPrim{num}{u_2} \to \tyPrim{num}{u_1u_2} \\
+  / & : & \forall u_1 u_2. \tyPrim{num}{u_1} \to \tyPrim{num}{u_2} \to \tyPrim{num}{u_1u_2^{-1}} + 1 \\
+  < & : & \forall u. \tyPrim{num}{u} \to \tyPrim{num}{u} \to \tyBool
+\end{eqnarray*}
+There are constants for zero and one, but only the constant for zero
+is polymorphic in the units. In \autoref{sec:units-semantics} below,
+we will following Kennedy by interpreting units of measure in terms of
+\emph{scalings} by rational numbers, where it will be apparent that
+the constant one cannot be unit-polymorphic: we can scale $0$ and
+still get $0$, but we cannot scale $1$ by an arbitrary rational number
+and expect to get $1$.
+
+\subsection{Euclidean Plane Geometry}\label{sec:2d-example}
+
+We now consider a type system for writing programs that are invariant
+under the translational symmetries of the Euclidean plane. We assume a
+single sort $\mathsf{translation}$. The sort $\mathsf{translation}$ is
+intended to represent translations in the plane, and comes equipped
+with abelian group structure that we write additively:
+\begin{mathpar}
+  0 : \mathsf{translation}
+
+  + : \mathsf{translation},\mathsf{translation} \to \mathsf{translation}
+
+  - : \mathsf{translation} \to \mathsf{translation}
+\end{mathpar}
+In indexing expressions involving variables of sort
+$\mathsf{translation}$, we use the shorthand $t_1 - t_2$ to stand for
+$t_1 + (-t_2)$.
+
+There are two primitive types:
+$\mathit{PrimType}(\mathsf{translation}) = \{\tyPrimNm{vec}\}$, and
+$\mathit{PrimType}(\cdot) = \{\tyPrimNm{real}\}$. The types
+$\tyPrim{vec}{t}$ represent two-dimensional vectors, indistinguishable
+up to some translation $t$. Values of type $\tyPrimNm{real}$ are just
+real numbers. To write programs using these types we assume a typing
+context $\Gamma_{\mathit{2D}}$ consisting of the following operations:
+\begin{eqnarray*}
+  + & : & \forall t_1 t_2\mathord:\mathsf{translation}.\tyPrim{vec}{t_1} \to \tyPrim{vec}{t_2} \to \tyPrim{vec}{t_1 + t_2} \\
+  - & : & \forall t\mathord:\mathsf{translation}. \tyPrim{vec}{t} \to \tyPrim{vec}{-t} \\
+  0 & : & \tyPrim{vec}{0} \\
+  * & : & \tyPrimNm{real} \to \tyPrim{vec}{0} \to \tyPrim{vec}{0} \\
+  \mathrm{getX} & : & \tyPrim{vec}{0} \to \tyPrimNm{real} \\
+  \mathrm{getY} & : & \tyPrim{vec}{0} \to \tyPrimNm{real} \\
+  \mathrm{vec}  & : & \tyPrimNm{real} \to \tyPrimNm{real} \to \tyPrim{vec}{0}
+\end{eqnarray*}
+The first three operations express the abelian group structure of
+2-dimensional real vectors. Note how the indexing tracks the
+operations on vectors: e.g.~addition on vectors is reflected by
+addition on the indicies. The final four operations are operations
+that are not invariant under arbitrary translation: multiplication by
+a scalar, and projection from and constructon of vectors. For the
+purposes of examples, we also assume a standard set of arithmetic and
+other operations on real numbers.
+
+As an example of the use of the above operations, consider the
+following type of a function for computing the area of a triangle
+described by three points. Since the area of a triangle is invariant
+under translations that are applied to all three points, we can
+quantify over all translations $t$:
+\begin{displaymath}
+  \mathit{area} : \forall t\mathord:\mathsf{translation}.\ \tyPrim{vec}{t} \to \tyPrim{vec}{t} \to \tyPrim{vec}{t} \to \tyPrimNm{real}
+\end{displaymath}
+Since the result is invariant under translation, it safe to assume
+that one of the vertexes of the triangle is the origin, and only
+specify two points to describe the triangle. So we might expect that
+the type of $\mathit{area}$ is isomorphic to this type:
+\begin{displaymath}
+  \mathit{area'} : \tyPrim{vec}{0} \to \tyPrim{vec}{0} \to \tyPrimNm{real}
+\end{displaymath}
+Given $\mathit{area'}$, we can define $\mathit{area}$ using the
+operations in $\Gamma_{\mathit{2D}}$:
+\begin{displaymath}
+  \mathit{area} = \Lambda t. \lambda v_1 v_2 v_3.\ \mathit{area'}\ (v_2 - v_1)\ (v_3 - v_1)
+\end{displaymath}
+and vice versa, we can define $\mathit{area'}$ in terms of
+$\mathit{area}$:
+\begin{displaymath}
+  \mathit{area'} = \lambda v_1 v_2. \mathit{area}\ [0]\ 0\ v_1\ v_2
+\end{displaymath}
+In \autoref{sec:2d-semantics} below, we will show that these two
+translations form a type isomorphism between the types of
+$\mathit{area}$ and $\mathit{area'}$.
+
+\paragraph{Alternative Transformation Groups?}
+We should also consider other groups of transformations for indexing:
+isometries, orthogonal transformations, rotations and reflections.
+
+\subsection{Security Typing and Non-interference}
+
+This example shows how our framework can accommodate non-interference
+properties common in security type systems. This example has a
+different flavour to the two previous examples because it does not
+concern invariance under the action of some group. We assume a single
+sort $\mathsf{principal}$, intended to represent (possibly composite)
+principals in a system. Principals are combined using the connectives
+of boolean logic:
+\begin{mathpar}
+  \top : \mathsf{principal}
+
+  \bot : \mathsf{principal}
+
+  \land : \mathsf{principal},\mathsf{principal} \to \mathsf{principal}
+
+  \lor : \mathsf{principal},\mathsf{principal} \to \mathsf{principal}
+
+  \Rightarrow : \mathsf{principal},\mathsf{principal} \to \mathsf{principal}
+
+  \lnot : \mathsf{principal} \to \mathsf{principal}
+\end{mathpar}
+For the equational theory of principals, we assume all the axioms of
+boolean algebra.
+
+Let $\mathit{PrimType}(\mathsf{principal}) = \{\tyPrimNm{T}\}$. The
+intended reading of a type $\tyPrim{T}{p}$ for some principal $p$ is
+that the existence of a value of this type indicates that the
+principal $p$ is ``happy''. To write programs, we assume the following
+typing context $\Gamma_{\mathit{sec}}$ of operations:
+\begin{eqnarray*}
+  \mathrm{proj} & : & \forall p_1 p_2\mathord:\mathsf{principal}.\ \tyPrim{T}{p_1 \land p_2} \to \tyPrim{T}{p_1} \\
+  \mathrm{combine} & : & \forall p_1 p_2\mathord:\mathsf{principal}.\ \tyPrim{T}{p_1} \to \tyPrim{T}{p_2} \to \tyPrim{T}{p_1 \land p_2}
+\end{eqnarray*}
+
+To illustrate the use of this application of our framework, we define
+a type synonym, for each type $A$ and principal $p$:
+\begin{displaymath}
+  T_pA = \tyPrim{T}{p} \to A
+\end{displaymath}
+For every principal $p$, we can endow the types $T_p-$ with the
+structure of a monad. This is due to the fact that it is an instance
+of the ``environment'' (or ``reader'') monad. Explicitly, the
+$\mathit{return}$ and $>>=$ of these monads are given by:
+\begin{eqnarray*}
+  \mathit{return} & : & A \to T_pA \\
+  \mathit{return} & = & \lambda a\ t.\ a \\
+  \\
+  (>>=) & : & T_pA \to (A \to T_pB) \to T_pB \\
+  (>>=) & = & \lambda a\ f\ t.\ f\ (a\ t)\ t
+\end{eqnarray*}
+The intended reading of a value of type $T_pA$ is as a piece of data
+of type $A$ that can only be accessed if the principal $p$ is
+happy. The existence of such a monad should allow us to draw parallels
+between our system and the Dependency Core Calculus (DCC) system of
+Abadi \emph{et al.} \cite{abadi99core}. The definition of a DCC monad
+as an instance of an environment monad follows Tse and Zdancewic's
+interpretation of DCC in System F, where they use System F
+parametricity to ensure non-interference properties.
+
+There is also a coercion operator between instances of $T_pA$ for
+different principals. Reading the type in terms of happiness, this
+says that if we have a piece of data that is protected by $p$, and
+happiness of $q$ implies happiness of $p$, then this data can also be
+accessed by $q$.
+\begin{eqnarray*}
+  \mathit{coerce} & : & \tyPrim{T}{q \Rightarrow p} \to T_pA \to T_qA \\
+  \mathit{coerce} & = & \lambda t_{qp}\ a\ t_q.\ a\ (\mathrm{combine}\ t_{qp}\ t_q)
+\end{eqnarray*}
+Here we have used the fact that the result of the application of
+$\mathrm{combine}$ has type $\tyPrim{T}{(q \Rightarrow p) \land
+  q}$. By the laws of boolean algebras---which we have assumed for our
+indexing theory---this is equal to the type $\tyPrim{T}{p}$. Thus we
+get access to the data stored in $a$, which is protected by $p$.
+
+Now suppose we have a term $M$ with the following typing:
+\begin{displaymath}
+  p,q:\mathsf{principal}; t_{qp} : \tyPrim{T}{q \Rightarrow p}, x : T_q (1 + 1) \vdash M : T_p (1 + 1)
+\end{displaymath}
+Intuitively, given the operations $\Gamma_{\mathit{sec}}$ we have
+defined above, it should be the case that $M$ can only be equivalent
+to the program which is constantly $\lambda t. \mathrm{inl}(*)$ or
+$\lambda t. \mathrm{inr}(*)$, because there is no useful data to be
+gained from the $t_{qp}$ argument, and a value of $\tyPrim{T}{q}$
+cannot be generated in order to get access to the data within the $x$
+argument. The application of our framework that we have presented in
+this section has a ``non-interference'' property: the value of $x$
+cannot interfere with the output. In \autoref{sec:sec-semantics} we
+show that this is indeed the case.
+
+\paragraph{Alternative Logics?}
+Above, we assumed that the indexing theory of principals was the
+theory of boolean algebras. As a consequence, a value of type $T_{p
+  \lor \lnot p}A$ can always be accessed, due to the exlcuded middle
+property of boolean logic. An interesting question is: what happens we
+we consider alternative logics. If we take the theory of Heyting
+algebras for our theory of principals, then data typed as $T_{p \lor
+  \lnot p}A$ can only be accessed if either $p$ or $\lnot p$ can be
+demonstrated. Considering an alternative logical theory alters the
+non-interference property of the type system.
+
+\paragraph{Alternative Presentations?}
+In the above we presented the theory of boolean logic by means of the
+equational theory of boolean algebras. This isn't necessarily the most
+convenient way of presenting a logic. An alternative approach would be
+to consider a trivial equational theory with no axioms, and
+incorporate the rules of logic consequence as operations in
+$\Gamma_{\mathit{sec}}$. For example, as a Hilbert system:
+\begin{eqnarray*}
+  \mathit{MP} & : & \forall p,q.\ \tyPrim{T}{p \Rightarrow q} \to \tyPrim{T}{p} \to \tyPrim{T}{q} \\
+  \mathit{k} & : & \forall p,q.\ \tyPrim{T}{p \Rightarrow q \Rightarrow p} \\
+  \mathit{s} & : & \forall p,q,r.\ \tyPrim{T}{(p \Rightarrow q \Rightarrow r) \Rightarrow (p \Rightarrow q) \Rightarrow p \Rightarrow r}
+\end{eqnarray*}
+Plus axioms for the other connectives.  Or possibly some kind of
+encoding of a natural deduction system?
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Consequences of Parametricity}
+
+We now give instances of our semantic framework for each of the three
+examples from \autoref{sec:example-systems}. For each of the three
+examples, we defined an indexing theory, a collection of primitive
+types, and a collection of primitive operations $\Gamma_X$. Below, we
+assign the ``obvious'' index-erasure semantics to each of the
+primitive types and operations: so we have $\tyPrimSem{X}$ for each
+primitive type $\tyPrimNm{X}$, and a $\eta_X \in \ctxtSem{\Gamma_X}$.
+
+The key question we wish to answer below is whether there is a family
+of sets of relation environments $\{\relEnv{E}_X(\Delta)\}_{\Delta}$
+that satisfies the following completeness property identified by
+Kennedy.
+\begin{equation}\label{eq:kennedy-completeness}
+  (\forall \Delta. \forall \rho \in \relEnv{E}'(\Delta). (\eta_X, \eta_X) \in \rsem{\Gamma_X}{\relEnv{E}'}{\rho}) \Leftrightarrow \relEnv{E}'\subseteq \relEnv{E}_X
+\end{equation}
+where the subset relation on families of sets of relation environments
+is defined as $\relEnv{E}_1 \subseteq \relEnv{E}_2$ if $\forall
+\Delta. \relEnv{E}_1(\Delta) \subseteq \relEnv{E}_2(\Delta)$.
+
+Such a completeness result allows us to derive inexpressibility
+results for a given instance of our general framework. Kennedy
+demonstrates this for the units of measure system by showing that a
+putative square root function of type $\forall u.\ \tyPrim{num}{u^2}
+\to \tyPrim{num}{u}$ can only ever be the constantly zero function (or
+non-terminating).
+
+\subsection{Units of Measure}\label{sec:units-semantics}
+
+For the units of measure example, we set $\tyPrimSem{num} =
+\tyPrimSem{rational} = \mathbb{Q}$, the set of rational numbers. We
+define $\eta_{\mathit{units}} \in \Gamma_{\mathit{units}}$ are defined
+to be the standard arithmetical and comparison operations on rational
+numbers, and $\mathit{toRat}$ and $\mathit{fromRat}$ are defined to be
+the identity functions. The division function (of type $/ : \forall
+u_1,u_2. \tyPrim{num}{u_1} \to \tyPrim{num}{u_2} \to
+\tyPrim{num}{u_1u^{-1}_2} + 1$) returns $\mathrm{inr}(*)$ only when
+its second argument is zero.
+
+Kennedy defines the following family of sets of relational
+environments. Note that, since we have assumed the abelian group
+axioms, the set $\idxTms{\Delta}{\mathsf{unit}}$ of indexing
+expressions quotiented by the equational theory, is an abelian group.
+\begin{displaymath}
+  \relEnv{E}_{\mathit{units}}(\Delta) = \left\{ \rho^{G,h} \sepbar
+    \begin{array}{l}
+      G\textrm{ is a subgroup of }\idxTms{\Delta}{\mathsf{unit}} \\
+      h : G \to \mathbb{Q}^{>0} \\
+      h\textrm{ is a group homomorphism}
+    \end{array}
+  \right\}
+\end{displaymath}
+where $\mathbb{Q}^{>0} = \{ q \in \mathbb{Q} \sepbar q > 0 \}$ and
+\begin{displaymath}
+  \rho^{G,h}_{\tyPrimNm{num}}(e) = \left\{
+    \begin{array}{ll}
+      \{(0,0)\} & \textrm{if }e \not\in G \\
+      \{(r,h(e)r) \sepbar r \in \mathbb{Q} \} & \textrm{if }u \in G
+    \end{array}
+  \right.
+\end{displaymath}
+
+\begin{theorem}
+  The family of sets of relational environments
+  $\relEnv{E}_{\mathit{units}}$ satisfies the completeness property
+  \hyperref[eq:kennedy-completeness]{(\ref*{eq:kennedy-completeness})}
+  above. That is, for all $\relEnv{E}'$:
+  \begin{displaymath}
+    (\forall \Delta.\forall \rho \in \relEnv{E}'(\Delta). (\eta_{\mathit{units}}, \eta_{\mathit{units}}) \in \rsem{\Gamma_{\mathit{units}}}{\relEnv{E}'}{\rho}) \Leftrightarrow \relEnv{E}'\subseteq \relEnv{E}_{\mathit{units}}
+  \end{displaymath}
+\end{theorem}
+
+\begin{proof}
+  (Following Kennedy).  From right to left, we have to check that for
+  each $\rho \in \relEnv{E}'(\Delta)$, where $\relEnv{E}' \subseteq
+  \relEnv{E}_{\mathit{units}}$, that each of the semantic
+  interpretations of the operations satisfies
+  $(\eta_{\mathit{units}}(\mathit{op}),
+  \eta_{\mathit{units}}(\mathit{op})) \in
+  \rsem{\Gamma(\mathit{op})}{\relEnv{E}'}\rho$. For instance,
+  multiplication has to satisfy: for all subgroups $G \subseteq
+  \idxTms{\Delta,u_1,u_2}{\mathsf{unit}}$ and all group homomorphisms
+  $h : G \to \mathbb{Q}^{>0}$, then $(q_1,q'_1) \in \rho^{G,h}(u_1)$
+  and $(q_2,q'_2) \in \rho^{G,h}(u_2)$ implies that $(q_1q_2,q'_1q'_2)
+  \in \rho^{G,h}(u_1u_2)$. There are four cases, depending on whether
+  $u_1 \in G$ and whether $u_2 \in G$. If $u_1 \not\in G$, then $q_1 =
+  q'_1 = 0$, so $q_1q_2 = 0$ and $q'_1q'_2 = 0$. Since $(0,0) \in
+  \rho^{G,h}(u')$ for any $u'$, $G$ and $h$, we are done. If $u_1 \in
+  G$ and $u_2 \in G$, then we need to show that $(q_1q_2,
+  h(u_1)q_1h(u_2)q_2) \in \rho^{G,h}(u_1u_2)$. By $h$ being a
+  homomorphism, we have $(q_1q_2, h(u_1)q_1h(u_2)q_2) = (q_1q_1,
+  h(u_1u_2)q_1q_2)$, which is in $\rho^{G,h}(u_1u_2)$. The cases for
+  the other operations are similar.
+
+  From left to right, we have the following properties of any
+  relational environment $\rho_{\tyPrimNm{num}} \in
+  \relEnv{E}'(\Delta)$, derived from the hypothesis that all the
+  operations in $\eta_{\mathit{units}}$ satisfy their types'
+  relational semantics.
+  \begin{enumerate}
+  \item\label{item:obsv-poly} By the existence of the function
+    $\mathit{toRat}$, the relation $\rho_{\tyPrimNm{num}}(1)$ is the
+    identity relation.
+  \item\label{item:zero-poly} For any unit expression $e$, $(0,0) \in
+    \rho_{\tyPrimNm{num}}(e)$.
+  \item \label{item:one-poly} $(1,1) \in \rho_{\tyPrimNm{num}}(1)$.
+  \item \label{item:mult-poly} For any unit expressions $e_1,e_2$,
+    such that $(q_1,q'_1) \in \rho_{\tyPrimNm{num}}(e_1)$ and
+    $(q_2,q'_2) \in \rho_{\tyPrimNm{num}}(e_2)$, we have $(q_1q_2,
+    q'_1q'_2) \in \rho_{\tyPrimNm{num}}(e_1e_2)$.
+  \item\label{item:div-poly} For any unit expressions $e_1,e_2$, such
+    that $(q_1,q'_1) \in \rho_{\tyPrimNm{num}}(e_1)$ and $(q_2,q'_2)
+    \in \rho_{\tyPrimNm{num}}(e_2)$, we have that either $q_2 = q'_2 =
+    0$, or we have that $(q_1/q_2,q'_1,q'_2) \in
+    \rho_{\tyPrimNm{num}}(e_1e_2^{-1})$.
+  \item\label{item:compare-poly} For any unit expression $e$, such
+    that $(q_1,q'_1) \in \rho_{\tyPrimNm{num}}(e)$ and $(q_2,q'_2) \in
+    \rho_{\tyPrimNm{num}}(e)$, we have $q_1 < q_2$ iff $q'_1 < q'_2$.
+  \end{enumerate}
+  We now show that if $(q,q') \in \rho_{\tyPrimNm{num}}(e)$ for some
+  unit expression $e$, then either $q = q' = 0$, or $q' = rq$ for some
+  $r \in \mathbb{Q}^{>0}$, determined by $e$. We know from
+  \ref{item:zero-poly} above that $q = q' = 0$ is a possibility. Now
+  consider what happens if $q \not= 0$: in this case, by
+  \ref{item:zero-poly} and \ref{item:compare-poly}, we know that $0 <
+  q$ iff $0 < q'$, so $q' \not= 0$, and $q'$ has the same sign as
+  $q$. So $q/q'$ exists and is in $\mathbb{Q}^{>0}$. Hence $q = rq'$
+  for $r = q/q'$. So now we know that if $(q,q') \in
+  \rho_{\tyPrimNm{num}}(e)$, and $q \not= 0$ or $q' \not= 0$ then
+  there exists an $r$ such that $q = rq'$.
+
+  We now show that the unit expression $e$ determines the value of
+  $r$. Assume that we have $(q_1,r_1q_1) \in \rho_{\tyPrimNm{num}}(e)$
+  and $(q_2,r_2q_2) \in \rho_{\tyPrimNm{num}}(e)$. By
+  \ref{item:div-poly}, we know that $(q_1/q_2, (r_1q_1)/(r_2q_2)) \in
+  \rho_{\tyPrimNm{num}}(1)$. By \ref{item:obsv-poly},
+  $\rho_{\tyPrimNm{num}}(1)$ is the equality relation, so we can
+  deduce that $r_1 = r_2$.
+
+  Now let $G$ be the subgroup of $\idxTms{\Delta}{\mathsf{unit}}$ such
+  that $e \in G$ implies that $\rho_{\tyPrimNm{num}}(e) \not=
+  \{(0,0)\}$. By the argument above, for each $e \in G$, there is a
+  unique $r \in \mathbb{Q}^{>0}$ such that $\rho_{\tyPrimNm{num}}(e) =
+  \{ (q,rq) \sepbar q \in \mathbb{Q} \}$. Thus there is a function $h
+  : G \to \mathbb{Q}^{>0}$. By \ref{item:one-poly} and
+  \ref{item:mult-poly}, $h$ is a group homomorphism. Thus we have
+  shown that $\rho_{\tyPrimNm{num}}$ has the form of
+  $\rho^{G,h}_{\tyPrimNm{num}}$ for some $G$ and $h$. Since
+  $\rho_{\tyPrimNm{num}}$ was an arbitrary element of
+  $\relEnv{E}'(\Delta)$, and $\Delta$ was arbitrary, we have shown
+  that $\relEnv{E}' \subseteq \relEnv{E}_{\mathit{units}}$.
+\end{proof}
+
+Some notes towards a generalisation:
+\begin{itemize}
+\item By inspecting Kennedy's proof, we can see that the operations of
+  addition and subtraction do not play any role, save for an
+  obligation to prove that they satisfy the relational semantics of
+  their types. This follows just by distributivity of addition over
+  multiplication.
+\item Kennedy's proof does not rely on any particular features of
+  $\mathbb{Q}$ other than the fact that it is an ordered field. By
+  inspecting the proof, it is possible to see that if we remove the
+  comparison operation $< : \forall u. \tyPrim{num}{u} \to
+  \tyPrim{num}{u} \to \tyPrimNm{bool}$ from $\Gamma_{\mathit{units}}$,
+  then the appropriate family of sets of relational environments uses
+  homomorphisms into the set of non-zero rationals:
+  \begin{displaymath}
+    \begin{array}{l}
+      \relEnv{E}_{\mathit{units}\backslash\{<\}}(\Delta) = \\
+      \quad\left\{ \rho^{G,h} \sepbar
+        \begin{array}{l}
+          G\textrm{ is a subgroup of }\idxTms{\Delta}{\mathsf{unit}} \\
+          h : G \to \mathbb{Q}^{\not=0} \\
+          h\textrm{ is a group homomorphism}
+        \end{array}
+      \right\}
+    \end{array}
+  \end{displaymath}
+  To complete the step in the proof where the comparison operation was
+  used, we use the division operation to show that if $(q,q') \in
+  \rho_{\tyPrimNm{num}}(e)$ for some $e$, and $q \not= 0$, then $q'
+  \not= 0$ (but they need not necessarily have the same sign).
+
+  Just as Kennedy's proof generalises to an arbitrary ordered field,
+  if we remove the comparison operation we can generalise to an
+  arbitrary field as the underlying semantics of $\tyPrimNm{num}$ and
+  $\tyPrimNm{rational}$.
+\end{itemize}
+
+\subsection{Euclidean Plane Geometry}\label{sec:2d-semantics}
+
+We set $\tyPrimSem{vec} = \mathbb{R}^2$, and $\tyPrimSem{real} =
+\mathbb{R}$. The semantic interpretation $\eta_{\mathit{2D}}$ of the
+operations in $\Gamma_{\mathit{2D}}$ consists of the standard vector
+zero, addition, negation and scaling in $\mathbb{R}^2$, along with
+projections to interpret $\mathit{getX}$ and $\mathit{getY}$, and
+pairing to interpret $\mathit{vec}$.
+
+Let
+\begin{displaymath}
+  \begin{array}{l}
+    \relEnv{E}_{\mathit{2D}}(\Delta) = \\
+    \quad\left\{ \rho^{G,h} \sepbar
+      \begin{array}{l}
+        G\textrm{ is a subgroup of }\idxTms{\Delta}{\mathsf{translation}} \\
+        h : G \to \mathbb{R}^2 \\
+        h\textrm{ is a group homomorphism}
+      \end{array}
+    \right\}
+  \end{array}
+\end{displaymath}
+where
+\begin{displaymath}
+  \rho^{G,h}_{\tyPrimNm{vec}}(t) = \left\{
+    \begin{array}{ll}
+      \{\} & \textrm{if }t \not\in G \\
+      \{(v,h(t) + v) \sepbar v \in \mathbb{R}^2 \} & \textrm{if }t \in G
+    \end{array}
+  \right.
+\end{displaymath}
+Note that, unlike the units of measure example above, the pair $(0,0)$
+need not appear in every relation. This is because we do not have a
+translation polymorphic constant like $0 : \forall u. \tyPrim{num}{u}$
+in the units of measure example.
+
+\begin{theorem}
+  The family of sets of relational environments
+  $\relEnv{E}_{\mathit{units}}$ satisfies the completeness property
+  \hyperref[eq:kennedy-completeness]{(\ref*{eq:kennedy-completeness})}
+  above. That is, for all $\relEnv{E}'$:
+  \begin{displaymath}
+    (\forall \Delta.\forall \rho \in \relEnv{E}'(\Delta). (\eta_{\mathit{2D}}, \eta_{\mathit{2D}}) \in \rsem{\Gamma_{\mathit{2D}}}{\relEnv{E}'}{\rho}) \Leftrightarrow \relEnv{E}'\subseteq \relEnv{E}_{\mathit{2D}}
+  \end{displaymath}
+\end{theorem}
+
+\begin{proof}
+  From right to left, we must check that each operation satisfies the
+  relational interpretation of its type. This is very similar to the
+  case for the units of measure example above.
+
+  From left to right, we have the following properties of any
+  relational environment $\rho_{\tyPrimNm{vec}} \in
+  \relEnv{E}'(\Delta)$, derived from the hypothesis that all the
+  operations in $\eta_{\mathit{2D}}$ satisfy their types'
+  relational semantics.
+  \begin{enumerate}
+  \item\label{item:obsv-vec-poly} By the existence of the functions
+    $\mathit{getX}$ and $\mathit{getY}$, the relation
+    $\rho_{\tyPrimNm{vec}}(0)$ is the identity relation.
+  \item \label{item:zero-vec-poly} $(0,0) \in \rho_{\tyPrimNm{vec}}(0)$.
+  \item \label{item:add-vec-poly} For any translation expressions $t_1,t_2$,
+    such that $(v_1,v'_1) \in \rho_{\tyPrimNm{vec}}(t_1)$ and
+    $(v_2,v'_2) \in \rho_{\tyPrimNm{vec}}(t_2)$, we have $(v_1 + v_2,
+    v'_1 + v'_2) \in \rho_{\tyPrimNm{vec}}(t_1 + t_2)$.
+  \item\label{item:neg-vec-poly} For any translation expression $t$,
+    such that $(v,v') \in \rho_{\tyPrimNm{vec}}(t)$, we have that
+    $(-v,-v') \in \rho_{\tyPrimNm{vec}}(-t)$.
+  \end{enumerate}
+  We now show that if $(v,v') \in \rho_{\tyPrimNm{vec}}(t)$ for some
+  translation expression $t$, then $v' = w + v$ for some $w \in
+  \mathbb{R}^2$, where $w$ is determined by $t$. If we are given
+  $(v,v') \in \rho_{\tyPrimNm{vec}}(t)$, then we can set $w = v' -
+  v$. This is uniquely determined by $t$: if we have $(v, w + v) \in
+  \rho_{\tyPrimNm{vec}}(t)$ and $(v, w' + v) \in
+  \rho_{\tyPrimNm{vec}}(t)$, then by \ref{item:add-vec-poly} and
+  \ref{item:neg-vec-poly}, we have $(v - v, (w + v) - (w' + v)) \in
+  \rho_{\tyPrimNm{vec}}(0)$. By \ref{item:obsv-vec-poly}, we know that
+  $\rho_{\tyPrimNm{vec}}(0)$ is the identity relation, so we can
+  deduce that $w = w'$.
+
+  Now define $G \subseteq \idxTms{\Delta}{\mathsf{translation}}$ to
+  have $t \in G$ if $\rho_{\tyPrimNm{vec}}(t) \not= \{\}$. Since the
+  translation factor $w$ is determined by $t$, we can define a
+  function $h : G \to \mathbb{R}^2$. By \ref{item:zero-vec-poly} and
+  \ref{item:add-vec-poly}, $h$ is a group homomorphism, and $(v,v')
+  \in \rho_{\tyPrimNm{vec}}$ iff $v = h(t) + v'$. Thus
+  $\rho_{\tyPrimNm{vec}}$ is of the form
+  $\rho^{G,h}_{\tyPrimNm{vec}}$, as required.
+\end{proof}
+
+Some more notes:
+\begin{enumerate}
+\item The proof is slightly simpler than the case for the units of
+  measure example above because the underlying semantics of
+  $\tyPrimNm{vec}$ forms an abelian group, so we can just use inverses
+  to determine the difference factor $w$, and we don't have to deal
+  with the possibility of division by zero.
+\item The proof above should generalise to any abelian group.
+\item Generalising to non-abelian groups does not look
+  straightforward: the step that shows that the translation factor $w$
+  is uniquely determined by the translation expression $t$ fails. We
+  end up with
+  \begin{displaymath}
+    0 = w + v + (-w') + (-v)
+  \end{displaymath}
+  from which it is not possible to conclude that $w = w'$. (Maybe
+  something using normal subgroups would work?)
+\item A slightly different example is obtained by considering
+  rotations rather than translations (we consider rotations as an
+  additive abelian group). In this case, we could have the following
+  typed operations:
+  \begin{eqnarray*}
+    0 & : & \forall r.\ \tyPrim{vec}{r} \\
+    + & : & \forall r.\ \tyPrim{vec}{r} \to \tyPrim{vec}{r} \to \tyPrim{vec}{r} \\
+    - & : & \forall r.\ \tyPrim{vec}{r} \to \tyPrim{vec}{r} \\
+    * & : & \forall r.\ \tyPrimNm{real} \to \tyPrim{vec}{r} \to \tyPrim{vec}{r} \\
+    \mathit{norm} & : & \forall r. \tyPrim{vec}{r} \to \tyPrimNm{real} \\
+    \mathit{angleOf} & : & \forall r. \tyPrim{vec}{r} \to \tyPrim{rot}{r} + 1 \\
+    \mathit{rotateBy} & : & \forall r_1 r_2. \tyPrim{vec}{r_1} \to \tyPrim{rot}{r_2} \to \tyPrim{vec}{r_1 + r_2} \\
+    0_{\mathit{rot}} & : & \tyPrim{rot}{0} \\
+    +_{\mathit{rot}} & : & \forall r_1 r_2. \tyPrim{rot}{r_1} \to \tyPrim{rot}{r_2} \to \tyPrim{rot}{r_1 + r_2} \\
+    -_{\mathit{rot}} & : & \forall r. \tyPrim{rot}{r} \to \tyPrim{rot}{-r}
+  \end{eqnarray*}
+  where $\tyPrimSem{vec} = \mathbb{R}^2$, as before, and
+  $\tyPrimSem{rot} = \mathrm{SO}(2)$, the group of rotations of the
+  plane. The operation $\mathit{angleOf}$ is intended to return
+  $\mathrm{inr}(*)$ when the provided vector is zero.
+
+  In this case, rotations form an abelian group, so we can re-use the
+  proof above to give a family of sets of relational environments that
+  is complete for the group operations on rotations. The fact that
+  rotations are linear admits the typing of the first four
+  operations. The existence of the $\mathit{angleOf}$ and
+  $\mathit{rotateBy}$ functions allow us to determine ``rotation
+  factors'' between arbitrary pairs of vectors.
+
+  I conjecture that the following definition of
+  $\relEnv{E}_{\mathit{2Drot}}$ satisfies the completeness criterion,
+  with the standard interpretation of the operations above.
+  \begin{displaymath}
+    \begin{array}{l}
+      \relEnv{E}_{\mathit{2Drot}}(\Delta) = \\
+      \quad\left\{ \rho^{G,h} \sepbar
+        \begin{array}{l}
+          G\textrm{ is a subgroup of }\idxTms{\Delta}{\mathsf{rotation}} \\
+          h : G \to \mathrm{SO}(2) \\
+          h\textrm{ is a group homomorphism}
+        \end{array}
+      \right\}
+    \end{array}
+  \end{displaymath}
+  where
+  \begin{displaymath}
+    \rho^{G,h}_{\tyPrimNm{vec}}(r) = \left\{
+      \begin{array}{ll}
+        \{(0,0)\} & \textrm{if }t \not\in G \\
+        \{(v,h(r) v) \sepbar v \in \mathbb{R}^2 \} & \textrm{if }t \in G
+      \end{array}
+    \right.
+  \end{displaymath}
+  and
+  \begin{displaymath}
+    \rho^{G,h}_{\tyPrimNm{rot}}(r) = \left\{
+      \begin{array}{ll}
+        \{\} & \textrm{if }t \not\in G \\
+        \{(s,h(r) s) \sepbar s \in \mathrm{SO}(2) \} & \textrm{if }t \in G
+      \end{array}
+    \right.
+  \end{displaymath}
+\end{enumerate}
+
+\subsection{Security Typing}\label{sec:sec-semantics}
+
+In this case, we let $\tyPrimSem{T} = \{*\}$, and the operations
+$\mathit{proj}$ and $\mathit{combine}$ are given the only possible
+interpretations.
+
+I conjecture that the follow definition works:
+\begin{displaymath}
+  \begin{array}{l}
+    \relEnv{E}_{\mathit{sec}}(\Delta) = \\
+    \quad\left\{ \rho^{h} \sepbar
+      \begin{array}{l}
+        h : \idxTms{\Delta}{\mathsf{principal}} \to \{\top,\bot\} \\
+        h\textrm{ is a boolean algebra homomorphism}
+      \end{array}
+    \right\}
+  \end{array}
+\end{displaymath}
+where
+\begin{displaymath}
+  \rho^{h}_{\tyPrimNm{T}}(p) = \left\{
+    \begin{array}{ll}
+      \{\} & \textrm{if }h(p) = \bot \\
+      \{(*,*) \} & \textrm{if }h(p) = \top
+    \end{array}
+  \right.
+\end{displaymath}
+
+One can compare this definition to the previous ones by considering
+the boolean algebra homomorphism as defining a sub-boolean algebra of
+$\idxTms{\Delta}{\mathsf{principal}}$.

@@ -1,0 +1,200 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Semantics and Parametricity Theorem}
+
+There is an index-erasure semantics, and a relational semantics. The
+relational semantics allows us to derive free theorems about the
+index-erasure semantics.
+
+\subsection{Index Erasure Semantics}
+
+We now define a semantics of types and terms that ignores all indexing
+information. By defining this semantics we can easily see that the
+indexing information can be discarded before execution.
+
+\subsubsection{Index-Erasure Semantics of Types}
+
+For each primitive type $\tyPrimNm{X} \in \mathit{PrimType}(s)$, for
+some sort $s$, and for the primitive types $\tyPrimNm{X} \in
+\mathit{PrimType}(\cdot)$, we assume that $\tyPrimNm{X}$ is assigned a
+set $\tyPrimSem{X}$. We extend this to assign a set to every
+well-formed type by induction on the type structure. To interpret the
+universal quantifier, we simply ignore the indexing:
+\begin{eqnarray*}
+  \tySem{\tyUnit} & = & \{*\} \\
+  \tySem{\tyPrim{X}{e}} & = & \tyPrimSem{X} \\
+  \tySem{\tyPrim{X}} & = & \tyPrimSem{X} \\
+  \tySem{A \tyProduct B} & = & \tySem{A} \times \tySem{B} \\
+  \tySem{A \tyArr B} & = & \tySem{A} \to \tySem{B} \\
+  \tySem{A + B} & = & \tySem{A} + \tySem{B} \\
+  \tySem{\forall i\mathord:s. A} & = & \tySem{A}
+\end{eqnarray*}
+
+Since our definition has completely ignored the indexing, and type
+equality is defined as an extension of index equality, we can easily
+see that equal types have equal denotations in our index-erasure
+semantics:
+\begin{lemma}\label{lem:tyeq-erasure}
+  If $\Delta \vdash A \equiv B : \sortType$ then $\tySem{A} =
+  \tySem{B}$.
+\end{lemma}
+
+Moreover, the index-erasure semantics is insensitive to index
+substitutions.
+\begin{lemma}\label{lem:tysubst-erasure}
+  If $\Delta \vdash A : \sortType$ and $\sigma : \Delta' \Rightarrow
+  \Delta$, then $\tySem{\sigma^*A} = \tySem{A}$.
+\end{lemma}
+
+For any typing context $\Delta \vdash \Gamma \isCtxt$, we define its
+index-erasure semantics $\ctxtSem{\Gamma}$ by induction on its
+structure: $\ctxtSem{\epsilon} = 1$ and $\ctxtSem{\Gamma, x : A} =
+\ctxtSem{\Gamma} \times \tySem{A}$, where $1$ is the canonical
+one-element set.
+
+\subsubsection{Index-Erasure Semantics of Terms}
+
+For a well-formed term $\Delta; \Gamma \vdash e : A$, we define a
+function $\tmSem{e} : \ctxtSem{\Gamma} \to \tySem{A}$, completely
+ignoring the indexing information. In light of
+\lemref{lem:tyeq-erasure} and \lemref{lem:tysubst-erasure}, we may
+define this function directly on the syntax of well-typed terms,
+rather than on the typing derivations. We define $\tmSem{e}$ by the
+following clauses:
+\begin{eqnarray*}
+  \tmSem{x}\eta & = & \eta_x \\
+  \tmSem{(M,N)}\eta & = & (\tmSem{M}\eta, \tmSem{N}\eta) \\
+  \tmSem{\pi_1M}\eta & = & \pi_1(\tmSem{M}\eta) \\
+  \tmSem{\pi_2M}\eta & = & \pi_2(\tmSem{M}\eta) \\
+  \tmSem{\mathrm{inl}\ M}\eta & = & \mathrm{inl}\ (\tmSem{M}\eta) \\
+  \tmSem{\mathrm{inr}\ M}\eta & = & \mathrm{inr}\ (\tmSem{M}\eta) \\
+  \left\llbracket
+    \begin{array}{l}
+      \textrm{case}\ M\ \textrm{of}\\
+      \textrm{inl}\ x.N_1;\\
+      \textrm{inr}\ y.N_2
+    \end{array}\right\rrbracket^{\mathit{tm}}\eta & = &
+  \left\{
+    \begin{array}{ll}
+      \tmSem{N_1}(\eta,a) & \textrm{if }\tmSem{M}\eta = \mathrm{inl}(a) \\
+      \tmSem{N_2}(\eta,b) & \textrm{if }\tmSem{M}\eta = \mathrm{inr}(b)
+    \end{array}
+  \right. \\
+  \tmSem{\lambda x. M}\eta & = & \lambda v. \tmSem{M}(\eta, v) \\
+  \tmSem{M N}\eta & = & (\tmSem{M}\eta) (\tmSem{N}\eta) \\
+  \tmSem{\Lambda i.\ M}\eta & = & \tmSem{M}\eta \\
+  \tmSem{M[e]}\eta & = & \tmSem{M}\eta
+\end{eqnarray*}
+In the above, we have written $\eta_x$ to denote the appropriate
+projection from $\eta$ to get the position corresponding to the
+variable $x$ in the context.
+
+\subsection{Relational Semantics}
+
+\subsubsection{Relation Environments}
+
+For a set $X$, let $\Rel(X)$ be the set of binary relations on
+$X$. For an index context $\Delta$, a \emph{relation environment} is a
+family of functions $\rho = \{ \rho_{\tyPrimNm{X}} :
+\idxTms{\Delta}{s} \to \Rel(\tyPrimSem{X}) \}_{s \in \mathit{Sort},
+  \tyPrimNm{X} \in \mathit{PrimType}(s)}$.
+
+We define our relational semantics of types with respect to a given
+collection of relation environments: we assume that, for each index
+context $\Delta$, we are given a set of relation environments
+$\relEnv{E}(\Delta)$. This family must satisfy the following two
+properties:
+\begin{enumerate}
+\item Closure under re-indexing by index context morphisms: if $\rho
+  \in \relEnv{E}(\Delta)$ and $\sigma : \Delta' \Rightarrow \Delta$,
+  then $\rho \circ \sigma^* \in \relEnv{E}(\Delta')$.
+\item If we have a pair of relation environments $\rho_1 \in
+  \relEnv{E}(\Delta', i\mathord:s')$ and $\rho_2 \in
+  \relEnv{E}(\Delta)$, along with an index context morphism $\sigma :
+  \Delta' \Rightarrow \Delta$, such that the outer edges of the
+  following diagram commute, for all primitive types $\tyPrimNm{X} \in
+  \mathit{PrimType}$:
+  \begin{displaymath}
+    \xymatrix{
+      {\idxTms{\Delta}{s}} \ar[r]^(.45){\pi^*_{i\mathord:s'}} \ar[d]_{\sigma^*}
+      &
+      {\idxTms{\Delta,i\mathord:s'}{s}} \ar[d]^{\sigma_{s'}^*} \ar@/^/[rdd]^{\rho_1}
+      \\
+      {\idxTms{\Delta'}{s}} \ar[r]^(.45){\pi^*_{i\mathord:s'}} \ar@/_/[rrd]_{\rho_2}
+      &
+      {\idxTms{\Delta',i\mathord:s'}{s}} \ar@{.>}[dr]_\rho
+      \\
+      &
+      &
+      {\Rel(\tyPrimSem{X})}
+    }
+  \end{displaymath}
+  Then there exists a relation environment $\rho \in
+  \relEnv{E}(\Delta,i\mathord:s')$ such that the two triangles in the
+  bottom right of the diagram commute.
+\end{enumerate}
+
+Given a relation environment $\rho \in \relEnv{E}(\Delta)$, we define
+the set of extensions $\extends{\rho}{i\mathord:s}$ of $\rho$ by an
+additional index variable $i\mathord:s$ to be the following:
+\begin{displaymath}
+  \extends{\rho}{i\mathord:s} = \{ \rho' \in \relEnv{E}(\Delta,i\mathord:s) \sepbar \rho' \circ \pi^*_{i\mathord:s} = \rho \}
+\end{displaymath}
+
+\subsubsection{Relational Semantics of Types}
+
+%FIXME: re-word this
+A given relation context $\rho \in \relEnv{E}(\Delta)$ is extended to
+a relation interpretation of any type $\Delta \vdash A : \sortType$ by
+induction its derivation. Thus, we define a relation
+$\rsem{A}{\relEnv{E}}{\rho} \in \Rel(\tySem{A})$ for each well-indexed
+type.
+\begin{eqnarray*}
+  \rsem{\tyUnit}{\relEnv{E}}\rho & = & \{(*,*)\} \\
+  \rsem{\tyPrim{X}{e_1,...,e_n}}{\relEnv{E}}\rho & = & \rho\ {\tyPrimNm{X}}\ (e_1,...,e_n) \\
+  \rsem{A \tyArr B}{\relEnv{E}}\rho & = & \rsem{A}{\relEnv{E}}\rho \relArrow \rsem{B}{\relEnv{E}}\rho \\
+  \rsem{A \tyProduct B}{\relEnv{E}}\rho & = & \rsem{A}{\relEnv{E}}\rho \relTimes \rsem{B}{\relEnv{E}}\rho \\
+  \rsem{A + B}{\relEnv{E}}\rho & = & \rsem{A}{\relEnv{E}}\rho \relSum \rsem{B}{\relEnv{E}}\rho \\
+  \rsem{\forall i\mathord:s.A}{\relEnv{E}}\rho & = & \bigcap\{ \rsem{A}{\relEnv{E}}\rho' \sepbar \rho' \in \extends{\rho}{i:s} \}
+\end{eqnarray*}
+In this definition we have made use of the following three
+constructions on binary relations. If $R \in \Rel(X)$ and $S \in
+\Rel(Y)$, then $R \relArrow S \in \Rel(X \to Y)$ is defined as $\{
+(f_1,f_2) \sepbar \forall (a_1,a_2) \in R.\ (f_1a_1,f_2a_2) \in S
+\}$. With the same assumptions on $R$ and $S$, the relation $R
+\relTimes S \in \Rel(X \times Y)$ is defined as $\{
+((a_1,b_1),(a_2,b_2)) \sepbar (a_1,a_2) \in R \land (b_1,b_2) \in S
+\}$. Finally, the relation $R \relSum S \in \Rel(X + Y)$ is defined as
+$\{ (\mathrm{inl}\ x, \mathrm{inl}\ x') \sepbar (x,x') \in R \} \cup
+\{ (\mathrm{inr}\ y, \mathrm{inr}\ y') \sepbar (y,y') \in S \}$.
+
+We extend the relational semantics to contexts of well-formed types by
+the following clauses:
+\begin{eqnarray*}
+  \rsem{\epsilon}{\relEnv{E}}{\rho} & = & \id_{\ctxtSem{\epsilon}} \\
+  \rsem{\Gamma, x : A}{\relEnv{E}}{\rho} & = & \rsem{\Gamma}{\relEnv{E}}\rho \relTimes \rsem{A}{\relEnv{E}}\rho
+\end{eqnarray*}
+
+\subsubsection{Parametricity}
+
+This relies on \lemref{lem:tyeq-erasure} to make sure that it is
+well-typed.
+
+\begin{lemma}\label{lem:tyeq-rel}
+  If $\Delta \vdash A \equiv B : \sortType$, then for all $\rho \in
+  \relEnv{E}(\Delta)$, $\rsem{A}{\relEnv{E}}\rho = \rsem{B}{\relEnv{E}}\rho$.
+\end{lemma}
+
+This next lemma relies on \lemref{lem:tysubst-erasure} to make sure
+that it is well-typed.
+
+\begin{lemma}\label{lem:tysubst-rel}
+  If $\Delta \vdash A : \sortType$ and $\sigma : \Delta' \Rightarrow
+  \Delta$, then for all $\rho \in \relEnv{E}(\Delta')$,
+  $\rsem{\sigma^*A}{\relEnv{E}}\rho = \rsem{A}{\relEnv{E}}{(\rho \circ \sigma^*)}$. Likewise,
+  if $\Delta \vdash \Gamma \isCtxt$ and $\sigma : \Delta' \Rightarrow
+  \Delta$, then for all $\rho \in \relEnv{E}(\Delta')$,
+  $\rsem{\sigma^*\Gamma}{\relEnv{E}}\rho = \rsem{\Gamma}{\relEnv{E}}{(\rho \circ \sigma^*)}$.
+\end{lemma}
+

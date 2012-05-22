@@ -1,0 +1,348 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Type System}
+
+We now introduce our type system. We parameterise our development by
+an arbitrary multi-sorted algebraic theory, in the sense of universal
+algebra. We present the precise form of the theories we allow in
+\autoref{sec:index-exp}, and define some auxiliary notions of
+substitution and terms-up-to-equality. Several examples of useful
+algebraic theories will be given in
+\autoref{sec:example-systems}. Once an algebraic theory has been
+fixed, we define the well-formed types and terms with respect to this
+theory in \autoref{sec:types-and-terms}. 
+
+Data:
+\begin{enumerate}
+\item A set $\mathit{Sort}$ of sorts
+\item A collection of primitive index operations $\mathit{IndexOp}$
+\item A map $\indexOpArity : \mathit{IndexOp} \to \mathit{Sort}^* \times \mathit{Sort}$
+\item A set $\mathit{PrimType}$ of primitive types
+\item A map $\primTyArity : \mathit{PrimType} \to \mathit{Sort}^*$
+\end{enumerate}
+
+Then generate:
+\begin{enumerate}
+\item Well-sorted index expressions
+\item Well-indexed types
+\end{enumerate}
+
+More data:
+\begin{enumerate}
+\item A set of primitive operations $\mathit{PrimOps}$
+\end{enumerate}
+
+This generates the well-typed terms. 
+
+For the semantics:
+\begin{enumerate}
+\item A ``relational'' meaning for index contexts. Can this be made
+  separate? Make the point that it is non-compositional, which is
+  useful. 
+\item Underlying semantics for each type
+\item Assume that the underlying semantics for types is not affected
+  by the index environment (could it be?)
+\item For each index context and primitive type, we demand a
+  relational meaning for that type.
+\item Relational meanings are closed under some operations.
+\end{enumerate}
+
+\subsection{Algebraic Theories for Indexing}\label{sec:index-exp}
+
+\begin{figure*}[t]
+  \centering
+  Well-sorted terms
+  \begin{mathpar}
+    \inferrule*
+    {i : s \in \Delta}
+    {\Delta \vdash x : s}
+    
+    \inferrule*
+    {\indexOp{f} : s_1,...,s_n \to s \\
+      \Delta \vdash e_1 : s_1 \\
+      \dots \\
+      \Delta \vdash e_n : s_n}
+    {\Delta \vdash \indexOp{f}(e_1, ..., e_n) : s}
+  \end{mathpar}
+
+  \medskip
+
+  Equational rules
+  \begin{mathpar}
+    \inferrule*
+    {e_1 \stackrel{ax}= e_2 : s \in \mathit{Ax}(\Delta)}
+    {\Delta \vdash e_1 \equiv e_2 : s}
+
+    \inferrule*
+    {\indexOp{f} : s_1,...,s_n \to s \\
+      \Delta \vdash e_1 \equiv e'_1 : s_1 \\
+      \dots \\
+      \Delta \vdash e_n \equiv e'_n : s_n}
+    {\Delta \vdash \indexOp{f}(e_1, ..., e_n) \equiv \indexOp{f}(e'_1, ..., e'_n) : s}
+
+    \inferrule*
+    {\Delta \vdash e : s}
+    {\Delta \vdash e \equiv e : s}
+
+    \inferrule*
+    {\Delta \vdash e_1 \equiv e_2 : s}
+    {\Delta \vdash e_2 \equiv e_1 : s}
+
+    \inferrule*
+    {\Delta \vdash e_1 \equiv e_2 : s \\ \Delta \vdash e_2 \equiv e_3 : s}
+    {\Delta \vdash e_1 \equiv e_3 : s}
+  \end{mathpar}
+  \caption{Algebraic Theories for Indexing}
+  \label{fig:alg-theories}
+\end{figure*}
+
+We assume a set $\mathit{Sort}$ of \emph{index sorts}, and we will use
+$s, s_1, s_2, ...$ to range over elements of $\mathit{Sort}$. An index
+context $\Delta$ is list of index variable and sort pairs, $i : s$,
+and we use the symbol $\epsilon$ to denote the empty index context (we
+will also use this symbol below to denote the empty typing
+context). We use letters like $i$ and $j$, sometimes with subscripts,
+to range over index variables. We also assume a collection
+$\mathit{IndexOp}$ of sorted index operations $\indexOp{f} :
+s_1,...,s_n \to s$. From the index operations we generate the
+well-sorted index expressions by the rules in
+\autoref{fig:alg-theories}.
+
+For each index context $\Delta$, we assume a set $\mathit{Ax}(\Delta)$
+of axioms $e_1 \stackrel{ax}= e_2 : s$ where both $\Delta \vdash e_1 :
+s$ and $\Delta \vdash e_2 : s$. From this collection of axioms, we
+generate the equational theory of index expressions by the rules in
+\autoref{fig:alg-theories} by closing under congruence, reflexivity,
+symmetry and transitivity.
+
+% For a pair of index contexts $\Delta$ and $\Delta'$, a substitution
+% $\sigma \in \subst{\Delta}{\Delta'}$ is a function $\sigma$ mapping
+% variables in $\Delta$ to well-sorted index expressions in $\Delta'$.
+
+Index context morphisms $\sigma : \Delta \Rightarrow \Delta'$ consist
+of a sequence of terms, one for each element of $\Delta'$, all
+well-sorted in the index context $\Delta$.
+\begin{mathpar}
+  \inferrule*
+  { }
+  {\cdot : \Delta \Rightarrow \epsilon}
+
+  \inferrule*
+  {\sigma : \Delta \Rightarrow \Delta' \\ \Delta \vdash e : s}
+  {\sigma, e : \Delta \Rightarrow \Delta', i:s}
+\end{mathpar}
+Directly from the definition of index context morphisms, we can see
+that given an index context morphism $\sigma : \Delta \Rightarrow
+\Delta'$, then for any index variable $i : s \in \Delta'$ there is an
+index expression $\sigma(i)$ such that $\Delta \vdash \sigma(i) : s$.
+
+We write $\id_\Delta : \Delta \Rightarrow \Delta$ for the index
+context morphism comprised of the terms built from the variables of
+$\Delta$, in order. We write $\pi_{i\mathord:s} : \Delta, i : s
+\Rightarrow \Delta$ for the context morphism again comprised of the
+terms built from the variables of $\Delta$, but this time typed in a
+larger context. For an index context morphism $\sigma : \Delta \to
+\Delta'$ we write $\sigma_s : \Delta, i\mathord:s \Rightarrow \Delta',
+i\mathord:s$ for the index context morphism generated by lifting each
+term to the larger context $\Delta, i\mathord:s$, and mapping the
+variable $i\mathord:s$ to the term $i$.
+
+Given an index expression $\Delta' \vdash e : s$, we define
+re-indexing by an index context morphism $\sigma : \Delta \Rightarrow
+\Delta'$ by the following clauses:
+\begin{eqnarray*}
+  \sigma^*i & = & \sigma(i) \\
+  \sigma^*\indexOp{f}(e_1, ..., e_n) & = & \indexOp{f}(\sigma^*e_1,...,\sigma^*e_n)
+\end{eqnarray*}
+It is easy to check that these clauses preserve well-formedness of
+index expressions, so that we obtain $\Delta \vdash \sigma^*e :
+s$. Moreover re-indexing by index context morphisms preserves
+equality:
+\begin{lemma}\label{lem:indexeq-subst}
+  If $\Delta \vdash e_1 \equiv e_2 : s$, then for any $\sigma :
+  \Delta' \Rightarrow \Delta$, we have $\Delta' \vdash \sigma^*e_1
+  \equiv \sigma^*e_2 : s$.
+\end{lemma}
+
+Also, projection commutes with lifting of substitutions. This is used
+in the proof of \lemref{lem:tysubst-rel}.
+\begin{lemma}
+  $\sigma^* \circ \pi^*_{i\mathord:s} = \pi^*_{i\mathord:s} \circ \sigma^*_s$
+\end{lemma}
+
+For an index context $\Delta$ and sort $s$, we write
+$\idxTms{\Delta}{s}$ for the set of index expressions $e$ such that
+$\Delta \vdash e : s$, quotiented by the equivalence relation $\Delta
+\vdash - \equiv - : s$. In light of \lemref{lem:indexeq-subst}, we can
+see that re-indexing by an index context morphism $\sigma : \Delta
+\Rightarrow \Delta'$ can be used as a function $\sigma^* :
+\idxTms{\Delta'}{s} \to \idxTms{\Delta}{s}$, for any sort $s$.
+
+\subsection{Types and Terms}\label{sec:types-and-terms}
+
+\begin{figure*}[t]
+  \centering
+  Well-indexed Types
+
+  \medskip
+  Equality of well-indexed types
+  \begin{mathpar}
+    \inferrule* [right=TyEqPrim]
+    {\primTyArity(\tyPrimNm{X}) = (s_1,...,s_n) \\
+      \{\Delta \vdash e_i \equiv e'_i : s_i\}_{1\leq i \leq n}}
+    {\Delta \vdash \tyPrim{X}{e_1,...,e_n} \equiv \tyPrim{X}{e'_1,..,e'_n} : \sortType}
+
+    \inferrule* [right=TyEqUnit]
+    { }
+    {\Delta \vdash \tyUnit \equiv \tyUnit : \sortType}
+
+    \inferrule* [right=TyEqArr]
+    {\Delta \vdash A \equiv A' : \sortType \\ \Delta \vdash B \equiv B' : \sortType}
+    {\Delta \vdash A \tyArr B \equiv A' \tyArr B' : \sortType}
+
+    \inferrule* [right=TyEqProd]
+    {\Delta \vdash A \equiv A' : \sortType \\ \Delta \vdash B \equiv B' : \sortType}
+    {\Delta \vdash A \tyProduct B \equiv A' \tyProduct B' : \sortType}
+
+    \inferrule* [right=TyEqSum]
+    {\Delta \vdash A \equiv A' : \sortType \\ \Delta \vdash B \equiv B' : \sortType}
+    {\Delta \vdash A + B \equiv A' + B' : \sortType}
+
+    \inferrule* [right=TyEqForall]
+    {\Delta, i : s \vdash A \equiv A' : \sortType}
+    {\Delta \vdash \forall i \mathord: s. A \equiv \forall i \mathord: s. A' : \sortType}
+  \end{mathpar}
+
+  \medskip
+  Well-indexed contexts
+  \begin{mathpar}
+    \inferrule*
+    { }
+    {\Delta \vdash \epsilon \isCtxt}
+
+    \inferrule*
+    {\Delta \vdash \Gamma \isCtxt \\ \Delta \vdash A : \sortType \\ x \not\in \Gamma}
+    {\Delta \vdash \Gamma, x : A \isCtxt}
+  \end{mathpar}
+  \caption{Well-indexed Types and Contexts}
+  \label{fig:types}
+\end{figure*}
+
+The rules for building the types of a system in our generic framework
+are given in \autoref{fig:types}. The types of our system are built
+from a set of primitive types $\mathit{PrimType}$. 
+
+For each sort $s \in \mathit{Sort}$, we assume we are given a set of
+names of primitive types $\mathit{PrimType}(s)$. We assume that the
+sets $\mathit{PrimType}(s)$ are disjoint for non-equal sorts $s_1,
+s_2$. For example, in the units of measure example in
+\autoref{sec:units-example}, there is a single sort $\mathsf{unit}$,
+and $\mathit{PrimType}(\mathsf{unit}) = \{\tyPrimNm{num}\}$. For each
+primitive type $\tyPrimNm{X} \in \mathit{PrimType}(s)$, and index
+expression $\Delta \vdash e : s$, we form the type $\tyPrim{X}{e}$, by
+the \TirName{TyPrimIdx} rule in \autoref{fig:types}. Thus, in the
+units-of-measure example, the type $\tyPrim{num}{u}$ represents
+numbers measured by the units $u$.
+
+We also assume that there is an additional set of primitive types
+$\mathit{PrimType}(\cdot)$ that is disjoint from all the other sets of
+primitive types. These primitive types do not need to be paired with
+an index expression to form well-indexed types. Such types are created
+by the \TirName{TyPrimNoIdx} rule. An example of such a primitive type
+is the type $\tyPrimNm{real}$ of real-valued scalars in the Euclidean
+plane geometry example in \autoref{sec:2d-example}.
+
+The rules for generating the rest of the types of the system,
+including unit, product, sum, function and universal types, are given
+in \autoref{fig:types}. We use capital roman letters like $A$ and $B$
+to range over well-indexed types. Well-indexed types come with an
+equational theory, derived from the equational theory on index
+expressions. This equational theory is also presented in
+\autoref{fig:types}.
+
+We define substitution by an index context morphism $\sigma : \Delta
+\Rightarrow \Delta'$ on types by structural induction on the structure
+of the type: given a type $\Delta' \vdash A : \sortType$, we obtain a
+type $\Delta \vdash \sigma^*A : \sortType$. The only interesting case
+is for \TirName{TyPrimIdx}:
+\begin{displaymath}
+  \sigma^*\tyPrim{X}{e} = \tyPrim{X}{\sigma^*e}
+\end{displaymath}
+
+Well-formed contexts are defined to be lists of variables paired with
+well-formed types with respect to some index context $\Delta$, with
+the condition that no variable names are repeated. Formally, contexts
+are defined by the two rules shown in
+\autoref{fig:types}. Substitution by an index context morphism extends
+to contexts just by doing substitution on each individual type.
+
+The typing rules for our system define the well-typed terms with
+respect to an index context $\Delta$ and a type context $\Delta \vdash
+\Gamma \isCtxt$. The judgement $\Delta; \Gamma \vdash M : A$ is
+defined in \autoref{fig:terms}. The equational theory on types is
+incorporated into the type system via the rule \TirName{TyEq}, which
+allows for a term that is judged to have type $A$ to also have any
+other equal type $B$.
+\begin{figure*}[t]
+  \centering
+  \begin{mathpar}
+    \inferrule* [right=Var]
+    {\Delta \vdash \Gamma \isCtxt \\ x : A \in \Gamma}
+    {\Delta; \Gamma \vdash x : A}
+
+    \inferrule* [right=TyEq]
+    {\Delta; \Gamma \vdash M : A \\ \Delta \vdash A \equiv B : \sortType}
+    {\Delta; \Gamma \vdash M : B}
+
+    \inferrule* [right=Unit]
+    { }
+    {\Delta; \Gamma \vdash * : 1}
+
+    \inferrule* [right=Pair]
+    {\Delta; \Gamma \vdash M : A \\
+      \Delta; \Gamma \vdash N : B}
+    {\Delta; \Gamma \vdash (M, N) : A \tyProduct B}
+
+    \inferrule* [right=Proj1]
+    {\Delta; \Gamma \vdash M : A \tyProduct B}
+    {\Delta; \Gamma \vdash \pi_1 M : A}
+
+    \inferrule* [right=Proj2]
+    {\Delta; \Gamma \vdash M : A \tyProduct B}
+    {\Delta; \Gamma \vdash \pi_2 M : B}
+
+    \inferrule* [right=Inl]
+    {\Delta; \Gamma \vdash M : A}
+    {\Delta; \Gamma \vdash \mathrm{inl}\ M : A + B}
+
+    \inferrule* [right=Inr]
+    {\Delta; \Gamma \vdash M : B}
+    {\Delta; \Gamma \vdash \mathrm{inr}\ M : A + B}
+
+    \inferrule* [right=Cond]
+    {\Delta; \Gamma \vdash M : A + B \\
+      \Delta; \Gamma, x : A \vdash N_1 : C \\
+      \Delta; \Gamma, y : B \vdash N_2 : C}
+    {\Delta; \Gamma \vdash \textrm{case}\ M\ \textrm{of}\ \textrm{inl}\ x.N_1; \textrm{inr}\ y.N_2 : C}
+
+    \inferrule* [right=Abs]
+    {\Delta; \Gamma, x : A \vdash M : B}
+    {\Delta; \Gamma \vdash \lambda x.M : A \tyArr B}
+
+    \inferrule* [right=App]
+    {\Delta; \Gamma \vdash M : A \tyArr B \\
+      \Delta; \Gamma \vdash N : A}
+    {\Delta; \Gamma \vdash M N : B}
+
+    \inferrule* [right=UnivAbs]
+    {\Delta, i : s; \pi_{i\mathord:s}^*\Gamma \vdash M : A}
+    {\Delta; \Gamma \vdash \Lambda i. M : \forall i\mathord:s. A}
+
+    \inferrule* [right=UnivApp]
+    {\Delta; \Gamma \vdash M : \forall i\mathord:s. A \\ \Delta \vdash e : s}
+    {\Delta; \Gamma \vdash M [e] : (\id_\Delta, e)^*A}
+  \end{mathpar}
+  
+  \caption{Well-typed terms}
+  \label{fig:terms}
+\end{figure*}
