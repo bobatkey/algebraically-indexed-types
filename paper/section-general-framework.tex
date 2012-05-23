@@ -214,9 +214,7 @@ with respect to the index operations in $\IndexOpSet$:
   {\Delta' \vdash \sigma^*e \equiv \sigma^*e' : s}
 
   \inferrule*
-  {\Delta \vdash e_1 \equiv e'_1 : s_1 \\
-    \dots \\
-    \Delta \vdash e_n \equiv e'_n : s_n}
+  {\{\Delta \vdash e_j \equiv e'_j : s_j\}_{1\leq j\leq n}}
   {\Delta \vdash \indexOp{f}(e_1, ..., e_n) \equiv \indexOp{f}(e'_1, ..., e'_n) : s}
 \end{mathpar}
 We also assume the standard reflexivity, symmetry and transitivity
