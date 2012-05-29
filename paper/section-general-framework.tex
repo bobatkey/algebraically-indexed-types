@@ -217,9 +217,10 @@ recursively by the following clauses:
 \end{lemma}
 
 The \emph{composition} of two simultaneous substitutions $\sigma :
-\Delta \Rightarrow \Delta'$ and $\sigma' : \Delta' \Rightarrow \Delta$
-is defined as $(\sigma^*e'_1, ..., \sigma^*e'_n)$, where $\sigma' =
-(e'_1,...,e'_n)$.
+\Delta \Rightarrow \Delta'$ and $\sigma' : \Delta' \Rightarrow
+\Delta''$, where $\sigma' = (e'_1,...,e'_n)$, is defined as $\sigma'
+\circ \sigma \isDefinedAs (\sigma^*e'_1, ..., \sigma^*e'_n) : \Delta
+\Rightarrow \Delta''$.
 
 \subsubsection{Index Term Equality and Type Equality}
 \label{sec:type-equality}
