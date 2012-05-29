@@ -521,8 +521,8 @@ substitutions. Note that both parts of the lemma depend on
   \item If $\Delta \vdash A \equiv B \isType$, then for all $\rho \in
     \relEnv{E}(\Delta)$, $\rsem{A}{\relEnv{E}}{\rho} =
     \rsem{B}{\relEnv{E}}{\rho}$;
-  \item If $\Delta \vdash A \isType$ and $\sigma : \Delta' \Rightarrow
-    \Delta$, then for all $\rho \in \relEnv{E}(\Delta')$,
+  \item If $\Delta' \vdash A \isType$ and $\sigma : \Delta \Rightarrow
+    \Delta'$, then for all $\rho \in \relEnv{E}(\Delta)$,
     $\rsem{\sigma^*A}{\relEnv{E}}\rho = \rsem{A}{\relEnv{E}}(\rho
     \circ \sigma)$.
   \end{enumerate}
@@ -623,18 +623,18 @@ The well-typed programs are defined in
   \item[Case \TirName{UnivAbs}] In this case, $M = \Lambda i.M'$ and
     $A = \forall i\mathord:s. A'$. We know from the induction
     hypothesis that for all $\rho' \in \relEnv{E}(\Delta, i:s)$ and
-    $(\eta_1,\eta_2) \in \rsem{\pi_{i:s}^*\Gamma}{\relEnv{E}}\rho'$,
+    $(\eta_1,\eta_2) \in \rsem{\pi_{i:s}^*\Gamma}{\relEnv{E}}{\rho'}$,
     we have $(\tmSem{M'}\eta_1,\tmSem{M'}\eta_2) \in
-    \rsem{A'}{\relEnv{E}}\rho'$. We are given $\rho \in
+    \rsem{A'}{\relEnv{E}}{\rho'}$. We are given $\rho \in
     \relEnv{E}(\Delta)$, $(\eta_1,\eta_2) \in
     \rsem{\Gamma}{\relEnv{E}}\rho$ and $\rho'' \in
     \extends{\rho}{i:s}$. Since $\rho'' \circ \pi^*_{i:s} = \rho$, we
     have $(\eta_1,\eta_2) \in \rsem{\Gamma}{\relEnv{E}}\rho$ implies
     $(\eta_1,\eta_2) \in \rsem{\Gamma}{\relEnv{E}}{(\rho'' \circ
       \pi^*_{i:s})}$, and therefore $(\eta_1,\eta_2) \in
-    \rsem{\pi_{i:s}^*\Gamma}\rho''$ by \lemref{lem:tysubst-rel}. So we
+    \rsem{\pi_{i:s}^*\Gamma}{\relEnv{E}}{\rho''}$ by \lemref{lem:tysubst-rel}. So we
     can apply the induction hypothesis to get $(\tmSem{M'}\eta_1,
-    \tmSem{M'}\eta_2) \in \rsem{A'}{\relEnv{E}}\rho''$, and thus
+    \tmSem{M'}\eta_2) \in \rsem{A'}{\relEnv{E}}{\rho''}$, and thus
     $(\tmSem{\Lambda i.M'}\eta_1,\tmSem{\Lambda i.M'}\eta_2) \in
     \rsem{A'}{\relEnv{E}}\rho''$, by the definition of $\tmSem{\Lambda
       i. M'}$. Hence $(\tmSem{\Lambda i.M'}\eta_1,\tmSem{\Lambda
@@ -645,7 +645,7 @@ The well-typed programs are defined in
     definition of $\rsem{\forall i\mathord:s.A'}{\relEnv{E}}\rho$, we
     know that for all $\rho' \in \extends{\rho}{i:s}$,
     $(\tmSem{M'}\eta_1, \tmSem{M'}\eta_2) \in
-    \rsem{A'}{\relEnv{E}}\rho'$. If we let $\rho' = \rho \circ
+    \rsem{A'}{\relEnv{E}}{\rho'}$. If we let $\rho' = \rho \circ
     (\id_\Delta, e)^*$, we know that $\rho' \in \extends{\rho}{i:s}$,
     because $\rho' \circ \pi^*_{i:s} = \rho \circ (\id_\Delta, e)^*
     \circ \pi^*_{i:s} = \rho$. Hence we may deduce that
