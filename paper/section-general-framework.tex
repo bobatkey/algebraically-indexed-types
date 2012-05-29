@@ -343,7 +343,7 @@ that $\tyPrimNm{X}$ is assigned a set $\tyPrimSem{\tyPrimNm{X}}$. We
 extend this to assign a set to every well-formed type by induction on
 the type structure by the following clauses.
 \begin{displaymath}
-  \begin{array}{cc}
+  \begin{array}{@{\hspace{0.2em}}c@{\hspace{0em}}c}
     \begin{array}{l}
       \tySem{\tyUnit} \isDefinedAs \{*\} \\
       \tySem{A \tyProduct B} \isDefinedAs \tySem{A} \times \tySem{B} \\
@@ -366,8 +366,8 @@ the type $A$.
 
 \begin{example}[Units of Measure] Kennedy's original units of measure
   system seen as an instantiation of our system uses the assignment
-  $\tyPrimSem{\mathsf{unit}} = \mathbb{Q}$, where $\mathbb{Q}$ is the
-  set of rational numbers.
+  $\tyPrimSem{\mathsf{unit}} \isDefinedAs \mathbb{Q}$, where
+  $\mathbb{Q}$ is the set of rational numbers.
 \end{example}
 
 Since the definition of the index-erasure interpretation has
@@ -474,14 +474,15 @@ it must satisfy the following two properties:
 \end{enumerate}
 
 \begin{example}[Units of Measure]
-  FIXME: give two examples of relational environments.
+  FIXME: give two examples of sets of relational environments.
 \end{example}
 
+% FIXME: motivate this in terms of the semantics of forall types
 Given a relation environment $\rho \in \relEnv{E}(\Delta)$, we define
 the set of extensions $\extends{\rho}{i\mathord:s}$ of $\rho$ by an
 additional index variable $i\mathord:s$ to be the following:
 \begin{displaymath}
-  \extends{\rho}{i\mathord:s} = \{ \rho' \in \relEnv{E}(\Delta,i\mathord:s) \sepbar \rho' \circ \pi^*_{i\mathord:s} = \rho \}
+  \extends{\rho}{i\mathord:s} \isDefinedAs \{ \rho' \in \relEnv{E}(\Delta,i\mathord:s) \sepbar \rho' \circ \pi^*_{i\mathord:s} = \rho \}
 \end{displaymath}
 
 A given relation context $\rho \in \relEnv{E}(\Delta)$ is extended to
