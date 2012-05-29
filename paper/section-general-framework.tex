@@ -533,9 +533,45 @@ substitutions. Note that both parts of the lemma depend on
 \subsection{Well-typed Programs}
 \label{sec:well-typed-programs}
 
-The well-typed programs are defined in \autoref{fig:programs}. FIXME:
-explain each of the rules.
+We now present the rules for well-typed programs over the collection
+of types we generated in
+\autoref{sec:algebraically-indexed-types}. Each well-type program is
+assigned an index-erasure semantics, building on the index-erasure
+semantics of types we defined in
+\autoref{sec:index-erasure-semantics}. Our main result
+(\thmref{thm:abstraction}) is that the index-erasure semantics is
+every well-typed program is related to itself in the relational
+interpretation of its type: this is the abstraction theorem for every
+calculus in our general framework. In the next section we will use
+this theorem to derive several interesting results about the programs
+expressible in instances of our general framework.
 
+Well-typed programs are defined with respect to well-indexed typing
+contexts, which are in turn defined with respect to an index
+context. Well-indexed typing contexts with respect to an index context
+$\Delta$ are sequences of variable/type pairs with no repeated
+variable names such that each type is well-indexed with respect to
+$\Delta$. Formally, well-indexed typing contexts are defined by the
+following two rules:
+\begin{mathpar}
+  \inferrule*
+  { }
+  {\Delta \vdash \epsilon \isCtxt}
+
+  \inferrule*
+  {\Delta \vdash \Gamma \isCtxt \\ \Delta \vdash A \isType \\ x \not\in \Gamma}
+  {\Delta \vdash \Gamma, x : A \isCtxt}
+\end{mathpar}
+Substitution by a simultaneous substitution extends to typing contexts
+by performing substitution pointwise on each individual type.
+
+The typing rules for our system define the well-typed terms with
+respect to an index context $\Delta$ and a type context $\Delta \vdash
+\Gamma \isCtxt$. The judgement $\Delta; \Gamma \vdash M : A$ is
+defined in \autoref{fig:programs}. The equational theory on types is
+incorporated into the type system via the rule \TirName{TyEq}, which
+allows for a term that is judged to have type $A$ to also have any
+other equal type $B$.
 \begin{figure*}[t]
   \centering
   \begin{mathpar}
@@ -572,7 +608,7 @@ explain each of the rules.
     {\Delta; \Gamma \vdash M : B}
     {\Delta; \Gamma \vdash \mathrm{inr}\ M : A + B}
 
-    \inferrule* [right=Cond]
+    \inferrule* [right=Case]
     {\Delta; \Gamma \vdash M : A + B \\
       \Delta; \Gamma, x : A \vdash N_1 : C \\
       \Delta; \Gamma, y : B \vdash N_2 : C}
@@ -603,69 +639,61 @@ explain each of the rules.
 \subsubsection{The Index-Erasure Interpretation of Programs}
 \label{sec:erasure-semantics-programs}
 
-For any typing context $\Delta \vdash \Gamma \isCtxt$, we define its
-index-erasure semantics $\ctxtSem{\Gamma}$ by induction on its
-structure: $\ctxtSem{\epsilon} = 1$ and $\ctxtSem{\Gamma, x : A} =
-\ctxtSem{\Gamma} \times \tySem{A}$, where $1$ is the canonical
-one-element set.
-
 % FIXME: do we need to prove something about the effect
 % of substitution on the erasure semantics of contexts?
 
-For a well-typed program $\Delta; \Gamma \vdash M : A$, we define the
-\emph{erasure interpretation} as a function $\tmSem{e} :
-\ctxtSem{\Gamma} \to \tySem{A}$, completely ignoring the indexing
-information. In light of \lemref{lem:tyeqsubst-erasure}, we define
-this function directly on the syntax of well-typed terms, rather than
-on the typing derivations. We define $\tmSem{e}$ by the following
-clauses:
-\begin{eqnarray*}
-  \tmSem{x}\eta & = & \eta_x \\
-  \tmSem{(M,N)}\eta & = & (\tmSem{M}\eta, \tmSem{N}\eta) \\
-  \tmSem{\pi_1M}\eta & = & \pi_1(\tmSem{M}\eta) \\
-  \tmSem{\pi_2M}\eta & = & \pi_2(\tmSem{M}\eta) \\
-  \tmSem{\mathrm{inl}\ M}\eta & = & \mathrm{inl}\ (\tmSem{M}\eta) \\
-  \tmSem{\mathrm{inr}\ M}\eta & = & \mathrm{inr}\ (\tmSem{M}\eta) \\
-  \left\llbracket
-    \begin{array}{l}
-      \textrm{case}\ M\ \textrm{of}\\
-      \textrm{inl}\ x.N_1;\\
-      \textrm{inr}\ y.N_2
-    \end{array}\right\rrbracket^{\mathit{tm}}\eta & = &
-  \left\{
-    \begin{array}{ll}
-      \tmSem{N_1}(\eta,a) & \textrm{if }\tmSem{M}\eta = \mathrm{inl}(a) \\
-      \tmSem{N_2}(\eta,b) & \textrm{if }\tmSem{M}\eta = \mathrm{inr}(b)
-    \end{array}
-  \right. \\
-  \tmSem{\lambda x. M}\eta & = & \lambda v. \tmSem{M}(\eta, v) \\
-  \tmSem{M N}\eta & = & (\tmSem{M}\eta) (\tmSem{N}\eta) \\
-  \tmSem{\Lambda i.\ M}\eta & = & \tmSem{M}\eta \\
-  \tmSem{M[e]}\eta & = & \tmSem{M}\eta
-\end{eqnarray*}
+We assign an index-erasure semantics to any well-indexed typing
+context $\Delta \vdash \Gamma \isCtxt$ by induction on its structure:
+$\ctxtSem{\epsilon} = \{*\}$ and $\ctxtSem{\Gamma, x : A} =
+\ctxtSem{\Gamma} \times \tySem{A}$. For a well-typed program $\Delta;
+\Gamma \vdash M : A$, we define the \emph{erasure interpretation} as a
+function $\tmSem{e} : \ctxtSem{\Gamma} \to \tySem{A}$, completely
+ignoring the indexing information. In light of
+\lemref{lem:tyeqsubst-erasure}, we define this function directly on
+the syntax of well-typed terms, rather than on the typing
+derivations. We define $\tmSem{e}$ by the following clauses:
+\begin{displaymath}
+  \begin{array}{@{\hspace{0em}}l@{\hspace{0.5em}}c@{\hspace{0.5em}}l}
+    \tmSem{x}\eta & \isDefinedAs & \eta_x \\
+    \tmSem{(M,N)}\eta & \isDefinedAs & (\tmSem{M}\eta, \tmSem{N}\eta) \\
+    \tmSem{\pi_1M}\eta & \isDefinedAs & \pi_1(\tmSem{M}\eta) \\
+    \tmSem{\pi_2M}\eta & \isDefinedAs & \pi_2(\tmSem{M}\eta) \\
+    \tmSem{\mathrm{inl}\ M}\eta & \isDefinedAs & \mathrm{inl}\ (\tmSem{M}\eta) \\
+    \tmSem{\mathrm{inr}\ M}\eta & \isDefinedAs & \mathrm{inr}\ (\tmSem{M}\eta) \\
+    \left\llbracket
+      \begin{array}{l}
+        \textrm{case}\ M\ \textrm{of}\\
+        \textrm{inl}\ x.N_1;\\
+        \textrm{inr}\ y.N_2
+      \end{array}\right\rrbracket^{\mathit{tm}}\eta & \isDefinedAs &
+    \left\{
+      \begin{array}{ll}
+        \tmSem{N_1}(\eta,a) & \textrm{if }\tmSem{M}\eta = \mathrm{inl}(a) \\
+        \tmSem{N_2}(\eta,b) & \textrm{if }\tmSem{M}\eta = \mathrm{inr}(b)
+      \end{array}
+    \right. \\
+    \tmSem{\lambda x. M}\eta & \isDefinedAs & \lambda v. \tmSem{M}(\eta, v) \\
+    \tmSem{M N}\eta & \isDefinedAs & (\tmSem{M}\eta) (\tmSem{N}\eta) \\
+    \tmSem{\Lambda i.\ M}\eta & \isDefinedAs & \tmSem{M}\eta \\
+    \tmSem{M[e]}\eta & \isDefinedAs & \tmSem{M}\eta    
+  \end{array}
+\end{displaymath}
 In the above, we have written $\eta_x$ to denote the appropriate
-projection from $\eta$ to get the position corresponding to the
-variable $x$ in the context.
+projection from $\eta$ to get the value in the environment
+corresponding to the variable $x$ in the context.
 
 \subsubsection{The Abstraction Theorem}
 \label{sec:abstraction-theorem}
 
 We now state and prove the abstraction theorem for well-typed programs
-in our system. The abstraction theorem states that the type erasure
-interpretation of a well-typed program is related to itself by the
-relational interpretation of its type. From this result we will be
-able to deduce interesting properties of programs adhering to the
-algebraically-indexed typing discipline in
-\autoref{sec:instantiations}. % FIXME: spruce this up when the instantiations section is actually written.
-
-To state and prove the abstraction theorem for open terms, we first
-need to extend the relational interpretation of types to typing
+in our system. To state and prove this theorem for open terms, we
+first need to extend the relational interpretation of types to typing
 contexts. The relational interpretation of contexts is defined by the
 following clauses, where we have used the pairing operation
 $-\relTimes-$ defined in \autoref{sec:relational-semantics}.
 \begin{eqnarray*}
-  \rsem{\epsilon}{\relEnv{E}}{\rho} & = & \{(*,*)\} \\
-  \rsem{\Gamma, x : A}{\relEnv{E}}{\rho} & = & \rsem{\Gamma}{\relEnv{E}}\rho \relTimes \rsem{A}{\relEnv{E}}\rho
+  \rsem{\epsilon}{\relEnv{E}}{\rho} & \isDefinedAs & \{(*,*)\} \\
+  \rsem{\Gamma, x : A}{\relEnv{E}}{\rho} & \isDefinedAs & \rsem{\Gamma}{\relEnv{E}}\rho \relTimes \rsem{A}{\relEnv{E}}\rho
 \end{eqnarray*}
 The relational interpretation of contexts inherits from the relational
 interpretation of types the property of interpretating the application
@@ -677,7 +705,7 @@ of simultaneous substitutions as composition:
   \rsem{\Gamma}{\relEnv{E}}{(\rho \circ \sigma^*)}$.
 \end{lemma}
 
-\begin{theorem}[Abstraction]
+\begin{theorem}[Abstraction]\label{thm:abstraction}
   If $\Delta; \Gamma \vdash M : A$, then for all $\rho \in
   \relEnv{E}(\Delta)$ and $\eta_1, \eta_2 \in \ctxtSem{\Gamma}$ such
   that $(\eta_1, \eta_2) \in \rsem{\Gamma}{\relEnv{E}}\rho$, we have
