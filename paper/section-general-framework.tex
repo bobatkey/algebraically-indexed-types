@@ -160,20 +160,52 @@ of index contexts $\Delta$ and $\Delta' = i_1 \mathord: s_1, ..., i_n
 \Rightarrow \Delta'$ is a sequence of terms $\sigma = (e_1,...,e_n)$
 such that for each $j$ such that $1 \leq j \leq n$, $\Delta \vdash e_j
 : s_j$. Given a simultaneous substitution $\sigma = (e_1,...,e_n) :
-\Delta \Rightarrow \Delta'$ and a particular variable $i_j : s_j$ in
-$\Delta'$, we write $\sigma(i_j)$ to stand for the index term $e_j$.
+\Delta \Rightarrow \Delta'$ and a variable $i_j \mathord: s_j$ in
+$\Delta'$, we write $\sigma(i_j)$ for the index term $e_j$.
 
+For a context $\Delta = i_1\mathord:s_1,...,i_n\mathord:s_n$, and a
+variable/type pair $i\mathord:s$ such that $i$ does not appear in
+$\Delta$, we define the \emph{projection} simultaneous substitution
+$\pi_{i\mathord:s} : \Delta,i\mathord:s \Rightarrow \Delta$ as
+$\pi_{i\mathord:s} = (i_1,...,i_n)$. Note that the subscript on
+$\pi_{i\mathord:s}$ is the variable/type pair that is being projected
+away.
 
+For a simultaneous substitution $\sigma : \Delta \Rightarrow \Delta'$
+where $\Delta' = i_1\mathord:s_1,...,i_n\mathord:s_n$ and a
+variable/type pair $i\mathord:s$ such that $i$ does not appear in
+either $\Delta$ or $\Delta'$, then we can form the \emph{lifted}
+simultaneous substitution $\sigma_{i\mathord:s} = (\sigma(i_1), ...,
+\sigma(i_n), i) : \Delta,i\mathord:s \Rightarrow
+\Delta',i\mathord:s$. Note that we have implicity used the fact that
+well-sortedness of index terms is preserved by weakening.
 
-\begin{enumerate}
-\item Define the action of simultaneous substitutions on index terms
-  and types: $\sigma^*e$ and $\sigma^*A$. State that simultaneous
-  substitution preserves well-sorted-ness and well-indexed-ness.
-\item Define composition of simultaneous substitutions
-\item Define lifting of simultaneous substitutions
-\item Define projection simultaneous substitutions
-\end{enumerate}
+Given a simultaneous substitution $\sigma : \Delta \Rightarrow
+\Delta'$ and a well-sorted index term $\Delta' \vdash e : s$, we can
+apply $\sigma$ to $e$ to produce a new index term $\sigma^*e$. The new
+index term $\sigma^*e$ is defined by the following two clauses:
+\begin{mathpar}
+  \sigma^*i \isDefinedAs \sigma(i)
 
+  \sigma^*(\indexOp{f}(e_1,...,e_n)) \isDefinedAs \indexOp{f}(\sigma^*e_1, ..., \sigma^*e_n)
+\end{mathpar}
+Similarly, given a well-indexed type $\Delta' \vdash A \isType$, we
+can apply $\sigma$ to $A$ to produce a new type $\sigma^*A$. The
+application of a simultaneous substitution to a type is defined
+recursively by the following clauses:
+\begin{mathpar}
+  \sigma^*(\tyPrim{X}{e_1,...,e_n}) \isDefinedAs \tyPrim{X}{\sigma^*e_1,...,\sigma^*e_n}
+
+  \sigma^*\tyUnit \isDefinedAs \tyUnit
+
+  \sigma^*(A \tyArr B) \isDefinedAs \sigma^*A \tyArr \sigma^*B
+
+  \sigma^*(A \tyProduct B) \isDefinedAs \sigma^*A \tyProduct \sigma^*B
+
+  \sigma^*(A + B) \isDefinedAs \sigma^*A + \sigma^*B
+
+  \sigma^*(\forall i\mathord:s.A) \isDefinedAs \forall i\mathord:s.\sigma_{i\mathord:s}^*A
+\end{mathpar}
 \begin{lemma}
   Let $\sigma : \Delta \Rightarrow \Delta'$ be a simultaneous
   substitution.
@@ -183,6 +215,11 @@ $\Delta'$, we write $\sigma(i_j)$ to stand for the index term $e_j$.
     \isType$.
   \end{enumerate}
 \end{lemma}
+
+The \emph{composition} of two simultaneous substitutions $\sigma :
+\Delta \Rightarrow \Delta'$ and $\sigma' : \Delta' \Rightarrow \Delta$
+is defined as $(\sigma^*e'_1, ..., \sigma^*e'_n)$, where $\sigma' =
+(e'_1,...,e'_n)$.
 
 \subsubsection{Index Term Equality and Type Equality}
 \label{sec:type-equality}
@@ -268,6 +305,13 @@ substitution:
     \sigma^*A \equiv \sigma^* B \isType$.
   \end{enumerate}
 \end{lemma}
+
+We define a pair of simultaneous substitutions $\sigma, \sigma' :
+\Delta \Rightarrow \Delta'$ to be judgmentally equal if their
+component terms are judgmentally equal in the context $\Delta$: i.e.~
+if $\Delta \vdash e_j \equiv e'_j : s_j$, for all $j$. We write
+$\Delta \vdash \sigma \equiv \sigma' : \Delta'$ when two simultaneous
+substitutions are judgmentally equal.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
