@@ -1,258 +1,285 @@
 \section{Details of proofs}
 
-\begin{proof}\textbf{[Of \lemref{lem:tyeq-erasure}]}
-  By induction on the derivation of $\Delta \vdash A \equiv B
-  \isType$:
-  \begin{description}
-  \item[Case \TirName{TyEqUnit}] In this case, $A = B = \tyUnit$, so
-    $\tySem{A} = \tySem{B}$.
-  \item[Case \TirName{TyEqPrimIdx}] We have $A = \tyPrim{X}{e_1}$ and
-    $B = \tyPrim{X}{e_2}$, for some $e_1$ and $e_2$ of the same
-    sort. The erasure semantics ignores the index arguments, so
-    $\tySem{A} = \tySem{\tyPrim{X}{e_1}} = \tyPrimSem{X} =
-    \tySem{\tyPrim{X}{e_2}} = \tySem{B}$, as required.
-  \item[Case \TirName{TyEqPrimNoIdx}] We have $A = \tyPrimNm{X}$ and
-    $B = \tyPrimNm{X}$. So $\tySem{A} = \tyPrimSem{X} = \tySem{B}$, as
-    required.
-  \item[Case \TirName{TyEqArr}] Here, $A = A_1 \tyArr A_2$ and $B =
-    B_1 \tyArr B_2$, and by the induction hypothesis we know that
-    $\tySem{A_1} = \tySem{B_1}$ and $\tySem{A_2} = \tySem{B_2}$. Hence
-    $\tySem{A} = \tySem{A_1 \tyArr A_2} = \tySem{A_1} \to \tySem{A_2}
-    = \tySem{B_1} \to \tySem{B_2} = \tySem{B_1 \tyArr B_2} =
-    \tySem{B}$.
-  \item[Case \TirName{TyEqProd}] In this case, $A = A_1 \tyProduct
-    A_2$ and $B = B_1 \tyProduct B_2$, and by the induction hypothesis
-    we know that $\tySem{A_1} = \tySem{B_1}$ and $\tySem{A_2} =
-    \tySem{B_2}$. Hence $\tySem{A} = \tySem{A_1 \tyProduct A_2} =
-    \tySem{A_1} \times \tySem{A_2} = \tySem{B_1} \times \tySem{B_2} =
-    \tySem{B_1 \tyProduct B_2} = \tySem{B}$.
-  \item[Case \TirName{TyEqSum}] In this case, $A = A_1 + A_2$ and $B =
-    B_1 + B_2$, and by the induction hypothesis we know that
-    $\tySem{A_1} = \tySem{B_1}$ and $\tySem{A_2} = \tySem{B_2}$. Hence
-    $\tySem{A} = \tySem{A_1 + A_2} = \tySem{A_1} + \tySem{A_2} =
-    \tySem{B_1} + \tySem{B_2} = \tySem{B_1 + B_2} = \tySem{B}$.
-  \item[Case \TirName{TyEqForall}] We have $A = \forall
-    i\mathord:s.A'$ and $B = \forall i\mathord:s.B'$. By the induction
-    hypothesis we know that $\tySem{A'} = \tySem{B'}$, and hence
-    $\tySem{A} = \tySem{\forall i\mathord:s. A'} = \tySem{A'} =
-    \tySem{B'} = \tySem{\forall i\mathord:s. B'} = \tySem{B}$.
-  \end{description}
+% FIXME: give the explicit equational rules for the type equality
+
+% FIXME: make this look better
+\begin{lemma}[\lemref{lem:tyeqsubst-erasure}]
+  \begin{enumerate}
+  \item If $\Delta \vdash A \equiv B \isType$ then $\tySem{A} =
+    \tySem{B}$; and
+  \item If $\Delta \vdash A \isType$ and $\sigma : \Delta' \Rightarrow
+    \Delta$, then $\tySem{\sigma^*A} = \tySem{A}$.
+  \end{enumerate}
+\end{lemma}
+\begin{proof}
+  \begin{enumerate}
+  \item By induction on the derivation of $\Delta \vdash A \equiv B
+    \isType$:
+    \begin{description}
+    \item[Case \TirName{TyEqUnit}] In this case, $A = B = \tyUnit$, so
+      $\tySem{A} = \tySem{B}$.
+    \item[Case \TirName{TyEqPrim}] We have $A =
+      \tyPrim{X}{e_1,...,e_n}$ and $B =
+      \tyPrim{X}{e'_1,...,e'_n}$. The erasure semantics ignores the
+      index arguments, so $\tySem{A} = \tySem{\tyPrim{X}{e_1,...,e_n}}
+      = \tyPrimSem{X} = \tySem{\tyPrim{X}{e'_1,...,e'_n}} =
+      \tySem{B}$, as required.
+    \item[Case \TirName{TyEqArr}] Here, $A = A_1 \tyArr A_2$ and $B =
+      B_1 \tyArr B_2$, and by the induction hypothesis we know that
+      $\tySem{A_1} = \tySem{B_1}$ and $\tySem{A_2} =
+      \tySem{B_2}$. Hence $\tySem{A} = \tySem{A_1 \tyArr A_2} =
+      \tySem{A_1} \to \tySem{A_2} = \tySem{B_1} \to \tySem{B_2} =
+      \tySem{B_1 \tyArr B_2} = \tySem{B}$.
+    \item[Case \TirName{TyEqProd}] In this case, $A = A_1 \tyProduct
+      A_2$ and $B = B_1 \tyProduct B_2$, and by the induction
+      hypothesis we know that $\tySem{A_1} = \tySem{B_1}$ and
+      $\tySem{A_2} = \tySem{B_2}$. Hence $\tySem{A} = \tySem{A_1
+        \tyProduct A_2} = \tySem{A_1} \times \tySem{A_2} = \tySem{B_1}
+      \times \tySem{B_2} = \tySem{B_1 \tyProduct B_2} = \tySem{B}$.
+    \item[Case \TirName{TyEqSum}] In this case, $A = A_1 + A_2$ and $B
+      = B_1 + B_2$, and by the induction hypothesis we know that
+      $\tySem{A_1} = \tySem{B_1}$ and $\tySem{A_2} =
+      \tySem{B_2}$. Hence $\tySem{A} = \tySem{A_1 + A_2} = \tySem{A_1}
+      + \tySem{A_2} = \tySem{B_1} + \tySem{B_2} = \tySem{B_1 + B_2} =
+      \tySem{B}$.
+    \item[Case \TirName{TyEqForall}] We have $A = \forall
+      i\mathord:s.A'$ and $B = \forall i\mathord:s.B'$. By the
+      induction hypothesis we know that $\tySem{A'} = \tySem{B'}$, and
+      hence $\tySem{A} = \tySem{\forall i\mathord:s. A'} = \tySem{A'}
+      = \tySem{B'} = \tySem{\forall i\mathord:s. B'} = \tySem{B}$.
+    \end{description}
+  \item By induction on the derivation of $\Delta \vdash A \isType$.
+    \begin{description}
+    \item[Case \TirName{TyUnit}] Directly from the definition of
+      substitution on types of the form $\tyUnit$, we have
+      $\tySem{\sigma^*\tyUnit} = \tySem{\tyUnit}$, as required.
+    \item[Case \TirName{TyPrim}] Since the index-erasure semantics
+      ignores index expressions:
+      $\tySem{\sigma^*\tyPrim{X}{e_1,...,e_n}} =
+      \tySem{\tyPrim{X}{\sigma^*e_1,...,\sigma^*e_n}} = \tyPrimSem{X}
+      = \tySem{\tyPrim{X}{e_1,...,e_n}}$.
+    \item[Case \TirName{TyArr}] We have $A = A_1 \tyArr A_2$, and by
+      the induction hypothesis, we know that $\tySem{\sigma^*A_1} =
+      \tySem{A_1}$ and $\tySem{\sigma^*B_1} = \tySem{B_1}$. Thus, by
+      the definition of substitution on arrow types, we have
+      $\tySem{\sigma^*(A_1 \tyArr A_2)} = \tySem{\sigma^*A_1 \tyArr
+        \sigma^*A_2} = \tySem{\sigma^*A_1} \to \tySem{\sigma^*A_2} =
+      \tySem{A_1} \to \tySem{A_2} = \tySem{A_1 \tyArr A_2}$, as
+      required.
+    \item[Case \TirName{TyProd}] We have $A = A_1 \tyProduct A_2$, and
+      by the induction hypothesis, we know that $\tySem{\sigma^*A_1} =
+      \tySem{A_1}$ and $\tySem{\sigma^*A_2} = \tySem{A_2}$. Thus, by
+      the definition of substitution on product types, we have
+      $\tySem{\sigma^*(A_1 \tyProduct A_2)} = \tySem{\sigma^*A_1
+        \tyProduct \sigma^*A_2} = \tySem{\sigma^*A_1} \times
+      \tySem{\sigma^*A_2} = \tySem{A_1} \times \tySem{A_2} =
+      \tySem{A_1 \tyProduct A_2}$, as required.
+    \item[Case \TirName{TySum}] We have $A = A_1 + A_2$, and by the
+      induction hypothesis, we know that $\tySem{\sigma^*A_1} =
+      \tySem{A_1}$ and $\tySem{\sigma^*A_2} = \tySem{A_2}$. Thus, by
+      the definition of substitution on sum types, we have
+      $\tySem{\sigma^*(A_1 + A_2)} = \tySem{\sigma^*A_1 + \sigma^*A_2}
+      = \tySem{\sigma^*A_1} + \tySem{\sigma^*A_2} = \tySem{A_1} +
+      \tySem{A_2} = \tySem{A_1 + A_2}$, as required.
+    \item[Case \TirName{TyForall}] We have $A = \forall
+      i\mathord:s.A'$, and by the induction hypothesis we know that,
+      for all $\sigma'$, $\tySem{\sigma'^*A'} =
+      \tySem{A'}$. Therefore, from the definition of substitution for
+      $\forall$-types, we have $\tySem{\sigma^*\forall i\mathord:s.A'}
+      = \tySem{\forall i\mathord:s.\sigma_s^{*}A'} =
+      \tySem{\sigma_s^{*}A'} = \tySem{A'} = \tySem{\forall
+        i\mathord:s.A'}$, where we have relied on the fact that the
+      index-erasure semantics of types ignores the index
+      quantification.
+    \end{description}
+  \end{enumerate}
 \end{proof}
 
-\begin{proof}\textbf{[Of \lemref{lem:tysubst-erasure}]}
-  By induction on the derivation of $\Delta \vdash A \isType$.
-  \begin{description}
-  \item[Case \TirName{TyUnit}] Directly from the definition of
-    substitution on types of the form $\tyUnit$, we have
-    $\tySem{\sigma^*\tyUnit} = \tySem{\tyUnit}$, as required.
-  \item[Case \TirName{TyPrimIdx}] Since the index-erasure semantics
-    ignores all index expessions, we have
-    $\tySem{\sigma^*\tyPrim{X}{e}} = \tySem{\tyPrim{X}{\sigma^*e}} =
-    \tyPrimSem{X} = \tySem{\tyPrim{X}{e}}$.
-  \item[Case \TirName{TyPrimNoIdx}] Similar to the previous case.
-  \item[Case \TirName{TyArr}] We have $A = A_1 \tyArr A_2$, and by the
-    induction hypothesis, we know that $\tySem{\sigma^*A_1} =
-    \tySem{A_1}$ and $\tySem{\sigma^*B_1} = \tySem{B_1}$. Thus, by the
-    definition of substitution on arrow types, we have
-    $\tySem{\sigma^*(A_1 \tyArr A_2)} = \tySem{\sigma^*A_1 \tyArr
-      \sigma^*A_2} = \tySem{\sigma^*A_1} \to \tySem{\sigma^*A_2} =
-    \tySem{A_1} \to \tySem{A_2} = \tySem{A_1 \tyArr A_2}$, as
-    required.
-  \item[Case \TirName{TyProd}] We have $A = A_1 \tyProduct A_2$, and
-    by the induction hypothesis, we know that $\tySem{\sigma^*A_1} =
-    \tySem{A_1}$ and $\tySem{\sigma^*A_2} = \tySem{A_2}$. Thus, by the
-    definition of substitution on product types, we have
-    $\tySem{\sigma^*(A_1 \tyProduct A_2)} = \tySem{\sigma^*A_1
-      \tyProduct \sigma^*A_2} = \tySem{\sigma^*A_1} \times
-    \tySem{\sigma^*A_2} = \tySem{A_1} \times \tySem{A_2} = \tySem{A_1
-      \tyProduct A_2}$, as required.
-  \item[Case \TirName{TySum}] We have $A = A_1 + A_2$, and by the
-    induction hypothesis, we know that $\tySem{\sigma^*A_1} =
-    \tySem{A_1}$ and $\tySem{\sigma^*A_2} = \tySem{A_2}$. Thus, by the
-    definition of substitution on sum types, we have
-    $\tySem{\sigma^*(A_1 + A_2)} = \tySem{\sigma^*A_1 + \sigma^*A_2} =
-    \tySem{\sigma^*A_1} + \tySem{\sigma^*A_2} = \tySem{A_1} +
-    \tySem{A_2} = \tySem{A_1 + A_2}$, as required.
-  \item[Case \TirName{TyForall}] We have $A = \forall i\mathord:s.A'$,
-    and by the induction hypothesis we know that, for all $\sigma'$,
-    $\tySem{\sigma'^*A'} = \tySem{A'}$. Therefore, from the definition
-    of substitution for $\forall$-types, we have
-    $\tySem{\sigma^*\forall i\mathord:s.A'} = \tySem{\forall
-      i\mathord:s.\sigma_s^{*}A'} = \tySem{\sigma_s^{*}A'} = \tySem{A'}
-    = \tySem{\forall i\mathord:s.A'}$, where we have relied on the
-    fact that the index-erasure semantics of types ignores the index
-    quantification.
-  \end{description}
-\end{proof}
+% FIXME: make this look better
+\begin{lemma}[\lemref{lem:tyeqsubst-relational}]
+  \begin{enumerate}
+  \item If $\Delta \vdash A \equiv B \isType$, then for all $\rho \in
+    \relEnv{E}(\Delta)$, $\rsem{A}{\relEnv{E}}{\rho} =
+    \rsem{B}{\relEnv{E}}{\rho}$;
+  \item If $\Delta' \vdash A \isType$ and $\sigma : \Delta \Rightarrow
+    \Delta'$, then for all $\rho \in \relEnv{E}(\Delta)$,
+    $\rsem{\sigma^*A}{\relEnv{E}}\rho = \rsem{A}{\relEnv{E}}(\rho
+    \circ \sigma)$.
+  \end{enumerate}
+\end{lemma}
+\begin{proof}
+  \begin{enumerate}
+  \item By induction on the derivation of $\Delta \vdash A \equiv B
+    \isType$.
+    \begin{description}
+    \item[Case \TirName{TyEqUnit}] In this case $A = B = \tyUnit$, so
+      the statement is trivially statisfied.
+    \item[Case \TirName{TyEqPrim}] In this case we have $A =
+      \tyPrim{X}{e_1,...,e_n}$ and $B = \tyPrim{X}{e'_1,...,e'_n}$,
+      with $\Delta \vdash e_j \equiv e'_j : s_j$. By ou requirement
+      that relation environments preserve equality of simultaneous
+      substitutions we have that $\rho_{\tyPrimNm{X}}(e_1,...,e_n) =
+      \rho_{\tyPrimNm{X}}(e'_1,...,e'_n)$ and hence
+      $\rsem{\tyPrim{X}{e_1,...,e_n}}{\relEnv{E}}\rho =
+      \rsem{\tyPrim{X}{e'_1,...,e'_n}}{\relEnv{E}}\rho$.
+    \item[Case \TirName{TyEqArr}] We have $A = A_1 \tyArr A_2$ and $B
+      = B_1 \tyArr B_2$, with $\Delta \vdash A_1 \equiv B_1 \isType$
+      and $\Delta \vdash A_2 \equiv B_2 \isType$. By the induction
+      hypothesis, we know that $\rsem{A_1}{\relEnv{E}}\rho =
+      \rsem{B_1}{\relEnv{E}}\rho$ and $\rsem{A_2}{\relEnv{E}}\rho =
+      \rsem{B_2}{\relEnv{E}}\rho$. Thus we may reason as follows:
+      $\rsem{A_1 \tyArr A_2}{\relEnv{E}}\rho =
+      \rsem{A_1}{\relEnv{E}}\rho \relArrow \rsem{A_2}{\relEnv{E}}\rho
+      = \rsem{B_1}{\relEnv{E}}\rho \relArrow
+      \rsem{B_2}{\relEnv{E}}\rho = \rsem{B_1 \tyArr
+        B_2}{\relEnv{E}}\rho$, as required.
+    \item[Case \TirName{TyEqProd}] We have $A = A_1 \tyProduct A_2$
+      and $B = B_1 \tyProduct B_2$, with $\Delta \vdash A_1 \equiv B_1
+      \isType$ and $\Delta \vdash A_2 \equiv B_2 \isType$. By the
+      induction hypothesis, we know that $\rsem{A_1}{\relEnv{E}}\rho =
+      \rsem{B_1}{\relEnv{E}}\rho$ and $\rsem{A_2}{\relEnv{E}}\rho =
+      \rsem{B_2}{\relEnv{E}}\rho$. Therefore, we can reason as
+      follows: $\rsem{A_1 \tyProduct A_2}{\relEnv{E}}\rho =
+      \rsem{A_1}{\relEnv{E}}\rho \relTimes \rsem{A_2}{\relEnv{E}}\rho
+      = \rsem{B_1}{\relEnv{E}}\rho \relTimes
+      \rsem{B_2}{\relEnv{E}}\rho = \rsem{B_1 \tyProduct
+        B_2}{\relEnv{E}}\rho$, as required.
+    \item[Case \TirName{TyEqSum}] We have $A = A_1 + A_2$ and $B = B_1
+      + B_2$, with $\Delta \vdash A_1 \equiv B_1 \isType$ and $\Delta
+      \vdash A_2 \equiv B_2 \isType$. By the induction hypothesis, we
+      know that $\rsem{A_1}{\relEnv{E}}\rho =
+      \rsem{B_1}{\relEnv{E}}\rho$ and $\rsem{A_2}{\relEnv{E}}\rho =
+      \rsem{B_2}{\relEnv{E}}\rho$. Therefore, we can reason as
+      follows: $\rsem{A_1 + A_2}{\relEnv{E}}\rho =
+      \rsem{A_1}{\relEnv{E}}\rho \relSum \rsem{A_2}{\relEnv{E}}\rho =
+      \rsem{B_1}{\relEnv{E}}\rho \relSum \rsem{B_2}{\relEnv{E}}\rho =
+      \rsem{B_1 + B_2}{\relEnv{E}}\rho$, as required.
+    \item[Case \TirName{TyEqForall}] We have $A = \forall
+      i\mathord:s. A'$ and $B = \forall i\mathord:s.B'$, with $\Delta,
+      i : s \vdash A' \equiv B' \isType$. By the induction hypothesis,
+      we know that for all $\rho'$, $\rsem{A'}{\relEnv{E}}\rho' =
+      \rsem{B'}\rho'$. We reason as follows:
+      \begin{eqnarray*}
+        &    & (x_1,x_2) \in \rsem{\forall i\mathord:s. A'}{\relEnv{E}}\rho \\
+        &\iff& \forall \rho' \in \extends{\rho}{i:s}.\ (x_1,x_2) \in \rsem{A'}{\relEnv{E}}\rho' \\
+        &\iff& \forall \rho' \in \extends{\rho}{i:s}.\ (x_1,x_2) \in \rsem{B'}{\relEnv{E}}\rho' \\
+        &\iff& (x_1,x_2) \in \rsem{\forall i\mathord:s. B'}{\relEnv{E}}\rho
+      \end{eqnarray*}
+      Thus, by extensionality, we have $\rsem{\forall
+        i\mathord:s.A'}\rho \equiv \rsem{\forall
+        i\mathord:s.B'}{\relEnv{E}}\rho$, as required.
+    \end{description}
+  \item By induction on the derivation of $\Delta \vdash A \isType$. We
+    analyse each case in turn:
+    \begin{description}
+    \item[Case \TirName{TyUnit}] Directly from the definition of
+      substitution on types of the form $\tyUnit$, and the fact that
+      $\rsem{\tyUnit}{\relEnv{E}}\rho_1 =
+      \rsem{\tyUnit}{\relEnv{E}}\rho_2$ for any pair $\rho_1,\rho_2$
+      of relation environments, we have
+      $\rsem{\sigma^*\tyUnit}{\relEnv{E}}\rho =
+      \rsem{\tyUnit}{\relEnv{E}}{(\rho \circ \sigma^*)}$, as required.
+    \item[Case \TirName{TyPrim}] We have $A =
+      \tyPrim{X}{e_1,...,e_n}$, therefore
+      $\rsem{\sigma^*A}{\relEnv{E}}\rho =
+      \rsem{\sigma^*\tyPrim{X}{e_1,...,e_n}}{\relEnv{E}}\rho =
+      \rsem{\tyPrim{X}{\sigma^*e_1,...,\sigma^*e_n}}{\relEnv{E}}\rho =
+      \rho_{\tyPrimNm{X}}(\sigma^*e_1,...,\sigma^*e_n) =
+      \rsem{\tyPrim{X}{e_1,...,e_n}}{\relEnv{E}}{(\rho \circ
+        \sigma^*)}$, as required.
+    \item[Case \TirName{TyArr}] In this case, $A = A_1 \tyArr A_2$ and
+      by the induction hypothesis, we know that
+      $\rsem{\sigma^*A_1}{\relEnv{E}}\rho =
+      \rsem{A_1}{\relEnv{E}}{(\rho \circ \sigma^*)}$ and
+      $\rsem{\sigma^*A_2}{\relEnv{E}}\rho =
+      \rsem{A_2}{\relEnv{E}}{(\rho \circ \sigma^*)}$. Accordingly, we
+      reason as follows: $\rsem{\sigma^*(A_1 \tyArr
+        A_2)}{\relEnv{E}}\rho = \rsem{\sigma^*A_1 \tyArr
+        \sigma^*A_2}{\relEnv{E}}\rho =
+      \rsem{\sigma^*A_1}{\relEnv{E}}\rho \relArrow
+      \rsem{\sigma^*A_2}{\relEnv{E}}\rho =
+      \rsem{A_1}{\relEnv{E}}{(\rho \circ \sigma^*)} \relArrow
+      \rsem{A_2}{\relEnv{E}}{(\rho \circ \sigma^*)} = \rsem{A_1 \tyArr
+        A_2}{\relEnv{E}}{(\rho \circ \sigma^*)}$, as required.
+    \item[Case \TirName{TyProd}] In this case, $A = A_1 \tyProduct
+      A_2$ and by the induction hypothesis, we know that
+      $\rsem{\sigma^*A_1}{\relEnv{E}}\rho =
+      \rsem{A_1}{\relEnv{E}}{(\rho \circ \sigma^*)}$ and
+      $\rsem{\sigma^*A_2}{\relEnv{E}}\rho =
+      \rsem{A_2}{\relEnv{E}}{(\rho \circ \sigma^*)}$. Accordingly, we
+      reason as follows: $\rsem{\sigma^*(A_1 \tyProduct
+        A_2)}{\relEnv{E}}\rho = \rsem{\sigma^*A_1 \tyProduct
+        \sigma^*A_2}{\relEnv{E}}\rho =
+      \rsem{\sigma^*A_1}{\relEnv{E}}\rho \relTimes
+      \rsem{\sigma^*A_2}{\relEnv{E}}\rho =
+      \rsem{A_1}{\relEnv{E}}{(\rho \circ \sigma^*)} \relTimes
+      \rsem{A_2}{\relEnv{E}}{(\rho \circ \sigma^*)} = \rsem{A_1
+        \tyProduct A_2}{\relEnv{E}}{(\rho \circ \sigma^*)}$, as
+      required.
+    \item[Case \TirName{TySum}] In this case, $A = A_1 + A_2$ and by
+      the induction hypothesis, we know that
+      $\rsem{\sigma^*A_1}{\relEnv{E}}\rho =
+      \rsem{A_1}{\relEnv{E}}{(\rho \circ \sigma^*)}$ and
+      $\rsem{\sigma^*A_2}{\relEnv{E}}\rho =
+      \rsem{A_2}{\relEnv{E}}{(\rho \circ \sigma^*)}$. Accordingly, we
+      reason as follows: $\rsem{\sigma^*(A_1 + A_2)}{\relEnv{E}}\rho =
+      \rsem{\sigma^*A_1 + \sigma^*A_2}{\relEnv{E}}\rho =
+      \rsem{\sigma^*A_1}{\relEnv{E}}\rho \relSum
+      \rsem{\sigma^*A_2}{\relEnv{E}}\rho =
+      \rsem{A_1}{\relEnv{E}}{(\rho \circ \sigma^*)} \relSum
+      \rsem{A_2}{\relEnv{E}}{(\rho \circ \sigma^*)} = \rsem{A_1 +
+        A_2}{\relEnv{E}}{(\rho \circ \sigma^*)}$, as required.
+    \item[Case \TirName{TyForall}] We have $A = \forall
+      i\mathord:s.A'$. We prove the required equation by demonstrating
+      two inclusions. From left-to-right, we know that
+      \begin{equation}
+        \label{eq:tysubst-rel-forall1}
+        (x_1,x_2) \in \rsem{\sigma^*\forall i\mathord:s. A'}{\relEnv{E}}\rho
+      \end{equation}
+      and we must show that $(x_1, x_2) \in \rsem{\forall
+        i\mathord:s. A'}{\relEnv{E}}{(\rho \circ \sigma^*)}$. From
+      (\ref{eq:tysubst-rel-forall1}) and the definition of
+      substitution, we know that
+      \begin{displaymath}
+        \forall \rho' \in \extends{\rho}{i:s}.\ (x_1,x_2) \in \rsem{\sigma_s^*A'}{\relEnv{E}}\rho'
+      \end{displaymath}
+      By the induction hypothesis, we can deduce that
+      \begin{equation}
+        \label{eq:tysubst-rel-forall2}
+        \forall \rho' \in \extends{\rho}{i:s}.\ (x_1,x_2) \in \rsem{A'}{\relEnv{E}}{(\rho' \circ \sigma_s^{*})}
+      \end{equation}
+      To show the required inclusion, we must show that for all
+      $\rho_1 \in \extends{\rho \circ \sigma^*}{i:s}$, it is the case
+      that $(x_1,x_2) \in \rsem{A'}{\relEnv{E}}{\rho_1}$. We now make
+      use of the pushout property of our family $\relEnv{E}$ of
+      relation environments: we have a $\rho \in \relEnv{E}(\Delta)$
+      and $\rho_1 \in \relEnv{E}(\Delta, i:s)$ such that $\rho_1 \circ
+      \pi_{i:s} = \rho \circ \sigma^*$ (by the assumption that $\rho_1
+      \in \extends{\rho \circ \sigma^*}{i:s}$), so we can obtain a
+      $\rho' \in \relEnv{E}(\Delta',i:s)$ such that $\rho' \circ
+      \pi_{i:s} = \rho$ (so $\rho' \in \extends{\rho}{i:s}$), and
+      $\rho' \circ \sigma^* = \rho_1$. Therefore we use
+      (\ref{eq:tysubst-rel-forall2}) to deduce that $(x_1,x_2) \in
+      \rsem{A'}{\relEnv{E}}{\rho_1}$, and the inclusion from
+      left-to-right is shown.
 
-\begin{proof}\textbf{[Of \lemref{lem:tyeq-rel}]}
-  By induction on the derivation of $\Delta \vdash A \equiv B \isType$.
-  \begin{description}
-  \item[Case \TirName{TyEqUnit}] In this case $A = B = \tyUnit$, so
-    the statement is trivially statisfied.
-  \item[Case \TirName{TyEqPrimIdx}] In this case we have $A =
-    \tyPrim{X}{e_1}$ and $B = \tyPrim{X}{e_2}$, with $\Delta \vdash
-    e_1 \equiv e_2 : s$. The index expressions $e_1$ and $e_2$ are in
-    the same equivalence class, so by the definition of relation
-    environments we have that $\rho_{\tyPrimNm{X}}(e_1) =
-    \rho_{\tyPrimNm{X}}(e_2)$ and hence
-    $\rsem{\tyPrim{X}{e_1}}{\relEnv{E}}\rho =
-    \rsem{\tyPrim{X}{e_2}}{\relEnv{E}}\rho$.
-  \item[Case \TirName{TyEqPrimNoIdx}] This case is similar to the case
-    for \TirName{TyEqUnit}.
-  \item[Case \TirName{TyEqArr}] We have $A = A_1 \tyArr A_2$ and $B =
-    B_1 \tyArr B_2$, with $\Delta \vdash A_1 \equiv B_1 \isType$ and
-    $\Delta \vdash A_2 \equiv B_2 \isType$. By the induction
-    hypothesis, we know that $\rsem{A_1}{\relEnv{E}}\rho =
-    \rsem{B_1}{\relEnv{E}}\rho$ and $\rsem{A_2}{\relEnv{E}}\rho =
-    \rsem{B_2}{\relEnv{E}}\rho$. Thus we may reason as follows:
-    $\rsem{A_1 \tyArr A_2}{\relEnv{E}}\rho =
-    \rsem{A_1}{\relEnv{E}}\rho \relArrow \rsem{A_2}{\relEnv{E}}\rho =
-    \rsem{B_1}{\relEnv{E}}\rho \relArrow \rsem{B_2}{\relEnv{E}}\rho =
-    \rsem{B_1 \tyArr B_2}{\relEnv{E}}\rho$, as required.
-  \item[Case \TirName{TyEqProd}] We have $A = A_1 \tyProduct A_2$ and
-    $B = B_1 \tyProduct B_2$, with $\Delta \vdash A_1 \equiv B_1
-    \isType$ and $\Delta \vdash A_2 \equiv B_2 \isType$. By the
-    induction hypothesis, we know that $\rsem{A_1}{\relEnv{E}}\rho =
-    \rsem{B_1}{\relEnv{E}}\rho$ and $\rsem{A_2}{\relEnv{E}}\rho =
-    \rsem{B_2}{\relEnv{E}}\rho$. Therefore, we can reason as follows:
-    $\rsem{A_1 \tyProduct A_2}{\relEnv{E}}\rho =
-    \rsem{A_1}{\relEnv{E}}\rho \relTimes \rsem{A_2}{\relEnv{E}}\rho =
-    \rsem{B_1}{\relEnv{E}}\rho \relTimes \rsem{B_2}{\relEnv{E}}\rho =
-    \rsem{B_1 \tyProduct B_2}{\relEnv{E}}\rho$, as required.
-  \item[Case \TirName{TyEqSum}] We have $A = A_1 + A_2$ and $B = B_1 +
-    B_2$, with $\Delta \vdash A_1 \equiv B_1 \isType$ and $\Delta
-    \vdash A_2 \equiv B_2 \isType$. By the induction hypothesis, we
-    know that $\rsem{A_1}{\relEnv{E}}\rho =
-    \rsem{B_1}{\relEnv{E}}\rho$ and $\rsem{A_2}{\relEnv{E}}\rho =
-    \rsem{B_2}{\relEnv{E}}\rho$. Therefore, we can reason as follows:
-    $\rsem{A_1 + A_2}{\relEnv{E}}\rho = \rsem{A_1}{\relEnv{E}}\rho
-    \relSum \rsem{A_2}{\relEnv{E}}\rho = \rsem{B_1}{\relEnv{E}}\rho
-    \relSum \rsem{B_2}{\relEnv{E}}\rho = \rsem{B_1 +
-      B_2}{\relEnv{E}}\rho$, as required.
-  \item[Case \TirName{TyEqForall}] We have $A = \forall
-    i\mathord:s. A'$ and $B = \forall i\mathord:s.B'$, with $\Delta, i
-    : s \vdash A' \equiv B' \isType$. By the induction hypothesis,
-    we know that for all $\rho'$, $\rsem{A'}{\relEnv{E}}\rho' =
-    \rsem{B'}\rho'$. We reason as follows:
-    \begin{eqnarray*}
-      &    & (x_1,x_2) \in \rsem{\forall i\mathord:s. A'}{\relEnv{E}}\rho \\
-      &\iff& \forall \rho' \in \extends{\rho}{i:s}.\ (x_1,x_2) \in \rsem{A'}{\relEnv{E}}\rho' \\
-      &\iff& \forall \rho' \in \extends{\rho}{i:s}.\ (x_1,x_2) \in \rsem{B'}{\relEnv{E}}\rho' \\
-      &\iff& (x_1,x_2) \in \rsem{\forall i\mathord:s. B'}{\relEnv{E}}\rho
-    \end{eqnarray*}
-    Thus, by extensionality, we have $\rsem{\forall
-      i\mathord:s.A'}\rho \equiv \rsem{\forall
-      i\mathord:s.B'}{\relEnv{E}}\rho$, as required.
-  \end{description}
-\end{proof}
-
-\begin{proof}\textbf{[Of \lemref{lem:tysubst-rel}]}
-  The first part of the lemma statement is proved by induction on the
-  derivation of $\Delta \vdash A \isType$. We analyse each case in
-  turn:
-  \begin{description}
-  \item[Case \TirName{TyUnit}] Directly from the definition of
-    substitution on types of the form $\tyUnit$, and the fact that
-    $\rsem{\tyUnit}{\relEnv{E}}\rho_1 =
-    \rsem{\tyUnit}{\relEnv{E}}\rho_2$ for any pair $\rho_1,\rho_2$ of
-    relation environments, we have
-    $\rsem{\sigma^*\tyUnit}{\relEnv{E}}\rho =
-    \rsem{\tyUnit}{\relEnv{E}}{(\rho \circ \sigma^*)}$, as required.
-  \item[Case \TirName{TyPrimIdx}] We have $A = \tyPrim{X}{e}$, therefore
-    $\rsem{\sigma^*A}{\relEnv{E}}\rho =
-    \rsem{\sigma^*\tyPrim{X}{e}}{\relEnv{E}}\rho =
-    \rsem{\tyPrim{X}{\sigma^*e}}{\relEnv{E}}\rho =
-    \rho_{\tyPrimNm{X}}(\sigma^*e) =
-    \rsem{\tyPrim{X}{e}}{\relEnv{E}}{(\rho \circ \sigma^*)}$, as
-    required.
-  \item[Case \TirName{TyPrimNoIdx}] Similar to the case for
-    \TirName{TyUnit}.
-  \item[Case \TirName{TyArr}] In this case, $A = A_1 \tyArr A_2$ and
-    by the induction hypothesis, we know that $\rsem{\sigma^*A_1}{\relEnv{E}}\rho
-    = \rsem{A_1}{\relEnv{E}}{(\rho \circ \sigma^*)}$ and $\rsem{\sigma^*A_2}{\relEnv{E}}\rho =
-    \rsem{A_2}{\relEnv{E}}{(\rho \circ \sigma^*)}$. Accordingly, we reason as
-    follows: $\rsem{\sigma^*(A_1 \tyArr A_2)}{\relEnv{E}}\rho = \rsem{\sigma^*A_1
-      \tyArr \sigma^*A_2}{\relEnv{E}}\rho = \rsem{\sigma^*A_1}{\relEnv{E}}\rho \relArrow
-    \rsem{\sigma^*A_2}{\relEnv{E}}\rho = \rsem{A_1}{\relEnv{E}}{(\rho \circ \sigma^*)}
-    \relArrow \rsem{A_2}{\relEnv{E}}{(\rho \circ \sigma^*)} = \rsem{A_1 \tyArr
-      A_2}{\relEnv{E}}{(\rho \circ \sigma^*)}$, as required.
-  \item[Case \TirName{TyProd}] In this case, $A = A_1 \tyProduct A_2$
-    and by the induction hypothesis, we know that
-    $\rsem{\sigma^*A_1}{\relEnv{E}}\rho = \rsem{A_1}{\relEnv{E}}{(\rho
-      \circ \sigma^*)}$ and $\rsem{\sigma^*A_2}{\relEnv{E}}\rho =
-    \rsem{A_2}{\relEnv{E}}{(\rho \circ \sigma^*)}$. Accordingly, we
-    reason as follows: $\rsem{\sigma^*(A_1 \tyProduct
-      A_2)}{\relEnv{E}}\rho = \rsem{\sigma^*A_1 \tyProduct
-      \sigma^*A_2}{\relEnv{E}}\rho =
-    \rsem{\sigma^*A_1}{\relEnv{E}}\rho \relTimes
-    \rsem{\sigma^*A_2}{\relEnv{E}}\rho = \rsem{A_1}{\relEnv{E}}{(\rho
-      \circ \sigma^*)} \relTimes \rsem{A_2}{\relEnv{E}}{(\rho \circ
-      \sigma^*)} = \rsem{A_1 \tyProduct A_2}{\relEnv{E}}{(\rho \circ
-      \sigma^*)}$, as required.
-  \item[Case \TirName{TySum}] In this case, $A = A_1 + A_2$
-    and by the induction hypothesis, we know that
-    $\rsem{\sigma^*A_1}{\relEnv{E}}\rho = \rsem{A_1}{\relEnv{E}}{(\rho
-      \circ \sigma^*)}$ and $\rsem{\sigma^*A_2}{\relEnv{E}}\rho =
-    \rsem{A_2}{\relEnv{E}}{(\rho \circ \sigma^*)}$. Accordingly, we
-    reason as follows: $\rsem{\sigma^*(A_1 +
-      A_2)}{\relEnv{E}}\rho = \rsem{\sigma^*A_1 +
-      \sigma^*A_2}{\relEnv{E}}\rho =
-    \rsem{\sigma^*A_1}{\relEnv{E}}\rho \relSum
-    \rsem{\sigma^*A_2}{\relEnv{E}}\rho = \rsem{A_1}{\relEnv{E}}{(\rho
-      \circ \sigma^*)} \relSum \rsem{A_2}{\relEnv{E}}{(\rho \circ
-      \sigma^*)} = \rsem{A_1 + A_2}{\relEnv{E}}{(\rho \circ
-      \sigma^*)}$, as required.
-  \item[Case \TirName{TyForall}] We have $A = \forall
-    i\mathord:s.A'$. We prove the required equation by demonstrating
-    two inclusions. From left-to-right, we know that
-    \begin{equation}
-      \label{eq:tysubst-rel-forall1}
-      (x_1,x_2) \in \rsem{\sigma^*\forall i\mathord:s. A'}{\relEnv{E}}\rho
-    \end{equation}
-    and we must show that $(x_1, x_2) \in \rsem{\forall
-      i\mathord:s. A'}{\relEnv{E}}{(\rho \circ \sigma^*)}$. From
-    (\ref{eq:tysubst-rel-forall1}) and the definition of substitution,
-    we know that
-    \begin{displaymath}
-      \forall \rho' \in \extends{\rho}{i:s}.\ (x_1,x_2) \in \rsem{\sigma_s^*A'}{\relEnv{E}}\rho'
-    \end{displaymath}
-    By the induction hypothesis, we can deduce that
-    \begin{equation}
-      \label{eq:tysubst-rel-forall2}
-      \forall \rho' \in \extends{\rho}{i:s}.\ (x_1,x_2) \in \rsem{A'}{\relEnv{E}}{(\rho' \circ \sigma_s^{*})}
-    \end{equation}
-    To show the required inclusion, we must show that for all $\rho_1
-    \in \extends{\rho \circ \sigma^*}{i:s}$, it is the case that
-    $(x_1,x_2) \in \rsem{A'}{\relEnv{E}}{\rho_1}$. We now make use of
-    the pushout property of our family $\relEnv{E}$ of relation
-    environments: we have a $\rho \in \relEnv{E}(\Delta)$ and $\rho_1
-    \in \relEnv{E}(\Delta, i:s)$ such that $\rho_1 \circ \pi_{i:s} =
-    \rho \circ \sigma^*$ (by the assumption that $\rho_1 \in
-    \extends{\rho \circ \sigma^*}{i:s}$), so we can obtain a $\rho'
-    \in \relEnv{E}(\Delta',i:s)$ such that $\rho' \circ \pi_{i:s} =
-    \rho$ (so $\rho' \in \extends{\rho}{i:s}$), and $\rho' \circ
-    \sigma^* = \rho_1$. Therefore we use
-    (\ref{eq:tysubst-rel-forall2}) to deduce that $(x_1,x_2) \in
-    \rsem{A'}{\relEnv{E}}{\rho_1}$, and the inclusion from
-    left-to-right is shown.
-
-    From right-to-left, we must now show
-    (\ref{eq:tysubst-rel-forall2}) under the assumption that
-    \begin{equation}
-      \label{eq:tysubst-rel-forall3}
-      \forall \rho_1 \in \extends{\rho \circ \sigma^*}{i:s}. (x_1,x_2) \in \rsem{A'}{\relEnv{E}}{\rho_1}.
-    \end{equation}
-    Given $\rho' \in \extends{\rho}{i:s}$, we let $\rho_1 = \rho'
-    \circ \sigma^*$. Now, $\rho_1 \circ \pi_{i:s} = \rho' \circ
-    \sigma^* \circ \pi_{i:s} = \rho' \circ \pi_{i:s} \circ \sigma_s^{*}
-    = \rho \circ \sigma_s^{*}$. Thus $\rho_1 \in \extends{\rho \circ
-      \sigma^*}{i:s}$ and we may use (\ref{eq:tysubst-rel-forall3}) to
-    deduce that $(x_1,x_2) \in \rsem{A'}{\relEnv{E}}{(\rho' \circ \sigma_s^{*})}$,
-    as required.
-  \end{description}
-  The second part of the lemma statement follows directly by induction
-  on the derivation of $\Delta \vdash \Gamma \isCtxt$ and the first
-  part. The step case of the induction is very similar to the
-  \TirName{TyProd} case above.
+      From right-to-left, we must now show
+      (\ref{eq:tysubst-rel-forall2}) under the assumption that
+      \begin{equation}
+        \label{eq:tysubst-rel-forall3}
+        \forall \rho_1 \in \extends{\rho \circ \sigma^*}{i:s}. (x_1,x_2) \in \rsem{A'}{\relEnv{E}}{\rho_1}.
+      \end{equation}
+      Given $\rho' \in \extends{\rho}{i:s}$, we let $\rho_1 = \rho'
+      \circ \sigma^*$. Now, $\rho_1 \circ \pi_{i:s} = \rho' \circ
+      \sigma^* \circ \pi_{i:s} = \rho' \circ \pi_{i:s} \circ
+      \sigma_s^{*} = \rho \circ \sigma_s^{*}$. Thus $\rho_1 \in
+      \extends{\rho \circ \sigma^*}{i:s}$ and we may use
+      (\ref{eq:tysubst-rel-forall3}) to deduce that $(x_1,x_2) \in
+      \rsem{A'}{\relEnv{E}}{(\rho' \circ \sigma_s^{*})}$, as required.
+    \end{description}
+    The second part of the lemma statement follows directly by
+    induction on the derivation of $\Delta \vdash \Gamma \isCtxt$ and
+    the first part. The step case of the induction is very similar to
+    the \TirName{TyProd} case above.
+  \end{enumerate}
 \end{proof}
