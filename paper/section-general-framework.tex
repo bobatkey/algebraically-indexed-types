@@ -21,9 +21,19 @@ multi-sorted algebraic theory.
 
 We next present the semantics of types in
 \autoref{sec:semantics-algebraically-indexed-types}. Types are first
-interpreted without reference to the indexing terms: an
-\emph{index-erasure} semantics. The index-erasure semantics provides
-FIXME. Relational semantics...
+interpreted without reference to the indexing terms: the
+\emph{index-erasure} interpretation. The index-erasure interpretation
+provides an ``underlying'' semantics to each type (and term), which we
+think of as an abstraction of the actual operational behaviour of a
+term. By erasing all the index terms, we can immediately see that the
+run-time behaviour of programs cannot depend on index terms. We then
+define the \emph{relational interpretation}, which interprets every
+type as a binary relation on its index-erasure interpretation. The
+relational interpretation acts as ``commentary'' on the underlying
+interpretation, constraining the index-erasure interpretations that
+are allowed. In particular, we use the relational interpretation to
+enforce the invariance properties that we indentified in
+\autoref{sec:motivating-examples}.
 
 Throughout this section, we use Kennedy's original units of measure
 system as a running example in order to provide a concrete example of
@@ -154,9 +164,10 @@ index terms of some sort.
 \subsubsection{Simultaneous Substitutions of Index Terms}
 \label{sec:simultaneous-substitution}
 
-We now define simultaneous substitutions of index terms. Given a pair
+It will technically convenient to express substitution of index terms
+in our framework in terms of simultaneous substitutions.  Given a pair
 of index contexts $\Delta$ and $\Delta' = i_1 \mathord: s_1, ..., i_n
-\mathord: s_n$, a simultaneous substitution $\sigma : \Delta
+\mathord: s_n$, a \emph{simultaneous substitution} $\sigma : \Delta
 \Rightarrow \Delta'$ is a sequence of terms $\sigma = (e_1,...,e_n)$
 such that for each $j$ such that $1 \leq j \leq n$, $\Delta \vdash e_j
 : s_j$. Given a simultaneous substitution $\sigma = (e_1,...,e_n) :
@@ -311,8 +322,8 @@ We define a pair of simultaneous substitutions $\sigma, \sigma' :
 \Delta \Rightarrow \Delta'$ to be judgmentally equal if their
 component terms are judgmentally equal in the context $\Delta$: i.e.~
 if $\Delta \vdash e_j \equiv e'_j : s_j$, for all $j$. We write
-$\Delta \vdash \sigma \equiv \sigma' : \Delta'$ when two simultaneous
-substitutions are judgmentally equal.
+$\Delta \vdash \sigma \equiv \sigma' \Rightarrow \Delta'$ when two
+simultaneous substitutions are judgmentally equal.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -391,78 +402,79 @@ interpretation of types:
 
 We now define the relational semantics of each well-indexed type
 $\Delta \vdash A \isType$ as some binary relation on the index-erasure
-interpretation of $A$. The relational interpretation that we define
-will be a \emph{logical relation}, so the relational interpretation of
-the function type will be the standard definition relating two
-functions if they take related inputs to related outputs. We also use
-the standard binary relational interpretations for the unit, tuple and
-sum types. (We define the standard relational interpretations formally
-below.)
+interpretation of $A$. For a set $X$, we write $\Rel(X)$ for the set
+of binary relations $R \subseteq X \times X$ on $X$.
 
-It remains to devise the relational interpretation of primitive types
-instantiated with index terms ($\tyPrim{X}{e_1,...,e_n}$), and
-universally quantified types ($\forall i\mathord:s. A$). In the
-index-erasure semantics, we assumed an assignment of a set
-$\tyPrimSem{\tyPrimNm{X}}$ to each primitive type $\tyPrimNm{X} \in
-\PrimTypeSet$. For the relational semantics of types
-$\tyPrim{X}{e_1,...,e_n}$, we will assume some assignment of a binary
-relation on $\tyPrimSem{\tyPrimNm{X}}$ to each primitive type
-$\tyPrimNm{X}$ \emph{and} sequence of appropriately sorted (in some
-index context $\Delta$) index terms $e_1,...,e_n$. Unlike the index
-erasure interpretation, we do not assume a fixed relational
-interpretation of the primitive types: in order to interpret the
-universal quantification type, 
+For the unit, tuple, sum and function types the we will define the
+relational interpretation as a standard logical relation. The
+relational interpretations of primitive types with index arguments and
+the universally quantified types requires an interpretation of index
+contexts. We assign interpretations to index contexts in terms of
+\emph{relational environments}, which we now define.
 
-FIXME: explain that we must deal with the fact that we wish to
-quantify over extensions to the index context when we interpret the
-universal quantification type.
-
-For a set $X$, let $\Rel(X)$ be the set of binary relations $R
-\subseteq X \times X$ on $X$.
-
-Given an index context $\Delta$, a relation environment is a
-(dependently typed) function:
+A relation environment for a context $\Delta$ is a
+(dependently typed) function that, for each primitive type
+$\tyPrimNm{X}$ and instantiation of its arguments $\sigma$, assigns a
+binary relation $\rho\ \tyPrimNm{X}\ \sigma$ on the index-erasure
+interpretation of $\tyPrimNm{X}$:
 \begin{displaymath}
-  \rho : (\tyPrimNm{X} \in \PrimTypeSet) \to (\Delta \Rightarrow \primTyArity(\tyPrimNm{X})) \to \Rel(\tyPrimSem{X})
+  \rho : (\tyPrimNm{X} \in \PrimTypeSet) \to (\Delta \Rightarrow \primTyArity(\tyPrimNm{X})) \to \Rel(\tyPrimSem{\tyPrimNm{X}})
 \end{displaymath}
-that respects equality on index terms: for any $\tyPrimNm{X} \in
-\PrimTypeSet$ and pair of simultaneous substitutions $\sigma : \Delta
-\Rightarrow \primTyArity(\tyPrimNm{X})$ and $\sigma' : \Delta
-\Rightarrow \primTyArity(\tyPrimNm{X})$ such that $\Delta \vdash
-\sigma \equiv \sigma' : \primTyArity(\tyPrimNm{X})$, then $\rho\
-\tyPrimNm{X}\ \sigma = \rho\ \tyPrimNm{X}\ \sigma'$.
+Every relation environment must respect index term equality: for any
+$\tyPrimNm{X} \in \PrimTypeSet$ and pair of simultaneous substitutions
+$\sigma : \Delta \Rightarrow \primTyArity(\tyPrimNm{X})$ and $\sigma'
+: \Delta \Rightarrow \primTyArity(\tyPrimNm{X})$ such that $\Delta
+\vdash \sigma \equiv \sigma' \Rightarrow \primTyArity(\tyPrimNm{X})$, % FIXME: make sure the notation for ss equality is consistent
+then $\rho\ \tyPrimNm{X}\ \sigma = \rho\ \tyPrimNm{X}\ \sigma'$.
 
-\textbf{FIXME: define the composition of a relational environment with
-  a simultaneous substitution}
+% FIXME: an example?
 
-\textbf{FIXME: reword this part} We define our relational semantics of
-types with respect to a given collection of relation environments: we
-assume that, for each index context $\Delta$, we are given a set of
-relation environments $\relEnv{E}(\Delta)$. Note that this assignment
-of sets of relation environments to index contexts is not assumed to
-be compositional: it is not necessarily the case that the set of
-relational environments $\relEnv{E}(\Delta_1,\Delta_2)$ is defined in
-terms of $\relEnv{E}(\Delta_1)$ and $\relEnv{E}(\Delta_2)$. However,
-it must satisfy the following two properties:
+We write $\mathrm{RelEnv}(\Delta)$ for the set of all relation
+environments for a context $\Delta$. Given a relational environment
+$\rho \in \mathrm{RelEnv}(\Delta')$ and a simultaneous substitution
+$\sigma : \Delta \Rightarrow \Delta'$, we can derive the composed
+relational environment (with an abuse of notation) $\rho \circ \sigma
+\in \mathrm{RelEnv}(\Delta)$ as $(\rho \circ \sigma)\ \tyPrimNm{X}\
+\sigma' = \rho\ \tyPrimNm{X}\ (\sigma \circ \sigma')$.
+
+% FIXME: fix the notation here for interpretation of index contexts:
+% should use some sort of semantic brackets
+
+As we stated above, index contexts $\Delta$ are interpreted as certain
+sets of relation environments, i.e.~ subsets of
+$\mathrm{RelEnv}(\Delta)$. Depending on the primitive operations that
+we assume for our system, we can have different sets of relational
+environments that enforce different invariants. For the general
+framework, we assume that, for each index context $\Delta$, we are
+given a set of relation environments $\relEnv{E}(\Delta)$. Note that
+this assignment of sets of relation environments to index contexts is
+not assumed to be compositional: it is not necessarily the case that
+the set of relational environments $\relEnv{E}(\Delta_1,\Delta_2)$ is
+defined in terms of $\relEnv{E}(\Delta_1)$ and
+$\relEnv{E}(\Delta_2)$. However, it must satisfy the following two
+properties:
 \begin{enumerate}
 \item Closure under simultaneous substitution of index terms: if $\rho
   \in \relEnv{E}(\Delta)$ and $\sigma : \Delta' \Rightarrow \Delta$,
   then $\rho \circ \sigma \in \relEnv{E}(\Delta')$.
-\item \textbf{FIXME: update the formulation of this condition} If we
-  have a pair of relation environments $\rho_1 \in \relEnv{E}(\Delta',
-  i\mathord:s')$ and $\rho_2 \in \relEnv{E}(\Delta)$, along with an
-  index context morphism $\sigma : \Delta' \Rightarrow \Delta$, such
-  that the outer edges of the following diagram commute, for all
-  primitive types $\tyPrimNm{X} \in \mathit{PrimType}$:
+\item If we have a pair of relation environments $\rho_1 \in
+  \relEnv{E}(\Delta', i\mathord:s')$ and $\rho_2 \in
+  \relEnv{E}(\Delta)$, along with an simultaneous substitution $\sigma
+  : \Delta' \Rightarrow \Delta$, such that the outer edges of the
+  following diagram commute, for all primitive types $\tyPrimNm{X} \in
+  \mathit{PrimType}$:
+  %FIXME: check that these compositions are the right way round
+  %FIXME: re-do this as a set of equations
+  %FIXME: give a better English description of why this is needed
   \begin{displaymath}
     \xymatrix{
-      {\idxTms{\Delta}{s}} \ar[r]^(.45){\pi^*_{i\mathord:s'}} \ar[d]_{\sigma^*}
+      {\Delta \Rightarrow \primTyArity(\tyPrimNm{X})} \ar[r]^(.45){- \circ \pi_{i\mathord:s'}} \ar[d]_{- \circ \sigma}
       &
-      {\idxTms{\Delta,i\mathord:s'}{s}} \ar[d]^{\sigma_{s'}^*} \ar@/^/[rdd]^{\rho_1}
+      {\Delta,i\mathord:s' \Rightarrow \primTyArity(\tyPrimNm{X})} \ar[d]^{- \circ \sigma_{s'}} \ar@/^/[rdd]^{\rho_1 \tyPrimNm{X}}
       \\
-      {\idxTms{\Delta'}{s}} \ar[r]^(.45){\pi^*_{i\mathord:s'}} \ar@/_/[rrd]_{\rho_2}
+      {\Delta' \Rightarrow \primTyArity(\tyPrimNm{X})} \ar[r]^(.45){- \circ \pi_{i\mathord:s'}} \ar@/_/[rrd]_{\rho_2\ \tyPrimNm{X}}
       &
-      {\idxTms{\Delta',i\mathord:s'}{s}} \ar@{.>}[dr]_\rho
+      {\Delta,i\mathord:s' \Rightarrow \primTyArity(\tyPrimNm{X})} \ar@{.>}[dr]_{\rho\ \tyPrimNm{X}}
       \\
       &
       &
@@ -470,34 +482,53 @@ it must satisfy the following two properties:
     }
   \end{displaymath}
   Then there exists a relation environment $\rho \in
-  \relEnv{E}(\Delta,i\mathord:s')$ such that the two triangles in the
-  bottom right of the diagram commute.
+  \relEnv{E}(\Delta,i\mathord:s')$ (the dotted arrow) such that the
+  two triangles in the bottom right of the diagram commute.
+  % FIXME: mention that we already know that the square commutes
 \end{enumerate}
 
+Both of these conditions ensure that the relational interpretation of
+types that we define below behaves correctly with respect to
+simultaneous substitution of index terms
+(\lemref{lem:tyeqsubst-relational}, below). The second condition may
+seem mysterious at first, but it is essential for proving that the
+relational interpretation of universal quantification types behaves
+correctly with respect to application of simultaneous substitution.
+
 \begin{example}[Units of Measure]
-  FIXME: give two examples of sets of relational environments.
+  We give two examples of assignments of sets of relational
+  environments to index contexts in the units of measure example. The
+  second example is a refinment of the first. FIXME: some general
+  words about relational environments in these cases.
+  \begin{enumerate}
+  \item FIXME: assign a positive scaling factor to each variable in an
+    index context, extend homomorphically to all index terms, and then
+    use this to define a scaling relation
+  \item FIXME: given an index context, assume a subgroup and a
+    homomorphism into the scaling factors
+  \end{enumerate}
 \end{example}
 
-% FIXME: motivate this in terms of the semantics of forall types
 Given a relation environment $\rho \in \relEnv{E}(\Delta)$, we define
 the set of extensions $\extends{\rho}{i\mathord:s}$ of $\rho$ by an
-additional index variable $i\mathord:s$ to be the following:
-\begin{displaymath}
-  \extends{\rho}{i\mathord:s} \isDefinedAs \{ \rho' \in \relEnv{E}(\Delta,i\mathord:s) \sepbar \rho' \circ \pi^*_{i\mathord:s} = \rho \}
-\end{displaymath}
+additional index variable $i\mathord:s$ to be
+$\extends{\rho}{i\mathord:s} \isDefinedAs \{ \rho' \in
+\relEnv{E}(\Delta,i\mathord:s) \sepbar \rho' \circ \pi^*_{i\mathord:s}
+= \rho \}$. The set of extensions of a relational environment will be
+used in the interpretation of the universal quantification type.
 
-A given relation context $\rho \in \relEnv{E}(\Delta)$ is extended to
+A relational environment $\rho \in \relEnv{E}(\Delta)$ is extended to
 a relation interpretation of any type $\Delta \vdash A \isType$ by
-induction its derivation. Thus, we define a relation
-$\rsem{A}{\relEnv{E}}{\rho} \in \Rel(\tySem{A})$ for each well-indexed
-type.
+induction on its derivation: % Thus, we define a relation
+% $\rsem{A}{\relEnv{E}}{\rho} \in \Rel(\tySem{A})$ for each well-indexed
+% type.
 \begin{eqnarray*}
   \rsem{\tyUnit}{\relEnv{E}}\rho & \isDefinedAs & \{(*,*)\} \\
   \rsem{\tyPrim{X}{e_1,...,e_n}}{\relEnv{E}}\rho & \isDefinedAs & \rho\ {\tyPrimNm{X}}\ (e_1,...,e_n) \\
   \rsem{A \tyArr B}{\relEnv{E}}\rho & \isDefinedAs & \rsem{A}{\relEnv{E}}\rho \relArrow \rsem{B}{\relEnv{E}}\rho \\
   \rsem{A \tyProduct B}{\relEnv{E}}\rho & \isDefinedAs & \rsem{A}{\relEnv{E}}\rho \relTimes \rsem{B}{\relEnv{E}}\rho \\
   \rsem{A + B}{\relEnv{E}}\rho & \isDefinedAs & \rsem{A}{\relEnv{E}}\rho \relSum \rsem{B}{\relEnv{E}}\rho \\
-  \rsem{\forall i\mathord:s.A}{\relEnv{E}}\rho & \isDefinedAs & \bigcap\{ \rsem{A}{\relEnv{E}}\rho' \sepbar \rho' \in \extends{\rho}{i:s} \}
+  \rsem{\forall i\mathord:s.A}{\relEnv{E}}\rho & \isDefinedAs & \bigcap\{ \rsem{A}{\relEnv{E}}\rho' \sepbar \rho' \in \extends{\rho}{i\mathord:s} \}
 \end{eqnarray*}
 In this definition we have made use of the following three
 constructions on binary relations. If $R \in \Rel(X)$ and $S \in
@@ -698,13 +729,13 @@ $-\relTimes-$ defined in \autoref{sec:relational-semantics}.
   \rsem{\Gamma, x : A}{\relEnv{E}}{\rho} & \isDefinedAs & \rsem{\Gamma}{\relEnv{E}}\rho \relTimes \rsem{A}{\relEnv{E}}\rho
 \end{eqnarray*}
 The relational interpretation of contexts inherits from the relational
-interpretation of types the property of interpretating the application
+interpretation of types the property of interpreting the application
 of simultaneous substitutions as composition:
 \begin{lemma}\label{lem:ctxtsubst-rel}
-  If $\Delta \vdash \Gamma \isCtxt$ and $\sigma : \Delta' \Rightarrow
-  \Delta$, then for all $\rho \in \relEnv{E}(\Delta')$,
+  If $\Delta \vdash' \Gamma \isCtxt$ and $\sigma : \Delta \Rightarrow
+  \Delta'$, then for all $\rho \in \relEnv{E}(\Delta)$,
   $\rsem{\sigma^*\Gamma}{\relEnv{E}}\rho =
-  \rsem{\Gamma}{\relEnv{E}}{(\rho \circ \sigma^*)}$.
+  \rsem{\Gamma}{\relEnv{E}}{(\rho \circ \sigma)}$.
 \end{lemma}
 
 \begin{theorem}[Abstraction]\label{thm:abstraction}
