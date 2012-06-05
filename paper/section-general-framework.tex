@@ -43,20 +43,24 @@ generalised Kennedy's original development.
 \subsection{Algebraically-Indexed Types}
 \label{sec:algebraically-indexed-types}
 
-The indexing terms and types of our system are derived from the
-following data:
+The indexing terms and types of an instantiation of our general
+framework are derived from the following data:
 \begin{enumerate}
 \item A collection $\SortSet$ of index sorts. We will use the
   meta-syntactic variables $s,s_1,s_2,...$ and so on to stand for
   arbitrary sorts taken from $\SortSet$.
-\item A collection $\IndexOpSet$ of index operations, with an
-  accompanying function $\indexOpArity : \IndexOpSet \to \SortSet^*
-  \times \SortSet$ (we use the notation $A^*$ to denote the set of
-  lists of elements of some set $A$). 
-\item A collection $\PrimTypeSet$ of primitive types, with an
-  accompanying function $\primTyArity : \PrimTypeSet \to
-  \SortSet^*$.
+\item A collection $\IndexOpSet$ of index operations, with a function
+  $\indexOpArity : \IndexOpSet \to \SortSet^* \times \SortSet$ (we use
+  the notation $A^*$ to denote the set of lists of elements of some
+  set $A$).
+\item A collection $\PrimTypeSet$ of primitive types, with a function
+  $\primTyArity : \PrimTypeSet \to \SortSet^*$, describing the sorts
+  of the arguments of each primitive type.
 \end{enumerate}
+
+\begin{example}[Origin Invariance]
+  \fixme{Do this, then update the units of measure example}
+\end{example}
 
 \begin{example}[Units of Measure]
   To instantiate our general framework as Kennedy's original units
@@ -80,18 +84,17 @@ following data:
   $\primTyArity(\mathsf{num}) = [\mathsf{unit}]$.
 \end{example}
 
-We also assume a countably infinite collection of index expression
-variables. We will use meta-syntactic variables $i, i_1, i_2, ...$ and
-so on to stand for index expression variables. \emph{Index contexts}
-$\Delta = i_1 : s_1, ..., i_n : s_n$ are built from the index
-expression variable/sort pairs, such that all the index variable names
-are distinct.
+We assume a countably infinite collection of index variable names $i,
+i_1, i_2,$ and so on. \emph{Index contexts} $\Delta = i_1 \mathord:
+s_1, ..., i_n \mathord: s_n$ are lists of index expression
+variable/sort pairs, such that all the index variable names are
+distinct.
 
 \begin{figure*}[t]
   \centering
   \textbf{Index contexts}\\
 
-  $\Delta = i_1 : s_1, ..., i_n : s_n$, where each $s_i \in \SortSet$ and no variable name is repeated.
+  $\Delta = i_1 \mathord: s_1, ..., i_n \mathord: s_n$, where each $s_i \in \SortSet$ and no variable name is repeated.
 
   \bigskip
 
@@ -145,8 +148,8 @@ are distinct.
 Given the above data, the rules in \autoref{fig:indexes-and-types}
 generate two judgements: well-sorted index terms $\Delta \vdash e : s$
 and well-indexed types $\Delta \vdash A \isType$. Since index
-variables may appear in types, types are only well-indexed with
-respect to some index context $\Delta$. The rules for well-sorted
+variables may appear in types, types are judged to be well-indexed
+with respect to an index context $\Delta$. The rules for well-sorted
 index terms are particularly simple: either an index term is a
 variable that appears in the context (rule \TirName{IVar}), or it is
 an application of an index operation taken from $\IndexOpSet$ to other
@@ -164,37 +167,39 @@ index terms of some sort.
 \subsubsection{Simultaneous Substitutions of Index Terms}
 \label{sec:simultaneous-substitution}
 
-It will technically convenient to express substitution of index terms
-in our framework in terms of simultaneous substitutions.  Given a pair
-of index contexts $\Delta$ and $\Delta' = i_1 \mathord: s_1, ..., i_n
-\mathord: s_n$, a \emph{simultaneous substitution} $\sigma : \Delta
-\Rightarrow \Delta'$ is a sequence of terms $\sigma = (e_1,...,e_n)$
-such that for each $j$ such that $1 \leq j \leq n$, $\Delta \vdash e_j
-: s_j$. Given a simultaneous substitution $\sigma = (e_1,...,e_n) :
-\Delta \Rightarrow \Delta'$ and a variable $i_j \mathord: s_j$ in
-$\Delta'$, we write $\sigma(i_j)$ for the index term $e_j$.
+It will be technically convenient to express substitution of index
+terms in our framework in terms of simultaneous substitutions.  Given
+a pair of index contexts $\Delta$ and $\Delta' = i_1 \mathord: s_1,
+..., i_n \mathord: s_n$, a \emph{simultaneous substitution} $\Delta
+\vdash \sigma \Rightarrow \Delta'$ is a sequence of terms $\sigma =
+(e_1,...,e_n)$ such that for each $j$ such that $1 \leq j \leq n$,
+$\Delta \vdash e_j : s_j$. Given a simultaneous substitution $\Delta
+\vdash \sigma = (e_1,...,e_n) \Rightarrow \Delta'$ and a variable $i_j
+\mathord: s_j$ in $\Delta'$, we write $\sigma(i_j)$ for the index term
+$e_j$.
 
-For a context $\Delta = i_1\mathord:s_1,...,i_n\mathord:s_n$, and a
+Given a context $\Delta = i_1\mathord:s_1,...,i_n\mathord:s_n$, and a
 variable/type pair $i\mathord:s$ such that $i$ does not appear in
 $\Delta$, we define the \emph{projection} simultaneous substitution
 $\pi_{i\mathord:s} : \Delta,i\mathord:s \Rightarrow \Delta$ as
-$\pi_{i\mathord:s} = (i_1,...,i_n)$. Note that the subscript on
-$\pi_{i\mathord:s}$ is the variable/type pair that is being projected
-away.
+$\pi_{i\mathord:s} = (i_1,...,i_n)$. The subscript on
+$\pi_{i\mathord:s}$ is the variable/type pair that is being discarded.
 
-For a simultaneous substitution $\sigma : \Delta \Rightarrow \Delta'$
-where $\Delta' = i_1\mathord:s_1,...,i_n\mathord:s_n$ and a
+For a simultaneous substitution $\Delta \vdash \sigma \Rightarrow
+\Delta'$ where $\Delta' = i_1\mathord:s_1,...,i_n\mathord:s_n$ and a
 variable/type pair $i\mathord:s$ such that $i$ does not appear in
 either $\Delta$ or $\Delta'$, then we can form the \emph{lifted}
-simultaneous substitution $\sigma_{i\mathord:s} = (\sigma(i_1), ...,
-\sigma(i_n), i) : \Delta,i\mathord:s \Rightarrow
+simultaneous substitution $\Delta,i\mathord:s \vdash
+\sigma_{i\mathord:s} = (\sigma(i_1), ..., \sigma(i_n), i) \Rightarrow
 \Delta',i\mathord:s$. Note that we have implicity used the fact that
-well-sortedness of index terms is preserved by weakening.
+well-sortedness of index terms is preserved by addition of extra items
+to the context.
 
-Given a simultaneous substitution $\sigma : \Delta \Rightarrow
-\Delta'$ and a well-sorted index term $\Delta' \vdash e : s$, we can
-apply $\sigma$ to $e$ to produce a new index term $\sigma^*e$. The new
-index term $\sigma^*e$ is defined by the following two clauses:
+Application of a simultaneous substitution $\Delta \vdash \sigma
+\Rightarrow \Delta'$ to a well-sorted index expression $\Delta' \vdash
+e : s$ yields a well-sorted index expression $\Delta \vdash \sigma^*e
+: s$. The expression $\sigma^*e$ is defined by the following two
+clauses:
 \begin{mathpar}
   \sigma^*i \isDefinedAs \sigma(i)
 
@@ -203,7 +208,7 @@ index term $\sigma^*e$ is defined by the following two clauses:
 Similarly, given a well-indexed type $\Delta' \vdash A \isType$, we
 can apply $\sigma$ to $A$ to produce a new type $\sigma^*A$. The
 application of a simultaneous substitution to a type is defined
-recursively by the following clauses:
+by the following clauses:
 \begin{mathpar}
   \sigma^*(\tyPrim{X}{e_1,...,e_n}) \isDefinedAs \tyPrim{X}{\sigma^*e_1,...,\sigma^*e_n}
 
@@ -227,11 +232,11 @@ recursively by the following clauses:
   \end{enumerate}
 \end{lemma}
 
-The \emph{composition} of two simultaneous substitutions $\sigma :
-\Delta \Rightarrow \Delta'$ and $\sigma' : \Delta' \Rightarrow
-\Delta''$, where $\sigma' = (e'_1,...,e'_n)$, is defined as $\sigma'
-\circ \sigma \isDefinedAs (\sigma^*e'_1, ..., \sigma^*e'_n) : \Delta
-\Rightarrow \Delta''$.
+The \emph{composition} of two simultaneous substitutions $\Delta
+\vdash \sigma \Rightarrow \Delta'$ and $\Delta' \vdash \sigma'
+\Rightarrow \Delta''$, where $\sigma' = (e'_1,...,e'_n)$, is defined
+as $\Delta \vdash \sigma' \circ \sigma \isDefinedAs (\sigma^*e'_1,
+..., \sigma^*e'_n) \Rightarrow \Delta''$.
 
 \subsubsection{Index Term Equality and Type Equality}
 \label{sec:type-equality}
