@@ -1,6 +1,8 @@
 \section{A General Framework}
 \label{sec:a-general-framework}
 
+\fixme{Update this introduction}
+
 We now develop a general framework for discussing
 algebraically-indexed types and their relational interpretations. We
 have chosen a particular order for our presentation: presenting the
@@ -178,6 +180,12 @@ $\Delta \vdash e_j : s_j$. Given a simultaneous substitution $\Delta
 \mathord: s_j$ in $\Delta'$, we write $\sigma(i_j)$ for the index term
 $e_j$.
 
+We write $\Delta \Rightarrow \Delta'$ for the set of all simultaneous
+substitutions $\sigma$ such that $\Delta \vdash \sigma \Rightarrow
+\Delta'$. When we discuss the relational interpretation of types
+below, it will be useful to think of any sequence of sorts as an index
+context. \fixme{flesh this out}
+
 Given a context $\Delta = i_1\mathord:s_1,...,i_n\mathord:s_n$, and a
 variable/type pair $i\mathord:s$ such that $i$ does not appear in
 $\Delta$, we define the \emph{projection} simultaneous substitution
@@ -338,15 +346,12 @@ simultaneous substitutions are judgmentally equal.
 \subsection{Semantics of Algebraically-Indexed Types}
 \label{sec:semantics-algebraically-indexed-types}
 
-Having defined the language of algebraically-indexed types that we
-will consider, we now turn to the denotational semantics of these
-types. In \autoref{sec:index-erasure-semantics} we define an
+Having defined the language of algebraically-indexed types, we now
+turn to their denotational interpretation. In
+\autoref{sec:index-erasure-semantics} we define an
 \emph{index-erasure} interpretation of types that interprets every
-well-indexed type as a set, ignoring the indexing by algebraic
-terms. In the index erasure semantics, the semantics of a well-indexed
-type $\tyPrim{X}{e_1,...,e_n}$ is determined solely by the primitive
-type $\tyPrimNm{X}$ and not by the index terms $e_1,...,e_n$. Building
-on the index-erasure semantics, we define in
+well-indexed type as a set, ignoring the indexing expressions. Building on
+the index-erasure semantics, we define in
 \autoref{sec:relational-semantics} the \emph{relational}
 interpretation of types.
 
@@ -358,10 +363,13 @@ interpretation of types.
 \subsubsection{The Index-Erasure Interpretation of Types}
 \label{sec:index-erasure-semantics}
 
-For each primitive type $\tyPrimNm{X} \in \PrimTypeSet$, we assume
-that $\tyPrimNm{X}$ is assigned a set $\tyPrimSem{\tyPrimNm{X}}$. We
-extend this to assign a set to every well-formed type by induction on
-the type structure by the following clauses.
+The defining feature of the index erasure interpretation is that the
+semantics of a well-indexed type $\tyPrim{X}{e_1,...,e_n}$ is
+determined solely by the primitive type $\tyPrimNm{X}$ and not by the
+index terms $e_1,...,e_n$. Accordingly, we assume that each primitive
+type $\tyPrimNm{X} \in \PrimTypeSet$ is assigned a set
+$\tyPrimSem{\tyPrimNm{X}}$. We extend this assignment to every
+well-indexed type by induction on the type structure:
 \begin{displaymath}
   \begin{array}{@{\hspace{0.2em}}c@{\hspace{0em}}c}
     \begin{array}{l}
@@ -378,30 +386,36 @@ the type structure by the following clauses.
   \end{array}
 \end{displaymath}
 The interpretation of the unit type is a chosen one element set, and
-the interpretations of the function, tuple and sum types is simply by
-the corresponding construction on sets. The interpretation of the
-universal quantifier simply ignores the indexing: the interpretation
-of the type $\forall i\mathord:s.A$ is exactly the interpretation of
-the type $A$.
+the interpretations of the function, tuple and sum types are simply
+the corresponding constructions on sets. The interpretation of the
+universal quantifier ignores the indexing: the interpretation of the
+type $\forall i\mathord:s.A$ is exactly the interpretation of the type
+$A$.
+
+\begin{example}[Origin Invariance]
+  \fixme{do this}
+\end{example}
 
 \begin{example}[Units of Measure] Kennedy's original units of measure
   system seen as an instantiation of our system uses the assignment
   $\tyPrimSem{\mathsf{unit}} \isDefinedAs \mathbb{Q}$, where
   $\mathbb{Q}$ is the set of rational numbers.
+
+  FIXME: Also do the primitive operations
 \end{example}
 
-Since the index-erasure interpretation has completely ignores the
-index expressions and type equality is defined as an extension of
-index equality, it is straightforward to prove that equal types have
-equal denotations when interpreted in the index-erasure semantics, and
-that substitution of index terms has no effect on the index-erasure
-interpretation of types:
+% The index-erasure interpretation completely ignores index expressions
+% and type equality is defined as an extension of index
+% equality. Therefore, it is straightforward to prove that equal types
+% have equal denotations when interpreted in the index-erasure
+% semantics, and that substitution of index terms has no effect on the
+% index-erasure interpretation of types:
 \begin{lemma}\label{lem:tyeqsubst-erasure}
   \begin{enumerate}
   \item If $\Delta \vdash A \equiv B \isType$ then $\tySem{A} =
     \tySem{B}$; and
-  \item If $\Delta \vdash A \isType$ and $\sigma : \Delta' \Rightarrow
-    \Delta$, then $\tySem{\sigma^*A} = \tySem{A}$.
+  \item If $\Delta' \vdash A \isType$ and $\Delta \vdash \sigma
+    \Rightarrow \Delta'$, then $\tySem{\sigma^*A} = \tySem{A}$.
   \end{enumerate}
 \end{lemma}
 
@@ -413,12 +427,12 @@ $\Delta \vdash A \isType$ as some binary relation on the index-erasure
 interpretation of $A$. For a set $X$, we write $\Rel(X)$ for the set
 of binary relations $R \subseteq X \times X$ on $X$.
 
-For the unit, tuple, sum and function types the we will define the
+For the unit, tuple, sum and function types we will define the
 relational interpretation as a standard logical relation. The
 relational interpretations of primitive types with index arguments and
 the universally quantified types requires an interpretation of index
 contexts. We assign interpretations to index contexts in terms of
-\emph{relational environments}, which we now define.
+\emph{relational environments}, which we now define. \fixme{Backwards ref}
 
 A relation environment for a context $\Delta$ is a
 (dependently typed) function that, for each primitive type
@@ -430,20 +444,21 @@ interpretation of $\tyPrimNm{X}$:
 \end{displaymath}
 Every relation environment must respect index term equality: for any
 $\tyPrimNm{X} \in \PrimTypeSet$ and pair of simultaneous substitutions
-$\sigma : \Delta \Rightarrow \primTyArity(\tyPrimNm{X})$ and $\sigma'
-: \Delta \Rightarrow \primTyArity(\tyPrimNm{X})$ such that $\Delta
-\vdash \sigma \equiv \sigma' \Rightarrow \primTyArity(\tyPrimNm{X})$, % FIXME: make sure the notation for ss equality is consistent
-then $\rho\ \tyPrimNm{X}\ \sigma = \rho\ \tyPrimNm{X}\ \sigma'$.
+$\Delta \vdash \sigma \Rightarrow \primTyArity(\tyPrimNm{X})$ and
+$\Delta \vdash \sigma' \Rightarrow \primTyArity(\tyPrimNm{X})$ such
+that $\Delta \vdash \sigma \equiv \sigma' \Rightarrow
+\primTyArity(\tyPrimNm{X})$, then $\rho\ \tyPrimNm{X}\ \sigma = \rho\
+\tyPrimNm{X}\ \sigma'$.
 
 % FIXME: an example?
 
 We write $\mathrm{RelEnv}(\Delta)$ for the set of all relation
 environments for a context $\Delta$. Given a relational environment
 $\rho \in \mathrm{RelEnv}(\Delta')$ and a simultaneous substitution
-$\sigma : \Delta \Rightarrow \Delta'$, we can derive the composed
+$\Delta \vdash \sigma \Rightarrow \Delta'$, we can derive the composed
 relational environment (with an abuse of notation) $\rho \circ \sigma
 \in \mathrm{RelEnv}(\Delta)$ as $(\rho \circ \sigma)\ \tyPrimNm{X}\
-\sigma' = \rho\ \tyPrimNm{X}\ (\sigma \circ \sigma')$.
+\sigma' = \rho\ \tyPrimNm{X}\ (\sigma' \circ \sigma)$. \fixme{Check this is the right way round}
 
 % FIXME: fix the notation here for interpretation of index contexts:
 % should use some sort of semantic brackets
@@ -451,7 +466,7 @@ relational environment (with an abuse of notation) $\rho \circ \sigma
 As we stated above, index contexts $\Delta$ are interpreted as certain
 sets of relation environments, i.e.~ subsets of
 $\mathrm{RelEnv}(\Delta)$. Depending on the primitive operations that
-we assume for our system, we can have different sets of relational
+we assume for our system, we may have different sets of relational
 environments that enforce different invariants. For the general
 framework, we assume that, for each index context $\Delta$, we are
 given a set of relation environments $\relEnv{E}(\Delta)$. Note that
@@ -463,8 +478,8 @@ $\relEnv{E}(\Delta_2)$. However, it must satisfy the following two
 properties:
 \begin{enumerate}
 \item Closure under simultaneous substitution of index terms: if $\rho
-  \in \relEnv{E}(\Delta)$ and $\sigma : \Delta' \Rightarrow \Delta$,
-  then $\rho \circ \sigma \in \relEnv{E}(\Delta')$.
+  \in \relEnv{E}(\Delta)$ and $\Delta' \vdash \sigma \Rightarrow
+  \Delta$, then $\rho \circ \sigma \in \relEnv{E}(\Delta')$.
 \item If we have a pair of relation environments $\rho_1 \in
   \relEnv{E}(\Delta', i\mathord:s')$ and $\rho_2 \in
   \relEnv{E}(\Delta)$, along with an simultaneous substitution $\sigma
@@ -525,11 +540,10 @@ $\extends{\rho}{i\mathord:s} \isDefinedAs \{ \rho' \in
 = \rho \}$. The set of extensions of a relational environment will be
 used in the interpretation of the universal quantification type.
 
-A relational environment $\rho \in \relEnv{E}(\Delta)$ is extended to
-a relation interpretation of any type $\Delta \vdash A \isType$ by
-induction on its derivation: % Thus, we define a relation
-% $\rsem{A}{\relEnv{E}}{\rho} \in \Rel(\tySem{A})$ for each well-indexed
-% type.
+We assign a relational interpretation to all well-indexed types
+$\Delta \vdash A \isType$ by induction on their derivations,
+parameterised by relational environments $\rho \in
+\relEnv{E}(\Delta)$:
 \begin{eqnarray*}
   \rsem{\tyUnit}{\relEnv{E}}\rho & \isDefinedAs & \{(*,*)\} \\
   \rsem{\tyPrim{X}{e_1,...,e_n}}{\relEnv{E}}\rho & \isDefinedAs & \rho\ {\tyPrimNm{X}}\ (e_1,...,e_n) \\
@@ -580,12 +594,12 @@ of types we generated in
 assigned an index-erasure semantics, building on the index-erasure
 semantics of types we defined in
 \autoref{sec:index-erasure-semantics}. Our main result
-(\thmref{thm:abstraction}) is that the index-erasure semantics is
+(\thmref{thm:abstraction}) is that the index-erasure semantics of
 every well-typed program is related to itself in the relational
 interpretation of its type: this is the abstraction theorem for every
-calculus in our general framework. In the next section we will use
-this theorem to derive several interesting results about the programs
-expressible in instances of our general framework.
+calculus in our general framework. In the \fixme{next section} we will
+use this theorem to derive several interesting results about the
+programs expressible in instances of our general framework.
 
 Well-typed programs are defined with respect to well-indexed typing
 contexts, which are in turn defined with respect to an index
@@ -603,13 +617,13 @@ following two rules:
   {\Delta \vdash \Gamma \isCtxt \\ \Delta \vdash A \isType \\ x \not\in \Gamma}
   {\Delta \vdash \Gamma, x : A \isCtxt}
 \end{mathpar}
-Substitution by a simultaneous substitution extends to typing contexts
-by performing substitution pointwise on each individual type.
+Application of simultaneous substitutions extends to typing contexts
+by applying the simultaneous substitution to each type.
 
 The typing rules for our system define the well-typed terms with
 respect to an index context $\Delta$ and a type context $\Delta \vdash
-\Gamma \isCtxt$. The judgement $\Delta; \Gamma \vdash M : A$ is
-defined in \autoref{fig:programs}. The equational theory on types is
+\Gamma \isCtxt$. The judgment $\Delta; \Gamma \vdash M : A$ is defined
+in \autoref{fig:programs}. The equational theory on types is
 incorporated into the type system via the rule \TirName{TyEq}, which
 allows for a term that is judged to have type $A$ to also have any
 other equal type $B$.
