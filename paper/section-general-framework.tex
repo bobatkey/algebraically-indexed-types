@@ -223,7 +223,7 @@ by the following clauses:
   \sigma^*(\forall i\mathord:s.A) \isDefinedAs \forall i\mathord:s.\sigma_{i\mathord:s}^*A
 \end{mathpar}
 \begin{lemma}
-  Let $\sigma : \Delta \Rightarrow \Delta'$ be a simultaneous
+  Let $\Delta \vdash \sigma \Rightarrow \Delta'$ be a simultaneous
   substitution.
   \begin{enumerate}
   \item If $\Delta' \vdash e : s$, then $\Delta \vdash \sigma^*e : s$; and
@@ -241,20 +241,19 @@ as $\Delta \vdash \sigma' \circ \sigma \isDefinedAs (\sigma^*e'_1,
 \subsubsection{Index Term Equality and Type Equality}
 \label{sec:type-equality}
 
-Much of the power of indexing types by the terms of an algebraic
-theory comes from the equations of the theory, and the fact that these
-equations are inherited by the types. In the units of measure example,
-the well-indexed types $\tyPrim{X}{u_1\cdot u_2}$ and $\tyPrim{X}{u_2
-  \cdot u_1}$ are considered equal by the type system, due to the
-commutativity of the $-\cdot-$ operation in the theory of abelian
-groups.
+\fixme{Consider updating this example} Much of the power of indexing
+types by the terms of an algebraic theory comes from the equations of
+the theory, and the fact that these equations are inherited by the
+types. In the units of measure example, the well-indexed types
+$\tyPrim{X}{u_1\cdot u_2}$ and $\tyPrim{X}{u_2 \cdot u_1}$ are
+considered equal by the type system, due to the commutativity of the
+$-\cdot-$ operation in the theory of abelian groups.
 
-In our general framework, the equations between types are derived from
+In the general framework, the equations between types are derived from
 a set $\IndexAxiomSet$ of axioms $\Delta \vdash e \stackrel{ax}\equiv
-e' : s$ between well-sorted index terms. The constraint that axioms
-are well-sorted means that both $\Delta \vdash e : s$ and $\Delta
-\vdash e' : s$ for all axioms $(\Delta \vdash e \stackrel{ax}\equiv e'
-: s) \in \IndexAxiomSet$.
+e' : s$. We assume that all axioms $(\Delta \vdash e
+\stackrel{ax}\equiv e' : s) \in \IndexAxiomSet$ are well-sorted:
+meaning that both $\Delta \vdash e : s$ and $\Delta \vdash e' : s$.
 
 Given a set $\IndexAxiomSet$ of axioms, we generate the judgmental
 equality between index terms $\Delta \vdash e \equiv e' : s$ by the
@@ -263,16 +262,20 @@ axioms, and ensure that judgmental equality is a congruence relation
 with respect to the index operations in $\IndexOpSet$:
 \begin{mathpar}
   \inferrule*
-  {(\Delta \vdash e \stackrel{ax}\equiv e' : s) \in \IndexAxiomSet \\
-    \sigma : \Delta' \Rightarrow \Delta}
-  {\Delta' \vdash \sigma^*e \equiv \sigma^*e' : s}
+  {(\Delta' \vdash e \stackrel{ax}\equiv e' : s) \in \IndexAxiomSet \\
+    \Delta \vdash \sigma \Rightarrow \Delta'}
+  {\Delta \vdash \sigma^*e \equiv \sigma^*e' : s}
 
   \inferrule*
   {\{\Delta \vdash e_j \equiv e'_j : s_j\}_{1\leq j\leq n}}
   {\Delta \vdash \indexOp{f}(e_1, ..., e_n) \equiv \indexOp{f}(e'_1, ..., e'_n) : s}
 \end{mathpar}
 We also assume the standard reflexivity, symmetry and transitivity
-rules for equality.
+rules for the judgmental equality.
+
+\begin{example}[Origin Invariance]
+  FIXME
+\end{example}
 
 \begin{example}[Units of Measure]
   For the units of measure system, seen as an instantiation of our
@@ -313,7 +316,7 @@ The congruence rules for the other type formers are similar.
 The judgmental equalities on index terms and on types are preserved by
 substitution:
 \begin{lemma}
-  Let $\sigma : \Delta \Rightarrow \Delta'$ be a simultaneous
+  Let $\Delta \vdash \sigma \Rightarrow \Delta'$ be a simultaneous
   substitution.
   \begin{enumerate}
   \item If $\Delta' \vdash e \equiv e' : s$ then $\Delta \vdash
