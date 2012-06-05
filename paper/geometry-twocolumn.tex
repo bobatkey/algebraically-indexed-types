@@ -40,6 +40,9 @@ represents the zero offset.
 % think in terms of abstract concepts such as points and vectors,
 % rather than their actual representation as tuples of numbers.
 
+\textbf{FIXME:} talk about the standard way of separating the two
+concepts using abstract types.
+
 Invariance under change of representation immediately recalls
 Reynolds' fable concerning two professors teaching the theory of
 complex numbers to students \cite{reynolds83types}. One professor
@@ -144,54 +147,50 @@ invariance under change of origin.
 % represents a point or a vector depends on the group of geometric
 % transformations that we expect it to be invariant under.
 
-FIXME: vectors are not invariant under change of origin, so they are
-represented by the relation $R_0$, which is just equality. Bxut they,
-and points are invariant under change of basis. However, as we shall
-see below, not all operations are invariant under all changes of
-basis. In particular the dot product is only invariant under
-orthogonal transformations.
+% FIXME: vectors are not invariant under change of origin, so they are
+% represented by the relation $R_0$, which is just equality. But they,
+% and points are invariant under change of basis. However, as we shall
+% see below, not all operations are invariant under all changes of
+% basis. In particular the dot product is only invariant under
+% orthogonal transformations.
 
 \subsection{A Type System for Origin Invariance}
 \label{sec:type-system-geom-intro}
 
-In the last section, we saw how Reynolds' notion of preservation of
-relations can be used to define when it is the case that programs
-manipulating representatives of points and vectors make geometric
-sense. Reynolds further insight was to see how preservation of
-relations can automatically be established by following a typing
-discipline. In Reynolds' case, the typing discipline was the
-polymorphic $\lambda$-calculus where new types can be constructed by
-universal quantification over all types. Universal type quantification
-is commonly written $\forall \alpha. A$, which denotes a type that may
-be instantiated with any other type $B$ by replacing the type variable
+We have seen how Reynolds' notion of preservation of relations can be
+used to define when it is the case that programs manipulating
+representatives of points and vectors make geometric sense. Reynolds
+further insight was to see how preservation of relations can
+automatically be established by following a typing discipline. In
+Reynolds' case, the typing discipline was the polymorphic
+$\lambda$-calculus where new types can be constructed by universal
+quantification over all types. Universal type quantification is
+commonly written $\forall \alpha. A$, which denotes a type that may be
+instantiated with any other type $B$ by replacing the type variable
 $\alpha$ with $B$ in $A$.
 
 In terms of relations, Reynolds interprets universal quantification
 over types as quantification over binary relations between denotations
 of types. In the statements of geometric invariance that we stated in
 the previous section (e.g., \statementref{eq:f-invariant-frame}), we
-did not quantify over all relations. Instead, we quantified over all choices of origin 
+did not quantify over all relations. Instead, we quantified over all
+choices of origin and used the choice to select a relation from the
+family $\{R_{\vec{o}}\}$. Driven by this observation, we introduce
+quantification over choice of origin into the language of types.  We
+use the notation $\forall t \mathord: T_2. A$ for quantification over
+all 2-dimensional translations (i.e.~choices of origin) $t$. We refer
+to $T_2$ as the \emph{sort} of $t$.
 
+% As we proceed, we will introduce the sorts representing geometric
+% groups that we will be using in addition to $\GA(2)$ and $\GL(2)$.
 
-elements of a geometric group such as $\GA(2)$ or $\GL(2)$, and used
-those elements to select relations from the families $R_{\texttt{pt}}$
-and $R_{\texttt{vec}}$. Driven by this observation, we introduce
-quantification over elements of geometric groups into the language of
-types. We use the notation $\forall X \mathord: G. A$ for
-quantification over elements of geometric groups, where $G$ is the
-name of some geometric group, and $X$ is a variable name standing for
-an element of $G$. We refer to $G$ as the \emph{sort} of $X$. As we
-proceed, we will introduce the sorts representing geometric groups
-that we will be using in addition to $\GA(2)$ and $\GL(2)$.
-
-The sorts $\GA(2)$ and $\GL(2)$ represent groups, so we can combine
-their elements using the usual group operations. We write operations
-multiplicatively, using juxtaposition ($e_1e_2$) for multiplication,
-$e^{-1}$ for inverse and $1$ for the unit. We overload the same
-notation to stand for the group operations in both $\GA(2)$ and
-$\GL(2)$. We also regard expressions built from variables and the
-group operations up to the group axioms. So, for example,
-$F_1(F_2F_3)$ and $(F_1F_2)F_3$ are to be regarded as equivalent.
+The sort $T_2$ represents an abelian group, so we can combine its
+elements using the usual group operations. We write operations
+additively, using $e_1 + e_2$ for the group operation, $-e$ for
+inverse and $0$ for the unit.  We also regard expressions built from
+variables and the group operations up to the group axioms. So, for
+example, $e_1 + (e_2 + e_3)$ and $(e_1 + e_2) + e_3$ are to be
+regarded as equivalent.
 
 Our language of types also includes the common type constructors for
 function types, $A \to B$, sum types $A + B$, unit type
@@ -206,253 +205,248 @@ $\mathsf{real}$ will be related if and only if they are equal, and
 hence two elements of $\mathsf{real} \times \mathsf{real}$ will be
 related if and only if they are equal, by Reynolds' definition of the
 relational interpretation of tuple types.) Therefore, we introduce a
-new type parameterised by expressions $e$ of sort $\GA(2)$ to
-represent points (and later, vectors): $\mathsf{vec}\langle e
-\rangle$. We have used the name $\mathsf{vec}$, even though we have
-taken pains to separate geometric points and vectors, to recall the
-computer science notion of vector as a sequence of values of
-homogeneous type which has a known length (in this case two).
+new type parameterised by expressions $e$ of sort $T_2$ to represent
+points (and later, vectors): $\mathsf{vec}\langle e \rangle$. We have
+used the name $\mathsf{vec}$, even though we have taken pains to
+separate geometric points and vectors, to recall the computer science
+notion of vector as a sequence of values of homogeneous type which has
+a known length (in this case two).
 
 % FIXME: Denotational semantics of $\mathsf{vec}$? and transformation
 % quantification?
 
-Equipped with quantification over the group $\GA(2)$ of invertible
-affine maps, and the parameterised types $\mathsf{vec}\langle \cdot
-\rangle$, we can now express geometric invariance properties as
-types. In the previous section, we gave examples of functions $f :
-\mathbb{R}^2 \times \mathbb{R}^2 \to \mathbb{R}^2$ that have the
-property that they preserve all invertible affine maps. We can now
-express this property as a type:
+Equipped with quantification over the group $T_2$ of invertible affine
+maps, and the parameterised types $\mathsf{vec}\langle \cdot \rangle$,
+we can now express origin invariance properties as types. In the
+previous section, we discussed functions $f : \mathbb{R}^2 \times
+\mathbb{R}^2 \to \mathbb{R}^2$ that have the property that they
+preserve all changes of origin. We can now express this property as a
+type:
 \begin{displaymath}
-  \mathrm{f} : \forall F \mathord: \GA(2).\ \mathsf{vec}\langle F \rangle \times \mathsf{vec}\langle F \rangle \to \mathsf{vec}\langle F \rangle
+  \mathrm{f} : \forall t \mathord: T_2.\ \mathsf{vec}\langle t \rangle \times \mathsf{vec}\langle t \rangle \to \mathsf{vec}\langle t \rangle
 \end{displaymath}
-We use the variable name $F$ for elements of $\GA(2)$ to suggest the
-intuition that this typing indicates that $\mathrm{f}$ takes a pair of
-points in the $F$rame $F$ and returns a point in the same frame.
+FIXME: forward references...
 
-\subsection{Affine Combination of Points}
-\label{sec:affine-combination}
+% \subsection{Affine Combination of Points}
+% \label{sec:affine-combination}
 
-As we stated in the previous section, the primitive operation of
-affine geometry is affine combination of points: $\lambda_1\vec{v_1} +
-\lambda_2\vec{v_2}$, where $\lambda_1 + \lambda_2 = 1$. Geometrically,
-affine combination can be interpreted as interpolation between the
-points represented by $\vec{v_1}$ and $\vec{v_2}$. We add affine
-combination of points to our calculus, with the following typing and
-intended denotation.
-\begin{displaymath}
-  \begin{array}{l}
-    \mathrm{affineCombination} :\\
-    \hspace{1.5cm}\forall F \mathord: \GA(2).\ \mathsf{vec}\langle F \rangle \to \mathsf{real} \to \mathsf{vec}\langle F \rangle \to \mathsf{vec}\langle F \rangle \\
-    \sem{\mathrm{affineCombination}}\ (x_1,y_1)\ t\ (x_2,y_2) = \\
-    \hspace{3cm}((1-t)x_1 + tx_2, (1-t)y_1 + ty_2)
-  \end{array}
-\end{displaymath}
-By defining the primitive function $\mathrm{affineCombination}$ to
-take a single $\mathsf{real}$ parameter $t$, we can easily ensure that
-we are taking the affine combination of two representatives of points,
-and not just an arbitrary linear combination. Note that the intended
-denotation in the second line does not take any argument corresponding
-to the universally quantified $F$ in the type. In our calculus,
-geometric group expressions are erased at runtime.
+% As we stated in the previous section, the primitive operation of
+% affine geometry is affine combination of points: $\lambda_1\vec{v_1} +
+% \lambda_2\vec{v_2}$, where $\lambda_1 + \lambda_2 = 1$. Geometrically,
+% affine combination can be interpreted as interpolation between the
+% points represented by $\vec{v_1}$ and $\vec{v_2}$. We add affine
+% combination of points to our calculus, with the following typing and
+% intended denotation.
+% \begin{displaymath}
+%   \begin{array}{l}
+%     \mathrm{affineCombination} :\\
+%     \hspace{1.5cm}\forall F \mathord: \GA(2).\ \mathsf{vec}\langle F \rangle \to \mathsf{real} \to \mathsf{vec}\langle F \rangle \to \mathsf{vec}\langle F \rangle \\
+%     \sem{\mathrm{affineCombination}}\ (x_1,y_1)\ t\ (x_2,y_2) = \\
+%     \hspace{3cm}((1-t)x_1 + tx_2, (1-t)y_1 + ty_2)
+%   \end{array}
+% \end{displaymath}
+% By defining the primitive function $\mathrm{affineCombination}$ to
+% take a single $\mathsf{real}$ parameter $t$, we can easily ensure that
+% we are taking the affine combination of two representatives of points,
+% and not just an arbitrary linear combination. Note that the intended
+% denotation in the second line does not take any argument corresponding
+% to the universally quantified $F$ in the type. In our calculus,
+% geometric group expressions are erased at runtime.
 
-% In Linear Algebra notation, we could have written the right-hand side
-% as $(1-t)\vec{v_1} + t\vec{v_2}$, where $\vec{v_1} = (x_1,y_1)$ and
-% $\vec{v_2} = (x_2,y_2)$. 
+% % In Linear Algebra notation, we could have written the right-hand side
+% % as $(1-t)\vec{v_1} + t\vec{v_2}$, where $\vec{v_1} = (x_1,y_1)$ and
+% % $\vec{v_2} = (x_2,y_2)$. 
 
-\begin{example}
-  With just the single primitive operation of affine combination, we
-  can already express some useful programs. For example, the
-  evaluation of quadratic B\'{e}zier curves (B\'{e}zier curves with
-  two endpoints and a single control point) can be expressed using the
-  affine combination primitive and three steps of De Casteljau's
-  algorithm:
-  \begin{displaymath}
-    \begin{array}{l}
-      \mathrm{quadraticB\acute{e}zier} :\\
-      \hspace{0.5cm}\forall F \mathord:\GA(2).\ \mathsf{vec}\langle F \rangle \to \mathsf{vec}\langle F \rangle \to \mathsf{vec}\langle F \rangle \to \mathsf{real} \to \mathsf{vec}\langle F \rangle \\
-      \mathrm{quadraticB\acute{e}zier}\ [F]\ p_0\ p_1\ p_2\ t = \\
-      \quad
-      \begin{array}{l@{\hspace{-0.002cm}}l}
-        \mathrm{affineCombination}\ [F]\ & (\mathrm{affineCombination}\ [F]\ p_0\ t\ p_1) \\
-        & t \\
-        & (\mathrm{affineCombination}\ [F]\ p_1\ t\ p_2)
-      \end{array}
-    \end{array}
-  \end{displaymath}
-  For two endpoints $p_0$ and $p_2$ and a control point $p_1$, an
-  application $\mathrm{quadraticB\acute{e}zier}\ p_0\ p_1\ p_2\ t$ for
-  $t \in [0,1]$ gives us the point on the curve at ``time'' $t$. Note
-  that the type of $\mathrm{quadraticB\acute{e}zier}$ tells us
-  immediately that it preserves all invertible affine maps.
-  %FIXME: forward ref to ``free theorem''.
-\end{example}
+% \begin{example}
+%   With just the single primitive operation of affine combination, we
+%   can already express some useful programs. For example, the
+%   evaluation of quadratic B\'{e}zier curves (B\'{e}zier curves with
+%   two endpoints and a single control point) can be expressed using the
+%   affine combination primitive and three steps of De Casteljau's
+%   algorithm:
+%   \begin{displaymath}
+%     \begin{array}{l}
+%       \mathrm{quadraticB\acute{e}zier} :\\
+%       \hspace{0.5cm}\forall F \mathord:\GA(2).\ \mathsf{vec}\langle F \rangle \to \mathsf{vec}\langle F \rangle \to \mathsf{vec}\langle F \rangle \to \mathsf{real} \to \mathsf{vec}\langle F \rangle \\
+%       \mathrm{quadraticB\acute{e}zier}\ [F]\ p_0\ p_1\ p_2\ t = \\
+%       \quad
+%       \begin{array}{l@{\hspace{-0.002cm}}l}
+%         \mathrm{affineCombination}\ [F]\ & (\mathrm{affineCombination}\ [F]\ p_0\ t\ p_1) \\
+%         & t \\
+%         & (\mathrm{affineCombination}\ [F]\ p_1\ t\ p_2)
+%       \end{array}
+%     \end{array}
+%   \end{displaymath}
+%   For two endpoints $p_0$ and $p_2$ and a control point $p_1$, an
+%   application $\mathrm{quadraticB\acute{e}zier}\ p_0\ p_1\ p_2\ t$ for
+%   $t \in [0,1]$ gives us the point on the curve at ``time'' $t$. Note
+%   that the type of $\mathrm{quadraticB\acute{e}zier}$ tells us
+%   immediately that it preserves all invertible affine maps.
+%   %FIXME: forward ref to ``free theorem''.
+% \end{example}
 
 \subsection{Vector Space Operations}
 \label{sec:vector-space-ops}
 
-Affine combination only provides us with an operation on points. For
-the purposes of computational geometry, we are also interested in
-operations on the vectors representing offsets between points. We now
-examine the correct types to assign to the vector space operations of
-addition of vectors, negation of vectors, multiplication by a scalar
-and the zero vector.
+\textbf{FIXME}Affine combination only provides us with an operation on
+points. For the purposes of computational geometry, we are also
+interested in operations on the vectors representing offsets between
+points. We now examine the correct types to assign to the vector space
+operations of addition of vectors, negation of vectors, multiplication
+by a scalar and the zero vector.
 
-In our discussion in the previous section, we observed that vector
-operations are those that are preserved by change-of-basis operations
--- i.e.~under the action of elements of the group $\GL(2)$ of
-invertible linear maps. Since $\GL(2)$ is a subgroup of $\GA(2)$ we
-may form the type $\mathsf{vec}\langle e \rangle$ when $e$ is of sort
-$\GL(2)$ as well as $\GA(2)$. The obvious type assignment for vector
-addition is now the following:
+In our discussion in the previous section \textbf{?FIXME?}, we
+observed that vector operations are not invariant under change of
+origin. The obvious type assignment for vector addition is therefore:
 \begin{displaymath}
-  (+) : \forall B\mathord:\GL(2).\ \mathsf{vec}\langle B \rangle \to \mathsf{vec}\langle B \rangle \to \mathsf{vec}\langle B \rangle
+  (+) : \mathsf{vec}\langle 0 \rangle \to \mathsf{vec}\langle 0 \rangle \to \mathsf{vec}\langle 0 \rangle
 \end{displaymath}
 (we write binary operators intended to be used infix in parentheses
 when not appearing in infix position, following the Haskell
-syntax.) The use of $B$ for names of elements of $\GL(2)$ is meant to
-suggest that the type $\mathsf{vec}\langle B \rangle$ denotes vectors
-with respect to the $B$asis $B$.
+syntax.)
 
 However, it is possible to give vector addition a more precise type
-that describes its effect on the chosen origin as well as its
-invariance under change of basis. We now introduce a new sort
-$\Transl(2)$ of translations. Translations form an abelian group,
-which we write additively, using $+$,$-$ and $0$, and we use lower
-case $t$, $t_1$, etc.~for $t$ranslation variables. Invertible affine
-maps are constructed from invertible linear maps and translations, so
-given a $B : \GL(2)$ and a $t : \Transl(2)$, we can form an invertible
-affine map $B \ltimes t : \GA(2)$. Conversely, given $F : \GA(2)$, we
-have an invertible linear map $\pi_L(F) : \GL(2)$, and a translation
-$\pi_T(F) : \Transl(2)$. Thinking of elements of $\GA(2)$ as frames,
-$\pi_L$ returns the basis of the frame, and $\pi_T$ returns the
-origin.
-
-We can now give vector addition a more general type, which
-demonstrates how adding vectors has an effect on translations:
+that describes its effect on the chosen origin. 
+% We now introduce a new
+% sort $\Transl(2)$ of translations. Translations form an abelian group,
+% which we write additively, using $+$,$-$ and $0$, and we use lower
+% case $t$, $t_1$, etc.~for $t$ranslation variables. Invertible affine
+% maps are constructed from invertible linear maps and translations, so
+% given a $B : \GL(2)$ and a $t : \Transl(2)$, we can form an invertible
+% affine map $B \ltimes t : \GA(2)$. Conversely, given $F : \GA(2)$, we
+% have an invertible linear map $\pi_L(F) : \GL(2)$, and a translation
+% $\pi_T(F) : \Transl(2)$. Thinking of elements of $\GA(2)$ as frames,
+% $\pi_L$ returns the basis of the frame, and $\pi_T$ returns the
+% origin.
+%
+% We can now give vector addition a more general type, which
+% demonstrates how adding vectors has an effect on translations:
 \begin{displaymath}
-  \begin{array}{l}
-    (+) : \forall B \mathord: \GL(2), t_1, t_2 \mathord: T(2).\ \\
-    \quad\quad\quad\quad\mathsf{vec}\langle B \ltimes t_1\rangle \to \mathsf{vec}\langle B \ltimes t_2 \rangle \to \mathsf{vec}\langle B \ltimes (t_1 + t_2)\rangle
-\end{array}
+  (+) : \forall t_1, t_2 \mathord: T_2.\ \mathsf{vec}\langle t_1\rangle \to \mathsf{vec}\langle t_2 \rangle \to \mathsf{vec}\langle t_1 + t_2 \rangle
 \end{displaymath}
 We can also negate vectors, yielding a vector which points in the
-opposite direction. Negation is invariant under invertible linear maps
-but negates translations:
+opposite direction. Negation negates translations:
 \begin{displaymath}
-  \mathrm{negate} : \forall B \mathord: \GL(2), t \mathord: T(2).\ \mathsf{vec}\langle B \ltimes t\rangle \to \mathsf{vec}\langle B\ltimes(-t)\rangle
+  \mathrm{negate} : \forall t \mathord: T_2.\ \mathsf{vec}\langle t \rangle \to \mathsf{vec}\langle -t \rangle
 \end{displaymath}
-With addition and negation of vectors, we can define the derived
+With the primitive operations of addition and negation of vectors, we can define the derived
 operation of vector subtraction with the following type:
 \begin{displaymath}
   \begin{array}{l}
-    (-) : \forall B \mathord:\GL(2), t_1,t_2 \mathord:T(2).\ \\
-    \hspace{1cm}\mathsf{vec}\langle B \ltimes t_1\rangle \to \mathsf{vec}\langle B \ltimes t_2\rangle \to \mathsf{vec}\langle B \ltimes (t_1 - t_2)\rangle \\
+    (-) : \forall t_1,t_2 \mathord:T_2.\ \mathsf{vec}\langle t_1\rangle \to \mathsf{vec}\langle t_2\rangle \to \mathsf{vec}\langle t_1 - t_2 \rangle \\
     (-)\ [B]\ [t_1]\ [t_2]\ p_1\ p_2 = p_1 + \mathrm{negate}\ p_2
-\end{array}
-\end{displaymath}
-
-Given two points in the same frame---i.e.~two values of type
-$\mathsf{vec}\langle F \rangle$---we can compute their offset, which
-is a vector expressed with respect to the basis part of $F$, as a
-special case of vector subtraction:
-\begin{displaymath}
-  \begin{array}{l}
-    \mathrm{offset} : \forall F \mathord:\GA(2).\ \mathsf{vec}\langle F \rangle \to \mathsf{vec}\langle F \rangle \to \mathsf{vec}\langle \pi_L(F) \ltimes 0 \rangle \\
-    \mathrm{offset}\ [F]\ p_1\ p_2 = p_1 - p_2
   \end{array}
 \end{displaymath}
-The subtraction operation in the body of $\mathrm{offset}$ is
-instantiated with $B = \pi_L(F)$, $t_1 = \pi_T(F)$ and $t_2 =
-\pi_T(F)$. The translation $\pi_T(F)$ cancels itself out, and we are
-left with a vector in the basis $\pi_L(F)$ of the frame $F$.
 
+Given two points that have been constrained to be invariant with
+respect to the same change of origin---i.e.~two values of type
+$\mathsf{vec}\langle t \rangle$---we can compute their offset, which
+is a vector expressed with respect to the null change of origin. The
+offset operation is a special case of vector subtraction:
+\begin{displaymath}
+  \begin{array}{l}
+    \mathrm{offset} : \forall t \mathord:T_2.\ \mathsf{vec}\langle t \rangle \to \mathsf{vec}\langle t \rangle \to \mathsf{vec}\langle 0 \rangle \\
+    \mathrm{offset}\ [t]\ p_1\ p_2 = p_1 - p_2
+  \end{array}
+\end{displaymath}
 Similarly, the type of the vector addition operation can be
 specialised to the case of moving a point by an offset represented by
 a vector:
 \begin{displaymath}
   \begin{array}{l}
-    \mathrm{moveBy} : \forall F \mathord:\GA(2).\ \mathsf{vec}\langle F \rangle \to \mathsf{vec}\langle \pi_L(F) \ltimes 0 \rangle \to \mathsf{vec}\langle F \rangle \\
-    \mathrm{moveBy}\ [F]\ p\ v = p + v
+    \mathrm{moveBy} : \forall t \mathord:T_2.\ \mathsf{vec}\langle t \rangle \to \mathsf{vec}\langle 0 \rangle \to \mathsf{vec}\langle t \rangle \\
+    \mathrm{moveBy}\ [t]\ p\ v = p + v
   \end{array}
 \end{displaymath}
-The addition operation in the body of $\mathrm{moveBy}$ is
-instantiated with $B = \pi_L(F)$, $t_1 = \pi_T(F)$ and $t_2 =
-0$. Since $t_1 + t_2 = \pi_T(F) + 0 = \pi_T(F)$ in this case, we are
-left with a value of type $\mathsf{vec}\langle \pi_L(F) \ltimes
-\pi_T(F) \rangle$, which is equivalent to the type
-$\mathsf{vec}\langle F \rangle$.
-
 The types we assign to the remaining vector space primitives, the zero
 vector and multiplication by a scalar, do not describe any interesting
 effect on translations%\footnote{but they could...}
-. The zero vector has the following polymorphic type, indicating that
-for any basis $B$, there is a zero vector.
+. The zero vector has the following type.
 \begin{displaymath}
-  \mathrm{0} : \forall B \mathord: \GL(2).\ \mathsf{vec}\langle B \ltimes 0 \rangle
+  \mathrm{0} : \mathsf{vec}\langle 0 \rangle
 \end{displaymath}
-Intuitively, there cannot be a zero vector for any frame $F$, because
-this would entail picking a privileged origin. For multiplication of a
-vector by a scalar, we assign the following type:
+Intuitively, there cannot be a zero vector invariant under any change
+of origin, because this would entail picking a privileged origin. For
+multiplication of a vector by a scalar, we assign the following type,
+which is again not invariant under change of origin.
 \begin{displaymath}
-  (*) : \forall B \mathord: \GL(2).\ \mathsf{real} \to \mathsf{vec}\langle B \ltimes 0 \rangle \to \mathsf{vec}\langle B \ltimes 0 \rangle
+  (*) : \mathsf{real} \to \mathsf{vec}\langle 0 \rangle \to \mathsf{vec}\langle 0 \rangle
 \end{displaymath}
-This type indicates that scaling a vector is preserved by change of
-basis.
 
 \begin{example}
-  The vector space primitives we have defined in this section, along
-  with the geometric invariance properties that follow from their
-  types, allow us to establish a useful type isomorphism. Consider
+  The vector space operators and the properties that follow from their
+  types allow us to establish a useful type isomorphism. Consider
   functions with types conforming to the following schema:
   \begin{displaymath}
-    \tau_{n,A} \isDefinedAs \forall F\mathord:\GA(2).\ \mathsf{vec}\langle F \rangle^{n+1} \to A[F]
+    \tau_{n} \isDefinedAs \forall t\mathord:T_2.\ \mathsf{vec}\langle t \rangle^{n+1} \to \mathsf{real}
   \end{displaymath}
   We take $n$ to be a natural number, and $A^n$ for some type $A$
   denotes the $n$-ary tupling of $A$ with itself: i.e.~$A \times
-  ... \times A$, with $A$ repeated $n$ times. The notation $A[-]$
-  denotes a type with a ``hole'' that can be filled with an
-  expression. In this case, we require that $A[e]$ be a well-formed
-  type when $e$ has sort $\GA(2)$.
+  ... \times A$, with $A$ repeated $n$ times.
+% The notation $A[-]$
+%   denotes a type with a ``hole'' that can be filled with an
+%   expression. In this case, we require that $A[e]$ be a well-formed
+%   type when $e$ has sort $\GA(2)$.
 
-  Just by looking at the types $\tau_{n,A}$, we know that their
-  inhabitants will be invariant under change of frame, due to the
-  quantification over all $F$ in $\GA(2)$. Therefore, we may as well
-  pick one of the input points as the origin and assume that all the
-  other points are defined with respect to this chosen origin. This is
+  Just by looking at the types $\tau_{n}$, we know that their
+  inhabitants will be invariant under change of origin, due to the
+  quantification over all $t$ in $T_2$. Therefore, we may as well pick
+  one of the input points as the origin and assume that all the other
+  points are defined with respect to this chosen origin. This is
   similar to the common mathematical step of stating that, ``without
   loss of generality'', we may pick some point in a description of a
   problem to be the origin, as long as the problem statement is
   invariant under translation.
 
-  The types $\tau_{n,A}$ are isomorphic to the corresponding types
-  $\sigma_{n,A}$, defined below. Inhabitants of the types
-  $\sigma_{n,A}$ take one fewer points (now seen as vector offsets
+  The types $\tau_{n}$ are isomorphic to the corresponding types
+  $\sigma_{n}$, defined below. Inhabitants of the types
+  $\sigma_{n}$ take one fewer points (now seen as vector offsets
   from some origin), but are invariant only under change of basis.
   \begin{displaymath}
-    \sigma_{n,A} \isDefinedAs \forall B\mathord:\GL(2).\ \mathsf{vec}\langle B \rangle^n \to A[B \ltimes 0]
+    \sigma_{n} \isDefinedAs \mathsf{vec}\langle 0 \rangle^n \to \mathsf{real}
   \end{displaymath}
-  The isomorphism between these two families of types can be witnessed
-  by the following two functions.
-  \begin{displaymath}
-    \begin{array}{l}
-      i_{n,A} : \tau_{n,A} \to \sigma_{n,A} \\
-      i_{n,A}\ f\ [B]\ (p_1, p_2, ..., p_n) = f\ [B \ltimes 0]\ (0, p_1, ..., p_n) \\
-      \\
-      i^{-1}_{n,A} : \sigma_{n,A} \to \tau_{n,A} \\
-      i^{-1}_{n,A}\ g\ [F]\ (p_0, ..., p_n) = g\ [\pi_L(F)]\ (p_1-p_0, ..., p_n-p_0)
-    \end{array}
-  \end{displaymath}
-  The direction defined by the function $i_{n,A}$ treats the inputs
-  $p_1,...,p_n$ as vector offsets from the origin $0$. The direction
-  witnessed by $i^{-1}_{n,A}$ picks the first point to act as the
-  origin, and uses the operation of vector subtraction we defined
-  above to turn each of the other points into offsets from this
-  point. Note that this isomorphism is not unique: for each $n$ we can
-  pick any of the $n+1$ inputs to act as the distinguished
-  origin. Thus the families of types $\tau_{n,A}$ and $\sigma_{n,A}$
-  are isomorphic, but not uniquely isomorphic.
+  We demonstrate this isomorphism formally below in
+  \autoref{sec:FIXME}.
+
+  % The isomorphism between these two families of types can be witnessed
+  % by the following two functions.
+  % \begin{displaymath}
+  %   \begin{array}{l}
+  %     i_{n,A} : \tau_{n,A} \to \sigma_{n,A} \\
+  %     i_{n,A}\ f\ [B]\ (p_1, p_2, ..., p_n) = f\ [B \ltimes 0]\ (0, p_1, ..., p_n) \\
+  %     \\
+  %     i^{-1}_{n,A} : \sigma_{n,A} \to \tau_{n,A} \\
+  %     i^{-1}_{n,A}\ g\ [F]\ (p_0, ..., p_n) = g\ [\pi_L(F)]\ (p_1-p_0, ..., p_n-p_0)
+  %   \end{array}
+  % \end{displaymath}
+  % The direction defined by the function $i_{n,A}$ treats the inputs
+  % $p_1,...,p_n$ as vector offsets from the origin $0$. The direction
+  % witnessed by $i^{-1}_{n,A}$ picks the first point to act as the
+  % origin, and uses the operation of vector subtraction we defined
+  % above to turn each of the other points into offsets from this
+  % point. Note that this isomorphism is not unique: for each $n$ we can
+  % pick any of the $n+1$ inputs to act as the distinguished
+  % origin. Thus the families of types $\tau_{n,A}$ and $\sigma_{n,A}$
+  % are isomorphic, but not uniquely isomorphic.
 \end{example}
+
+\begin{example}
+  An inexpressible type
+  \begin{displaymath}
+    \forall t \mathord: T_2.\ \vec{t + t} \to \vec{t}
+  \end{displaymath}
+  FIXME: explain that it is possible to show that this type is
+  uninhabited with the given operations. We show this in general 
+\end{example}
+
+\subsection{Generalising from Origin Invariance}
+
+Points for consideration in terms of language design:
+\begin{itemize}
+\item Knowledge of the algebraic laws by the type checker are
+  essential for type-checking the examples above
+\item The relational interpretation gives us 
+\end{itemize}
 
 %%% Local Variables:
 %%% TeX-master: "paper"
