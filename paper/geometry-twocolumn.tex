@@ -1,30 +1,34 @@
 \section{Motivating Examples}
 
-\subsection{2-Dimensional Geometry and Invariance}
+We motivate this paper's goal of investigating algebraically-indexed
+types and their relational interpretations by presenting several
+examples. Our main set of examples comprise a novel type system for
+writing programs that manipulate geometric data, while maintaining
+geometric invariants through the types. \fixme{and the information
+  flow examples}
 
-When writing programs that manipulate $n$-dimensional geometric data,
-the basic data structure is the $n$-tuple of real numbers. In the
-two-dimensional case, tuples $\vec{v} = (x,y)$ can be called upon to
-represent both \emph{points} -- offsets from some origin -- and
-\emph{vectors} -- offsets in their own right. The notions of point and
-vector are very different despite their common representation. By
-representing a point concretely as an offset from some origin, we
-inadvertently fix that origin as privileged.
-% However, as made clear by Gallieo, many of the laws of physics are
-% invariant under change of the frame of reference: if we change where
-% we think the origin is, then we do not change the fundamental laws.
-Putting this in concrete terms, if we have two frames of reference,
-one with $(0,0)$ as the origin, and one with $(10,20)$ as the origin,
-then the tuple $(1,1)$ with respect to the first frame and $(11,21)$
-with respect to the second frame represent the \emph{same} point. It
-is merely an artifact of our representation of points as pairs of
-numbers that these appear to be different. When we write programs that
-manipulate data that represents points, we ought to follow the general
-principle that our programs are invariant with respect to changes in
-the choice of origin. On the other hand, vectors are not intended to
-be regarded as invariant under change of choice of origin. Vectors
-represent offsets, or movements, and the vector $(0,0)$ always
-represents the zero offset.
+\subsection{2-Dimensional Geometry and Origin Invariance}
+
+When writing programs that manipulate geometric data, the basic data
+structure is the $n$-tuple of real numbers. In the 2-dimensional case,
+tuples $\vec{v} = (x,y)$ may be called upon to represent both
+\emph{points} -- offsets from some origin -- and \emph{vectors} --
+offsets in their own right. The notions of point and vector are very
+different despite their common representation. By representing a point
+concretely as an offset from an origin, we inadvertently fix that
+origin as privileged.
+
+Putting this in concrete terms, if we have two origins, $(0,0)$ and
+$(10,20)$, then the tuple $(1,1)$ with respect to the first origin and
+$(11,21)$ with respect to the second origin represent the \emph{same}
+point. It is merely an artifact of our representation of points as
+pairs of numbers that these appear to be different. When we write
+programs that manipulate data that represents points, we ought to
+follow the general principle that our programs are invariant with
+respect to changes in the choice of origin. On the other hand, vectors
+are not intended to be regarded as invariant under change of choice of
+origin. Vectors represent offsets, or movements, and the vector
+$(0,0)$ always represents the zero offset.
 % However, they are intended to be invariant under change of basis: the
 % vector $(2,3)$, with respect to the basis $(1,0),(0,1)$, and the
 % vector $(1,1)$, with respect to the basis $(2,0),(0,3)$, should be
@@ -40,15 +44,14 @@ represents the zero offset.
 % think in terms of abstract concepts such as points and vectors,
 % rather than their actual representation as tuples of numbers.
 
-\textbf{FIXME:} talk about the standard way of separating the two
-concepts using abstract types.
+
 
 Invariance under change of representation immediately recalls
 Reynolds' fable concerning two professors teaching the theory of
-complex numbers to students \cite{reynolds83types}. One professor
-chooses rectangular coordinates ($x + iy$), while the other chooses
-polar coordinates ($\alpha\cos\theta + i\alpha\sin\theta$). Happily,
-after learning the basic operations on complex numbers in the two
+complex numbers \cite{reynolds83types}. One professor chooses
+rectangular coordinates ($x + iy$), while the other chooses polar
+coordinates ($\alpha\cos\theta + i\alpha\sin\theta$). Happily, after
+learning the basic operations on complex numbers in the two
 representations, the two classes can interact because the theory of
 complex numbers is invariant with respect to the choice of
 representation. Reynolds formalises the idea of invariance with
@@ -58,7 +61,7 @@ representations of a concept---for example the rectangular and polar
 representations of the same complex number are related---then a
 program that manipulates complex numbers at a level of abstraction
 above their specific representation should preserve the relation
-$R$. Concretely, let $f$ be a program taking complex numbers to
+$R$. For example, if $f$ be a program taking complex numbers to
 complex numbers that is intended to respect invariance under change of
 representation. Then if $c$ is a complex number in rectangular form,
 and $c'$ is a complex number in polar form such that $R$ relates them,
@@ -66,7 +69,7 @@ which we write as $(c,c') \in R$, then it should be the case that
 $(f(c), f(c')) \in R$.
 
 We now apply Reynolds' relational approach to defining invariance
-under changes of representation to our geometric setting. Following
+under changes of representation to the geometric setting. Following
 Reynolds, we express the fact that two tuples in $\mathbb{R}^2$ are
 representatives of the same point under change of origin by defining a
 family of binary relations over $\mathbb{R}^2$. Our family of binary
@@ -157,17 +160,15 @@ invariance under change of origin.
 \subsection{A Type System for Origin Invariance}
 \label{sec:type-system-geom-intro}
 
-We have seen how Reynolds' notion of preservation of relations can be
-used to define when it is the case that programs manipulating
-representatives of points and vectors make geometric sense. Reynolds
-further insight was to see how preservation of relations can
-automatically be established by following a typing discipline. In
-Reynolds' case, the typing discipline was the polymorphic
-$\lambda$-calculus where new types can be constructed by universal
-quantification over all types. Universal type quantification is
-commonly written $\forall \alpha. A$, which denotes a type that may be
-instantiated with any other type $B$ by replacing the type variable
-$\alpha$ with $B$ in $A$.
+Reynolds further insight was to see how preservation of relations by
+the denotational interpretations of programs can automatically be
+established by following a typing discipline. In Reynolds' case, the
+typing discipline was the polymorphic $\lambda$-calculus where new
+types can be constructed by universal quantification over all
+types. Universal type quantification is commonly written $\forall
+\alpha. A$, which denotes a type that may be instantiated with any
+other type $B$ by replacing the type variable $\alpha$ with $B$ in
+$A$.
 
 In terms of relations, Reynolds interprets universal quantification
 over types as quantification over binary relations between denotations
@@ -215,10 +216,10 @@ a known length (in this case two).
 % FIXME: Denotational semantics of $\mathsf{vec}$? and transformation
 % quantification?
 
-Equipped with quantification over the group $T_2$ of invertible affine
-maps, and the parameterised types $\mathsf{vec}\langle \cdot \rangle$,
-we can now express origin invariance properties as types. In the
-previous section, we discussed functions $f : \mathbb{R}^2 \times
+Equipped with quantification over the group $T_2$ of changes of
+origin, and the parameterised types $\mathsf{vec}\langle \cdot
+\rangle$, we can now express origin invariance properties as types. In
+the previous section, we discussed functions $f : \mathbb{R}^2 \times
 \mathbb{R}^2 \to \mathbb{R}^2$ that have the property that they
 preserve all changes of origin. We can now express this property as a
 type:
@@ -227,77 +228,69 @@ type:
 \end{displaymath}
 FIXME: forward references...
 
-% \subsection{Affine Combination of Points}
-% \label{sec:affine-combination}
+\subsection{Affine and Vector Operations}
+\label{sec:affine-vector-ops}
 
-% As we stated in the previous section, the primitive operation of
-% affine geometry is affine combination of points: $\lambda_1\vec{v_1} +
-% \lambda_2\vec{v_2}$, where $\lambda_1 + \lambda_2 = 1$. Geometrically,
-% affine combination can be interpreted as interpolation between the
-% points represented by $\vec{v_1}$ and $\vec{v_2}$. We add affine
-% combination of points to our calculus, with the following typing and
-% intended denotation.
-% \begin{displaymath}
-%   \begin{array}{l}
-%     \mathrm{affineCombination} :\\
-%     \hspace{1.5cm}\forall F \mathord: \GA(2).\ \mathsf{vec}\langle F \rangle \to \mathsf{real} \to \mathsf{vec}\langle F \rangle \to \mathsf{vec}\langle F \rangle \\
-%     \sem{\mathrm{affineCombination}}\ (x_1,y_1)\ t\ (x_2,y_2) = \\
-%     \hspace{3cm}((1-t)x_1 + tx_2, (1-t)y_1 + ty_2)
-%   \end{array}
-% \end{displaymath}
-% By defining the primitive function $\mathrm{affineCombination}$ to
-% take a single $\mathsf{real}$ parameter $t$, we can easily ensure that
-% we are taking the affine combination of two representatives of points,
-% and not just an arbitrary linear combination. Note that the intended
-% denotation in the second line does not take any argument corresponding
-% to the universally quantified $F$ in the type. In our calculus,
-% geometric group expressions are erased at runtime.
+As we stated in the previous section, the primitive operation of
+affine geometry is affine combination of points: $\lambda_1\vec{v_1} +
+\lambda_2\vec{v_2}$, where $\lambda_1 + \lambda_2 = 1$. Geometrically,
+affine combination can be interpreted as interpolation between the
+points represented by $\vec{v_1}$ and $\vec{v_2}$. We add affine
+combination of points to our calculus, with the following typing and
+intended denotation:
+\begin{displaymath}
+  \begin{array}{l}
+    \mathrm{affineCombination} :\forall t \mathord: T_2.\ \mathsf{vec}\langle t \rangle \to \mathsf{real} \to \mathsf{vec}\langle t \rangle \to \mathsf{vec}\langle t \rangle \\
+    \sem{\mathrm{affineCombination}}\ (x_1,y_1)\ r\ (x_2,y_2) = \\
+    \hspace{3cm}((1-r)x_1 + tx_2, (1-r)y_1 + ty_2)
+  \end{array}
+\end{displaymath}
+By defining the primitive function $\mathrm{affineCombination}$ to
+take a single $\mathsf{real}$ parameter $t$, we can easily ensure that
+we are taking the affine combination of two representatives of points,
+and not just an arbitrary linear combination. The intended denotation
+in the second line does not take any argument corresponding to the
+universally quantified $t$ in the type. Type-level variables are
+erased at runtime.
 
-% % In Linear Algebra notation, we could have written the right-hand side
-% % as $(1-t)\vec{v_1} + t\vec{v_2}$, where $\vec{v_1} = (x_1,y_1)$ and
-% % $\vec{v_2} = (x_2,y_2)$. 
+% In Linear Algebra notation, we could have written the right-hand side
+% as $(1-t)\vec{v_1} + t\vec{v_2}$, where $\vec{v_1} = (x_1,y_1)$ and
+% $\vec{v_2} = (x_2,y_2)$. 
 
-% \begin{example}
-%   With just the single primitive operation of affine combination, we
-%   can already express some useful programs. For example, the
-%   evaluation of quadratic B\'{e}zier curves (B\'{e}zier curves with
-%   two endpoints and a single control point) can be expressed using the
-%   affine combination primitive and three steps of De Casteljau's
-%   algorithm:
-%   \begin{displaymath}
-%     \begin{array}{l}
-%       \mathrm{quadraticB\acute{e}zier} :\\
-%       \hspace{0.5cm}\forall F \mathord:\GA(2).\ \mathsf{vec}\langle F \rangle \to \mathsf{vec}\langle F \rangle \to \mathsf{vec}\langle F \rangle \to \mathsf{real} \to \mathsf{vec}\langle F \rangle \\
-%       \mathrm{quadraticB\acute{e}zier}\ [F]\ p_0\ p_1\ p_2\ t = \\
-%       \quad
-%       \begin{array}{l@{\hspace{-0.002cm}}l}
-%         \mathrm{affineCombination}\ [F]\ & (\mathrm{affineCombination}\ [F]\ p_0\ t\ p_1) \\
-%         & t \\
-%         & (\mathrm{affineCombination}\ [F]\ p_1\ t\ p_2)
-%       \end{array}
-%     \end{array}
-%   \end{displaymath}
-%   For two endpoints $p_0$ and $p_2$ and a control point $p_1$, an
-%   application $\mathrm{quadraticB\acute{e}zier}\ p_0\ p_1\ p_2\ t$ for
-%   $t \in [0,1]$ gives us the point on the curve at ``time'' $t$. Note
-%   that the type of $\mathrm{quadraticB\acute{e}zier}$ tells us
-%   immediately that it preserves all invertible affine maps.
-%   %FIXME: forward ref to ``free theorem''.
-% \end{example}
+\begin{example}
+  The evaluation of quadratic B\'{e}zier curves (B\'{e}zier curves
+  with two endpoints and a single control point) can be expressed
+  using the affine combination primitive and three steps of De
+  Casteljau's algorithm:
+  \begin{displaymath}
+    \begin{array}{@{}l}
+      \mathrm{quadB\acute{e}zier} : \forall t \mathord:T_2.\ \mathsf{vec}\langle t \rangle \to \mathsf{vec}\langle t \rangle \to \mathsf{vec}\langle t \rangle \to \mathsf{real} \to \mathsf{vec}\langle t \rangle \\
+      \mathrm{quadB\acute{e}zier}\ [t]\ p_0\ p_1\ p_2\ s = \\
+      \quad
+      \begin{array}{l@{\hspace{-0.002cm}}l}
+        \mathrm{affineCombination}\ [F]\ & (\mathrm{affineCombination}\ [F]\ p_0\ s\ p_1) \\
+        & s \\
+        & (\mathrm{affineCombination}\ [F]\ p_1\ s\ p_2)
+      \end{array}
+    \end{array}
+  \end{displaymath}
+  For two endpoints $p_0$ and $p_2$ and a control point $p_1$, an
+  application $\mathrm{quadB\acute{e}zier}\ p_0\ p_1\ p_2\ s$ for $s
+  \in [0,1]$ gives us the point on the curve at ``time'' $s$. Note
+  that the type of $\mathrm{quadB\acute{e}zier}$ tells us immediately
+  that it preserves all changes of origin
+\end{example}
 
-\subsection{Vector Space Operations}
-\label{sec:vector-space-ops}
+Affine combination only provides us with an operation on points. We
+are also interested in operations on the vectors representing offsets
+between points. We now examine the correct types to assign to the
+vector space operations of addition of vectors, negation of vectors,
+multiplication by a scalar and the zero vector. The typings of these
+operations will make use of the abelian group structure of the sort of
+translations $T_2$.
 
-\textbf{FIXME}Affine combination only provides us with an operation on
-points. For the purposes of computational geometry, we are also
-interested in operations on the vectors representing offsets between
-points. We now examine the correct types to assign to the vector space
-operations of addition of vectors, negation of vectors, multiplication
-by a scalar and the zero vector.
-
-In our discussion in the previous section \textbf{?FIXME?}, we
-observed that vector operations are not invariant under change of
-origin. The obvious type assignment for vector addition is therefore:
+Vector operations are not invariant under change of origin. The
+obvious type assignment for vector addition is therefore:
 \begin{displaymath}
   (+) : \mathsf{vec}\langle 0 \rangle \to \mathsf{vec}\langle 0 \rangle \to \mathsf{vec}\langle 0 \rangle
 \end{displaymath}
@@ -307,34 +300,20 @@ syntax.)
 
 However, it is possible to give vector addition a more precise type
 that describes its effect on the chosen origin. 
-% We now introduce a new
-% sort $\Transl(2)$ of translations. Translations form an abelian group,
-% which we write additively, using $+$,$-$ and $0$, and we use lower
-% case $t$, $t_1$, etc.~for $t$ranslation variables. Invertible affine
-% maps are constructed from invertible linear maps and translations, so
-% given a $B : \GL(2)$ and a $t : \Transl(2)$, we can form an invertible
-% affine map $B \ltimes t : \GA(2)$. Conversely, given $F : \GA(2)$, we
-% have an invertible linear map $\pi_L(F) : \GL(2)$, and a translation
-% $\pi_T(F) : \Transl(2)$. Thinking of elements of $\GA(2)$ as frames,
-% $\pi_L$ returns the basis of the frame, and $\pi_T$ returns the
-% origin.
-%
-% We can now give vector addition a more general type, which
-% demonstrates how adding vectors has an effect on translations:
 \begin{displaymath}
   (+) : \forall t_1, t_2 \mathord: T_2.\ \mathsf{vec}\langle t_1\rangle \to \mathsf{vec}\langle t_2 \rangle \to \mathsf{vec}\langle t_1 + t_2 \rangle
 \end{displaymath}
 We can also negate vectors, yielding a vector which points in the
-opposite direction. Negation negates translations:
+opposite direction. Negation negates translation arguments:
 \begin{displaymath}
   \mathrm{negate} : \forall t \mathord: T_2.\ \mathsf{vec}\langle t \rangle \to \mathsf{vec}\langle -t \rangle
 \end{displaymath}
-With the primitive operations of addition and negation of vectors, we can define the derived
-operation of vector subtraction with the following type:
+With the primitive operations of addition and negation of vectors, we
+can define the derived operation of subtraction:
 \begin{displaymath}
   \begin{array}{l}
     (-) : \forall t_1,t_2 \mathord:T_2.\ \mathsf{vec}\langle t_1\rangle \to \mathsf{vec}\langle t_2\rangle \to \mathsf{vec}\langle t_1 - t_2 \rangle \\
-    (-)\ [B]\ [t_1]\ [t_2]\ p_1\ p_2 = p_1 + \mathrm{negate}\ p_2
+    (-)\ [t_1]\ [t_2]\ p_1\ p_2 = p_1 + \mathrm{negate}\ p_2
   \end{array}
 \end{displaymath}
 
@@ -349,9 +328,8 @@ offset operation is a special case of vector subtraction:
     \mathrm{offset}\ [t]\ p_1\ p_2 = p_1 - p_2
   \end{array}
 \end{displaymath}
-Similarly, the type of the vector addition operation can be
-specialised to the case of moving a point by an offset represented by
-a vector:
+The type of the vector addition operation can be specialised to the
+case of moving a point by a vector:
 \begin{displaymath}
   \begin{array}{l}
     \mathrm{moveBy} : \forall t \mathord:T_2.\ \mathsf{vec}\langle t \rangle \to \mathsf{vec}\langle 0 \rangle \to \mathsf{vec}\langle t \rangle \\
@@ -361,7 +339,7 @@ a vector:
 The types we assign to the remaining vector space primitives, the zero
 vector and multiplication by a scalar, do not describe any interesting
 effect on translations%\footnote{but they could...}
-. The zero vector has the following type.
+. The zero vector has the type:
 \begin{displaymath}
   \mathrm{0} : \mathsf{vec}\langle 0 \rangle
 \end{displaymath}
@@ -376,18 +354,10 @@ which is again not invariant under change of origin.
 \begin{example}
   The vector space operators and the properties that follow from their
   types allow us to establish a useful type isomorphism. Consider
-  functions with types conforming to the following schema:
+  functions with types following the schema:
   \begin{displaymath}
-    \tau_{n} \isDefinedAs \forall t\mathord:T_2.\ \mathsf{vec}\langle t \rangle^{n+1} \to \mathsf{real}
+    \tau_{n} \isDefinedAs \forall t\mathord:T_2.\ \underbrace{\mathsf{vec}\langle t \rangle \to ... \mathsf{vec}\langle t \rangle}_{n+1\textrm{ times}} \to \mathsf{real}
   \end{displaymath}
-  We take $n$ to be a natural number, and $A^n$ for some type $A$
-  denotes the $n$-ary tupling of $A$ with itself: i.e.~$A \times
-  ... \times A$, with $A$ repeated $n$ times.
-% The notation $A[-]$
-%   denotes a type with a ``hole'' that can be filled with an
-%   expression. In this case, we require that $A[e]$ be a well-formed
-%   type when $e$ has sort $\GA(2)$.
-
   Just by looking at the types $\tau_{n}$, we know that their
   inhabitants will be invariant under change of origin, due to the
   quantification over all $t$ in $T_2$. Therefore, we may as well pick
@@ -399,14 +369,11 @@ which is again not invariant under change of origin.
   invariant under translation.
 
   The types $\tau_{n}$ are isomorphic to the corresponding types
-  $\sigma_{n}$, defined below. Inhabitants of the types
-  $\sigma_{n}$ take one fewer points (now seen as vector offsets
-  from some origin), but are invariant only under change of basis.
+  $\sigma_{n}$:
   \begin{displaymath}
-    \sigma_{n} \isDefinedAs \mathsf{vec}\langle 0 \rangle^n \to \mathsf{real}
+    \sigma_{n} \isDefinedAs \underbrace{\mathsf{vec}\langle 0 \rangle \to ... \mathsf{vec}\langle 0 \rangle}_{n\textrm{ times}} \to \mathsf{real}
   \end{displaymath}
-  We demonstrate this isomorphism formally below in
-  \autoref{sec:FIXME}.
+  We demonstrate this isomorphism formally in \autoref{sec:FIXME}.
 
   % The isomorphism between these two families of types can be witnessed
   % by the following two functions.
@@ -439,14 +406,45 @@ which is again not invariant under change of origin.
   uninhabited with the given operations. We show this in general 
 \end{example}
 
-\subsection{Generalising from Origin Invariance}
+\subsection{Generalising Origin Invariance}
+\label{sec:motivation-generalising}
 
-Points for consideration in terms of language design:
-\begin{itemize}
-\item Knowledge of the algebraic laws by the type checker are
-  essential for type-checking the examples above
-\item The relational interpretation gives us 
-\end{itemize}
+\begin{enumerate}
+\item Basis invariance
+\item Orthogonal transform invariance for dot product
+\item Rotational invariance (the type of the cross-product)
+\item Scale invariance (units of measure)
+\end{enumerate}
+
+In some cases, we can use the invariance as a programming tool
+(e.g. type isomorphisms), but at others we can only use it from the
+outside.
+
+\subsection{Information Flow}
+\label{sec:information-flow}
+
+\begin{enumerate}
+\item Think of information flow as passing around unforgable tokens
+  \begin{enumerate}
+  \item Give an example (given a piece of data protected by a token
+    and a token, can we extract the data?)
+  \item Need to make sure that tokens are unforgable
+  \end{enumerate}
+\item Could either enforce unforgability of tokens by some dynamic
+  means, or by static type-based means
+  \begin{enumerate}
+  \item Leave the dynamic method as vague
+  \item Ingredients of the static method: run-time tokens are just
+    dummy values ($*$), the token type is parameterised by logical
+    formulae, and the relational meaning is derived from an assignment
+    of boolean values to atoms.
+  \item Explain this as invariance under changes of satisfaction of
+    the participants. Relate to descriptions of logics as rules that
+    don't care about truth, only its preservation.
+  \end{enumerate}
+\item Cite Sabelfeld and Sands: ``A PER Model of Secure Information
+  Flow in Sequential Programs''
+\end{enumerate}
 
 %%% Local Variables:
 %%% TeX-master: "paper"
