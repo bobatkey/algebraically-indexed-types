@@ -14,15 +14,52 @@ system.
 \subsection{Units of Measure and Scale Invariance}
 \label{sec:units-of-measure-example-intro}
 
-FIXME:
+Kennedy's units of measure system enforces, through a static typing
+discipline, a semantic notion of unit correctness. Idea: units of
+measure $\Rightarrow$ scale invariance $\Rightarrow$ representation
+independence $\Rightarrow$ Reynolds-style parametricity.
+
+To illustrate the semantic formulation of unit correctness, we present
+a small example.  Let $f$ be a function that takes pairs of real
+numbers to a real number:
+\begin{displaymath}
+  f : \mathbb{R} \times \mathbb{R} \to \mathbb{R},
+\end{displaymath}
+and let us assume that the first input to the function should denote
+some quantity of distance, the second input should denote some
+quantity of time, and that the output should denote some quantity of
+distance over time. Intuitively, these unit constraints mean that $f$
+may only do something like divide the first argument by the second,
+and possibly multiply by some dimensionless constant. But how do we
+state such conditions formally in terms of $f$?
+
+One way to state unit correctness is in terms of preservation of
+scaling. If we scale all distance inputs by some factor $k_d$, and all
+time inputs by some factor $k_t$, then the output of $f$ should
+correspondingly scale by the factor $k_d/k_t$ (since the supposed
+units of the output is distance over time). In symbols:
+\begin{displaymath}
+  \forall k_d, k_t, x_d, x_t.\ f(k_dx_d, k_tx_t) = \frac{k_d}{k_t}f(x_d,x_t)
+\end{displaymath}
+
+
+Another way of looking at scale invariance is in terms of invariance
+under change of representation. The number $5$, with respect to 
+
 \begin{enumerate}
-\item Describe the units of measure system
-\item Describe the concept of scale invariance
-\item Describe the consequences of scale invariance
+\item Semantic correctness for units of measure is enforced by scaling
+  invariance
+\item Systematise this by using Reynolds' idea that semantic type
+  abstraction is formulated as preservation of relations. In the units
+  of measure case, we assign a relational meaning to every unit
+  expression.
+\item Consequences...
 \end{enumerate}
 
-\subsection{Vector Spaces and Frame Invariance}
+\subsection{Affine Spaces, Vector Spaces and Frame Invariance}
 \label{sec:vector-spaces-intro}
+
+An affine space is a vector space that has ``forgotten its origin''. 
 
 FIXME: integrate a cut-down version of the geometry-invariance note
 here.
@@ -32,6 +69,11 @@ here.
 
 FIXME: re-do the security types example from the previous draft, but
 making sure to re-phrase everything in terms of ``satisfaction''.
+
+% \subsection{Monadic Effects}
+% \label{sec:monadic-effects}
+
+% Maybe this will work...
 
 \subsection{Taking Stock}
 \label{sec:taking-stock}

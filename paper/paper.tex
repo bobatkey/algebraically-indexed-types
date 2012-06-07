@@ -37,6 +37,8 @@
 \newcommand{\Orth}{\mathrm{O}}
 \newcommand{\SOrth}{\mathrm{SO}}
 \newcommand{\Transl}{\mathrm{T}}
+\newcommand{\SynTransl}{\mathsf{T}}
+\newcommand{\SynGL}{\mathsf{GL}}
 \newcommand{\Scale}{\mathrm{Scale}}
 
 
@@ -91,7 +93,6 @@
 
 \newtheorem{lemma}{Lemma}
 \newtheorem{theorem}{Theorem}
-\newtheorem{example}{Example}[section]
 \newcommand{\lemref}[1]{\hyperref[#1]{Lemma \ref*{#1}}}
 \newcommand{\thmref}[1]{\hyperref[#1]{Theorem \ref*{#1}}}
 \newcommand{\propref}[1]{\hyperref[#1]{Proposition \ref*{#1}}}
@@ -102,6 +103,8 @@
 
 \newcommand{\sem}[1]{\llbracket #1 \rrbracket}
 \newcommand{\isDefinedAs}{\stackrel{\mathit{def}}=}
+
+\newenvironment{example}{\smallskip\noindent\textbf{Example}}{\medskip} % FIXME: numbering, indentation?, box at the end?
 
 \newcommand{\fixme}[1]{\textbf{FIXME: #1}}
 

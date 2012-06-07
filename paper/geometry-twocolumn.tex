@@ -12,11 +12,21 @@ geometric invariants through the types. \fixme{and the information
 When writing programs that manipulate geometric data, the basic data
 structure is the $n$-tuple of real numbers. In the 2-dimensional case,
 tuples $\vec{v} = (x,y)$ may be called upon to represent both
-\emph{points} -- offsets from some origin -- and \emph{vectors} --
-offsets in their own right. The notions of point and vector are very
-different despite their common representation. By representing a point
-concretely as an offset from an origin, we inadvertently fix that
-origin as privileged.
+\emph{points}---offsets from some origin---and
+\emph{vectors}---offsets in their own right. Points and vectors are
+very different despite their common representation.
+
+Distinguishing between points and vectors is the key feature of
+\emph{affine geometry} (see, for example, Gallier's book
+\cite{gallier11geometric}, Chapter 2). Traditionally in computational
+geometry libraries, the distinction between points and vectors has
+either been left to the programmer to maintain by themselves, or has
+been enforced through the use of separate abstract types for points
+and vectors (one might say that the standard mathematical formulation
+of affine spaces uses the abstract types approach). Here, we
+investigate a more sophisticated approach using types indexed by
+change of origin transformations, and think of the difference between
+points and vectors as a change of data representation.
 
 Putting this in concrete terms, if we have two origins, $(0,0)$ and
 $(10,20)$, then the tuple $(1,1)$ with respect to the first origin and
@@ -24,27 +34,11 @@ $(11,21)$ with respect to the second origin represent the \emph{same}
 point. It is merely an artifact of our representation of points as
 pairs of numbers that these appear to be different. When we write
 programs that manipulate data that represents points, we ought to
-follow the general principle that our programs are invariant with
-respect to changes in the choice of origin. On the other hand, vectors
-are not intended to be regarded as invariant under change of choice of
-origin. Vectors represent offsets, or movements, and the vector
-$(0,0)$ always represents the zero offset.
-% However, they are intended to be invariant under change of basis: the
-% vector $(2,3)$, with respect to the basis $(1,0),(0,1)$, and the
-% vector $(1,1)$, with respect to the basis $(2,0),(0,3)$, should be
-% regarded as the same vector. Invariance under change of basis also
-% applies to the representation of points. We therefore refine the
-% principle of invariance under change of origin for points to also
-% include invariant under change of basis for points and vectors.
-
-% A particular choice of origin and basis is called a \emph{frame}
-% (\cite{gallier11geometric}, Chapter 2). In general, the technique of
-% maintaining geometric invariants such as frame invariance has been
-% referred to as \emph{coordinate-free geometry}: we should aim to
-% think in terms of abstract concepts such as points and vectors,
-% rather than their actual representation as tuples of numbers.
-
-
+ensure that our programs are invariant with respect to changes in the
+choice of origin. On the other hand, vectors are not intended to be
+regarded as invariant under change of origin. Vectors represent
+offsets, or movements, and the vector $(0,0)$ always represents the
+zero offset.
 
 Invariance under change of representation immediately recalls
 Reynolds' fable concerning two professors teaching the theory of
@@ -55,32 +49,32 @@ learning the basic operations on complex numbers in the two
 representations, the two classes can interact because the theory of
 complex numbers is invariant with respect to the choice of
 representation. Reynolds formalises the idea of invariance with
-respect to changes of representation by using the notion of
-preservation of relations. If a binary relation $R$ relates two
-representations of a concept---for example the rectangular and polar
-representations of the same complex number are related---then a
-program that manipulates complex numbers at a level of abstraction
-above their specific representation should preserve the relation
-$R$. For example, if $f$ be a program taking complex numbers to
-complex numbers that is intended to respect invariance under change of
-representation. Then if $c$ is a complex number in rectangular form,
-and $c'$ is a complex number in polar form such that $R$ relates them,
-which we write as $(c,c') \in R$, then it should be the case that
-$(f(c), f(c')) \in R$.
+respect to changes of representation as preservation of relations. If
+a binary relation $R$ relates two representations of a concept---for
+example the rectangular and polar representations of the same complex
+number are related---then a program that manipulates complex numbers
+at a level of abstraction above their specific representation should
+preserve the relation $R$. For example, let $f$ be a program taking
+complex numbers to complex numbers that is intended to respect
+invariance under change of representation. Then if $c$ is a complex
+number in rectangular form, and $c'$ is a complex number in polar form
+such that $R$ relates them, which we write as $(c,c') \in R$, then it
+should be the case that $(f(c), f(c')) \in R$.
 
-We now apply Reynolds' relational approach to defining invariance
-under changes of representation to the geometric setting. Following
-Reynolds, we express the fact that two tuples in $\mathbb{R}^2$ are
-representatives of the same point under change of origin by defining a
-family of binary relations over $\mathbb{R}^2$. Our family of binary
-relations is parameterised by a particular choice of origin, and by
-quantifying over all choices of origin we will be able to ensure that
-our programs are invariant with respect to the particular choice of
-origin. We define a $\mathbb{R}^2$-parameterised family of binary
-relations $\{ R_{\vec{o}} \subseteq \mathbb{R}^2 \times \mathbb{R}^2
-\}_{\vec{o} \in \mathbb{R}^2}$ as follows:
+We now apply Reynolds' relational approach to the geometric
+setting. We define a family of binary relations on $\mathbb{R}^2$
+which is indexed by changes of origin. Changes of origin are
+represented by vectors in $\mathbb{R}^2$, and form a group under
+addition. To emphasise the group structure, and the intended meaning
+as translations, we write the collection of all change of origin
+offsets as $\Transl_2$. By quantifying over all changes of origin we
+will be able to ensure that our programs are invariant with respect to
+the particular choice of origin. The members of the
+$\Transl_2$-indexed family of binary relations $\{ R_{\vec{t}}
+\subseteq \mathbb{R}^2 \times \mathbb{R}^2 \}_{\vec{t} \in \Transl_2}$
+are defined as follows:
 \begin{displaymath}
-  R_{\vec{o}} = \{ (\vec{v}, \vec{v'}) \sepbar \vec{v'} = \vec{v} + \vec{o} \}
+  R_{\vec{t}} = \{ (\vec{v}, \vec{v'}) \sepbar \vec{v'} = \vec{v} + \vec{t} \}
 \end{displaymath}
 
 Now consider a function $f$ that, for example, takes two tuples in
@@ -88,21 +82,21 @@ $\mathbb{R}^2$ and returns a single tuple in $\mathbb{R}^2$. We intend
 that all these tuples represent points with respect to the same
 origin, but that the function itself should be invariant with respect
 to the choice of origin. We use Reynolds' idea of preservation of
-relations to formalise this: for any $\vec{o} \in \mathbb{R}^2$
-(i.e.~any choice of origin), the function $f$ should satisfy the
-following statement:
+relations to formalise this: for any $\vec{t} \in \Transl_2$ (i.e.~any
+change of origin), the function $f$ should satisfy the following
+statement:
 \begin{equation}\label{eq:f-preserve-rel-frame}
-  \forall (\vec{v_1},\vec{v'_1}) \in R_{\vec{o}}, (\vec{v_2},\vec{v'_2}) \in R_{\vec{o}}. (f(\vec{v_1}, \vec{v_2}), f(\vec{v'_1}, \vec{v'_2})) \in R_{\vec{o}}
+  \forall (\vec{v_1},\vec{v'_1}) \in R_{\vec{t}}, (\vec{v_2},\vec{v'_2}) \in R_{\vec{t}}. (f(\vec{v_1}, \vec{v_2}), f(\vec{v'_1}, \vec{v'_2})) \in R_{\vec{t}}
 \end{equation}
-Unfolding the definition of $R_{\vec{o}}$, this statement is
+Unfolding the definition of $R_{\vec{t}}$, this statement is
 equivalent to the following statement expressing invariance of $f$
-with respect to changes of origin: for all $\vec{o} \in \mathbb{R}^2$,
+with respect to changes of origin: for all $\vec{t} \in \Transl_2$:
 \begin{equation}\label{eq:f-invariant-frame}
-  \forall \vec{v_1}, \vec{v_2}.\ f(\vec{v_1} + \vec{o},\vec{v_2} + \vec{o}) = f(\vec{v_1},\vec{v_2}) + \vec{o}.
+  \forall \vec{v_1}, \vec{v_2}.\ f(\vec{v_1} + \vec{t},\vec{v_2} + \vec{t}) = f(\vec{v_1},\vec{v_2}) + \vec{t}.
 \end{equation}
 So Reynolds' preservation of relations, when instantiated with the
-family of relations $R$, yields exactly the geometric property of
-invariance under change of origin.
+family of relations $\{R_{\vec{t}}\}$, yields exactly the geometric
+property of invariance under change of origin.
 
 % An example function $f$ that satisfies
 % \statementref{eq:f-invariant-frame} is the following function that
@@ -160,7 +154,7 @@ invariance under change of origin.
 \subsection{A Type System for Origin Invariance}
 \label{sec:type-system-geom-intro}
 
-Reynolds further insight was to see how preservation of relations by
+Reynolds' further insight was to see how preservation of relations by
 the denotational interpretations of programs can automatically be
 established by following a typing discipline. In Reynolds' case, the
 typing discipline was the polymorphic $\lambda$-calculus where new
@@ -175,87 +169,118 @@ over types as quantification over binary relations between denotations
 of types. In the statements of geometric invariance that we stated in
 the previous section (e.g., \statementref{eq:f-invariant-frame}), we
 did not quantify over all relations. Instead, we quantified over all
-choices of origin and used the choice to select a relation from the
-family $\{R_{\vec{o}}\}$. Driven by this observation, we introduce
-quantification over choice of origin into the language of types.  We
-use the notation $\forall t \mathord: T_2. A$ for quantification over
-all 2-dimensional translations (i.e.~choices of origin) $t$. We refer
-to $T_2$ as the \emph{sort} of $t$.
+changes of origin and used the choice to select a relation from the
+family $\{R_{\vec{t}}\}$. Driven by this observation, we introduce
+quantification over changes of origin into the language of types.  We
+use the notation $\forall t \mathord: \SynTransl_2. A$ for
+quantification over all 2-dimensional translations (i.e.~choices of
+origin) $t$. We refer to $\SynTransl_2$ as the \emph{sort} of
+$t$. Note that we have used a different font to distinguish the
+semantic group $\Transl_2$ from the syntactic sort $\SynTransl_2$.
 
-% As we proceed, we will introduce the sorts representing geometric
-% groups that we will be using in addition to $\GA(2)$ and $\GL(2)$.
-
-The sort $T_2$ represents an abelian group, so we can combine its
-elements using the usual group operations. We write operations
+The sort $\SynTransl_2$ represents an abelian group, so we can combine
+its elements using the usual group operations. We write operations
 additively, using $e_1 + e_2$ for the group operation, $-e$ for
 inverse and $0$ for the unit.  We also regard expressions built from
-variables and the group operations up to the group axioms. So, for
+variables and the group operations up to the abelian group axioms. For
 example, $e_1 + (e_2 + e_3)$ and $(e_1 + e_2) + e_3$ are to be
 regarded as equivalent.
 
 Our language of types also includes the common type constructors for
 function types, $A \to B$, sum types $A + B$, unit type
-$\mathsf{Unit}$ and tuple types $A \times B$. We also assume a
-primitive type $\mathsf{real}$, used to represent scalars. As we noted
-at the start of the previous section, the central data structure in
-geometric applications is the tuple of real numbers for representing
-points and vectors. However, we cannot simply express this as the type
-$\mathsf{real} \times \mathsf{real}$ because it will not have the
-correct relational interpretation. (Two elements of type
-$\mathsf{real}$ will be related if and only if they are equal, and
-hence two elements of $\mathsf{real} \times \mathsf{real}$ will be
-related if and only if they are equal, by Reynolds' definition of the
-relational interpretation of tuple types.) Therefore, we introduce a
-new type parameterised by expressions $e$ of sort $T_2$ to represent
-points (and later, vectors): $\mathsf{vec}\langle e \rangle$. We have
-used the name $\mathsf{vec}$, even though we have taken pains to
-separate geometric points and vectors, to recall the computer science
-notion of vector as a sequence of values of homogeneous type which has
-a known length (in this case two).
+$\tyPrimNm{unit}$ and tuple types $A \times B$. We also assume a
+primitive type $\tyPrimNm{real}$, used to represent scalars. As we
+noted at the start of the previous section, the central data structure
+in geometric applications is the tuple of real numbers for
+representing points and vectors. However, we cannot simply express
+this as the type $\tyPrimNm{real} \times \tyPrimNm{real}$ because it
+will not have the correct relational interpretation. (Two elements of
+type $\tyPrimNm{real}$ will be related if and only if they are equal,
+and hence two elements of $\tyPrimNm{real} \times \tyPrimNm{real}$
+will be related if and only if they are equal, by Reynolds' definition
+of the relational interpretation of tuple types.) Therefore, we
+introduce a new type parameterised by expressions $e$ of sort
+$\SynTransl_2$ to represent points \emph{and} vectors:
+$\tyPrim{vec}{e}$. We have used the name $\tyPrimNm{vec}$, even though
+we have taken pains to separate geometric points and vectors, to
+recall the computer science notion of vector as a sequence of values
+of homogeneous type which has a known length (in this case two).
 
-% FIXME: Denotational semantics of $\mathsf{vec}$? and transformation
-% quantification?
-
-Equipped with quantification over the group $T_2$ of changes of
-origin, and the parameterised types $\mathsf{vec}\langle \cdot
-\rangle$, we can now express origin invariance properties as types. In
-the previous section, we discussed functions $f : \mathbb{R}^2 \times
-\mathbb{R}^2 \to \mathbb{R}^2$ that have the property that they
-preserve all changes of origin. We can now express this property as a
-type:
+We now sketch the interpretation of the types $\tyPrim{vec}{e}$ and
+$\forall t\mathord:\SynTransl_2.A$. In our calculus, each type has two
+interpretations: an index-erasure interpretation that ignores the
+indexing expression $e$, and a relational interpretation as a binary
+relation on the index-erasure interpretation. For now, we assume we
+are given some way of turning an expression $e$ of sort $\SynTransl_2$
+into an actual element $\sem{e}\rho$ of the group $\Transl_2$, under
+some environment $\rho$ which tells how to interpret the free
+variables. The (simplified) index-erasure and relation interpretations
+of the types $\tyPrim{vec}{e}$ are:
 \begin{displaymath}
-  \mathrm{f} : \forall t \mathord: T_2.\ \mathsf{vec}\langle t \rangle \times \mathsf{vec}\langle t \rangle \to \mathsf{vec}\langle t \rangle
+  \begin{array}{l@{\hspace{0.5em}=\hspace{0.5em}}l}
+    \tySem{\tyPrim{vec}{e}} & \mathbb{R}^2 \\
+    \rsem{\tyPrim{vec}{e}}{}\rho & R_{\sem{t}\rho} = \{ (\vec{v},\vec{v'}) \sepbar \vec{v'} = \vec{v} + \sem{t}\rho \}
+  \end{array}
 \end{displaymath}
-FIXME: forward references...
+The index-erasure interpetation of the universal quantification
+$\forall t\mathord:\SynTransl_2.A$ is simply the interpretation of the
+underlying type $A$. The relational interpretation intersects the
+relational interpretations of the type $A$ under all extensions of the
+relational environment $\rho$:
+\begin{displaymath}
+  \begin{array}{l@{\hspace{0.5em}=\hspace{0.5em}}l}
+    \tySem{\forall t\mathord:\SynTransl_2.A} & \tySem{A} \\
+    \rsem{\forall t\mathord:\SynTransl_2.A}{}\rho & \bigcap\{ \rsem{A}{\relEnv{E}}\rho' \sepbar \rho' \in \extends{\rho}{i\mathord:\SynTransl_2} \}
+  \end{array}
+\end{displaymath}
+The exact definition of $\extends{\rho}{i\mathord:\SynTransl_2}$
+depends on which (potentially non-compositional) interpretation of
+relational environments that we take. For now, it will suffice to
+think of relational environments as simply mappings from free
+variables to the group $\Transl_2$, and extension as just adding an
+extra component to the tuple. The general index-erasure semantics will
+be given in \autoref{sec:index-erasure-semantics}. The full relational
+interpretation is in general more complex, due to the possibility of
+non-compositional interpretations of free index variables. The
+relational interpretation will be presented in
+\autoref{sec:relational-semantics}.
+
+Equipped with quantification over the group $\SynTransl_2$ of changes
+of origin, and the indexed types $\tyPrim{vec}{\cdot}$, we can now
+express origin invariance properties as types. In the previous
+section, we discussed functions $f : \mathbb{R}^2 \times \mathbb{R}^2
+\to \mathbb{R}^2$ that have the property that they preserve all
+changes of origin. We can now express this property as a type:
+\begin{displaymath}
+  \mathrm{f} : \forall t \mathord: \SynTransl_2.\ \tyPrim{vec}{t} \times \tyPrim{vec}{t} \to \tyPrim{vec}{t}
+\end{displaymath}
+Spelling out the relational interpretation of this type using the
+definitions above (and the standard relational interpretations for
+tuple and function types), we obtain
+\statementref{eq:f-invariant-frame}.
 
 \subsection{Affine and Vector Operations}
 \label{sec:affine-vector-ops}
 
-As we stated in the previous section, the primitive operation of
-affine geometry is affine combination of points: $\lambda_1\vec{v_1} +
-\lambda_2\vec{v_2}$, where $\lambda_1 + \lambda_2 = 1$. Geometrically,
-affine combination can be interpreted as interpolation between the
-points represented by $\vec{v_1}$ and $\vec{v_2}$. We add affine
-combination of points to our calculus, with the following typing and
-intended denotation:
+Invariance under change of origin is the key feature of affine
+geometry, and the central operation of affine geometry is the affine
+combination of points: $\lambda_1\vec{v_1} + \lambda_2\vec{v_2}$,
+where $\lambda_1 + \lambda_2 = 1$. Geometrically, affine combination
+can be interpreted as interpolation between the points represented by
+$\vec{v_1}$ and $\vec{v_2}$. We add affine combination of points to
+our calculus, with the following typing and intended denotation:
 \begin{displaymath}
   \begin{array}{l}
-    \mathrm{affineCombination} :\forall t \mathord: T_2.\ \mathsf{vec}\langle t \rangle \to \mathsf{real} \to \mathsf{vec}\langle t \rangle \to \mathsf{vec}\langle t \rangle \\
-    \sem{\mathrm{affineCombination}}\ (x_1,y_1)\ r\ (x_2,y_2) = \\
-    \hspace{3cm}((1-r)x_1 + tx_2, (1-r)y_1 + ty_2)
+    \mathrm{affComb} :\forall t \mathord: \SynTransl_2.\ \tyPrim{vec}{t} \to \tyPrimNm{real} \to \tyPrim{vec}{t} \to \tyPrim{vec}{t} \\
+    \sem{\mathrm{affComb}}\ \vec{v_1}\ r\ \vec{v_2} = (1-t)\vec{v_1} + t\vec{v_2}
   \end{array}
 \end{displaymath}
-By defining the primitive function $\mathrm{affineCombination}$ to
-take a single $\mathsf{real}$ parameter $t$, we can easily ensure that
-we are taking the affine combination of two representatives of points,
-and not just an arbitrary linear combination. The intended denotation
-in the second line does not take any argument corresponding to the
-universally quantified $t$ in the type. Type-level variables are
-erased at runtime.
-
-% In Linear Algebra notation, we could have written the right-hand side
-% as $(1-t)\vec{v_1} + t\vec{v_2}$, where $\vec{v_1} = (x_1,y_1)$ and
-% $\vec{v_2} = (x_2,y_2)$. 
+It can be verified by hand that the intended denotation
+$\sem{\mathrm{affComb}}$ has the invariance property specified by its
+type.  By defining the primitive function $\mathrm{affComb}$ to take a
+single $\tyPrimNm{real}$ parameter $t$, we can easily ensure that we
+are taking the affine combination of two representatives of points,
+and not just an arbitrary linear combination.
 
 \begin{example}
   The evaluation of quadratic B\'{e}zier curves (B\'{e}zier curves
@@ -264,21 +289,16 @@ erased at runtime.
   Casteljau's algorithm:
   \begin{displaymath}
     \begin{array}{@{}l}
-      \mathrm{quadB\acute{e}zier} : \forall t \mathord:T_2.\ \mathsf{vec}\langle t \rangle \to \mathsf{vec}\langle t \rangle \to \mathsf{vec}\langle t \rangle \to \mathsf{real} \to \mathsf{vec}\langle t \rangle \\
+      \mathrm{quadB\acute{e}zier} : \forall t \mathord:\SynTransl_2.\ \tyPrim{vec}{t} \to \tyPrim{vec}{t} \to \tyPrim{vec}{t} \to \tyPrimNm{real} \to \tyPrim{vec}{t} \\
       \mathrm{quadB\acute{e}zier}\ [t]\ p_0\ p_1\ p_2\ s = \\
-      \quad
-      \begin{array}{l@{\hspace{-0.002cm}}l}
-        \mathrm{affineCombination}\ [F]\ & (\mathrm{affineCombination}\ [F]\ p_0\ s\ p_1) \\
-        & s \\
-        & (\mathrm{affineCombination}\ [F]\ p_1\ s\ p_2)
-      \end{array}
+      \quad \mathrm{affComb}\ [F]\ (\mathrm{affComb}\ [F]\ p_0\ s\ p_1)\ s\ (\mathrm{affComb}\ [F]\ p_1\ s\ p_2) \\
     \end{array}
   \end{displaymath}
   For two endpoints $p_0$ and $p_2$ and a control point $p_1$, an
   application $\mathrm{quadB\acute{e}zier}\ p_0\ p_1\ p_2\ s$ for $s
   \in [0,1]$ gives us the point on the curve at ``time'' $s$. Note
   that the type of $\mathrm{quadB\acute{e}zier}$ tells us immediately
-  that it preserves all changes of origin
+  that it preserves all changes of origin.
 \end{example}
 
 Affine combination only provides us with an operation on points. We
@@ -286,13 +306,13 @@ are also interested in operations on the vectors representing offsets
 between points. We now examine the correct types to assign to the
 vector space operations of addition of vectors, negation of vectors,
 multiplication by a scalar and the zero vector. The typings of these
-operations will make use of the abelian group structure of the sort of
-translations $T_2$.
+operations will make use of the abelian group structure of change of
+origin translations.
 
 Vector operations are not invariant under change of origin. The
-obvious type assignment for vector addition is therefore:
+obvious type for vector addition is therefore:
 \begin{displaymath}
-  (+) : \mathsf{vec}\langle 0 \rangle \to \mathsf{vec}\langle 0 \rangle \to \mathsf{vec}\langle 0 \rangle
+  (+) : \tyPrim{vec}{0} \to \tyPrim{vec}{0} \to \tyPrim{vec}{0}
 \end{displaymath}
 (we write binary operators intended to be used infix in parentheses
 when not appearing in infix position, following the Haskell
@@ -301,30 +321,30 @@ syntax.)
 However, it is possible to give vector addition a more precise type
 that describes its effect on the chosen origin. 
 \begin{displaymath}
-  (+) : \forall t_1, t_2 \mathord: T_2.\ \mathsf{vec}\langle t_1\rangle \to \mathsf{vec}\langle t_2 \rangle \to \mathsf{vec}\langle t_1 + t_2 \rangle
+  (+) : \forall t_1, t_2 \mathord: \SynTransl_2.\ \tyPrim{vec}{t_1} \to \tyPrim{vec}{t_2} \to \tyPrim{vec}{t_1 + t_2}
 \end{displaymath}
 We can also negate vectors, yielding a vector which points in the
 opposite direction. Negation negates translation arguments:
 \begin{displaymath}
-  \mathrm{negate} : \forall t \mathord: T_2.\ \mathsf{vec}\langle t \rangle \to \mathsf{vec}\langle -t \rangle
+  \mathrm{negate} : \forall t \mathord: \SynTransl_2.\ \tyPrim{vec}{t} \to \tyPrim{vec}{-t}
 \end{displaymath}
 With the primitive operations of addition and negation of vectors, we
 can define the derived operation of subtraction:
 \begin{displaymath}
   \begin{array}{l}
-    (-) : \forall t_1,t_2 \mathord:T_2.\ \mathsf{vec}\langle t_1\rangle \to \mathsf{vec}\langle t_2\rangle \to \mathsf{vec}\langle t_1 - t_2 \rangle \\
+    (-) : \forall t_1,t_2 \mathord:\SynTransl_2.\ \tyPrim{vec}{t_1} \to \tyPrim{vec}{t_2} \to \tyPrim{vec}{t_1 - t_2} \\
     (-)\ [t_1]\ [t_2]\ p_1\ p_2 = p_1 + \mathrm{negate}\ p_2
   \end{array}
 \end{displaymath}
 
 Given two points that have been constrained to be invariant with
 respect to the same change of origin---i.e.~two values of type
-$\mathsf{vec}\langle t \rangle$---we can compute their offset, which
-is a vector expressed with respect to the null change of origin. The
-offset operation is a special case of vector subtraction:
+$\tyPrim{vec}{t}$---we can compute their offset, which is a vector
+expressed with respect to the null change of origin. The offset
+operation is a special case of vector subtraction:
 \begin{displaymath}
   \begin{array}{l}
-    \mathrm{offset} : \forall t \mathord:T_2.\ \mathsf{vec}\langle t \rangle \to \mathsf{vec}\langle t \rangle \to \mathsf{vec}\langle 0 \rangle \\
+    \mathrm{offset} : \forall t \mathord:\SynTransl_2.\ \tyPrim{vec}{t} \to \tyPrim{vec}{t} \to \tyPrim{vec}{0} \\
     \mathrm{offset}\ [t]\ p_1\ p_2 = p_1 - p_2
   \end{array}
 \end{displaymath}
@@ -332,35 +352,33 @@ The type of the vector addition operation can be specialised to the
 case of moving a point by a vector:
 \begin{displaymath}
   \begin{array}{l}
-    \mathrm{moveBy} : \forall t \mathord:T_2.\ \mathsf{vec}\langle t \rangle \to \mathsf{vec}\langle 0 \rangle \to \mathsf{vec}\langle t \rangle \\
+    \mathrm{moveBy} : \forall t \mathord:\SynTransl_2.\ \tyPrim{vec}{t} \to \tyPrim{vec}{0} \to \tyPrim{vec}{t} \\
     \mathrm{moveBy}\ [t]\ p\ v = p + v
   \end{array}
 \end{displaymath}
 The types we assign to the remaining vector space primitives, the zero
 vector and multiplication by a scalar, do not describe any interesting
-effect on translations%\footnote{but they could...}
-. The zero vector has the type:
+effect on translations:
 \begin{displaymath}
-  \mathrm{0} : \mathsf{vec}\langle 0 \rangle
+  \begin{array}{l@{\hspace{0.5em}:\hspace{0.5em}}l}
+    \mathrm{0} & \tyPrim{vec}{0}\\
+    (*) & \tyPrimNm{real} \to \tyPrim{vec}{0} \to \tyPrim{vec}{0}
+  \end{array}
 \end{displaymath}
-Intuitively, there cannot be a zero vector invariant under any change
-of origin, because this would entail picking a privileged origin. For
-multiplication of a vector by a scalar, we assign the following type,
-which is again not invariant under change of origin.
-\begin{displaymath}
-  (*) : \mathsf{real} \to \mathsf{vec}\langle 0 \rangle \to \mathsf{vec}\langle 0 \rangle
-\end{displaymath}
+
+% \fixme{If we had dependent types, could the affComb operation be
+%   derived from an appropriately dependently typed scaling operation?}
 
 \begin{example}
   The vector space operators and the properties that follow from their
   types allow us to establish a useful type isomorphism. Consider
   functions with types following the schema:
   \begin{displaymath}
-    \tau_{n} \isDefinedAs \forall t\mathord:T_2.\ \underbrace{\mathsf{vec}\langle t \rangle \to ... \mathsf{vec}\langle t \rangle}_{n+1\textrm{ times}} \to \mathsf{real}
+    \tau_{n} \isDefinedAs \forall t\mathord:\SynTransl_2.\ \underbrace{\tyPrim{vec}{t} \to ... \tyPrim{vec}{t}}_{n+1\textrm{ times}} \to \tyPrimNm{real}
   \end{displaymath}
   Just by looking at the types $\tau_{n}$, we know that their
   inhabitants will be invariant under change of origin, due to the
-  quantification over all $t$ in $T_2$. Therefore, we may as well pick
+  quantification over all $t$ in $\SynTransl_2$. Therefore, we may as well pick
   one of the input points as the origin and assume that all the other
   points are defined with respect to this chosen origin. This is
   similar to the common mathematical step of stating that, ``without
@@ -371,9 +389,11 @@ which is again not invariant under change of origin.
   The types $\tau_{n}$ are isomorphic to the corresponding types
   $\sigma_{n}$:
   \begin{displaymath}
-    \sigma_{n} \isDefinedAs \underbrace{\mathsf{vec}\langle 0 \rangle \to ... \mathsf{vec}\langle 0 \rangle}_{n\textrm{ times}} \to \mathsf{real}
+    \sigma_{n} \isDefinedAs \underbrace{\tyPrim{vec}{0} \to ... \tyPrim{vec}{0}}_{n\textrm{ times}} \to \tyPrimNm{real}
   \end{displaymath}
-  We demonstrate this isomorphism formally in \autoref{sec:FIXME}.
+  We demonstrate this isomorphism formally in
+  \autoref{sec:instantiations}, in a more general setting of types
+  indexed by abelian groups.
 
   % The isomorphism between these two families of types can be witnessed
   % by the following two functions.
@@ -400,25 +420,192 @@ which is again not invariant under change of origin.
 \begin{example}
   An inexpressible type
   \begin{displaymath}
-    \forall t \mathord: T_2.\ \vec{t + t} \to \vec{t}
+    \forall t \mathord: \SynTransl_2.\ \tyPrim{vec}{t + t} \to \tyPrim{vec}{t}
   \end{displaymath}
   FIXME: explain that it is possible to show that this type is
-  uninhabited with the given operations. We show this in general 
+  uninhabited with the given operations.
 \end{example}
 
-\subsection{Generalising Origin Invariance}
+\subsection{Change of Basis Invariance}
 \label{sec:motivation-generalising}
 
-\begin{enumerate}
-\item Basis invariance
-\item Orthogonal transform invariance for dot product
-\item Rotational invariance (the type of the cross-product)
-\item Scale invariance (units of measure)
-\end{enumerate}
+From basic linear algebra, we know that the vector operations of
+addition, negation and scaling, while not invariant under change of
+origin, are invariant under change of basis. Following the same
+methodology as we did for origin invariance, we can express basis
+invariance by means of preservation of relations. For origin
+invariance, we quantified over members of the group $\SynTransl_2$ of
+$2$-dimensional translations. Members of this group represent changes
+of origin. Change of basis is accomplished by applying an invertible
+linear map, and the collection of all invertible linear maps on
+$\mathbb{R}^2$ forms the group $\GL_2$.
 
-In some cases, we can use the invariance as a programming tool
-(e.g. type isomorphisms), but at others we can only use it from the
-outside.
+\fixme{new relational interpretation of vectors}
+
+\paragraph{Affine Geometry} The combination of a change of basis
+transformation and a change of origin transformation is known as an
+\emph{affine transformation}. A way of describing affine geometry is
+as the collection of properties that are invariant under invertible
+affine transformations.
+
+\begin{eqnarray*}
+  \mathrm{affComb} & : &
+  \begin{array}[t]{@{}l}
+    \forall B \mathord: \SynGL_2, t \mathord: \SynTransl_2.\\
+    \hspace{0.2cm} \tyPrim{vec}{B,t} \to \tyPrimNm{real} \to \tyPrim{vec}{B,t} \to \tyPrim{vec}{B,t}
+  \end{array}
+  \\
+  (+) & : &
+  \begin{array}[t]{@{}l}
+    \forall B \mathord: \SynGL_2, t_1,t_2 \mathord: \SynTransl_2. \\
+    \hspace{0.2cm}\tyPrim{vec}{B,t_1} \to \tyPrim{vec}{B,t_2} \to \tyPrim{vec}{B,t_1 + t_2}
+  \end{array}
+  \\
+  \mathrm{negate} & : & \forall B \mathord: \SynGL_2, t \mathord: \SynTransl_2.\ \tyPrim{vec}{B,t} \to \tyPrim{vec}{B,-t} \\
+  0 & : & \forall B \mathord: \SynGL_2.\ \tyPrim{vec}{B,0} \\
+  (*) & : & \forall B \mathord: \SynGL_2.\ \tyPrimNm{real} \to \tyPrim{vec}{B,0} \to \tyPrim{vec}{B,0}
+\end{eqnarray*}
+
+FIXME: we now have all the operations of affine geometry, along with
+the property that they are invariant under affine transformations.
+
+\paragraph{Euclidean Geometry} Euclidean geometry extends affine
+geometry with the operation of \emph{dot product} (also known as the
+\emph{inner product}) of two vectors, which produces a real
+number. The standard Euclidean dot product is defined on the
+coordinate representation in the following way:
+\begin{displaymath}
+  (x_1,y_1) \cdot (x_2,y_2) = x_1x_2 + y_1y_2
+\end{displaymath}
+The dot product is used to define properties of vectors such as their
+\emph{norm} $||\vec{v}|| = \vec{v}\cdot\vec{v}$, which is the square
+of the length of the vector $\vec{v}$, and the notion of
+orthogonality: two vectors $\vec{v_1}$ and $\vec{v_2}$ are orthogonal
+if $\vec{v_1}\cdot\vec{v_2} = 0$.
+
+To incorporate the operation of dot product into our calculus, we must
+give it a type. It is not the case that the dot product is invariant
+under the action of either of the groups $\GL_2$ or $\Transl_2$ that
+we have considered so far. In fact, the dot product is invariant under
+the subgroup $\Orth_2$ of $\GL_2$ of \emph{orthogonal} linear
+transformations. The group $\Orth_2$ consists of invertible linear
+maps whose determinant is either $1$ or $-1$. We introduce orthogonal
+transformations as a new sort $\Orth_2$, and overload the
+multiplicative group operations syntax for inhabitants of
+$\Orth_2$. We also assume a function $\iota_O$ that takes $e :
+\Orth_2$ to $\iota_O(e) : \SynGL_2$. We may now assign the following type
+to the dot product:
+\begin{displaymath}
+  (\cdot) : \forall O \mathord: \Orth(2).\ \tyPrim{vec}{\iota_O(O), 0} \to \tyPrim{vec}{\iota_O(O), 0} \to \tyPrimNm{real}
+\end{displaymath}
+
+\begin{figure}[t]
+  \centering
+  \begin{eqnarray*}
+    0   &:& \forall s \mathord:\Scale.\ \tyPrim{real}{s} \\
+    1   &:& \tyPrim{real}{1} \\
+    (+) &:& \forall s \mathord:\Scale.\ \tyPrim{real}{s} \to \tyPrim{real}{s} \to \tyPrim{real}{s} \\
+    (-) &:& \forall s \mathord:\Scale.\ \tyPrim{real}{s} \to \tyPrim{real}{s} \to \tyPrim{real}{s} \\
+    (*) &:& \forall s_1,s_2 \mathord:\Scale.\ \tyPrim{real}{s_1} \to \tyPrim{real}{s_2} \to \tyPrim{real}{s_1s_2} \\
+    (/) &:&
+    \begin{array}[t]{@{}l}
+      \forall s_1,s_2 \mathord:\Scale.\ \tyPrim{real}{s_1} \to \tyPrim{real}{s_2} \\
+      \hspace{3.5cm}\to \tyPrim{real}{s_1s_2^{-1}} + \tyPrimNm{unit} \\
+    \end{array}\\
+    \mathrm{abs} &:& \forall s \mathord:\Scale.\ \tyPrim{real}{s} \to \tyPrim{real}{|s|} %\\
+%    \mathrm{sqrt} &:& \tyPrim{real}{1} \to \tyPrim{real}{1}
+  \end{eqnarray*}
+  \caption{Operations on scaled real numbers}
+  \label{fig:real-ops}
+\end{figure}
+
+The cross product is another operation that takes pairs of vectors and
+produces a real number. Algebraically, the cross product is defined on
+coordinate representations as follows:
+\begin{displaymath}
+  (x_1,y_1) \times (x_2,y_2) = x_1y_2 - x_2y_1
+\end{displaymath}
+Geometrically, the cross product of two vectors is the signed area of
+the parallelogram described by the pair of input vectors. It turns out
+that the value of the cross product of two vectors varies with the
+determinant of the matrix describing the basis of the vector space. We
+therefore augment our calculus with a new sort $\Scale$ of scale
+factors. Semantically, $\Scale$ ranges over the non-zero real numbers
+and forms an abelian group, which we write multiplicatively. We also
+add two new operations: determinant, $\det B$, which takes an
+inhabitant of $\SynGL_2$ to its determinant in $\Scale$, and the
+operation of absolute value that takes scaling factors to scaling
+factors which we write as $|e|$. We also refine the type
+$\tyPrimNm{real}$ of real numbers to take a parameter of sort
+$\Scale$: $\tyPrim{real}{e}$, where the old type $\tyPrimNm{real}$ is
+just $\tyPrim{real}{1}$. The collection of operations on real numbers
+with scaling factors is shown in \autoref{fig:real-ops}.
+
+With the additional sort $\Scale$, and the refined type of real
+numbers, we can state the type of the cross product.
+\begin{displaymath}
+  (\times) : \forall B \mathord: \SynGL_2.\ \tyPrim{vec}{B,0} \to \tyPrim{vec}{B,0} \to \tyPrim{real}{\det B}
+\end{displaymath}
+For orthogonal transformations $O : \Orth_2$, the absolute value of
+the determinant is always $1$, so we assume the equation $|\det O| =
+1$ to hold.
+
+\begin{example}
+  Using the structure we have defined in this subsection, we can
+  define the following function that computes the area of a
+  triangle. By the type of this function, we can see that the area of
+  a triangle is invariant under orthognal transformations and
+  arbitrary translations.
+  \begin{displaymath}
+    \begin{array}{@{}l}
+      \mathrm{area} : \forall O\mathord:\Orth_2, t\mathord:\SynTransl_2.\ \\
+      \hspace{0.8cm}\tyPrim{vec}{\iota_OO, t} \to \tyPrim{vec}{\iota_OO, t} \to \tyPrim{vec}{\iota_OO, t} \to \tyPrim{real}{1} \\
+      \mathrm{area}\ [O]\ [t]\ p_1\ p_2\ p_3 = \frac{1}{2} * \mathrm{abs}\ ((p_2 - p_1) \times (p_3 - p_1))
+    \end{array}
+  \end{displaymath}
+  In the body of this function, we have performed the calculation in
+  several steps, each of which removes some of the symmetry described
+  by the type of $\mathrm{area}$. First we have computed the two offset
+  vectors $p_2 - p_1$ and $p_3 - p_1$. These operations remove the
+  effect of translations on the result, in exactly the same way as the
+  type isomorphism we demonstrated above. We then compute the cross
+  product of the two vectors to determine the area of the
+  parallelogram described by the sides of the triangle. This value has
+  type $\mathsf{real}\langle \det O \rangle$. We know that the
+  determinant of an orthogonal transformation is always either $-1$ or
+  $1$, so we have a result which varies according to possible
+  reflections of the space. To remove this variation, we apply the
+  $\mathrm{abs}$ function to leave us with a value of type
+  $\mathsf{real}\langle |\det O| \rangle$. This type is equal to the
+  type $\mathsf{real}\langle 1 \rangle$. Finally, we multiply by
+  $\frac{1}{2}$ to recover the area of the triangle, rather than the
+  whole parallelogram.
+\end{example}
+
+% \begin{enumerate}
+% \item Basis invariance
+% \item Orthogonal transform invariance for dot product
+% \item Rotational invariance (the type of the cross-product)
+% \item Scale invariance (generalisation of units of measure)
+% \end{enumerate}
+
+% In some cases, we can use the invariance as a programming tool
+% (e.g. type isomorphisms), but at others we can only use it from the
+% outside.
+
+% \begin{enumerate}
+% \item Possibly do a $n$-body gravity simulator as an example?
+% \item Have a special sort and type for rotations. An operation for
+%   computing the rotation between two points, and for applying a
+%   rotation to a vector. This will allow for more free theorems...
+% \end{enumerate}
+
+\subsection{Scale Invariance and Dimension Analysis}
+\label{sec:scale-invariance}
+
+\begin{enumerate}
+\item Explicitly link scale invariance to units of measure system
+\end{enumerate}
 
 \subsection{Information Flow}
 \label{sec:information-flow}
@@ -443,7 +630,35 @@ outside.
     don't care about truth, only its preservation.
   \end{enumerate}
 \item Cite Sabelfeld and Sands: ``A PER Model of Secure Information
-  Flow in Sequential Programs''
+  Flow in Sequential Programs''. And also Tse and Zdancewic.
+\item Go a step further by considering equivalence relations on
+  word32, and their lattice structure. Link this to quantative
+  information flow. Will also need to include singleton types.
+\end{enumerate}
+
+\subsection{Basic Continuity Analysis}
+\label{sec:continuity-analysis}
+
+Doing epsilon-delta proofs!
+
+Have a new sort $\mathsf{R}^{>0}$, representing positive distances
+between real numbers.
+
+\begin{displaymath}
+  \begin{array}{l@{\hspace{0.5em}=\hspace{0.5em}}l}
+    \tySem{\tyPrim{real}{e}} & \mathbb{R} \\
+    \rsem{\tyPrim{real}{e}}{}\rho & \{ (x,x') \sepbar |x-x'| < \sem{e}\rho \}
+  \end{array}
+\end{displaymath}
+
+A continuous function has type:
+\begin{displaymath}
+  \forall \epsilon \mathord: \mathsf{R}^{>0}.\ \exists \delta\mathord: \mathsf{R}^{>0}.\ \tyPrim{real}{\delta} \to \tyPrim{real}{\epsilon}
+\end{displaymath}
+
+\begin{enumerate}
+\item Need to give types to basic operations on real numbers
+\item Need to add existential types to the calculus
 \end{enumerate}
 
 %%% Local Variables:
