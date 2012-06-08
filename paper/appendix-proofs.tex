@@ -2,15 +2,14 @@
 
 % FIXME: give the explicit equational rules for the type equality
 
-% FIXME: make this look better
-\begin{lemma}[\lemref{lem:tyeqsubst-erasure}]
+\begin{restateLemma}[\lemref{lem:tyeqsubst-erasure}]
   \begin{enumerate}
   \item If $\Delta \vdash A \equiv B \isType$ then $\tySem{A} =
     \tySem{B}$; and
   \item If $\Delta \vdash A \isType$ and $\sigma : \Delta' \Rightarrow
     \Delta$, then $\tySem{\sigma^*A} = \tySem{A}$.
   \end{enumerate}
-\end{lemma}
+\end{restateLemma}
 \begin{proof}
   \begin{enumerate}
   \item By induction on the derivation of $\Delta \vdash A \equiv B
@@ -95,8 +94,7 @@
   \end{enumerate}
 \end{proof}
 
-% FIXME: make this look better
-\begin{lemma}[\lemref{lem:tyeqsubst-relational}]
+\begin{restateLemma}[\lemref{lem:tyeqsubst-relational}]
   \begin{enumerate}
   \item If $\Delta \vdash A \equiv B \isType$, then for all $\rho \in
     \relEnv{E}(\Delta)$, $\rsem{A}{\relEnv{E}}{\rho} =
@@ -106,7 +104,7 @@
     $\rsem{\sigma^*A}{\relEnv{E}}\rho = \rsem{A}{\relEnv{E}}(\rho
     \circ \sigma)$.
   \end{enumerate}
-\end{lemma}
+\end{restateLemma}
 \begin{proof}
   \begin{enumerate}
   \item By induction on the derivation of $\Delta \vdash A \equiv B
@@ -282,6 +280,58 @@
     the first part. The step case of the induction is very similar to
     the \TirName{TyProd} case above.
   \end{enumerate}
+\end{proof}
+
+\begin{restateTheorem}[\thmref{thm:abstraction}]
+  If $\Delta; \Gamma \vdash M : A$, then for all $\rho \in
+  \relEnv{E}(\Delta)$ and $\eta_1, \eta_2 \in \ctxtSem{\Gamma}$ such
+  that $(\eta_1, \eta_2) \in \rsem{\Gamma}{\relEnv{E}}\rho$, we have
+  $(\tmSem{M}\eta_1, \tmSem{M}\eta_2) \in \rsem{A}{\relEnv{E}}\rho$.
+\end{restateTheorem}
+
+\begin{proof}
+  By induction on the derivation of $\Delta; \Gamma \vdash M : A$. The
+  three interesting cases follow:
+  \begin{description}
+  \item[Case \TirName{TyEq}] This case follows directly from
+    \lemref{lem:tyeqsubst-relational}.
+  \item[Case \TirName{UnivAbs}] In this case, $M = \Lambda i.M'$ and
+    $A = \forall i\mathord:s. A'$. We know from the induction
+    hypothesis that for all $\rho' \in \relEnv{E}(\Delta, i:s)$ and
+    $(\eta_1,\eta_2) \in \rsem{\pi_{i:s}^*\Gamma}{\relEnv{E}}{\rho'}$,
+    we have $(\tmSem{M'}\eta_1,\tmSem{M'}\eta_2) \in
+    \rsem{A'}{\relEnv{E}}{\rho'}$. We are given $\rho \in
+    \relEnv{E}(\Delta)$, $(\eta_1,\eta_2) \in
+    \rsem{\Gamma}{\relEnv{E}}\rho$ and $\rho'' \in
+    \extends{\rho}{i:s}$. Since $\rho'' \circ \pi^*_{i:s} = \rho$, we
+    have $(\eta_1,\eta_2) \in \rsem{\Gamma}{\relEnv{E}}\rho$ implies
+    $(\eta_1,\eta_2) \in \rsem{\Gamma}{\relEnv{E}}{(\rho'' \circ
+      \pi^*_{i:s})}$, and therefore $(\eta_1,\eta_2) \in
+    \rsem{\pi_{i:s}^*\Gamma}{\relEnv{E}}{\rho''}$ by \lemref{lem:ctxtsubst-rel}. So we
+    can apply the induction hypothesis to get $(\tmSem{M'}\eta_1,
+    \tmSem{M'}\eta_2) \in \rsem{A'}{\relEnv{E}}{\rho''}$, and thus
+    $(\tmSem{\Lambda i.M'}\eta_1,\tmSem{\Lambda i.M'}\eta_2) \in
+    \rsem{A'}{\relEnv{E}}\rho''$, by the definition of $\tmSem{\Lambda
+      i. M'}$. Hence $(\tmSem{\Lambda i.M'}\eta_1,\tmSem{\Lambda
+      i.M'}\eta_2) \in \rsem{\forall
+      i\mathord:s. A'}{\relEnv{E}}\rho$, as required.
+  \item[Case \TirName{UnivApp}] In this case, $M = M'[e]$ and $A =
+    (\id_\Delta, e)^*A'$. By the induction hypothesis, and the
+    definition of $\rsem{\forall i\mathord:s.A'}{\relEnv{E}}\rho$, we
+    know that for all $\rho' \in \extends{\rho}{i:s}$,
+    $(\tmSem{M'}\eta_1, \tmSem{M'}\eta_2) \in
+    \rsem{A'}{\relEnv{E}}{\rho'}$. If we let $\rho' = \rho \circ
+    (\id_\Delta, e)^*$, we know that $\rho' \in \extends{\rho}{i:s}$,
+    because $\rho' \circ \pi^*_{i:s} = \rho \circ (\id_\Delta, e)^*
+    \circ \pi^*_{i:s} = \rho$. Hence we may deduce that
+    $(\tmSem{M'}\eta_1,\tmSem{M'}\eta_2) \in
+    \rsem{A'}{\relEnv{E}}{(\rho \circ (\id_\Delta,e)^*)}$ and thence,
+    by \lemref{lem:ctxtsubst-rel}, conclude that $(\tmSem{M'}\eta_1,
+    \tmSem{M'}\eta_2) \in \rsem{(\id_\Delta,e)^*A'}{\relEnv{E}}\rho$,
+    as required.
+  \end{description}
+  The remaining cases are standard for proofs of the fundamental lemma
+  of logical relations for simply-typed systems.
 \end{proof}
 
 %%% Local Variables:

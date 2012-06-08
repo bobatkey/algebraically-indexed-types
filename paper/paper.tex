@@ -13,6 +13,7 @@
             pdfkeywords={}}  
 \def\sectionautorefname{Section}
 \def\subsectionautorefname{Section}
+\def\subsubsectionautorefname{Section}
 
 \title{Relational Parametricity for Algebraically Indexed Types}
 
@@ -39,6 +40,7 @@
 \newcommand{\Transl}{\mathrm{T}}
 \newcommand{\SynTransl}{\mathsf{T}}
 \newcommand{\SynGL}{\mathsf{GL}}
+\newcommand{\SynOrth}{\mathsf{O}}
 \newcommand{\Scale}{\mathrm{Scale}}
 
 
@@ -78,7 +80,6 @@
 \newcommand{\isCtxt}{\textsf{ ctxt}}
 \newcommand{\Ty}{\textsf{Ty}}
 \newcommand{\ty}{\textsf{ty}}
-\newcommand{\subst}[2]{\mathrm{Subst}(#1,#2)}
 
 \newcommand{\tmTT}{\texttt{tt}}
 \newcommand{\tmFF}{\texttt{ff}}
@@ -104,7 +105,30 @@
 \newcommand{\sem}[1]{\llbracket #1 \rrbracket}
 \newcommand{\isDefinedAs}{\stackrel{\mathit{def}}=}
 
-\newenvironment{example}{\smallskip\noindent\textbf{Example}}{\medskip} % FIXME: numbering, indentation?, box at the end?
+\newtheoremstyle{examplestyle}
+  {\topsep}  % space above
+  {\topsep}  % space below
+  {\normalfont}% name of font to use in the body of the theorem
+  {0em}% measure of space to indent
+  {\bfseries}% name of head font
+  {.}% punctuation between head and body
+  {5pt plus 1pt minus 1pt}% space after theorem head; " " = normal interword space
+  {}% Manually specify head
+\theoremstyle{examplestyle}
+\newtheorem{example}{Example}
+
+\newtheoremstyle{restatementstyle}
+  {\topsep}  % space above
+  {\topsep}  % space below
+  {\itshape}% name of font to use in the body of the theorem
+  {0em}% measure of space to indent
+  {\bfseries}% name of head font
+  {.}% punctuation between head and body
+  {5pt plus 1pt minus 1pt}% space after theorem head; " " = normal interword space
+  {\thmname{#1} \thmnote{(Restatement of #3)}}% Manually specify head
+\theoremstyle{restatementstyle}
+\newtheorem{restateLemma}{Lemma}
+\newtheorem{restateTheorem}{Theorem}
 
 \newcommand{\fixme}[1]{\textbf{FIXME: #1}}
 

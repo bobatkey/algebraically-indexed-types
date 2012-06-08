@@ -1,4 +1,5 @@
 \section{Motivating Examples}
+\label{sec:motivating-examples}
 
 We motivate this paper's goal of investigating algebraically-indexed
 types and their relational interpretations by presenting several
@@ -10,8 +11,8 @@ geometric invariants through the types. \fixme{and the information
 \subsection{2-Dimensional Geometry and Origin Invariance}
 
 When writing programs that manipulate geometric data, the basic data
-structure is the $n$-tuple of real numbers. In the 2-dimensional case,
-tuples $\vec{v} = (x,y)$ may be called upon to represent both
+structure is the $n$-tuple of numbers. In the 2-dimensional case,
+tuples $\vec{v} = (x,y)$ are called upon to represent both
 \emph{points}---offsets from some origin---and
 \emph{vectors}---offsets in their own right. Points and vectors are
 very different despite their common representation.
@@ -219,22 +220,22 @@ of the types $\tyPrim{vec}{e}$ are:
 \begin{displaymath}
   \begin{array}{l@{\hspace{0.5em}=\hspace{0.5em}}l}
     \tySem{\tyPrim{vec}{e}} & \mathbb{R}^2 \\
-    \rsem{\tyPrim{vec}{e}}{}\rho & R_{\sem{t}\rho} = \{ (\vec{v},\vec{v'}) \sepbar \vec{v'} = \vec{v} + \sem{t}\rho \}
+    \rsem{\tyPrim{vec}{e}}{}\rho & R_{\sem{t}\rho} = \{ (\vec{v},\vec{v'}) \sepbar \vec{v'} = \vec{v} + \sem{e}\rho \}
   \end{array}
 \end{displaymath}
-The index-erasure interpetation of the universal quantification
-$\forall t\mathord:\SynTransl_2.A$ is simply the interpretation of the
+The index-erasure interpetation of universal quantification $\forall
+t\mathord:\SynTransl_2.A$ is simply the interpretation of the
 underlying type $A$. The relational interpretation intersects the
 relational interpretations of the type $A$ under all extensions of the
 relational environment $\rho$:
 \begin{displaymath}
   \begin{array}{l@{\hspace{0.5em}=\hspace{0.5em}}l}
     \tySem{\forall t\mathord:\SynTransl_2.A} & \tySem{A} \\
-    \rsem{\forall t\mathord:\SynTransl_2.A}{}\rho & \bigcap\{ \rsem{A}{\relEnv{E}}\rho' \sepbar \rho' \in \extends{\rho}{i\mathord:\SynTransl_2} \}
+    \rsem{\forall t\mathord:\SynTransl_2.A}{}\rho & \bigcap\{ \rsem{A}{}{\rho'} \sepbar \rho' \in \extends{\rho}{i\mathord:\SynTransl_2} \}
   \end{array}
 \end{displaymath}
 The exact definition of $\extends{\rho}{i\mathord:\SynTransl_2}$
-depends on which (potentially non-compositional) interpretation of
+depends on which (possibly non-compositional) interpretation of
 relational environments that we take. For now, it will suffice to
 think of relational environments as simply mappings from free
 variables to the group $\Transl_2$, and extension as just adding an
@@ -272,15 +273,16 @@ our calculus, with the following typing and intended denotation:
 \begin{displaymath}
   \begin{array}{l}
     \mathrm{affComb} :\forall t \mathord: \SynTransl_2.\ \tyPrim{vec}{t} \to \tyPrimNm{real} \to \tyPrim{vec}{t} \to \tyPrim{vec}{t} \\
-    \sem{\mathrm{affComb}}\ \vec{v_1}\ r\ \vec{v_2} = (1-t)\vec{v_1} + t\vec{v_2}
+    \sem{\mathrm{affComb}}\ \vec{v_1}\ r\ \vec{v_2} = (1-r)\vec{v_1} + r\vec{v_2}
   \end{array}
 \end{displaymath}
 It can be verified by hand that the intended denotation
 $\sem{\mathrm{affComb}}$ has the invariance property specified by its
-type.  By defining the primitive function $\mathrm{affComb}$ to take a
-single $\tyPrimNm{real}$ parameter $t$, we can easily ensure that we
-are taking the affine combination of two representatives of points,
-and not just an arbitrary linear combination.
+type.
+% By defining the primitive function $\mathrm{affComb}$ to take a
+% single $\tyPrimNm{real}$ parameter $t$, we can easily ensure that we
+% are taking the affine combination of two representatives of points,
+% and not just an arbitrary linear combination.
 
 \begin{example}
   The evaluation of quadratic B\'{e}zier curves (B\'{e}zier curves
@@ -291,7 +293,7 @@ and not just an arbitrary linear combination.
     \begin{array}{@{}l}
       \mathrm{quadB\acute{e}zier} : \forall t \mathord:\SynTransl_2.\ \tyPrim{vec}{t} \to \tyPrim{vec}{t} \to \tyPrim{vec}{t} \to \tyPrimNm{real} \to \tyPrim{vec}{t} \\
       \mathrm{quadB\acute{e}zier}\ [t]\ p_0\ p_1\ p_2\ s = \\
-      \quad \mathrm{affComb}\ [F]\ (\mathrm{affComb}\ [F]\ p_0\ s\ p_1)\ s\ (\mathrm{affComb}\ [F]\ p_1\ s\ p_2) \\
+      \quad \mathrm{affComb}\ [t]\ (\mathrm{affComb}\ [t]\ p_0\ s\ p_1)\ s\ (\mathrm{affComb}\ [t]\ p_1\ s\ p_2) \\
     \end{array}
   \end{displaymath}
   For two endpoints $p_0$ and $p_2$ and a control point $p_1$, an
@@ -301,13 +303,16 @@ and not just an arbitrary linear combination.
   that it preserves all changes of origin.
 \end{example}
 
-Affine combination only provides us with an operation on points. We
-are also interested in operations on the vectors representing offsets
-between points. We now examine the correct types to assign to the
-vector space operations of addition of vectors, negation of vectors,
-multiplication by a scalar and the zero vector. The typings of these
-operations will make use of the abelian group structure of change of
-origin translations.
+% Affine combination only provides us with an operation on points. We
+% are also interested in operations on the vectors representing offsets
+% between points. We now examine the correct types to assign to the
+% vector space operations of addition of vectors, negation of vectors,
+% multiplication by a scalar and the zero vector. The typings of these
+% operations will make use of the abelian group structure of change of
+% origin translations.
+
+\fixme{Need to make clear that the point is to make use of the
+  algebraic indexing structure}
 
 Vector operations are not invariant under change of origin. The
 obvious type for vector addition is therefore:
@@ -433,14 +438,20 @@ From basic linear algebra, we know that the vector operations of
 addition, negation and scaling, while not invariant under change of
 origin, are invariant under change of basis. Following the same
 methodology as we did for origin invariance, we can express basis
-invariance by means of preservation of relations. For origin
-invariance, we quantified over members of the group $\SynTransl_2$ of
-$2$-dimensional translations. Members of this group represent changes
-of origin. Change of basis is accomplished by applying an invertible
+invariance by means of preservation of relations indexed by changes of
+basis. Change of basis is accomplished by applying an invertible
 linear map, and the collection of all invertible linear maps on
 $\mathbb{R}^2$ forms the group $\GL_2$.
 
 \fixme{new relational interpretation of vectors}
+
+\begin{displaymath}
+  \begin{array}{l@{\hspace{0.5em}=\hspace{0.5em}}l}
+    \tySem{\tyPrim{vec}{e_B,e_t}} & \mathbb{R}^2 \\
+    \rsem{\tyPrim{vec}{e_B,e_t}}{}\rho & \{ (\vec{v},\vec{v'}) \sepbar \vec{v'} = \sem{e_B}\rho\vec{v} + \sem{e_t}\rho \}
+  \end{array}
+\end{displaymath}
+
 
 \paragraph{Affine Geometry} The combination of a change of basis
 transformation and a change of origin transformation is known as an
@@ -466,8 +477,8 @@ affine transformations.
   (*) & : & \forall B \mathord: \SynGL_2.\ \tyPrimNm{real} \to \tyPrim{vec}{B,0} \to \tyPrim{vec}{B,0}
 \end{eqnarray*}
 
-FIXME: we now have all the operations of affine geometry, along with
-the property that they are invariant under affine transformations.
+\fixme{we now have all the operations of affine geometry, along with
+  the property that they are invariant under affine transformations.}
 
 \paragraph{Euclidean Geometry} Euclidean geometry extends affine
 geometry with the operation of \emph{dot product} (also known as the
@@ -477,11 +488,11 @@ coordinate representation in the following way:
 \begin{displaymath}
   (x_1,y_1) \cdot (x_2,y_2) = x_1x_2 + y_1y_2
 \end{displaymath}
-The dot product is used to define properties of vectors such as their
-\emph{norm} $||\vec{v}|| = \vec{v}\cdot\vec{v}$, which is the square
-of the length of the vector $\vec{v}$, and the notion of
-orthogonality: two vectors $\vec{v_1}$ and $\vec{v_2}$ are orthogonal
-if $\vec{v_1}\cdot\vec{v_2} = 0$.
+% The dot product is used to define properties of vectors such as their
+% \emph{norm} $||\vec{v}|| = \vec{v}\cdot\vec{v}$, which is the square
+% of the length of the vector $\vec{v}$, and the notion of
+% orthogonality: two vectors $\vec{v_1}$ and $\vec{v_2}$ are orthogonal
+% if $\vec{v_1}\cdot\vec{v_2} = 0$.
 
 To incorporate the operation of dot product into our calculus, we must
 give it a type. It is not the case that the dot product is invariant
@@ -490,96 +501,94 @@ we have considered so far. In fact, the dot product is invariant under
 the subgroup $\Orth_2$ of $\GL_2$ of \emph{orthogonal} linear
 transformations. The group $\Orth_2$ consists of invertible linear
 maps whose determinant is either $1$ or $-1$. We introduce orthogonal
-transformations as a new sort $\Orth_2$, and overload the
+transformations as a new sort $\SynOrth_2$, and overload the
 multiplicative group operations syntax for inhabitants of
-$\Orth_2$. We also assume a function $\iota_O$ that takes $e :
-\Orth_2$ to $\iota_O(e) : \SynGL_2$. We may now assign the following type
+$\SynOrth_2$. We also assume a function $\iota_O$ that takes $e :
+\SynOrth_2$ to $\iota_O(e) : \SynGL_2$. We may now assign the following type
 to the dot product:
 \begin{displaymath}
-  (\cdot) : \forall O \mathord: \Orth(2).\ \tyPrim{vec}{\iota_O(O), 0} \to \tyPrim{vec}{\iota_O(O), 0} \to \tyPrimNm{real}
+  (\cdot) : \forall O \mathord: \SynOrth(2).\ \tyPrim{vec}{\iota_OO, 0} \to \tyPrim{vec}{\iota_OO, 0} \to \tyPrimNm{real}
 \end{displaymath}
 
 \begin{figure}[t]
   \centering
   \begin{eqnarray*}
-    0   &:& \forall s \mathord:\Scale.\ \tyPrim{real}{s} \\
+    0   &:& \forall s \mathord:\SynGL_1.\ \tyPrim{real}{s} \\
     1   &:& \tyPrim{real}{1} \\
-    (+) &:& \forall s \mathord:\Scale.\ \tyPrim{real}{s} \to \tyPrim{real}{s} \to \tyPrim{real}{s} \\
-    (-) &:& \forall s \mathord:\Scale.\ \tyPrim{real}{s} \to \tyPrim{real}{s} \to \tyPrim{real}{s} \\
-    (*) &:& \forall s_1,s_2 \mathord:\Scale.\ \tyPrim{real}{s_1} \to \tyPrim{real}{s_2} \to \tyPrim{real}{s_1s_2} \\
+    (+) &:& \forall s \mathord:\SynGL_1.\ \tyPrim{real}{s} \to \tyPrim{real}{s} \to \tyPrim{real}{s} \\
+    (-) &:& \forall s \mathord:\SynGL_1.\ \tyPrim{real}{s} \to \tyPrim{real}{s} \to \tyPrim{real}{s} \\
+    (*) &:& \forall s_1,s_2 \mathord:\SynGL_1.\ \tyPrim{real}{s_1} \to \tyPrim{real}{s_2} \to \tyPrim{real}{s_1s_2} \\
     (/) &:&
-    \begin{array}[t]{@{}l}
-      \forall s_1,s_2 \mathord:\Scale.\ \tyPrim{real}{s_1} \to \tyPrim{real}{s_2} \\
-      \hspace{3.5cm}\to \tyPrim{real}{s_1s_2^{-1}} + \tyPrimNm{unit} \\
+    \begin{array}[t]{@{}l@{}l}
+      \forall s_1,s_2 \mathord:\SynGL_1.\ \tyPrim{real}{s_1}\ & \to \tyPrim{real}{s_2} \\
+      &\to \tyPrim{real}{s_1s_2^{-1}} + \tyPrimNm{unit} \\
     \end{array}\\
-    \mathrm{abs} &:& \forall s \mathord:\Scale.\ \tyPrim{real}{s} \to \tyPrim{real}{|s|} %\\
+    \mathrm{abs} &:& \forall s \mathord:\SynGL_1.\ \tyPrim{real}{s} \to \tyPrim{real}{|s|} %\\
 %    \mathrm{sqrt} &:& \tyPrim{real}{1} \to \tyPrim{real}{1}
   \end{eqnarray*}
   \caption{Operations on scaled real numbers}
   \label{fig:real-ops}
 \end{figure}
 
-The cross product is another operation that takes pairs of vectors and
-produces a real number. Algebraically, the cross product is defined on
-coordinate representations as follows:
+The cross product of two vectors is defined on coordinate
+representations as follows:
 \begin{displaymath}
   (x_1,y_1) \times (x_2,y_2) = x_1y_2 - x_2y_1
 \end{displaymath}
-Geometrically, the cross product of two vectors is the signed area of
-the parallelogram described by the pair of input vectors. It turns out
+Geometrically, the cross product is the signed area of the
+parallelogram described by the pair of input vectors. It turns out
 that the value of the cross product of two vectors varies with the
 determinant of the matrix describing the basis of the vector space. We
-therefore augment our calculus with a new sort $\Scale$ of scale
-factors. Semantically, $\Scale$ ranges over the non-zero real numbers
-and forms an abelian group, which we write multiplicatively. We also
-add two new operations: determinant, $\det B$, which takes an
-inhabitant of $\SynGL_2$ to its determinant in $\Scale$, and the
-operation of absolute value that takes scaling factors to scaling
-factors which we write as $|e|$. We also refine the type
-$\tyPrimNm{real}$ of real numbers to take a parameter of sort
-$\Scale$: $\tyPrim{real}{e}$, where the old type $\tyPrimNm{real}$ is
-just $\tyPrim{real}{1}$. The collection of operations on real numbers
-with scaling factors is shown in \autoref{fig:real-ops}.
+therefore augment our calculus with a new sort $\SynGL_1$ of scale
+factors. Semantically, $\SynGL_1$ ranges over the non-zero real
+numbers and forms an abelian group, which we write
+multiplicatively. We also add two new operations: determinant, $\det
+B$, which takes an inhabitant of $\SynGL_2$ to its determinant in
+$\SynGL_1$, and the operation of absolute value that takes scaling
+factors to scaling factors which we write as $|e|$. We also refine the
+type $\tyPrimNm{real}$ of real numbers to take a parameter of sort
+$\SynGL_1$: $\tyPrim{real}{e}$, where the old type $\tyPrimNm{real}$
+is just $\tyPrim{real}{1}$. The collection of operations on real
+numbers with scaling factors is shown in \autoref{fig:real-ops}.
 
-With the additional sort $\Scale$, and the refined type of real
+With the additional sort $\SynGL_1$, and the refined type of real
 numbers, we can state the type of the cross product.
 \begin{displaymath}
   (\times) : \forall B \mathord: \SynGL_2.\ \tyPrim{vec}{B,0} \to \tyPrim{vec}{B,0} \to \tyPrim{real}{\det B}
 \end{displaymath}
 For orthogonal transformations $O : \Orth_2$, the absolute value of
-the determinant is always $1$, so we assume the equation $|\det O| =
-1$ to hold.
+the determinant is always $1$, so we assume the equation $|\det
+(\iota_O O)| = 1$ to hold.
 
 \begin{example}
   Using the structure we have defined in this subsection, we can
   define the following function that computes the area of a
   triangle. By the type of this function, we can see that the area of
-  a triangle is invariant under orthognal transformations and
-  arbitrary translations.
+  a triangle is invariant under orthogonal transformations and
+  arbitrary translations \fixme{i.e. isometries}.
   \begin{displaymath}
     \begin{array}{@{}l}
-      \mathrm{area} : \forall O\mathord:\Orth_2, t\mathord:\SynTransl_2.\ \\
+      \mathrm{area} : \forall O\mathord:\SynOrth_2, t\mathord:\SynTransl_2.\ \\
       \hspace{0.8cm}\tyPrim{vec}{\iota_OO, t} \to \tyPrim{vec}{\iota_OO, t} \to \tyPrim{vec}{\iota_OO, t} \to \tyPrim{real}{1} \\
       \mathrm{area}\ [O]\ [t]\ p_1\ p_2\ p_3 = \frac{1}{2} * \mathrm{abs}\ ((p_2 - p_1) \times (p_3 - p_1))
     \end{array}
   \end{displaymath}
   In the body of this function, we have performed the calculation in
   several steps, each of which removes some of the symmetry described
-  by the type of $\mathrm{area}$. First we have computed the two offset
-  vectors $p_2 - p_1$ and $p_3 - p_1$. These operations remove the
-  effect of translations on the result, in exactly the same way as the
-  type isomorphism we demonstrated above. We then compute the cross
-  product of the two vectors to determine the area of the
-  parallelogram described by the sides of the triangle. This value has
-  type $\mathsf{real}\langle \det O \rangle$. We know that the
+  by the type of $\mathrm{area}$. First we have computed the two
+  offset vectors $p_2 - p_1$ and $p_3 - p_1$. These operations remove
+  the effect of translations on the result, in exactly the same way as
+  the type isomorphism we demonstrated above \fixme{ref}. We then
+  compute the cross product of the two vectors to determine the area
+  of the parallelogram described by the sides of the triangle. This
+  value has type $\tyPrim{real}{\det (\iota_O O)}$. We know that the
   determinant of an orthogonal transformation is always either $-1$ or
   $1$, so we have a result which varies according to possible
   reflections of the space. To remove this variation, we apply the
   $\mathrm{abs}$ function to leave us with a value of type
-  $\mathsf{real}\langle |\det O| \rangle$. This type is equal to the
-  type $\mathsf{real}\langle 1 \rangle$. Finally, we multiply by
-  $\frac{1}{2}$ to recover the area of the triangle, rather than the
-  whole parallelogram.
+  $\tyPrim{real}{|\det (\iota_O O)|}$. This type is equal to the type
+  $\tyPrim{real}{1}$. Finally, we multiply by $\frac{1}{2}$ to recover
+  the area of the triangle, rather than the whole parallelogram.
 \end{example}
 
 % \begin{enumerate}
@@ -607,8 +616,12 @@ the determinant is always $1$, so we assume the equation $|\det O| =
 \item Explicitly link scale invariance to units of measure system
 \end{enumerate}
 
+Need a function $\iota_1 : \SynGL_1 \to \SynGL_2$. Such that $\det (\iota_1 s) = s^2$
+
 \subsection{Information Flow}
 \label{sec:information-flow}
+
+Blah blah blah. Need to work this out in terms of representation indepdence.
 
 \begin{enumerate}
 \item Think of information flow as passing around unforgable tokens

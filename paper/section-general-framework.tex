@@ -34,7 +34,7 @@ type as a binary relation on its index-erasure interpretation. The
 relational interpretation acts as ``commentary'' on the underlying
 interpretation, constraining the index-erasure interpretations that
 are allowed. In particular, we use the relational interpretation to
-enforce the invariance properties that we indentified in
+enforce the invariance properties that we identified in
 \autoref{sec:motivating-examples}.
 
 Throughout this section, we use Kennedy's original units of measure
@@ -458,7 +458,7 @@ $\rho \in \mathrm{RelEnv}(\Delta')$ and a simultaneous substitution
 $\Delta \vdash \sigma \Rightarrow \Delta'$, we can derive the composed
 relational environment (with an abuse of notation) $\rho \circ \sigma
 \in \mathrm{RelEnv}(\Delta)$ as $(\rho \circ \sigma)\ \tyPrimNm{X}\
-\sigma' = \rho\ \tyPrimNm{X}\ (\sigma' \circ \sigma)$. \fixme{Check this is the right way round}
+\sigma' = \rho\ \tyPrimNm{X}\ (\sigma' \circ \sigma)$.
 
 % FIXME: fix the notation here for interpretation of index contexts:
 % should use some sort of semantic brackets
@@ -483,30 +483,38 @@ properties:
 \item If we have a pair of relation environments $\rho_1 \in
   \relEnv{E}(\Delta', i\mathord:s')$ and $\rho_2 \in
   \relEnv{E}(\Delta)$, along with an simultaneous substitution $\sigma
-  : \Delta' \Rightarrow \Delta$, such that the outer edges of the
-  following diagram commute, for all primitive types $\tyPrimNm{X} \in
-  \mathit{PrimType}$:
-  %FIXME: check that these compositions are the right way round
-  %FIXME: re-do this as a set of equations
-  %FIXME: give a better English description of why this is needed
-  \begin{displaymath}
-    \xymatrix{
-      {\Delta \Rightarrow \primTyArity(\tyPrimNm{X})} \ar[r]^(.45){- \circ \pi_{i\mathord:s'}} \ar[d]_{- \circ \sigma}
-      &
-      {\Delta,i\mathord:s' \Rightarrow \primTyArity(\tyPrimNm{X})} \ar[d]^{- \circ \sigma_{s'}} \ar@/^/[rdd]^{\rho_1 \tyPrimNm{X}}
-      \\
-      {\Delta' \Rightarrow \primTyArity(\tyPrimNm{X})} \ar[r]^(.45){- \circ \pi_{i\mathord:s'}} \ar@/_/[rrd]_{\rho_2\ \tyPrimNm{X}}
-      &
-      {\Delta,i\mathord:s' \Rightarrow \primTyArity(\tyPrimNm{X})} \ar@{.>}[dr]_{\rho\ \tyPrimNm{X}}
-      \\
-      &
-      &
-      {\Rel(\tyPrimSem{\tyPrimNm{X}})}
-    }
-  \end{displaymath}
-  Then there exists a relation environment $\rho \in
-  \relEnv{E}(\Delta,i\mathord:s')$ (the dotted arrow) such that the
-  two triangles in the bottom right of the diagram commute.
+  : \Delta' \Rightarrow \Delta$, such that $\rho_1 \circ
+  \pi_{i\mathord:s'} = \rho_2 \circ \sigma$, then there exists a $\rho
+  \in \relEnv{E}(\Delta, i\mathord:s')$ such that $\rho \circ
+  \sigma_{i\mathord:s'} = \rho_1$ and $\rho \circ \pi_{i\mathord:s'} =
+  \rho_2$.
+
+
+
+  % such that the outer edges of the
+  % following diagram commute, for all primitive types $\tyPrimNm{X} \in
+  % \mathit{PrimType}$:
+  % %FIXME: check that these compositions are the right way round
+  % %FIXME: re-do this as a set of equations
+  % %FIXME: give a better English description of why this is needed
+  % \begin{displaymath}
+  %   \xymatrix{
+  %     {\Delta \Rightarrow \primTyArity(\tyPrimNm{X})} \ar[r]^(.45){- \circ \pi_{i\mathord:s'}} \ar[d]_{- \circ \sigma}
+  %     &
+  %     {\Delta,i\mathord:s' \Rightarrow \primTyArity(\tyPrimNm{X})} \ar[d]^{- \circ \sigma_{s'}} \ar@/^/[rdd]^{\rho_1 \tyPrimNm{X}}
+  %     \\
+  %     {\Delta' \Rightarrow \primTyArity(\tyPrimNm{X})} \ar[r]^(.45){- \circ \pi_{i\mathord:s'}} \ar@/_/[rrd]_{\rho_2\ \tyPrimNm{X}}
+  %     &
+  %     {\Delta,i\mathord:s' \Rightarrow \primTyArity(\tyPrimNm{X})} \ar@{.>}[dr]_{\rho\ \tyPrimNm{X}}
+  %     \\
+  %     &
+  %     &
+  %     {\Rel(\tyPrimSem{\tyPrimNm{X}})}
+  %   }
+  % \end{displaymath}
+  % Then there exists a relation environment $\rho \in
+  % \relEnv{E}(\Delta,i\mathord:s')$ (the dotted arrow) such that the
+  % two triangles in the bottom right of the diagram commute.
   % FIXME: mention that we already know that the square commutes
 \end{enumerate}
 
@@ -766,51 +774,6 @@ of simultaneous substitutions as composition:
   that $(\eta_1, \eta_2) \in \rsem{\Gamma}{\relEnv{E}}\rho$, we have
   $(\tmSem{M}\eta_1, \tmSem{M}\eta_2) \in \rsem{A}{\relEnv{E}}\rho$.
 \end{theorem}
-
-\begin{proof}
-  By induction on the derivation of $\Delta; \Gamma \vdash M : A$. The
-  three interesting cases follow:
-  \begin{description}
-  \item[Case \TirName{TyEq}] This case follows directly from
-    \lemref{lem:tyeqsubst-relational}.
-  \item[Case \TirName{UnivAbs}] In this case, $M = \Lambda i.M'$ and
-    $A = \forall i\mathord:s. A'$. We know from the induction
-    hypothesis that for all $\rho' \in \relEnv{E}(\Delta, i:s)$ and
-    $(\eta_1,\eta_2) \in \rsem{\pi_{i:s}^*\Gamma}{\relEnv{E}}{\rho'}$,
-    we have $(\tmSem{M'}\eta_1,\tmSem{M'}\eta_2) \in
-    \rsem{A'}{\relEnv{E}}{\rho'}$. We are given $\rho \in
-    \relEnv{E}(\Delta)$, $(\eta_1,\eta_2) \in
-    \rsem{\Gamma}{\relEnv{E}}\rho$ and $\rho'' \in
-    \extends{\rho}{i:s}$. Since $\rho'' \circ \pi^*_{i:s} = \rho$, we
-    have $(\eta_1,\eta_2) \in \rsem{\Gamma}{\relEnv{E}}\rho$ implies
-    $(\eta_1,\eta_2) \in \rsem{\Gamma}{\relEnv{E}}{(\rho'' \circ
-      \pi^*_{i:s})}$, and therefore $(\eta_1,\eta_2) \in
-    \rsem{\pi_{i:s}^*\Gamma}{\relEnv{E}}{\rho''}$ by \lemref{lem:ctxtsubst-rel}. So we
-    can apply the induction hypothesis to get $(\tmSem{M'}\eta_1,
-    \tmSem{M'}\eta_2) \in \rsem{A'}{\relEnv{E}}{\rho''}$, and thus
-    $(\tmSem{\Lambda i.M'}\eta_1,\tmSem{\Lambda i.M'}\eta_2) \in
-    \rsem{A'}{\relEnv{E}}\rho''$, by the definition of $\tmSem{\Lambda
-      i. M'}$. Hence $(\tmSem{\Lambda i.M'}\eta_1,\tmSem{\Lambda
-      i.M'}\eta_2) \in \rsem{\forall
-      i\mathord:s. A'}{\relEnv{E}}\rho$, as required.
-  \item[Case \TirName{UnivApp}] In this case, $M = M'[e]$ and $A =
-    (\id_\Delta, e)^*A'$. By the induction hypothesis, and the
-    definition of $\rsem{\forall i\mathord:s.A'}{\relEnv{E}}\rho$, we
-    know that for all $\rho' \in \extends{\rho}{i:s}$,
-    $(\tmSem{M'}\eta_1, \tmSem{M'}\eta_2) \in
-    \rsem{A'}{\relEnv{E}}{\rho'}$. If we let $\rho' = \rho \circ
-    (\id_\Delta, e)^*$, we know that $\rho' \in \extends{\rho}{i:s}$,
-    because $\rho' \circ \pi^*_{i:s} = \rho \circ (\id_\Delta, e)^*
-    \circ \pi^*_{i:s} = \rho$. Hence we may deduce that
-    $(\tmSem{M'}\eta_1,\tmSem{M'}\eta_2) \in
-    \rsem{A'}{\relEnv{E}}{(\rho \circ (\id_\Delta,e)^*)}$ and thence,
-    by \lemref{lem:ctxtsubst-rel}, conclude that $(\tmSem{M'}\eta_1,
-    \tmSem{M'}\eta_2) \in \rsem{(\id_\Delta,e)^*A'}{\relEnv{E}}\rho$,
-    as required.
-  \end{description}
-  The remaining cases are standard for proofs of the fundamental lemma
-  of logical relations for simply-typed systems.
-\end{proof}
 
 %%% Local Variables:
 %%% TeX-master: "paper"
