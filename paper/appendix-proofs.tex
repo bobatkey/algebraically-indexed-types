@@ -1,6 +1,38 @@
 \section{Details of proofs}
 
-\fixme{give the explicit equational rules for the type equality}
+This appendix includes proofs for some of the lemmas and theorems in
+the main text. For reference, we include the rules for judgmental type
+equality here:
+\begin{mathpar}
+  \inferrule* [right=TyEqPrim]
+  {\primTyArity(\tyPrimNm{X}) = (s_1,...,s_n) \\
+    \{\Delta \vdash e_i \equiv e'_i : s_i\}_{1\leq i \leq n}}
+  {\Delta \vdash \tyPrim{X}{e_1,...,e_n} \equiv \tyPrim{X}{e'_1,..,e'_n} \isType}
+    
+  \inferrule* [right=TyEqUnit]
+  { }
+  {\Delta \vdash \tyUnit \equiv \tyUnit \isType}
+  
+  \inferrule* [right=TyEqArr]
+  {\Delta \vdash A \equiv A' \isType \\ \Delta \vdash B \equiv B' \isType}
+  {\Delta \vdash A \tyArr B \equiv A' \tyArr B' \isType}
+  
+  \inferrule* [right=TyEqProd]
+  {\Delta \vdash A \equiv A' \isType \\ \Delta \vdash B \equiv B' \isType}
+  {\Delta \vdash A \tyProduct B \equiv A' \tyProduct B' \isType}
+  
+  \inferrule* [right=TyEqSum]
+  {\Delta \vdash A \equiv A' \isType \\ \Delta \vdash B \equiv B' \isType}
+  {\Delta \vdash A + B \equiv A' + B' \isType}
+  
+  \inferrule* [right=TyEqForall]
+  {\Delta, i \mathord: s \vdash A \equiv A' \isType}
+  {\Delta \vdash \forall i \mathord: s. A \equiv \forall i \mathord: s. A' \isType}
+
+  \inferrule* [right=TyEqForall]
+  {\Delta, i \mathord: s \vdash A \equiv A' \isType}
+  {\Delta \vdash \exists i \mathord: s. A \equiv \exists i \mathord: s. A' \isType}
+\end{mathpar}
 
 \begin{restateLemma}[\lemref{lem:tyeqsubst-erasure}]
   \begin{enumerate}
