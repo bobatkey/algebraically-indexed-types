@@ -141,8 +141,12 @@ distinct.
     {\Delta \vdash A + B \isType}
     
     \inferrule* [right=TyForall] %FIXME: macroize forall
-    {\Delta, i : s \vdash A \isType}
+    {\Delta, i \mathord: s \vdash A \isType}
     {\Delta \vdash \forall i \mathord: s. A \isType}
+
+    \inferrule* [right=TyExist]
+    {\Delta, i \mathord: s \vdash A \isType}
+    {\Delta \vdash \exists i \mathord: s. A \isType}
   \end{mathpar}
   \caption{Index expressions and types}
   \label{fig:indexes-and-types}
@@ -165,7 +169,9 @@ a primitive type $\tyPrimNm{X}$ and appropriately sorted index
 expressions $e_1,...,e_n$, the well-indexed type
 $\tyPrim{X}{e_1,...,e_n}$. The rule \TirName{TyForall} permits the
 formation of universally quantified types, where the universal
-quantification ranges over all index expressions of some sort.
+quantification ranges over all index expressions of some
+sort. Existential types are constructed using the \TirName{TyExist}
+rule.
 
 \subsubsection{Simultaneous Substitution of Index Expressions}
 \label{sec:simultaneous-substitution}
@@ -222,6 +228,8 @@ by the following clauses:
   \sigma^*(A + B) \isDefinedAs \sigma^*A + \sigma^*B
 
   \sigma^*(\forall i\mathord:s.A) \isDefinedAs \forall i\mathord:s.\sigma_{i\mathord:s}^*A
+
+  \sigma^*(\exists i\mathord:s.A) \isDefinedAs \exists i\mathord:S. \sigma_{i\mathord:s}^*A
 \end{mathpar}
 \begin{lemma}
   Let $\Delta \vdash \sigma \Rightarrow \Delta'$ be a simultaneous
@@ -412,16 +420,18 @@ well-indexed type by induction on the type structure:
     \begin{array}{l}
       \tySem{A + B} \isDefinedAs \tySem{A} + \tySem{B} \\
       \tySem{\tyPrim{X}{e_1,...,e_n}} \isDefinedAs \tyPrimSem{\tyPrimNm{X}} \\
-      \tySem{\forall i\mathord:s. A} \isDefinedAs \tySem{A}
+      \tySem{\forall i\mathord:s. A} \isDefinedAs \tySem{A} \\
+      \tySem{\exists i\mathord:s. A} \isDefinedAs \tySem{A}
     \end{array}
   \end{array}
 \end{displaymath}
 The interpretation of the unit type is a chosen one element set, and
 the interpretations of the function, tuple and sum types are simply
-the corresponding constructions on sets. The interpretation of the
-universal quantifier ignores the indexing: the interpretation of the
-type $\forall i\mathord:s.A$ is exactly the interpretation of the type
-$A$.
+the corresponding constructions on sets. The interpretations of the
+universal and existential quantifiers ignore the indexing: the
+interpretation of the type $\forall i\mathord:s.A$ is exactly the
+interpretation of the type $A$, and likewise for $\exists
+i\mathord:s.A$.
 
 % The index-erasure interpretation completely ignores index expressions
 % and type equality is defined as an extension of index
@@ -579,7 +589,8 @@ additional index variable $i\mathord:s$ to be
 $\extends{\rho}{i\mathord:s} \isDefinedAs \{ \rho' \in
 \relEnv{E}(\Delta,i\mathord:s) \sepbar \rho' \circ \pi^*_{i\mathord:s}
 = \rho \}$. The set of extensions of a relational environment will be
-used in the interpretation of the universal quantification type.
+used in the interpretation of the universal and existential type
+formers.
 
 We assign a relational interpretation to all well-indexed types
 $\Delta \vdash A \isType$ by induction on their derivations,
@@ -591,7 +602,8 @@ parameterised by relational environments $\rho \in
   \rsem{A \tyArr B}{\relEnv{E}}\rho & \isDefinedAs & \rsem{A}{\relEnv{E}}\rho \relArrow \rsem{B}{\relEnv{E}}\rho \\
   \rsem{A \tyProduct B}{\relEnv{E}}\rho & \isDefinedAs & \rsem{A}{\relEnv{E}}\rho \relTimes \rsem{B}{\relEnv{E}}\rho \\
   \rsem{A + B}{\relEnv{E}}\rho & \isDefinedAs & \rsem{A}{\relEnv{E}}\rho \relSum \rsem{B}{\relEnv{E}}\rho \\
-  \rsem{\forall i\mathord:s.A}{\relEnv{E}}\rho & \isDefinedAs & \bigcap\{ \rsem{A}{\relEnv{E}}\rho' \sepbar \rho' \in \extends{\rho}{i\mathord:s} \}
+  \rsem{\forall i\mathord:s.A}{\relEnv{E}}\rho & \isDefinedAs & \bigcap\{ \rsem{A}{\relEnv{E}}{\rho'} \sepbar \rho' \in \extends{\rho}{i\mathord:s} \} \\
+  \rsem{\exists i\mathord:s.A}{\relEnv{E}}\rho & \isDefinedAs & \bigcup\{ \rsem{A}{\relEnv{E}}{\rho'} \sepbar \rho' \in \extends{\rho}{i\mathord:s} \}
 \end{eqnarray*}
 In this definition we have made use of the following three
 constructions on binary relations. If $R \in \Rel(X)$ and $S \in

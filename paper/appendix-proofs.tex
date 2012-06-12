@@ -235,45 +235,94 @@
         (x_1,x_2) \in \rsem{\sigma^*\forall i\mathord:s. A'}{\relEnv{E}}\rho
       \end{equation}
       and we must show that $(x_1, x_2) \in \rsem{\forall
-        i\mathord:s. A'}{\relEnv{E}}{(\rho \circ \sigma^*)}$. From
+        i\mathord:s. A'}{\relEnv{E}}{(\rho \circ \sigma)}$. From
       (\ref{eq:tysubst-rel-forall1}) and the definition of
       substitution, we know that
       \begin{displaymath}
-        \forall \rho' \in \extends{\rho}{i:s}.\ (x_1,x_2) \in \rsem{\sigma_s^*A'}{\relEnv{E}}\rho'
+        \forall \rho' \in \extends{\rho}{i\mathord:s}.\ (x_1,x_2) \in \rsem{\sigma_{i\mathord:s}^*A'}{\relEnv{E}}\rho'
       \end{displaymath}
       By the induction hypothesis, we can deduce that
       \begin{equation}
         \label{eq:tysubst-rel-forall2}
-        \forall \rho' \in \extends{\rho}{i:s}.\ (x_1,x_2) \in \rsem{A'}{\relEnv{E}}{(\rho' \circ \sigma_s^{*})}
+        \forall \rho' \in \extends{\rho}{i\mathord:s}.\ (x_1,x_2) \in \rsem{A'}{\relEnv{E}}{(\rho' \circ \sigma_{i\mathord:s})}
       \end{equation}
       To show the required inclusion, we must show that for all
-      $\rho_1 \in \extends{\rho \circ \sigma^*}{i:s}$, it is the case
-      that $(x_1,x_2) \in \rsem{A'}{\relEnv{E}}{\rho_1}$. We now make
-      use of the pushout property of our family $\relEnv{E}$ of
+      $\rho_1 \in \extends{\rho \circ \sigma}{i\mathord:s}$, it is the
+      case that $(x_1,x_2) \in \rsem{A'}{\relEnv{E}}{\rho_1}$. We now
+      make use of the pushout property of our family $\relEnv{E}$ of
       relation environments: we have a $\rho \in \relEnv{E}(\Delta)$
-      and $\rho_1 \in \relEnv{E}(\Delta, i:s)$ such that $\rho_1 \circ
-      \pi_{i:s} = \rho \circ \sigma^*$ (by the assumption that $\rho_1
-      \in \extends{\rho \circ \sigma^*}{i:s}$), so we can obtain a
-      $\rho' \in \relEnv{E}(\Delta',i:s)$ such that $\rho' \circ
-      \pi_{i:s} = \rho$ (so $\rho' \in \extends{\rho}{i:s}$), and
-      $\rho' \circ \sigma^* = \rho_1$. Therefore we use
-      (\ref{eq:tysubst-rel-forall2}) to deduce that $(x_1,x_2) \in
-      \rsem{A'}{\relEnv{E}}{\rho_1}$, and the inclusion from
-      left-to-right is shown.
+      and $\rho_1 \in \relEnv{E}(\Delta, i\mathord:s)$ such that
+      $\rho_1 \circ \pi_{i:s} = \rho \circ \sigma$ (by the assumption
+      that $\rho_1 \in \extends{\rho \circ \sigma}{i\mathord:s}$), so
+      we can obtain a $\rho' \in \relEnv{E}(\Delta',i\mathord:s)$ such
+      that $\rho' \circ \pi_{i\mathord:s} = \rho$ (so $\rho' \in
+      \extends{\rho}{i\mathord:s}$), and $\rho' \circ \sigma =
+      \rho_1$. Therefore we use (\ref{eq:tysubst-rel-forall2}) to
+      deduce that $(x_1,x_2) \in \rsem{A'}{\relEnv{E}}{\rho_1}$, and
+      the inclusion from left-to-right is shown.
 
       From right-to-left, we must now show
       (\ref{eq:tysubst-rel-forall2}) under the assumption that
       \begin{equation}
         \label{eq:tysubst-rel-forall3}
-        \forall \rho_1 \in \extends{\rho \circ \sigma^*}{i:s}. (x_1,x_2) \in \rsem{A'}{\relEnv{E}}{\rho_1}.
+        \forall \rho_1 \in \extends{\rho \circ \sigma}{i\mathord:s}.\ (x_1,x_2) \in \rsem{A'}{\relEnv{E}}{\rho_1}.
       \end{equation}
-      Given $\rho' \in \extends{\rho}{i:s}$, we let $\rho_1 = \rho'
-      \circ \sigma^*$. Now, $\rho_1 \circ \pi_{i:s} = \rho' \circ
-      \sigma^* \circ \pi_{i:s} = \rho' \circ \pi_{i:s} \circ
-      \sigma_s^{*} = \rho \circ \sigma_s^{*}$. Thus $\rho_1 \in
-      \extends{\rho \circ \sigma^*}{i:s}$ and we may use
+      Given $\rho' \in \extends{\rho}{i\mathord:s}$, we let $\rho_1 =
+      \rho' \circ \sigma$. Now, $\rho_1 \circ \pi_{i\mathord:s} =
+      \rho' \circ \sigma \circ \pi_{i\mathord:s} = \rho' \circ
+      \pi_{i\mathord:s} \circ \sigma_{i\mathord:s} = \rho \circ
+      \sigma_{i\mathord:s}$. Thus $\rho_1 \in \extends{\rho \circ
+        \sigma}{i\mathord:s}$ and we may use
       (\ref{eq:tysubst-rel-forall3}) to deduce that $(x_1,x_2) \in
-      \rsem{A'}{\relEnv{E}}{(\rho' \circ \sigma_s^{*})}$, as required.
+      \rsem{A'}{\relEnv{E}}{(\rho' \circ \sigma_{i\mathord:s})}$, as
+      required.
+    \item[\TirName{TyExist}] We have $A = \exists i\mathord:s.A'$. We
+      prove the required equation by demonstrating two
+      inclusions. From left-to-right, we know that
+      \begin{equation}
+        \label{eq:tysubst-rel-exist1}
+        (x_1,x_2) \in \rsem{\sigma^*\exists i\mathord:s. A'}{\relEnv{E}}\rho
+      \end{equation}
+      and we must show that $(x_1,x_2) \in \rsem{\exists
+        i\mathord:s. A'}{\relEnv{E}}{(\rho \circ \sigma)}$. From
+      (\ref{eq:tysubst-rel-exist1}) and the definition of
+      substitution, we know that
+      \begin{displaymath}
+        \exists \rho' \in \extends{\rho}{i\mathord:s}.\ (x_1,x_2) \in \rsem{\sigma_{i\mathord:s}^*A'}{\relEnv{E}}{\rho'}
+      \end{displaymath}
+      By the induction hypothesis, we can deduce that
+      \begin{equation}
+        \label{eq:tysubst-rel-exist2}
+        \exists \rho' \in \extends{\rho}{i\mathord:s}.\ (x_1,x_2) \in \rsem{A'}{\relEnv{E}}{(\rho' \circ \sigma_{i\mathord:s})}
+      \end{equation}
+      To show the required inclusion, we must show that there exists a
+      $\rho_1 \in \extends{\rho \circ \sigma}{i\mathord:s}$ such that
+      $(x_1,x_2) \in \rsem{A'}{\relEnv{E}}{\rho_1}$. Let $\rho' \in
+      \extends{\rho}{i\mathord:s}$ be the witness from
+      (\ref{eq:tysubst-rel-exist2}), and set $\rho_1 = \rho' \circ
+      \sigma_{i\mathord:s}$. Then $\rho_1 \in \extends{\rho \circ
+        \sigma}{i\mathord:s}$ because $\rho_1 \circ \pi_{i\mathord:s}
+      = \rho' \circ \sigma_{i\mathord:s} \circ \pi_{i\mathord:s} =
+      \rho' \circ \pi_{i\mathord:s} \circ \sigma = \rho \circ
+      \sigma$. Moreover, directly from (\ref{eq:tysubst-rel-exist2}),
+      $(x_1,x_2) \in \rsem{A'}{\relEnv{E}}{\rho_1}$, as required.
+
+      From right-to-left, we must now show
+      (\ref{eq:tysubst-rel-exist2}) under the assumption that
+      \begin{equation}
+        \label{eq:tysubst-rel-exist3}
+        \exists \rho_1 \in \extends{\rho \circ \sigma}{i\mathord:s}.\ (x_1,x_2) \in \rsem{A'}{\relEnv{E}}{\rho_1}
+      \end{equation}
+      We make use of the pushout property we assumed of relational
+      environments.  We have $\rho_1 \in \relEnv{E}(\Delta,
+      i\mathord:s)$ with $\rho_1 \circ \pi_{i\mathord:s} = \rho \circ
+      \sigma$. Thus we obtain a $\rho' \in
+      \relEnv{E}(\Delta',i\mathord:s)$ such that $\rho' \circ
+      \pi_{i\mathord:s} = \rho$ (i.e.~$\rho' \in
+      \extends{\rho}{i\mathord:s}$), and $\rho' \circ \sigma =
+      \rho_1$. By (\ref{eq:tysubst-rel-exist3}), $(x_1,x_2) \in
+      \rsem{A'}{\relEnv{E}}{(\rho' \circ \sigma)}$, and the inclusion
+      from right-to-left is shown.
     \end{description}
   \end{enumerate}
 \end{proof}
