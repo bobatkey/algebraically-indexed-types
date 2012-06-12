@@ -738,6 +738,15 @@ other equal type $B$.
     \inferrule* [right=UnivApp]
     {\Delta; \Gamma \vdash M : \forall i\mathord:s. A \\ \Delta \vdash e : s}
     {\Delta; \Gamma \vdash M [e] : (\id_\Delta, e)^*A}
+
+    \inferrule* [right=ExPack]
+    {\Delta; \Gamma \vdash M : (\id_\Delta, e)^*A \\ \Delta, i\mathord:s \vdash A \isType}
+    {\Delta; \Gamma \vdash \mathrm{pack}\ [e]\ M : \exists i\mathord:s. A}
+
+    \inferrule* [right=ExUnpack]
+    {\Delta; \Gamma \vdash M : \exists i\mathord:s. A \\
+      \Delta, i\mathord:s; \pi_{i\mathord:s}^*\Gamma, x : A \vdash N : \pi_{i\mathord:s}^*B}
+    {\Delta; \Gamma \vdash \mathrm{unpack}\ [i]\ x = M\ \mathrm{in}\ N : B}
   \end{mathpar}
   
   \caption{Well-typed Programs}
@@ -783,7 +792,9 @@ derivations. We define $\tmSem{e}$ by the following clauses:
     \tmSem{\lambda x. M}\eta & \isDefinedAs & \lambda v. \tmSem{M}(\eta, v) \\
     \tmSem{M N}\eta & \isDefinedAs & (\tmSem{M}\eta) (\tmSem{N}\eta) \\
     \tmSem{\Lambda i.\ M}\eta & \isDefinedAs & \tmSem{M}\eta \\
-    \tmSem{M[e]}\eta & \isDefinedAs & \tmSem{M}\eta    
+    \tmSem{M[e]}\eta & \isDefinedAs & \tmSem{M}\eta \\
+    \tmSem{\mathrm{pack}\ [e]\ M}\eta & \isDefinedAs & \tmSem{M}\eta \\
+    \tmSem{\mathrm{unpack}\ [i]\ x = M\ \mathrm{in}\ N}\eta & \isDefinedAs & \tmSem{N}(\eta, \tmSem{M}\eta)
   \end{array}
 \end{displaymath}
 In the above, we have written $\eta_x$ to denote the appropriate

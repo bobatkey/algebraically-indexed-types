@@ -1,6 +1,6 @@
 \section{Details of proofs}
 
-% FIXME: give the explicit equational rules for the type equality
+\fixme{give the explicit equational rules for the type equality}
 
 \begin{restateLemma}[\lemref{lem:tyeqsubst-erasure}]
   \begin{enumerate}
@@ -46,6 +46,11 @@
       induction hypothesis we know that $\tySem{A'} = \tySem{B'}$, and
       hence $\tySem{A} = \tySem{\forall i\mathord:s. A'} = \tySem{A'}
       = \tySem{B'} = \tySem{\forall i\mathord:s. B'} = \tySem{B}$.
+    \item[Case \TirName{TyEqExist}] We have $A = \exists
+      i\mathord:s.A'$ and $B = \exists i\mathord:s.B'$. By the
+      induction hypothesis we know that $\tySem{A'} = \tySem{B'}$, and
+      hence $\tySem{A} = \tySem{\exists i\mathord:s. A'} = \tySem{A'}
+      = \tySem{B'} = \tySem{\exists i\mathord:s. B'} = \tySem{B}$.
     \end{description}
   \item By induction on the derivation of $\Delta \vdash A \isType$.
     \begin{description}
@@ -85,8 +90,18 @@
       for all $\sigma'$, $\tySem{\sigma'^*A'} =
       \tySem{A'}$. Therefore, from the definition of substitution for
       $\forall$-types, we have $\tySem{\sigma^*\forall i\mathord:s.A'}
-      = \tySem{\forall i\mathord:s.\sigma_s^{*}A'} =
-      \tySem{\sigma_s^{*}A'} = \tySem{A'} = \tySem{\forall
+      = \tySem{\forall i\mathord:s.\sigma_{i\mathord:s}^{*}A'} =
+      \tySem{\sigma_{i\mathord:s}^{*}A'} = \tySem{A'} = \tySem{\forall
+        i\mathord:s.A'}$, where we have relied on the fact that the
+      index-erasure semantics of types ignores the index
+      quantification.
+    \item[Case \TirName{TyExist}] We have $A = \exists
+      i\mathord:s.A'$, and by the induction hypothesis we know that,
+      for all $\sigma'$, $\tySem{\sigma'^*A'} =
+      \tySem{A'}$. Therefore, from the definition of substitution for
+      $\exists$-types, we have $\tySem{\sigma^*\exists i\mathord:s.A'}
+      = \tySem{\exists i\mathord:s.\sigma_{i\mathord:s}^{*}A'} =
+      \tySem{\sigma_{i\mathord:s}^{*}A'} = \tySem{A'} = \tySem{\exists
         i\mathord:s.A'}$, where we have relied on the fact that the
       index-erasure semantics of types ignores the index
       quantification.
@@ -154,17 +169,31 @@
       \rsem{B_1 + B_2}{\relEnv{E}}\rho$, as required.
     \item[Case \TirName{TyEqForall}] We have $A = \forall
       i\mathord:s. A'$ and $B = \forall i\mathord:s.B'$, with $\Delta,
-      i : s \vdash A' \equiv B' \isType$. By the induction hypothesis,
-      we know that for all $\rho'$, $\rsem{A'}{\relEnv{E}}\rho' =
+      i \mathord: s \vdash A' \equiv B' \isType$. By the induction hypothesis,
+      we know that, for all $\rho'$, $\rsem{A'}{\relEnv{E}}\rho' =
       \rsem{B'}\rho'$. We reason as follows:
       \begin{eqnarray*}
         &    & (x_1,x_2) \in \rsem{\forall i\mathord:s. A'}{\relEnv{E}}\rho \\
-        &\iff& \forall \rho' \in \extends{\rho}{i:s}.\ (x_1,x_2) \in \rsem{A'}{\relEnv{E}}\rho' \\
-        &\iff& \forall \rho' \in \extends{\rho}{i:s}.\ (x_1,x_2) \in \rsem{B'}{\relEnv{E}}\rho' \\
+        &\iff& \forall \rho' \in \extends{\rho}{i\mathord:s}.\ (x_1,x_2) \in \rsem{A'}{\relEnv{E}}\rho' \\
+        &\iff& \forall \rho' \in \extends{\rho}{i\mathord:s}.\ (x_1,x_2) \in \rsem{B'}{\relEnv{E}}\rho' \\
         &\iff& (x_1,x_2) \in \rsem{\forall i\mathord:s. B'}{\relEnv{E}}\rho
       \end{eqnarray*}
       Thus, by extensionality, we have $\rsem{\forall
         i\mathord:s.A'}\rho \equiv \rsem{\forall
+        i\mathord:s.B'}{\relEnv{E}}\rho$, as required.
+    \item[Case \TirName{TyEqExist}] We have $A = \exists
+      i\mathord:s. A'$ and $B = \exists i\mathord:s.B'$, with $\Delta,
+      i \mathord: s \vdash A' \equiv B' \isType$. By the induction hypothesis,
+      we know that, for all $\rho'$, $\rsem{A'}{\relEnv{E}}\rho' =
+      \rsem{B'}\rho'$. We reason as follows:
+      \begin{eqnarray*}
+        &    & (x_1,x_2) \in \rsem{\exists i\mathord:s. A'}{\relEnv{E}}\rho \\
+        &\iff& \exists \rho' \in \extends{\rho}{i\mathord:s}.\ (x_1,x_2) \in \rsem{A'}{\relEnv{E}}\rho' \\
+        &\iff& \exists \rho' \in \extends{\rho}{i\mathord:s}.\ (x_1,x_2) \in \rsem{B'}{\relEnv{E}}\rho' \\
+        &\iff& (x_1,x_2) \in \rsem{\exists i\mathord:s. B'}{\relEnv{E}}\rho
+      \end{eqnarray*}
+      Thus, by extensionality, we have $\rsem{\exists
+        i\mathord:s.A'}\rho \equiv \rsem{\exists
         i\mathord:s.B'}{\relEnv{E}}\rho$, as required.
     \end{description}
   \item By induction on the derivation of $\Delta \vdash A \isType$. We
@@ -252,10 +281,11 @@
       make use of the pushout property of our family $\relEnv{E}$ of
       relation environments: we have a $\rho \in \relEnv{E}(\Delta)$
       and $\rho_1 \in \relEnv{E}(\Delta, i\mathord:s)$ such that
-      $\rho_1 \circ \pi_{i:s} = \rho \circ \sigma$ (by the assumption
-      that $\rho_1 \in \extends{\rho \circ \sigma}{i\mathord:s}$), so
-      we can obtain a $\rho' \in \relEnv{E}(\Delta',i\mathord:s)$ such
-      that $\rho' \circ \pi_{i\mathord:s} = \rho$ (so $\rho' \in
+      $\rho_1 \circ \pi_{i\mathord:s} = \rho \circ \sigma$ (by the
+      assumption that $\rho_1 \in \extends{\rho \circ
+        \sigma}{i\mathord:s}$), so we can obtain a $\rho' \in
+      \relEnv{E}(\Delta',i\mathord:s)$ such that $\rho' \circ
+      \pi_{i\mathord:s} = \rho$ (so $\rho' \in
       \extends{\rho}{i\mathord:s}$), and $\rho' \circ \sigma =
       \rho_1$. Therefore we use (\ref{eq:tysubst-rel-forall2}) to
       deduce that $(x_1,x_2) \in \rsem{A'}{\relEnv{E}}{\rho_1}$, and
@@ -276,9 +306,9 @@
       (\ref{eq:tysubst-rel-forall3}) to deduce that $(x_1,x_2) \in
       \rsem{A'}{\relEnv{E}}{(\rho' \circ \sigma_{i\mathord:s})}$, as
       required.
-    \item[\TirName{TyExist}] We have $A = \exists i\mathord:s.A'$. We
-      prove the required equation by demonstrating two
-      inclusions. From left-to-right, we know that
+    \item[Case \TirName{TyExist}] We have $A = \exists
+      i\mathord:s.A'$. We prove the required equation by demonstrating
+      two inclusions. From left-to-right, we know that
       \begin{equation}
         \label{eq:tysubst-rel-exist1}
         (x_1,x_2) \in \rsem{\sigma^*\exists i\mathord:s. A'}{\relEnv{E}}\rho
@@ -342,20 +372,23 @@
     \lemref{lem:tyeqsubst-relational}.
   \item[Case \TirName{UnivAbs}] In this case, $M = \Lambda i.M'$ and
     $A = \forall i\mathord:s. A'$. We know from the induction
-    hypothesis that for all $\rho' \in \relEnv{E}(\Delta, i:s)$ and
-    $(\eta_1,\eta_2) \in \rsem{\pi_{i:s}^*\Gamma}{\relEnv{E}}{\rho'}$,
-    we have $(\tmSem{M'}\eta_1,\tmSem{M'}\eta_2) \in
+    hypothesis that for all $\rho' \in \relEnv{E}(\Delta,
+    i\mathord:s)$ and $(\eta_1,\eta_2) \in
+    \rsem{\pi_{i\mathord:s}^*\Gamma}{\relEnv{E}}{\rho'}$, we have
+    $(\tmSem{M'}\eta_1,\tmSem{M'}\eta_2) \in
     \rsem{A'}{\relEnv{E}}{\rho'}$. We are given $\rho \in
     \relEnv{E}(\Delta)$, $(\eta_1,\eta_2) \in
     \rsem{\Gamma}{\relEnv{E}}\rho$ and $\rho'' \in
-    \extends{\rho}{i:s}$. Since $\rho'' \circ \pi^*_{i:s} = \rho$, we
-    have $(\eta_1,\eta_2) \in \rsem{\Gamma}{\relEnv{E}}\rho$ implies
-    $(\eta_1,\eta_2) \in \rsem{\Gamma}{\relEnv{E}}{(\rho'' \circ
-      \pi^*_{i:s})}$, and therefore $(\eta_1,\eta_2) \in
-    \rsem{\pi_{i:s}^*\Gamma}{\relEnv{E}}{\rho''}$ by \lemref{lem:ctxtsubst-rel}. So we
-    can apply the induction hypothesis to get $(\tmSem{M'}\eta_1,
-    \tmSem{M'}\eta_2) \in \rsem{A'}{\relEnv{E}}{\rho''}$, and thus
-    $(\tmSem{\Lambda i.M'}\eta_1,\tmSem{\Lambda i.M'}\eta_2) \in
+    \extends{\rho}{i\mathord:s}$. Since $\rho'' \circ
+    \pi_{i\mathord:s} = \rho$, we have $(\eta_1,\eta_2) \in
+    \rsem{\Gamma}{\relEnv{E}}\rho$ implies $(\eta_1,\eta_2) \in
+    \rsem{\Gamma}{\relEnv{E}}{(\rho'' \circ \pi_{i\mathord:s})}$, and
+    therefore $(\eta_1,\eta_2) \in
+    \rsem{\pi_{i\mathord:s}^*\Gamma}{\relEnv{E}}{\rho''}$ by
+    \lemref{lem:ctxtsubst-rel}. So we can apply the induction
+    hypothesis to get $(\tmSem{M'}\eta_1, \tmSem{M'}\eta_2) \in
+    \rsem{A'}{\relEnv{E}}{\rho''}$, and thus $(\tmSem{\Lambda
+      i.M'}\eta_1,\tmSem{\Lambda i.M'}\eta_2) \in
     \rsem{A'}{\relEnv{E}}\rho''$, by the definition of $\tmSem{\Lambda
       i. M'}$. Hence $(\tmSem{\Lambda i.M'}\eta_1,\tmSem{\Lambda
       i.M'}\eta_2) \in \rsem{\forall
@@ -363,17 +396,60 @@
   \item[Case \TirName{UnivApp}] In this case, $M = M'[e]$ and $A =
     (\id_\Delta, e)^*A'$. By the induction hypothesis, and the
     definition of $\rsem{\forall i\mathord:s.A'}{\relEnv{E}}\rho$, we
-    know that for all $\rho' \in \extends{\rho}{i:s}$,
+    know that for all $\rho' \in \extends{\rho}{i\mathord:s}$,
     $(\tmSem{M'}\eta_1, \tmSem{M'}\eta_2) \in
     \rsem{A'}{\relEnv{E}}{\rho'}$. If we let $\rho' = \rho \circ
-    (\id_\Delta, e)^*$, we know that $\rho' \in \extends{\rho}{i:s}$,
-    because $\rho' \circ \pi^*_{i:s} = \rho \circ (\id_\Delta, e)^*
-    \circ \pi^*_{i:s} = \rho$. Hence we may deduce that
+    (\id_\Delta, e)$, we know that $\rho' \in
+    \extends{\rho}{i\mathord:s}$, because $\rho' \circ
+    \pi_{i\mathord:s} = \rho \circ (\id_\Delta, e) \circ
+    \pi_{i\mathord:s} = \rho$. Hence we may deduce that
     $(\tmSem{M'}\eta_1,\tmSem{M'}\eta_2) \in
-    \rsem{A'}{\relEnv{E}}{(\rho \circ (\id_\Delta,e)^*)}$ and thence,
-    by \lemref{lem:ctxtsubst-rel}, conclude that $(\tmSem{M'}\eta_1,
+    \rsem{A'}{\relEnv{E}}{(\rho \circ (\id_\Delta,e))}$ and thence, by
+    \lemref{lem:ctxtsubst-rel}, conclude that $(\tmSem{M'}\eta_1,
     \tmSem{M'}\eta_2) \in \rsem{(\id_\Delta,e)^*A'}{\relEnv{E}}\rho$,
     as required.
+  \item[Case \TirName{ExPack}] In this case, $M = \mathrm{pack}\ [e]\
+    M'$ and $A = \exists i\mathord:s.A'$. We know from the
+    ind.~hyp.~that $(\tmSem{M'}\eta_1, \tmSem{M'}\eta_2) \in
+    \rsem{(\id_\Delta, e)^*A'}{\relEnv{E}}\rho$. By
+    \lemref{lem:tyeqsubst-relational} on substitutions, we can deduce
+    that $(\tmSem{M'}\eta_1, \tmSem{M'}\eta_2) \in
+    \rsem{A'}{\relEnv{E}}{(\rho \circ (\id_\Delta, e))}$. Since $(\rho
+    \circ (\id_\Delta, e)) \in \extends{\rho}{i\mathord:s}$, we have
+    $(\tmSem{M'}\eta_1, \tmSem{M'}\eta_2) \in \rsem{\exists
+      i\mathord:s.A'}{\relEnv{E}}{\rho}$, as required.
+  \item[Case \TirName{ExUnpack}] In this case, $M = \mathrm{unpack}\
+    [i]\ x = M'\ \mathrm{in}\ N$. Let $\exists i\mathord:s. A'$ be the
+    existential type that is being eliminated. By the induction
+    hypothesis we know that there exists a $\rho' \in \extends{\rho}{i\mathord:s}$ such that
+    \begin{equation}
+      \label{eq:absthm-exunpack1}
+      (\tmSem{M'}\eta_1, \tmSem{M'}\eta_2) \in \rsem{A'}{\relEnv{E}}{\rho'}
+    \end{equation}
+    and for all $\rho'' \in \relEnv{E}(\Delta,i\mathord:s)$ and
+    $(\eta'_1,\eta'_2) \in \rsem{\pi_{i\mathord:s}^*\Gamma, x :
+      A'}{\relEnv{E}}{\rho''}$,
+    \begin{displaymath}
+      (\tmSem{N}\eta'_1, \tmSem{N}\eta'_2) \in \rsem{\pi_{i\mathord:s}^*B}{\relEnv{E}}{\rho''}.
+    \end{displaymath}
+    We let $\rho'' = \rho'$ and set $\eta'_1 = (\eta_1,
+    \tmSem{M'}\eta_1)$ and $\eta'_2 = (\eta_2,
+    \tmSem{M'}\eta_2)$. This choice of $\eta'_1$ and $\eta'_2$ are
+    related in the first component because $(\eta_1, \eta_2) \in
+    \rsem{\Gamma}{\relEnv{E}}{\rho} = \rsem{\Gamma}{\relEnv{E}}{(\rho'
+      \circ \pi_{i\mathord:s})} =
+    \rsem{\pi_{i\mathord:s}^*\Gamma}{\relEnv{E}}{\rho'}$ by the
+    induction hypothesis and \lemref{lem:ctxtsubst-rel}, and in the
+    second component by (\ref{eq:absthm-exunpack1}). Thus we obtain:
+    \begin{displaymath}
+      (\tmSem{N}(\eta_1,\tmSem{M'}\eta_1),
+       \tmSem{N}(\eta_2,\tmSem{M'}\eta_2)) \in \rsem{\pi_{i\mathord:s}^*B}{\relEnv{E}}{\rho'}
+    \end{displaymath}
+    Now, by \lemref{lem:tyeqsubst-relational},
+    $\rsem{\pi_{i\mathord:s}^*B}{\relEnv{E}}{\rho'} =
+    \rsem{B}{\relEnv{E}}{(\rho' \circ \pi_{i\mathord:s})} =
+    \rsem{B}{\relEnv{E}}{\rho}$. By the definition of the
+    index-erasure semantics of $\mathrm{unpack}$ terms, we are done.
   \end{description}
   The remaining cases are standard for proofs of the fundamental lemma
   of logical relations for simply-typed systems.
