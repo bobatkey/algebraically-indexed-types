@@ -1,30 +1,30 @@
 \section{Introduction}
 \label{sec:introduction}
 
-Possible angles of attack:
-\begin{itemize}
-\item Parametric polymorphic types allow us to prevent
-  over-specification of the behaviour of programs. For instance, the
-  type $\forall \alpha. [\alpha] \to [\alpha]$ is a generalisation of
-  the types $[\mathsf{int}] \to [\mathsf{int}]$ and $[\mathsf{char}]
-  \to [\mathsf{char}]$. Either of the latter two types over-specify
-  the behaviour of the function.
-\item There are other cases of programs that are over-specified. The
-  leading example we just below is of geometric programs that
-  manipulate coordinate data. Often, programs that manipulate
-  coordinate data are insensitive to geometric transformations. For
-  example, a program that computes the area of a triangle described by
-  three points is insensitive to translations or rotations applied to
-  all three points.
-\item 
-\end{itemize}
+% Possible angles of attack:
+% \begin{itemize}
+% \item Parametric polymorphic types allow us to prevent
+%   over-specification of the behaviour of programs. For instance, the
+%   type $\forall \alpha. [\alpha] \to [\alpha]$ is a generalisation of
+%   the types $[\mathsf{int}] \to [\mathsf{int}]$ and $[\mathsf{char}]
+%   \to [\mathsf{char}]$. Either of the latter two types over-specify
+%   the behaviour of the function.
+% \item There are other cases of programs that are over-specified. The
+%   leading example we just below is of geometric programs that
+%   manipulate coordinate data. Often, programs that manipulate
+%   coordinate data are insensitive to geometric transformations. For
+%   example, a program that computes the area of a triangle described by
+%   three points is insensitive to translations or rotations applied to
+%   all three points.
+% \item 
+% \end{itemize}
 
-There are three main points to get across:
-\begin{enumerate}
-\item Why algebraically indexed types?
-\item Why relational parametricity?
-\item Why study them together?
-\end{enumerate}
+% There are three main points to get across:
+% \begin{enumerate}
+% \item Why algebraically indexed types?
+% \item Why relational parametricity?
+% \item Why study them together?
+% \end{enumerate}
 
 Key lessons:
 
@@ -38,13 +38,16 @@ Key lessons:
 \label{sec:contributions}
 
 \begin{itemize}
-\item Formulation of indexed parametricity that talks about
-  terms, not as part of terms (FIXME)
-\item Therefore, it can act as an analysis of programs, which can be
-  imposed after the fact
-\item Allow for more refined relational interpretations in order to
-  derive non-definability results.
-\item 
+\item Formulation of a general class of type systems that can either
+  be used as programming languages in their own right, or as the
+  targets of type-based analyses.
+\item A collection of compelling examples of algebraically indexed
+  types, including a novel type system for geometry, a refined type
+  system for information flow, based on logic, and a simple type
+  system for basic continuity analysis.
+\item Deduction of useful free theorems in each of our main examples.x
+\item A refined relational interpretation in order to derive
+  non-definability results. Fixing a minor problem in Kennedy's work.
 \end{itemize}
 
 %%% Local Variables:

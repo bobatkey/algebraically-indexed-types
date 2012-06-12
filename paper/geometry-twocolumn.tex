@@ -3,10 +3,12 @@
 
 We motivate this paper's goal of investigating algebraically-indexed
 types and their relational interpretations by presenting several
-examples. Our main set of examples comprise a novel type system for
-writing programs that manipulate geometric data, while maintaining
-geometric invariants through the types. \fixme{and the information
-  flow examples}
+examples. Our leading example is a novel type system for writing
+programs that manipulate geometric data, while maintaining geometric
+invariants through the types. The other examples are enforcement of
+information flow properties via indexing by a logical theory
+(\autoref{sec:information-flow}), and incorporation of metric
+properties into types (\autoref{sec:continuity-analysis}).
 
 \subsection{2-Dimensional Geometry and Origin Invariance}
 
@@ -220,7 +222,7 @@ of the types $\tyPrim{vec}{e}$ are:
 \begin{displaymath}
   \begin{array}{l@{\hspace{0.5em}=\hspace{0.5em}}l}
     \tySem{\tyPrim{vec}{e}} & \mathbb{R}^2 \\
-    \rsem{\tyPrim{vec}{e}}{}\rho & R_{\sem{t}\rho} = \{ (\vec{v},\vec{v'}) \sepbar \vec{v'} = \vec{v} + \sem{e}\rho \}
+    \rsem{\tyPrim{vec}{e}}{}\rho & R_{\sem{e}\rho} = \{ (\vec{v},\vec{v'}) \sepbar \vec{v'} = \vec{v} + \sem{e}\rho \}
   \end{array}
 \end{displaymath}
 The index-erasure interpetation of universal quantification $\forall
@@ -231,27 +233,26 @@ relational environment $\rho$:
 \begin{displaymath}
   \begin{array}{l@{\hspace{0.5em}=\hspace{0.5em}}l}
     \tySem{\forall t\mathord:\SynTransl_2.A} & \tySem{A} \\
-    \rsem{\forall t\mathord:\SynTransl_2.A}{}\rho & \bigcap\{ \rsem{A}{}{\rho'} \sepbar \rho' \in \extends{\rho}{i\mathord:\SynTransl_2} \}
+    \rsem{\forall t\mathord:\SynTransl_2.A}{}\rho & \bigcap\{ \rsem{A}{}{\rho'} \sepbar \rho' \in \extends{\rho}{t\mathord:\SynTransl_2} \}
   \end{array}
 \end{displaymath}
-The exact definition of $\extends{\rho}{i\mathord:\SynTransl_2}$
+The exact definition of $\extends{\rho}{t\mathord:\SynTransl_2}$
 depends on which (possibly non-compositional) interpretation of
 relational environments that we take. For now, it will suffice to
 think of relational environments as simply mappings from free
-variables to the group $\Transl_2$, and extension as just adding an
-extra component to the tuple. The general index-erasure semantics will
-be given in \autoref{sec:index-erasure-semantics}. The full relational
-interpretation is in general more complex, due to the possibility of
+variables of sort $\SynTransl_2$ to the group $\Transl_2$, and
+extension as just adding an extra component to the tuple. The general
+index-erasure semantics will be given in
+\autoref{sec:index-erasure-semantics}. The relational interpretation
+is in general more complex, due to the possibility of
 non-compositional interpretations of free index variables. The
 relational interpretation will be presented in
 \autoref{sec:relational-semantics}.
 
-Equipped with quantification over the group $\SynTransl_2$ of changes
-of origin, and the indexed types $\tyPrim{vec}{\cdot}$, we can now
-express origin invariance properties as types. In the previous
-section, we discussed functions $f : \mathbb{R}^2 \times \mathbb{R}^2
-\to \mathbb{R}^2$ that have the property that they preserve all
-changes of origin. We can now express this property as a type:
+In the previous section, we discussed functions $f : \mathbb{R}^2
+\times \mathbb{R}^2 \to \mathbb{R}^2$ that have the property that they
+preserve all changes of origin. We can now express this property as a
+type:
 \begin{displaymath}
   \mathrm{f} : \forall t \mathord: \SynTransl_2.\ \tyPrim{vec}{t} \times \tyPrim{vec}{t} \to \tyPrim{vec}{t}
 \end{displaymath}
@@ -311,9 +312,6 @@ type.
 % operations will make use of the abelian group structure of change of
 % origin translations.
 
-\fixme{Need to make clear that the point is to make use of the
-  algebraic indexing structure}
-
 Vector operations are not invariant under change of origin. The
 obvious type for vector addition is therefore:
 \begin{displaymath}
@@ -324,7 +322,7 @@ when not appearing in infix position, following the Haskell
 syntax.)
 
 However, it is possible to give vector addition a more precise type
-that describes its effect on the chosen origin. 
+that shows how it is variant with change of origin:
 \begin{displaymath}
   (+) : \forall t_1, t_2 \mathord: \SynTransl_2.\ \tyPrim{vec}{t_1} \to \tyPrim{vec}{t_2} \to \tyPrim{vec}{t_1 + t_2}
 \end{displaymath}
@@ -353,8 +351,11 @@ operation is a special case of vector subtraction:
     \mathrm{offset}\ [t]\ p_1\ p_2 = p_1 - p_2
   \end{array}
 \end{displaymath}
-The type of the vector addition operation can be specialised to the
-case of moving a point by a vector:
+Note how the type of the result of $\mathrm{offset}$ simplifies from
+$\tyPrim{vec}{t-t}$ to $\tyPrim{vec}{0}$. The algebraic structure on
+the indexing theory induces type equalities.  The type of the vector
+addition operation can be specialised to the case of moving a point by
+a vector:
 \begin{displaymath}
   \begin{array}{l}
     \mathrm{moveBy} : \forall t \mathord:\SynTransl_2.\ \tyPrim{vec}{t} \to \tyPrim{vec}{0} \to \tyPrim{vec}{t} \\
@@ -365,8 +366,8 @@ The types we assign to the remaining vector space primitives, the zero
 vector and multiplication by a scalar, do not describe any interesting
 effect on translations:
 \begin{displaymath}
-  \begin{array}{l@{\hspace{0.5em}:\hspace{0.5em}}l}
-    \mathrm{0} & \tyPrim{vec}{0}\\
+  \begin{array}{l@{\hspace{0.5em}:\hspace{0.5em}}l@{\hspace{4em}}l@{\hspace{0.5em}:\hspace{0.5em}}l}
+    \mathrm{0} & \tyPrim{vec}{0}&
     (*) & \tyPrimNm{real} \to \tyPrim{vec}{0} \to \tyPrim{vec}{0}
   \end{array}
 \end{displaymath}
@@ -374,7 +375,7 @@ effect on translations:
 % \fixme{If we had dependent types, could the affComb operation be
 %   derived from an appropriately dependently typed scaling operation?}
 
-\begin{example}
+\begin{example}\label{ex:type-iso}
   The vector space operators and the properties that follow from their
   types allow us to establish a useful type isomorphism. Consider
   functions with types following the schema:
@@ -422,13 +423,17 @@ effect on translations:
   % are isomorphic, but not uniquely isomorphic.
 \end{example}
 
-\begin{example}
-  An inexpressible type
-  \begin{displaymath}
-    \forall t \mathord: \SynTransl_2.\ \tyPrim{vec}{t + t} \to \tyPrim{vec}{t}
-  \end{displaymath}
-  FIXME: explain that it is possible to show that this type is
-  uninhabited with the given operations.
+\begin{example}\label{ex:uninhabited-type}
+  To this point we have emphasised the properties that we can deduce
+  about programs from their types, so called ``free theorems''. By
+  refining our relational interpretations of types appropriately it is
+  also possible to show that certain types are uninhabited. For
+  example, the type $\forall t \mathord: \SynTransl_2.\ \tyPrim{vec}{t
+    + t} \to \tyPrim{vec}{t}$ does not have any inhabitants. We
+  demonstrate this in \autoref{sec:types-indexed-abelian-groups}. In
+  order to obtain such a result, we require a more sophisticated
+  relational interpretation of free indexing variables than the one we
+  sketched above.
 \end{example}
 
 \subsection{Change of Basis Invariance}
@@ -441,24 +446,26 @@ methodology as we did for origin invariance, we can express basis
 invariance by means of preservation of relations indexed by changes of
 basis. Change of basis is accomplished by applying an invertible
 linear map, and the collection of all invertible linear maps on
-$\mathbb{R}^2$ forms the group $\GL_2$.
-
-\fixme{new relational interpretation of vectors}
-
+$\mathbb{R}^2$ forms the group $\GL_2$. We reflect in our language the
+group $\GL_2$ as a new indexing sort $\SynGL_2$, which has
+(non-abelian) group structure that we will write multiplicatively. We
+also extend the $\tyPrimNm{vec}$ type to be indexed by elements of
+$\SynGL_2$ as well as $\SynTransl_2$. Thus, $\tyPrim{vec}{B,t}$ is a
+vector which varies with change of basis $B$ and change of origin
+$t$. Formally, the index-erasure and (simplified) relational semantics
+of this type are as follows:
 \begin{displaymath}
   \begin{array}{l@{\hspace{0.5em}=\hspace{0.5em}}l}
     \tySem{\tyPrim{vec}{e_B,e_t}} & \mathbb{R}^2 \\
-    \rsem{\tyPrim{vec}{e_B,e_t}}{}\rho & \{ (\vec{v},\vec{v'}) \sepbar \vec{v'} = \sem{e_B}\rho\vec{v} + \sem{e_t}\rho \}
+    \rsem{\tyPrim{vec}{e_B,e_t}}{}\rho & \{ (\vec{v},\vec{v'}) \sepbar \vec{v'} = (\sem{e_B}\rho)\vec{v} + \sem{e_t}\rho \}
   \end{array}
 \end{displaymath}
 
-
-\paragraph{Affine Geometry} The combination of a change of basis
-transformation and a change of origin transformation is known as an
-\emph{affine transformation}. A way of describing affine geometry is
-as the collection of properties that are invariant under invertible
-affine transformations.
-
+\paragraph{Affine Geometry} The combination of an invertible linear
+map and a translation is an \emph{affine transformation}. We can now
+assign types to all the primitive affine and vector space operations
+that indicates how they they behave with respect to affine
+transformations:
 \begin{eqnarray*}
   \mathrm{affComb} & : &
   \begin{array}[t]{@{}l}
@@ -477,14 +484,11 @@ affine transformations.
   (*) & : & \forall B \mathord: \SynGL_2.\ \tyPrimNm{real} \to \tyPrim{vec}{B,0} \to \tyPrim{vec}{B,0}
 \end{eqnarray*}
 
-\fixme{we now have all the operations of affine geometry, along with
-  the property that they are invariant under affine transformations.}
-
 \paragraph{Euclidean Geometry} Euclidean geometry extends affine
 geometry with the operation of \emph{dot product} (also known as the
-\emph{inner product}) of two vectors, which produces a real
-number. The standard Euclidean dot product is defined on the
-coordinate representation in the following way:
+\emph{inner product}) of two vectors. The standard Euclidean dot
+product is defined on the coordinate representation in the following
+way:
 \begin{displaymath}
   (x_1,y_1) \cdot (x_2,y_2) = x_1x_2 + y_1y_2
 \end{displaymath}
@@ -493,21 +497,19 @@ coordinate representation in the following way:
 % of the length of the vector $\vec{v}$, and the notion of
 % orthogonality: two vectors $\vec{v_1}$ and $\vec{v_2}$ are orthogonal
 % if $\vec{v_1}\cdot\vec{v_2} = 0$.
-
 To incorporate the operation of dot product into our calculus, we must
-give it a type. It is not the case that the dot product is invariant
-under the action of either of the groups $\GL_2$ or $\Transl_2$ that
-we have considered so far. In fact, the dot product is invariant under
-the subgroup $\Orth_2$ of $\GL_2$ of \emph{orthogonal} linear
-transformations. The group $\Orth_2$ consists of invertible linear
-maps whose determinant is either $1$ or $-1$. We introduce orthogonal
-transformations as a new sort $\SynOrth_2$, and overload the
-multiplicative group operations syntax for inhabitants of
+assign it a type. The dot product is not invariant under the action of
+either of the groups $\GL_2$ and $\Transl_2$ that we have considered
+so far. However, the dot product is invariant under the subgroup
+$\Orth_2$ of $\GL_2$ of \emph{orthogonal} linear transformations:
+invertible linear maps whose determinant is either $1$ or $-1$. We
+introduce orthogonal transformations as a new sort $\SynOrth_2$, and
+overload the multiplicative group operations syntax for inhabitants of
 $\SynOrth_2$. We also assume a function $\iota_O$ that takes $e :
-\SynOrth_2$ to $\iota_O(e) : \SynGL_2$. We may now assign the following type
-to the dot product:
+\SynOrth_2$ to $\iota_O(e) : \SynGL_2$. We may now assign a type to
+the dot product, using quantification over $\SynOrth_2$:
 \begin{displaymath}
-  (\cdot) : \forall O \mathord: \SynOrth(2).\ \tyPrim{vec}{\iota_OO, 0} \to \tyPrim{vec}{\iota_OO, 0} \to \tyPrimNm{real}
+  (\cdot) : \forall O \mathord: \SynOrth_2.\ \tyPrim{vec}{\iota_OO, 0} \to \tyPrim{vec}{\iota_OO, 0} \to \tyPrimNm{real}
 \end{displaymath}
 
 \begin{figure}[t]
@@ -531,76 +533,79 @@ to the dot product:
 \end{figure}
 
 The cross product of two vectors is defined on coordinate
-representations as follows:
-\begin{displaymath}
-  (x_1,y_1) \times (x_2,y_2) = x_1y_2 - x_2y_1
-\end{displaymath}
+representations as $(x_1,y_1) \times (x_2,y_2) = x_1y_2 - x_2y_1$.
 Geometrically, the cross product is the signed area of the
-parallelogram described by the pair of input vectors. It turns out
-that the value of the cross product of two vectors varies with the
-determinant of the matrix describing the basis of the vector space. We
-therefore augment our calculus with a new sort $\SynGL_1$ of scale
-factors. Semantically, $\SynGL_1$ ranges over the non-zero real
-numbers and forms an abelian group, which we write
-multiplicatively. We also add two new operations: determinant, $\det
-B$, which takes an inhabitant of $\SynGL_2$ to its determinant in
-$\SynGL_1$, and the operation of absolute value that takes scaling
-factors to scaling factors which we write as $|e|$. We also refine the
-type $\tyPrimNm{real}$ of real numbers to take a parameter of sort
-$\SynGL_1$: $\tyPrim{real}{e}$, where the old type $\tyPrimNm{real}$
-is just $\tyPrim{real}{1}$. The collection of operations on real
-numbers with scaling factors is shown in \autoref{fig:real-ops}.
+parallelogram described by the pair of input vectors. Under change of
+basis by an invertible linear transformation $B$, the value of the
+cross product of two vectors varies with the determinant of $B$. This
+corresponds to the scaling of the plane by the change of basis
+transformation.
+
+We therefore augment our calculus with a new sort $\SynGL_1$ of scale
+factors (i.e.~$1$-dimensional invertible linear maps). Semantically,
+$\SynGL_1$ ranges over the non-zero real numbers and forms an abelian
+group, which we write multiplicatively. We also add two new
+operations: determinant, $\det B$, which takes an inhabitant of
+$\SynGL_2$ to its determinant in $\SynGL_1$, and the operation of
+absolute value that takes scaling factors to scaling factors which we
+write as $|e|$. We also refine the type $\tyPrimNm{real}$ of real
+numbers to be indexed by the sort $\SynGL_1$: $\tyPrim{real}{e}$,
+where the old type $\tyPrimNm{real}$ is just $\tyPrim{real}{1}$. The
+collection of operations on real numbers indexed by scaling factors is
+shown in \autoref{fig:real-ops}.
 
 With the additional sort $\SynGL_1$, and the refined type of real
-numbers, we can state the type of the cross product.
+numbers, we can assign a type to the cross product:
 \begin{displaymath}
   (\times) : \forall B \mathord: \SynGL_2.\ \tyPrim{vec}{B,0} \to \tyPrim{vec}{B,0} \to \tyPrim{real}{\det B}
 \end{displaymath}
-For orthogonal transformations $O : \Orth_2$, the absolute value of
-the determinant is always $1$, so we assume the equation $|\det
-(\iota_O O)| = 1$ to hold.
+Since the absolute value of the determinant of an orthogonal
+transformation is always $1$, we assume $|\det (\iota_O O)| = 1$ to
+hold.
 
-\begin{example}
-  Using the structure we have defined in this subsection, we can
-  define the following function that computes the area of a
-  triangle. By the type of this function, we can see that the area of
-  a triangle is invariant under orthogonal transformations and
-  arbitrary translations \fixme{i.e. isometries}.
+\begin{example}\label{ex:area-of-triangle-1}
+  Using the operations we have defined in this subsection, we can
+  compute the area of a triangle. 
+% By the type of this function, we can
+%   see that the area of a triangle is invariant under orthogonal
+%   transformations and arbitrary translations. Such transformations are
+%   known as isometries: distance preserving maps.
+  \begin{displaymath}
+    \begin{array}{@{}l}
+      \mathrm{area} : \forall B\mathord:\SynGL_2, t\mathord:\SynTransl_2.\ \\
+      \hspace{0.8cm}\tyPrim{vec}{B, t} \to \tyPrim{vec}{B, t} \to \tyPrim{vec}{B, t} \to \tyPrim{real}{|\det B|} \\
+      \mathrm{area}\ [B]\ [t]\ p_1\ p_2\ p_3 = \frac{1}{2} * \mathrm{abs}\ ((p_2 - p_1) \times (p_3 - p_1))
+    \end{array}
+  \end{displaymath}
+  The calculation is performed in several steps, each of which removes
+  some of the symmetry described by the type of
+  $\mathrm{area}$. First, the two offset vectors $p_2 - p_1$ and $p_3
+  - p_1$ are computed. These operations remove the effect of
+  translations on the result, in exactly the same way as the type
+  isomorphism we introduced in \exref{ex:type-iso}. We then compute
+  the cross product of the two vectors to determine the area of the
+  parallelogram described by the sides of the triangle. This value has
+  type $\tyPrim{real}{\det B}$, and we have removed some of the
+  symmetry due to invertible linear maps. This value still varies with
+  the sign of the determinant, so we remove this symmetry by applying
+  the $\mathrm{abs}$ function to leave us with a value of type
+  $\tyPrim{real}{|\det B|}$. Finally, we multiply by the constant
+  $\frac{1}{2}$ to recover the area of the triangle, rather than the
+  whole parallelogram.
+
+  If we specialise $\mathrm{area}$ to just orthogonal transformations,
+  we obtain the following type, as a consequence of the equation
+  $|\det (\iota_OO)| = 1$:
   \begin{displaymath}
     \begin{array}{@{}l}
       \mathrm{area} : \forall O\mathord:\SynOrth_2, t\mathord:\SynTransl_2.\ \\
-      \hspace{0.8cm}\tyPrim{vec}{\iota_OO, t} \to \tyPrim{vec}{\iota_OO, t} \to \tyPrim{vec}{\iota_OO, t} \to \tyPrim{real}{1} \\
-      \mathrm{area}\ [O]\ [t]\ p_1\ p_2\ p_3 = \frac{1}{2} * \mathrm{abs}\ ((p_2 - p_1) \times (p_3 - p_1))
+      \hspace{0.8cm}\tyPrim{vec}{\iota_OO, t} \to \tyPrim{vec}{\iota_OO, t} \to \tyPrim{vec}{\iota_OO, t} \to \tyPrim{real}{1}
     \end{array}
   \end{displaymath}
-  In the body of this function, we have performed the calculation in
-  several steps, each of which removes some of the symmetry described
-  by the type of $\mathrm{area}$. First we have computed the two
-  offset vectors $p_2 - p_1$ and $p_3 - p_1$. These operations remove
-  the effect of translations on the result, in exactly the same way as
-  the type isomorphism we demonstrated above \fixme{ref}. We then
-  compute the cross product of the two vectors to determine the area
-  of the parallelogram described by the sides of the triangle. This
-  value has type $\tyPrim{real}{\det (\iota_O O)}$. We know that the
-  determinant of an orthogonal transformation is always either $-1$ or
-  $1$, so we have a result which varies according to possible
-  reflections of the space. To remove this variation, we apply the
-  $\mathrm{abs}$ function to leave us with a value of type
-  $\tyPrim{real}{|\det (\iota_O O)|}$. This type is equal to the type
-  $\tyPrim{real}{1}$. Finally, we multiply by $\frac{1}{2}$ to recover
-  the area of the triangle, rather than the whole parallelogram.
+  This type demonstrates that the area of a triangle is invariant
+  under orthogonal transformations and translations. Such combined
+  transformations are known as isometries---distance preserving maps.
 \end{example}
-
-% \begin{enumerate}
-% \item Basis invariance
-% \item Orthogonal transform invariance for dot product
-% \item Rotational invariance (the type of the cross-product)
-% \item Scale invariance (generalisation of units of measure)
-% \end{enumerate}
-
-% In some cases, we can use the invariance as a programming tool
-% (e.g. type isomorphisms), but at others we can only use it from the
-% outside.
 
 % \begin{enumerate}
 % \item Possibly do a $n$-body gravity simulator as an example?
@@ -609,70 +614,204 @@ the determinant is always $1$, so we assume the equation $|\det
 %   rotation to a vector. This will allow for more free theorems...
 % \end{enumerate}
 
-\subsection{Scale Invariance and Dimension Analysis}
+\subsection{Scale Invariance and Dimensional Analysis}
 \label{sec:scale-invariance}
 
-\begin{enumerate}
-\item Explicitly link scale invariance to units of measure system
-\end{enumerate}
+Indexing types by scaling factors brings us to the original
+inspiration for the current work: Kennedy's interpretation of his
+units of measure type system via scaling invariance
+\cite{kennedy97relational}. Kennedy demonstrates how interpreting
+types in terms of scaling invariance brings the techniques of
+dimensional analysis \fixme{ref} to bear on programming. The types we
+have assigned to the real number arithmetic operations in
+\autoref{fig:real-ops} are exactly the types Kennedy assigns in his
+units of measure system, except for the absolute value operation. The
+effect of our assigned type is that, semantically, we are indexing by
+non-zero scaling factors, where Kennedy indexes by strictly positive
+scaling factors. We further examine the typing of the absolute value
+operation in \autoref{sec:types-indexed-abelian-groups}.
 
-Need a function $\iota_1 : \SynGL_1 \to \SynGL_2$. Such that $\det (\iota_1 s) = s^2$
+In our two-dimensional setting, we can make additions to Kennedy's
+one-dimensional scaling invariance. We add an operation $\iota_1$
+that, semantically, takes scale factors in $\GL_1$ to invertible
+linear maps in $\GL_2$: i.e.~takes numbers $s$ to matrices $\left(
+  \begin{smallmatrix}s & 0 \\ 0 & s\end{smallmatrix}\right)$.  This
+operation satisfies the equation $\det (\iota_1 s) = s^2$, indicating
+that if we scale the plane by $s$ in all directions, we scale areas by
+$s^2$. This is illustrated by the next example.
 
-\subsection{Information Flow}
+\begin{example}\label{ex:area-of-triangle-2}
+  Just as we specialised the type of $\mathrm{area}$ function to
+  orthogonal transformations in \exref{ex:area-of-triangle-1}, we can
+  also specialise $\mathrm{area}$'s type to scaling
+  transformations. This yields the type:
+  \begin{displaymath}
+    \begin{array}{@{}l}
+      \mathrm{area} : \forall s\mathord:\SynGL_1, t\mathord:\SynTransl_2.\ \\
+      \hspace{0.8cm} \tyPrim{vec}{\iota_1s, t} \to \tyPrim{vec}{\iota_1s, t} \to \tyPrim{vec}{\iota_1s, t} \to \tyPrim{real}{s^2}
+    \end{array}
+  \end{displaymath}
+  As expected, the area of a triangle varies with the square of
+  scalings of the plane, and this is reflected in the type.
+\end{example}
+
+Purely scaling linear maps, as generated by $\iota_1$, commute with
+all other invertible linear maps, and form the centre of the group
+$\GL_2$. Thus we add the equation $\iota_1(s)B = B\iota_1(s)$ to our
+calculus.
+
+If we keep track of scalings, we may assign more precise types to
+scalar multiplcation:
+\begin{displaymath}
+  (*) : \forall s \mathord: \SynGL_1, B \mathord: \SynGL_2.\ \tyPrim{real}{s} \to \tyPrim{vec}{B,0} \to \tyPrim{vec}{\iota_1(s)B,0}
+\end{displaymath}
+and dot product:
+\begin{displaymath}
+  \begin{array}{l@{}l}
+    (\cdot) : \forall s : \SynGL_1, O : \SynOrth_2.\ & \tyPrim{vec}{\iota_1(s)\iota_O(O),0} \to\\
+    &\tyPrim{vec}{\iota_1(s)\iota_O(O),0} \to \tyPrim{real}{s^2}
+  \end{array}
+\end{displaymath}
+
+\begin{example}
+  With the operations in \autoref{fig:real-ops}, it is not possible to
+  write a program with the following type that is not constantly zero:
+  \begin{displaymath}
+    \forall s : \SynGL_2.\ \tyPrim{real}{s^2} \to \tyPrim{real}{s}
+  \end{displaymath}
+  This was shown by Kennedy for his units of measure system
+  \cite{kennedy97relational}.  In particular, it is not possible to
+  write a square root function with the above type. The indefinability
+  of square root is similar to the uninhabited type from
+  \exref{ex:uninhabited-type}.
+
+  In \autoref{sec:types-indexed-abelian-groups} we revisit Kennedy's
+  proof and show that if we add square root as a primitive
+  operation---with the type above---then it is still not possible to
+  construct the cube root function.
+\end{example}
+
+\subsection{Logical Information Flow}
 \label{sec:information-flow}
 
-Blah blah blah. Need to work this out in terms of representation indepdence.
+An extreme example of invariance under change of representation is the
+tracking of information flow through programs. If a program does not
+depend upon a particular piece of information, then it will be
+invariant under \emph{all} changes of representation of this
+information. As thoroughly described by Sabelfeld and Sands
+\cite{sabelfeld01per}, information flow can be captured semantically
+through the use of partial equivalence relations (PERs). PERs form an
+instance of Reynolds' approach to abstraction and representation
+independence. Abadi, Banerjee, Heintze and Riecke \cite{abadi99core}
+built a \emph{Core Calculus for Dependency}, using a type system based
+around a security level indexed monad $T_lA$. Tse and Zdancewic
+\cite{tse04translating} showed that it is possible to translate Abadi
+et al.'s calculus into System F, translating the monadic type $T_lA$
+to $\alpha_l \to A$ for some free type variable $\alpha_l$, and making
+direct use of Reynolds' abstraction theorem to prove information flow
+properties. We now show how a refined variant of Tse and Zdancewic's
+translation can be expressed via algebraically-indexed types.
 
-\begin{enumerate}
-\item Think of information flow as passing around unforgable tokens
-  \begin{enumerate}
-  \item Give an example (given a piece of data protected by a token
-    and a token, can we extract the data?)
-  \item Need to make sure that tokens are unforgable
-  \end{enumerate}
-\item Could either enforce unforgability of tokens by some dynamic
-  means, or by static type-based means
-  \begin{enumerate}
-  \item Leave the dynamic method as vague
-  \item Ingredients of the static method: run-time tokens are just
-    dummy values ($*$), the token type is parameterised by logical
-    formulae, and the relational meaning is derived from an assignment
-    of boolean values to atoms.
-  \item Explain this as invariance under changes of satisfaction of
-    the participants. Relate to descriptions of logics as rules that
-    don't care about truth, only its preservation.
-  \end{enumerate}
-\item Cite Sabelfeld and Sands: ``A PER Model of Secure Information
-  Flow in Sequential Programs''. And also Tse and Zdancewic.
-\item Go a step further by considering equivalence relations on
-  word32, and their lattice structure. Link this to quantative
-  information flow. Will also need to include singleton types.
-\end{enumerate}
+We assume a single indexing sort $\mathsf{principal}$, intended to
+represent (possibly composite) principals in a system. Principals are
+combined using the connectives of boolean logic ($\top$, $\bot$,
+$\lor$, $\land$, $\lnot$). For the equational theory of principals, we
+assume all the axioms of boolean algebra, and semantically we
+interpret composite principals as boolean values: either true ($\top$)
+or false ($\bot$). We introduce a single primitive type, indexed by
+expressions of sort $\mathsf{principal}$, $\tyPrim{T}{e}$, with the
+following interpretations:
+\begin{displaymath}
+  \begin{array}{l@{\hspace{0.5em}=\hspace{0.5em}}l}
+    \tySem{\tyPrim{T}{e}} & \{*\} \\
+    \rsem{\tyPrim{T}{e}}{}\rho & \left\{
+      \begin{array}{ll}
+        \{(*,*)\} & \textrm{if }\sem{e}\rho = \top \\
+        \{\}      & \textrm{if }\sem{e}\rho = \bot
+      \end{array}
+      \right.
+  \end{array}
+\end{displaymath}
+The relational interpretation of $\tyPrim{T}{e}$ forces this type to
+only be inhabited when the boolean expression $e$ evaluates to true
+under the environment $\rho$. To write programs, we assume the
+following pair of primitive operations:
+\begin{eqnarray*}
+  \mathrm{proj} & : & \forall p_1 p_2\mathord:\mathsf{principal}.\ \tyPrim{T}{p_1 \land p_2} \to \tyPrim{T}{p_1} \\
+  \mathrm{combine} & : & \forall p_1 p_2\mathord:\mathsf{principal}.\ \tyPrim{T}{p_1} \to \tyPrim{T}{p_2} \to \tyPrim{T}{p_1 \land p_2}
+\end{eqnarray*}
+We can now adapt Tse and Zdancewic's translation of Abadi et al.'s
+monadic type to our setting. We define a type synonym, for each type
+$A$ and expression $e$ of sort $\mathsf{principal}$:
+\begin{displaymath}
+  T_eA = \tyPrim{T}{e} \to A
+\end{displaymath}
+For every principal $p$, we can endow the types $T_p-$ with the
+structure of a monad. This is due to the fact that it is an instance
+of the ``environment'' (or ``reader'') monad \fixme{ref}.
 
-\subsection{Basic Continuity Analysis}
+\begin{example}
+  Suppose we have a program with the following type:
+  \begin{displaymath}
+    \forall p,q\mathord:\mathsf{principal}. \tyPrim{T}{e} \to T_p(\tyPrimNm{unit} + \tyPrimNm{unit}) \to T_q(\tyPrimNm{unit} + \tyPrimNm{unit})
+  \end{displaymath}
+  where $e$ is some boolean algebra expression involving $p$ and
+  $q$. We will show in \autoref{sec:instantiations} that programs with
+  this type are non-constant (i.e.~depend on their input) if and only
+  if the formula $e \Rightarrow q \Rightarrow p$ is valid in boolean
+  logic.
+\end{example}
+
+
+% Go a step further by considering equivalence relations on word32, and
+% their lattice structure. Link this to quantative information
+% flow. Will also need to include singleton types.
+
+\subsection{Metric Spaces and Simple Continuity Analysis}
 \label{sec:continuity-analysis}
 
-Doing epsilon-delta proofs!
+Our final motivating example of algebraically indexed types and
+representation independence makes use of the metric space structure of
+the real numbers. In the geometry example, we used relational
+interpretations that related values via geometrical
+transformations. An alternative relational interpretation of the real
+numbers is to relate values that are close, in the metric space
+sense. By indexing types by a measure of closeness, we can actually
+state continuity of functions as a typing problem.
 
-Have a new sort $\mathsf{R}^{>0}$, representing positive distances
-between real numbers.
-
+We introduce an indexing sort $\mathsf{R}^{>0}$, representing positive
+distances between real numbers. Our type of real numbers is indexed by
+expressions of sort $\mathsf{R}^{>0}$, and we use the following
+index-erasure and relational interpretations:
 \begin{displaymath}
   \begin{array}{l@{\hspace{0.5em}=\hspace{0.5em}}l}
     \tySem{\tyPrim{real}{e}} & \mathbb{R} \\
     \rsem{\tyPrim{real}{e}}{}\rho & \{ (x,x') \sepbar |x-x'| < \sem{e}\rho \}
   \end{array}
 \end{displaymath}
-
-A continuous function has type:
+Thus, two real numbers are related if they only differ by the positive
+real number assigned to $e$. With this interpretation, and a
+straightforward interpretation of existential types, we can state the
+standard $\epsilon$-$\delta$ definition of continuity as a type:
 \begin{displaymath}
   \forall \epsilon \mathord: \mathsf{R}^{>0}.\ \exists \delta\mathord: \mathsf{R}^{>0}.\ \tyPrim{real}{\delta} \to \tyPrim{real}{\epsilon}
 \end{displaymath}
+Chaudhuri, Gulwani and Lublinerman \cite{chaudhuri10continuity} have
+presented a program logic based approach to verifying the continuity
+of programs. Algebraically indexed types give us a way of expressing
+and verifying continuity properties of functions in a type based way.
 
-\begin{enumerate}
-\item Need to give types to basic operations on real numbers
-\item Need to add existential types to the calculus
-\end{enumerate}
+% \begin{eqnarray*}
+%   \underline{c} & : & \forall \epsilon\mathord:\mathsf{R}^{>0}.\ \tyPrim{real}{\epsilon} \\
+%   (+) & : & \forall \epsilon_1, \epsilon_2\mathord:\mathsf{R}^{>0}.\ \tyPrim{real}{\epsilon_1} \to \tyPrim{real}{\epsilon_2} \to \tyPrim{real}{\epsilon_1 + \epsilon_2} \\
+%   (-) & : & \forall \epsilon_1, \epsilon_2\mathord:\mathsf{R}^{>0}.\ \tyPrim{real}{\epsilon_1} \to \tyPrim{real}{\epsilon_2} \to \tyPrim{real}{\epsilon_1 + \epsilon_2} \\
+%   (*) & : & \forall \epsilon_1, \epsilon_2\mathord:\mathsf{R}^{>0}.\ \tyPrim{real}{\epsilon_1} \to \tyPrim{real}{\epsilon_2} \to \tyPrim{real}{\epsilon_1\epsilon_2}
+% \end{eqnarray*}
+
+% \begin{enumerate}
+% \item Need to give types to basic operations on real numbers
+% \item Need to add existential types to the calculus
+% \end{enumerate}
 
 %%% Local Variables:
 %%% TeX-master: "paper"

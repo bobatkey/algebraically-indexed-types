@@ -1,51 +1,16 @@
 \section{A General Framework}
 \label{sec:a-general-framework}
 
-\fixme{Update this introduction}
-
-We now develop a general framework for discussing
-algebraically-indexed types and their relational interpretations. We
-have chosen a particular order for our presentation: presenting the
-semantics of types before we present the syntax of programs and their
-typing relation. We have deliberately selected this order to emphasise
-the importance of establishing what types \emph{mean} over the
-language used to write programs.
-
-We first present, in \autoref{sec:algebraically-indexed-types}, the
-syntax of the language of algebraically-indexed types. Our general
-framework is parameterised by a choice of multi-sorted algebraic
-theory to be used for indexing types, and the collections of primitive
-types and
-operations. %FIXME: refer forwards to the names of the parameters
-We define substitution of index terms, and what it means for two types
-to be equal. Equality on types is generated from the chosen
-multi-sorted algebraic theory.
-
-We next present the semantics of types in
-\autoref{sec:semantics-algebraically-indexed-types}. Types are first
-interpreted without reference to the indexing terms: the
-\emph{index-erasure} interpretation. The index-erasure interpretation
-provides an ``underlying'' semantics to each type (and term), which we
-think of as an abstraction of the actual operational behaviour of a
-term. By erasing all the index terms, we can immediately see that the
-run-time behaviour of programs cannot depend on index terms. We then
-define the \emph{relational interpretation}, which interprets every
-type as a binary relation on its index-erasure interpretation. The
-relational interpretation acts as ``commentary'' on the underlying
-interpretation, constraining the index-erasure interpretations that
-are allowed. In particular, we use the relational interpretation to
-enforce the invariance properties that we identified in
-\autoref{sec:motivating-examples}.
-
-Throughout this section, we use Kennedy's original units of measure
-system as a running example in order to provide a concrete example of
-our general framework, and also to demonstrate that we have in fact
-generalised Kennedy's original development.
+We now present a general framework for discussing
+algebraically-indexed types and representation independence. We define
+the syntax of algebraically-indexed types, then their semantics and
+finally we present a general programming language for
+algebraically-indexed types, with an abstraction theorem.
 
 \subsection{Algebraically-Indexed Types}
 \label{sec:algebraically-indexed-types}
 
-The indexing terms and types of an instantiation of our general
+The index expressions and types of an instantiation of our general
 framework are derived from the following data:
 \begin{enumerate}
 \item A collection $\SortSet$ of index sorts. We will use the
@@ -60,31 +25,67 @@ framework are derived from the following data:
   of the arguments of each primitive type.
 \end{enumerate}
 
-\begin{example}[Origin Invariance]
-  \fixme{Do this, then update the units of measure example}
+\begin{example}[Two-Dimensional Geometry]
+  The two-dimensional geometry system has a sort for each of the
+  geometric groups that we mentioned in
+  \autoref{sec:motivating-examples}. Thus, $\SortSet = \{\SynTransl_2,
+  \SynGL_2, \SynOrth_2, \SynGL_1 \}$. For the index operations, we
+  have additive group structure on $\SynTransl_2$, multiplicative
+  group structure on $\SynGL_1$, $\SynGL_2$ and $\SynOrth_2$,
+  injections from $\SynOrth_2$ and $\SynGL_1$ into $\SynGL_2$,
+  determinant and absolute value. Thus, $\IndexOpSet = \{ 0, +, -,
+  1_G, -\cdot_G-, -^{-1_G}, \iota_O, \iota_1, \det, |\cdot| \}$, where
+  $G \in \{\SynGL_1, \SynGL_2, \SynOrth_1\}$, with the following
+  assignment of arities:
+  \begin{displaymath}
+    \begin{array}{@{}l@{\hspace{0em}=\hspace{0em}}l@{\hspace{0.5em}}l@{\hspace{0em}=\hspace{0em}}l}
+      \indexOpArity(0) & ([], \SynTransl_2) &
+      \indexOpArity(1_G) & ([], G) \\
+      \indexOpArity(+) & ([\SynTransl_2, \SynTransl_2], \SynTransl_2) &
+      \indexOpArity(\cdot_G) & ([G,G],G) \\
+      \indexOpArity(-) & ([\SynTransl_2], \SynTransl_2) &
+      \indexOpArity(^{-1_G}) & ([G], G) \\
+      \indexOpArity(\iota_o) & ([\SynOrth_2], \SynGL_2) &
+      \indexOpArity(\iota_1) & ([\SynGL_1], \SynGL_2) \\
+      \indexOpArity(\det) & ([\SynGL_2], \SynGL_1) &
+      \indexOpArity(|\cdot|) & ([\SynGL_1], \SynGL_1)
+    \end{array}
+  \end{displaymath}
+  The intended interpretations of the top three pairs of operations
+  are group unit, group combination and group negation,
+  respectively. When we introduce equational theories for index
+  expressions in \autoref{sec:type-equality} below, we will impose the
+  (abelian) group laws. For this example, we have $\PrimTypeSet = \{
+  \tyPrimNm{vec}, \tyPrimNm{real} \}$, with
+  $\primTyArity(\tyPrimNm{vec}) = [\SynGL_2, \SynTransl_2]$ and
+  $\primTyArity(\tyPrimNm{real}) = [\SynGL_1]$.
 \end{example}
 
-\begin{example}[Units of Measure]
-  To instantiate our general framework as Kennedy's original units
-  of measure system, we would take the following settings. For the
-  collection of sorts we take $\SortSet = \{ \mathsf{unit} \}$. For
-  the collection of index operations, we take $\mathit{IndexOp} = \{1,
-  -\cdot-, -^{-1}\}$, with:
-  \begin{eqnarray*}
-    \indexOpArity{(1)} &=& ([],\mathsf{unit}) \\
-    \indexOpArity{(-\cdot-)} & = & ([\mathsf{unit},\mathsf{unit}],\mathsf{unit}) \\
-    \indexOpArity{(-^{-1})} & = & ([\mathsf{unit}],\mathsf{unit})
-  \end{eqnarray*}
-  The intended interpretation of these operations is group unit, group
-  multiplication and group inverse, respectively. When we discuss
-  equational theories for index expressions in
-  \autoref{sec:type-equality} below, we will impose the abelian group
-  laws on these operations.
+% \begin{example}[Logical Information Flow]
+%   \fixme{Do this}
+% \end{example}
 
-  The primitive types for the units of measure example are taken to be
-  $\PrimTypeSet = \{ \mathsf{num} \}$, with
-  $\primTyArity(\mathsf{num}) = [\mathsf{unit}]$.
-\end{example}
+% \begin{example}[Units of Measure]
+%   To instantiate our general framework as Kennedy's original units
+%   of measure system, we would take the following settings. For the
+%   collection of sorts we take $\SortSet = \{ \mathsf{unit} \}$. For
+%   the collection of index operations, we take $\mathit{IndexOp} = \{1,
+%   -\cdot-, -^{-1}\}$, with:
+%   \begin{eqnarray*}
+%     \indexOpArity{(1)} &=& ([],\mathsf{unit}) \\
+%     \indexOpArity{(-\cdot-)} & = & ([\mathsf{unit},\mathsf{unit}],\mathsf{unit}) \\
+%     \indexOpArity{(-^{-1})} & = & ([\mathsf{unit}],\mathsf{unit})
+%   \end{eqnarray*}
+%   The intended interpretation of these operations is group unit, group
+%   multiplication and group inverse, respectively. When we discuss
+%   equational theories for index expressions in
+%   \autoref{sec:type-equality} below, we will impose the abelian group
+%   laws on these operations.
+
+%   The primitive types for the units of measure example are taken to be
+%   $\PrimTypeSet = \{ \mathsf{num} \}$, with
+%   $\primTyArity(\mathsf{num}) = [\mathsf{unit}]$.
+% \end{example}
 
 We assume a countably infinite collection of index variable names $i,
 i_1, i_2,$ and so on. \emph{Index contexts} $\Delta = i_1 \mathord:
@@ -148,60 +149,52 @@ distinct.
 \end{figure*}
 
 Given the above data, the rules in \autoref{fig:indexes-and-types}
-generate two judgements: well-sorted index terms $\Delta \vdash e : s$
-and well-indexed types $\Delta \vdash A \isType$. Since index
+generate two judgements: well-sorted index expressions $\Delta \vdash
+e : s$ and well-indexed types $\Delta \vdash A \isType$. Since index
 variables may appear in types, types are judged to be well-indexed
 with respect to an index context $\Delta$. The rules for well-sorted
-index terms are particularly simple: either an index term is a
-variable that appears in the context (rule \TirName{IVar}), or it is
-an application of an index operation taken from $\IndexOpSet$ to other
-index terms (rule \TirName{IOp}). The rules for well-indexed types
-include the usual rules for constructing types of the simply-typed
-$\lambda$-calculus with unit, sum and tuple types (rules
-\TirName{TyUnit}, \TirName{TyArr}, \TirName{TyTuple} and
+index expressions are particularly simple: either an index expression
+is a variable that appears in the context (rule \TirName{IVar}), or it
+is an application of an index operation taken from $\IndexOpSet$ to
+other index expressions (rule \TirName{IOp}). The rules for
+well-indexed types include the usual rules for constructing types of
+the simply-typed $\lambda$-calculus with unit, sum and tuple types
+(rules \TirName{TyUnit}, \TirName{TyArr}, \TirName{TyTuple} and
 \TirName{TySum}). The rule \TirName{TyPrim} allows us to form, from a
-a primitive type $\tyPrimNm{X}$ and appropriately sorted index terms
-$e_1,...,e_n$, the well-indexed type $\tyPrim{X}{e_1,...,e_n}$. The
-rule \TirName{TyForall} permits the formation of universally
-quantified types, where the universal quantification ranges over all
-index terms of some sort.
+a primitive type $\tyPrimNm{X}$ and appropriately sorted index
+expressions $e_1,...,e_n$, the well-indexed type
+$\tyPrim{X}{e_1,...,e_n}$. The rule \TirName{TyForall} permits the
+formation of universally quantified types, where the universal
+quantification ranges over all index expressions of some sort.
 
-\subsubsection{Simultaneous Substitutions of Index Terms}
+\subsubsection{Simultaneous Substitution of Index Expressions}
 \label{sec:simultaneous-substitution}
 
 It will be technically convenient to express substitution of index
-terms in our framework in terms of simultaneous substitutions.  Given
-a pair of index contexts $\Delta$ and $\Delta' = i_1 \mathord: s_1,
-..., i_n \mathord: s_n$, a \emph{simultaneous substitution} $\Delta
-\vdash \sigma \Rightarrow \Delta'$ is a sequence of terms $\sigma =
-(e_1,...,e_n)$ such that for each $j$ such that $1 \leq j \leq n$,
-$\Delta \vdash e_j : s_j$. Given a simultaneous substitution $\Delta
-\vdash \sigma = (e_1,...,e_n) \Rightarrow \Delta'$ and a variable $i_j
-\mathord: s_j$ in $\Delta'$, we write $\sigma(i_j)$ for the index term
-$e_j$.
+expressions in our framework in terms of simultaneous substitutions.
+Given a pair of index contexts $\Delta$ and $\Delta' = i_1 \mathord:
+s_1, ..., i_n \mathord: s_n$, a \emph{simultaneous substitution}
+$\Delta \vdash \sigma \Rightarrow \Delta'$ is a sequence of
+expressions $\sigma = (e_1,...,e_n)$ such that for each $1 \leq j \leq
+n$, $\Delta \vdash e_j : s_j$. Given a simultaneous substitution
+$\Delta \vdash \sigma = (e_1,...,e_n) \Rightarrow \Delta'$ and a
+variable $i_j \mathord: s_j$ in $\Delta'$, we write $\sigma(i_j)$ for
+the index expression $e_j$.
+
+It will be useful to think of any sequence of sorts as an index
+context. In particular, we will make use of simultaneous substitutions
+of the form $\Delta \vdash \sigma \Rightarrow
+\primTyArity(\tyPrimNm{X})$, since these are exactly sequences of
+index arguments suitable for the primitive type $\tyPrimNm{X}$.
 
 We write $\Delta \Rightarrow \Delta'$ for the set of all simultaneous
 substitutions $\sigma$ such that $\Delta \vdash \sigma \Rightarrow
-\Delta'$. When we discuss the relational interpretation of types
-below, it will be useful to think of any sequence of sorts as an index
-context. \fixme{flesh this out}
-
-Given a context $\Delta = i_1\mathord:s_1,...,i_n\mathord:s_n$, and a
-variable/type pair $i\mathord:s$ such that $i$ does not appear in
-$\Delta$, we define the \emph{projection} simultaneous substitution
-$\pi_{i\mathord:s} : \Delta,i\mathord:s \Rightarrow \Delta$ as
-$\pi_{i\mathord:s} = (i_1,...,i_n)$. The subscript on
-$\pi_{i\mathord:s}$ is the variable/type pair that is being discarded.
-
-For a simultaneous substitution $\Delta \vdash \sigma \Rightarrow
-\Delta'$ where $\Delta' = i_1\mathord:s_1,...,i_n\mathord:s_n$ and a
-variable/type pair $i\mathord:s$ such that $i$ does not appear in
-either $\Delta$ or $\Delta'$, then we can form the \emph{lifted}
-simultaneous substitution $\Delta,i\mathord:s \vdash
-\sigma_{i\mathord:s} = (\sigma(i_1), ..., \sigma(i_n), i) \Rightarrow
-\Delta',i\mathord:s$. Note that we have implicity used the fact that
-well-sortedness of index terms is preserved by addition of extra items
-to the context.
+\Delta'$. The \emph{identity} simultaneous substitution $\Delta \vdash
+\id_\Delta \Rightarrow \Delta$ is just the sequence of variables in
+$\Delta$: $\id_\Delta = (i_1,...,i_n)$ where $\Delta =
+i_1\mathord:s_1,...,i_n\mathord:s_n$. We will also define composition
+of simultaneous substitutions below, but first we must define the
+application of a simultaneous substitutions to index expressions.
 
 Application of a simultaneous substitution $\Delta \vdash \sigma
 \Rightarrow \Delta'$ to a well-sorted index expression $\Delta' \vdash
@@ -246,16 +239,31 @@ The \emph{composition} of two simultaneous substitutions $\Delta
 as $\Delta \vdash \sigma' \circ \sigma \isDefinedAs (\sigma^*e'_1,
 ..., \sigma^*e'_n) \Rightarrow \Delta''$.
 
-\subsubsection{Index Term Equality and Type Equality}
+Given a context $\Delta = i_1\mathord:s_1,...,i_n\mathord:s_n$, and a
+variable/type pair $i\mathord:s$ such that $i$ does not appear in
+$\Delta$, we define the \emph{projection} simultaneous substitution
+$\pi_{i\mathord:s} : \Delta,i\mathord:s \Rightarrow \Delta$ as
+$\pi_{i\mathord:s} = (i_1,...,i_n)$. The subscript on
+$\pi_{i\mathord:s}$ is the variable/type pair that is being discarded.
+
+For a simultaneous substitution $\Delta \vdash \sigma \Rightarrow
+\Delta'$ where $\Delta' = i_1\mathord:s_1,...,i_n\mathord:s_n$ and a
+variable/type pair $i\mathord:s$ such that $i$ does not appear in
+either $\Delta$ or $\Delta'$, then we can form the \emph{lifted}
+simultaneous substitution $\Delta,i\mathord:s \vdash
+\sigma_{i\mathord:s} = (\sigma(i_1), ..., \sigma(i_n), i) \Rightarrow
+\Delta',i\mathord:s$. Note that we have implicity used the fact that
+well-sortedness of index expressions is preserved by addition of extra
+items to the context.
+
+\subsubsection{Index Expression Equality and Type Equality}
 \label{sec:type-equality}
 
-\fixme{Consider updating this example} Much of the power of indexing
-types by the terms of an algebraic theory comes from the equations of
-the theory, and the fact that these equations are inherited by the
-types. In the units of measure example, the well-indexed types
-$\tyPrim{X}{u_1\cdot u_2}$ and $\tyPrim{X}{u_2 \cdot u_1}$ are
-considered equal by the type system, due to the commutativity of the
-$-\cdot-$ operation in the theory of abelian groups.
+Much of the power of indexing types by the expressions of an algebraic
+theory comes from the equations of the theory. In the two-dimensional
+geometry example, the types $\tyPrim{vec}{B,t_1 + t_2}$ and
+$\tyPrim{vec}{B, t_2 + t_1}$ are considered equal by the type system,
+due to the commutativity of the $+$ operation.
 
 In the general framework, the equations between types are derived from
 a set $\IndexAxiomSet$ of axioms $\Delta \vdash e \stackrel{ax}\equiv
@@ -264,8 +272,8 @@ e' : s$. We assume that all axioms $(\Delta \vdash e
 meaning that both $\Delta \vdash e : s$ and $\Delta \vdash e' : s$.
 
 Given a set $\IndexAxiomSet$ of axioms, we generate the judgmental
-equality between index terms $\Delta \vdash e \equiv e' : s$ by the
-following rules, which allow us to use substitution instances of
+equality between index expressions $\Delta \vdash e \equiv e' : s$ by
+the following rules, which allow us to use substitution instances of
 axioms, and ensure that judgmental equality is a congruence relation
 with respect to the index operations in $\IndexOpSet$:
 \begin{mathpar}
@@ -281,29 +289,53 @@ with respect to the index operations in $\IndexOpSet$:
 We also assume the standard reflexivity, symmetry and transitivity
 rules for the judgmental equality.
 
-\begin{example}[Origin Invariance]
-  FIXME
-\end{example}
-
-\begin{example}[Units of Measure]
-  For the units of measure system, seen as an instantiation of our
-  general framework, the set $\IndexAxiomSet$ consists of the abelian
-  group axioms:
+\begin{example}[Two-Dimensional Geometry]
+  Translations form an abelian group under addition, so we assume the
+  abelian group axioms for translations:
   \begin{displaymath}
     \begin{array}{l}
-      u : \mathsf{unit} \vdash u \cdot 1 \stackrel{ax}\equiv u : \mathsf{unit} \\
-      u_1, u_2, u_3 : \mathsf{unit} \vdash u_1 \cdot (u_2 \cdot u_3) \stackrel{ax}\equiv (u_1 \cdot u_2) \cdot u_3 : \mathsf{unit} \\
-      u_1, u_2 : \mathsf{unit} \vdash u_1 \cdot u_2 \stackrel{ax}\equiv u_2 \cdot u_1 : \mathsf{unit} \\
-      u : \mathsf{unit} \vdash u \cdot u^{-1} \stackrel{ax}\equiv 1 : \mathsf{unit} \\
+      t : \SynTransl_2 \vdash t + 1 \stackrel{ax}\equiv t : \SynTransl_2 \\
+      t_1, t_2, t_3 : \SynTransl_2 \vdash t_1 + (t_2 + t_3) \stackrel{ax}\equiv (t_1 + t_2) + t_3 : \SynTransl_2 \\
+      t : \SynTransl_2 \vdash t + (-t) \stackrel{ax}\equiv 1 : \SynTransl_2 \\
+      t_1, t_2 : \SynTransl_2 \vdash t_1 + t_2 \stackrel{ax}\equiv t_2 + t_1 : \SynTransl_2 \\
     \end{array}
   \end{displaymath}
+  Similarly, the sort of scale factors $\SynGL_1$ forms an abelian
+  group under multiplication, and the sorts $\SynGL_2$ and
+  $\SynOrth_2$ form (non-abelian) multiplicative groups, so we assume
+  the appropriate axioms. We also assume that the operations $\iota_O,
+  \iota_1, \det$ and $|\cdot|$ are group homomorphisms, and that
+  expressions of the form $\iota_1(s)$ commute with group
+  multiplication in the sort $\SynGL_2$. The absolute value of the
+  determinant of orthgonal transformations is always $1$, so we also
+  assume $|\det(\iota_OO)| \stackrel{ax}\equiv 1$. Likewise, scaling
+  maps have a determined determinant: $\det(\iota_1(s))
+  \stackrel{ax}\equiv s \cdot s$.
 \end{example}
 
+% \begin{example}[Logical Information Flow]
+%   \fixme{Do this}
+% \end{example}
+
+% \begin{example}[Units of Measure]
+%   For the units of measure system, seen as an instantiation of our
+%   general framework, the set $\IndexAxiomSet$ consists of the abelian
+%   group axioms:
+%   \begin{displaymath}
+%     \begin{array}{l}
+%       u : \mathsf{unit} \vdash u \cdot 1 \stackrel{ax}\equiv u : \mathsf{unit} \\
+%       u_1, u_2, u_3 : \mathsf{unit} \vdash u_1 \cdot (u_2 \cdot u_3) \stackrel{ax}\equiv (u_1 \cdot u_2) \cdot u_3 : \mathsf{unit} \\
+%       u_1, u_2 : \mathsf{unit} \vdash u_1 \cdot u_2 \stackrel{ax}\equiv u_2 \cdot u_1 : \mathsf{unit} \\
+%       u : \mathsf{unit} \vdash u \cdot u^{-1} \stackrel{ax}\equiv 1 : \mathsf{unit} \\
+%     \end{array}
+%   \end{displaymath}
+% \end{example}
+
 The judgmental equality $\Delta \vdash e \equiv e' : s$ on index
-terms generates the judgmental equality $\Delta \vdash A \equiv B
-\isType$ on types. The basic rule generating judgmental equality on
+expressions generates the judgmental equality $\Delta \vdash A \equiv
+B \isType$ on types. The basic rule generating judgmental equality on
 types states that two applications of primitive types are equal if
-their index term arguments are equal:
+their index expression arguments are equal:
 \begin{displaymath}
   \inferrule*
   {\{ \Delta \vdash e_j \equiv e'_j : s_j\}_{1\leq j \leq n}}
@@ -312,17 +344,16 @@ their index term arguments are equal:
 The rest of the rules for judgmental equality on types ensure that it
 is a congruence relation on types, and that it is an equivalence
 relation (i.e.~judgmental equality on types is reflexive, symmetric
-and transitive). For example, for universally quantified types we have
-the following congruence rule:
-\begin{displaymath}
-  \inferrule*
-  {\Delta, i : s \vdash A \equiv B \isType}
-  {\Delta \vdash \forall i\mathord:s.A \equiv \forall i\mathord:s.B \isType}
-\end{displaymath}
-The congruence rules for the other type formers are similar.
+and transitive).
+% For example, for universally quantified types we have
+% the following congruence rule:
+% \begin{displaymath}
+%   \inferrule*
+%   {\Delta, i : s \vdash A \equiv B \isType}
+%   {\Delta \vdash \forall i\mathord:s.A \equiv \forall i\mathord:s.B \isType}
+% \end{displaymath}
+% The congruence rules for the other type formers are similar.
 
-The judgmental equalities on index terms and on types are preserved by
-substitution:
 \begin{lemma}
   Let $\Delta \vdash \sigma \Rightarrow \Delta'$ be a simultaneous
   substitution.
@@ -334,10 +365,10 @@ substitution:
   \end{enumerate}
 \end{lemma}
 
-We define a pair of simultaneous substitutions $\sigma, \sigma' :
-\Delta \Rightarrow \Delta'$ to be judgmentally equal if their
-component terms are judgmentally equal in the context $\Delta$: i.e.~
-if $\Delta \vdash e_j \equiv e'_j : s_j$, for all $j$. We write
+A pair of simultaneous substitutions $\Delta \vdash \sigma, \sigma'
+\Rightarrow \Delta'$ are defined to be judgmentally equal if their
+component expressions are judgmentally equal in the context $\Delta$:
+i.e.~ if $\Delta \vdash e_j \equiv e'_j : s_j$, for all $j$. We write
 $\Delta \vdash \sigma \equiv \sigma' \Rightarrow \Delta'$ when two
 simultaneous substitutions are judgmentally equal.
 
@@ -366,13 +397,13 @@ interpretation of types.
 The defining feature of the index erasure interpretation is that the
 semantics of a well-indexed type $\tyPrim{X}{e_1,...,e_n}$ is
 determined solely by the primitive type $\tyPrimNm{X}$ and not by the
-index terms $e_1,...,e_n$. Accordingly, we assume that each primitive
-type $\tyPrimNm{X} \in \PrimTypeSet$ is assigned a set
+index expressions $e_1,...,e_n$. Accordingly, we assume that each
+primitive type $\tyPrimNm{X} \in \PrimTypeSet$ is assigned a set
 $\tyPrimSem{\tyPrimNm{X}}$. We extend this assignment to every
 well-indexed type by induction on the type structure:
 \begin{displaymath}
-  \begin{array}{@{\hspace{0.2em}}c@{\hspace{0em}}c}
-    \begin{array}{l}
+  \begin{array}{@{\hspace{0em}}c@{\hspace{0em}}c}
+    \begin{array}{@{}l}
       \tySem{\tyUnit} \isDefinedAs \{*\} \\
       \tySem{A \tyProduct B} \isDefinedAs \tySem{A} \times \tySem{B} \\
       \tySem{A \tyArr B} \isDefinedAs \tySem{A} \to \tySem{B} \\
@@ -392,18 +423,6 @@ universal quantifier ignores the indexing: the interpretation of the
 type $\forall i\mathord:s.A$ is exactly the interpretation of the type
 $A$.
 
-\begin{example}[Origin Invariance]
-  \fixme{do this}
-\end{example}
-
-\begin{example}[Units of Measure] Kennedy's original units of measure
-  system seen as an instantiation of our system uses the assignment
-  $\tyPrimSem{\mathsf{unit}} \isDefinedAs \mathbb{Q}$, where
-  $\mathbb{Q}$ is the set of rational numbers.
-
-  FIXME: Also do the primitive operations
-\end{example}
-
 % The index-erasure interpretation completely ignores index expressions
 % and type equality is defined as an extension of index
 % equality. Therefore, it is straightforward to prove that equal types
@@ -419,6 +438,16 @@ $A$.
   \end{enumerate}
 \end{lemma}
 
+\begin{example}[Two-Dimensional Geometry]
+  The two-dimensional geometry instantiation of the general framework
+  uses the assignment $\tyPrimSem{\tyPrimNm{vec}} = \mathbb{R}^2$ and
+  $\tyPrimSem{\tyPrimNm{real}} = \mathbb{R}$.
+\end{example}
+
+% \begin{example}[Logical Information Flow]
+%   \fixme{do this}
+% \end{example}
+
 \subsubsection{The Relational Interpretation of Types}
 \label{sec:relational-semantics}
 
@@ -432,7 +461,7 @@ relational interpretation as a standard logical relation. The
 relational interpretations of primitive types with index arguments and
 the universally quantified types requires an interpretation of index
 contexts. We assign interpretations to index contexts in terms of
-\emph{relational environments}, which we now define. \fixme{Backwards ref}
+\emph{relational environments}, which we now define.
 
 A relation environment for a context $\Delta$ is a
 (dependently typed) function that, for each primitive type
@@ -442,13 +471,13 @@ interpretation of $\tyPrimNm{X}$:
 \begin{displaymath}
   \rho : (\tyPrimNm{X} \in \PrimTypeSet) \to (\Delta \Rightarrow \primTyArity(\tyPrimNm{X})) \to \Rel(\tyPrimSem{\tyPrimNm{X}})
 \end{displaymath}
-Every relation environment must respect index term equality: for any
-$\tyPrimNm{X} \in \PrimTypeSet$ and pair of simultaneous substitutions
-$\Delta \vdash \sigma \Rightarrow \primTyArity(\tyPrimNm{X})$ and
-$\Delta \vdash \sigma' \Rightarrow \primTyArity(\tyPrimNm{X})$ such
-that $\Delta \vdash \sigma \equiv \sigma' \Rightarrow
-\primTyArity(\tyPrimNm{X})$, then $\rho\ \tyPrimNm{X}\ \sigma = \rho\
-\tyPrimNm{X}\ \sigma'$.
+Every relation environment must respect index expression equality: for
+any $\tyPrimNm{X} \in \PrimTypeSet$ and pair of simultaneous
+substitutions $\Delta \vdash \sigma \Rightarrow
+\primTyArity(\tyPrimNm{X})$ and $\Delta \vdash \sigma' \Rightarrow
+\primTyArity(\tyPrimNm{X})$ such that $\Delta \vdash \sigma \equiv
+\sigma' \Rightarrow \primTyArity(\tyPrimNm{X})$, then $\rho\
+\tyPrimNm{X}\ \sigma = \rho\ \tyPrimNm{X}\ \sigma'$.
 
 % FIXME: an example?
 
@@ -477,9 +506,9 @@ defined in terms of $\relEnv{E}(\Delta_1)$ and
 $\relEnv{E}(\Delta_2)$. However, it must satisfy the following two
 properties:
 \begin{enumerate}
-\item Closure under simultaneous substitution of index terms: if $\rho
-  \in \relEnv{E}(\Delta)$ and $\Delta' \vdash \sigma \Rightarrow
-  \Delta$, then $\rho \circ \sigma \in \relEnv{E}(\Delta')$.
+\item Closure under simultaneous substitutions: if $\rho \in
+  \relEnv{E}(\Delta)$ and $\Delta' \vdash \sigma \Rightarrow \Delta$,
+  then $\rho \circ \sigma \in \relEnv{E}(\Delta')$.
 \item If we have a pair of relation environments $\rho_1 \in
   \relEnv{E}(\Delta', i\mathord:s')$ and $\rho_2 \in
   \relEnv{E}(\Delta)$, along with an simultaneous substitution $\sigma
@@ -488,9 +517,6 @@ properties:
   \in \relEnv{E}(\Delta, i\mathord:s')$ such that $\rho \circ
   \sigma_{i\mathord:s'} = \rho_1$ and $\rho \circ \pi_{i\mathord:s'} =
   \rho_2$.
-
-
-
   % such that the outer edges of the
   % following diagram commute, for all primitive types $\tyPrimNm{X} \in
   % \mathit{PrimType}$:
@@ -520,25 +546,32 @@ properties:
 
 Both of these conditions ensure that the relational interpretation of
 types that we define below behaves correctly with respect to
-simultaneous substitution of index terms
-(\lemref{lem:tyeqsubst-relational}, below). The second condition may
-seem mysterious at first, but it is essential for proving that the
-relational interpretation of universal quantification types behaves
-correctly with respect to application of simultaneous substitution.
+simultaneous substitution of index expressions
+(\lemref{lem:tyeqsubst-relational}, below).
 
-\begin{example}[Units of Measure]
-  We give two examples of assignments of sets of relational
-  environments to index contexts in the units of measure example. The
-  second example is a refinment of the first. FIXME: some general
-  words about relational environments in these cases.
-  \begin{enumerate}
-  \item FIXME: assign a positive scaling factor to each variable in an
-    index context, extend homomorphically to all index terms, and then
-    use this to define a scaling relation
-  \item FIXME: given an index context, assume a subgroup and a
-    homomorphism into the scaling factors
-  \end{enumerate}
-\end{example}
+% The second condition may
+% seem mysterious at first, but it is essential for proving that the
+% relational interpretation of universal quantification types behaves
+% correctly with respect to application of simultaneous substitution.
+
+% \begin{example}
+%   The construction of relational environments is the most subtle part
+%   of our development. \fixme{complete this part}
+% \end{example}
+
+% \begin{example}[Units of Measure]
+%   We give two examples of assignments of sets of relational
+%   environments to index contexts in the units of measure example. The
+%   second example is a refinment of the first. FIXME: some general
+%   words about relational environments in these cases.
+%   \begin{enumerate}
+%   \item FIXME: assign a positive scaling factor to each variable in an
+%     index context, extend homomorphically to all index expressions,
+%     and then use this to define a scaling relation
+%   \item FIXME: given an index context, assume a subgroup and a
+%     homomorphism into the scaling factors
+%   \end{enumerate}
+% \end{example}
 
 Given a relation environment $\rho \in \relEnv{E}(\Delta)$, we define
 the set of extensions $\extends{\rho}{i\mathord:s}$ of $\rho$ by an
@@ -571,25 +604,27 @@ constructions on binary relations. If $R \in \Rel(X)$ and $S \in
 $\{ (\mathrm{inl}\ x, \mathrm{inl}\ x') \sepbar (x,x') \in R \} \cup
 \{ (\mathrm{inr}\ y, \mathrm{inr}\ y') \sepbar (y,y') \in S \}$.
 
-The following lemma states that the relation interpretation of types
-that we have defined in this section behaves well: the first part of
-the lemma states that two types that are judgmentally equal are given
-equal relational interpretations, and the second part states that
-substitution of index terms in types can be interpreted by the
-composition of relational environments with simultaneous
-substitutions. Note that both parts of the lemma depend on
-\lemref{lem:tyeqsubst-erasure} to be ``well-typed''.
+% The following lemma states that the relation interpretation of types
+% that we have defined in this section behaves well: the first part of
+% the lemma states that two types that are judgmentally equal are given
+% equal relational interpretations, and the second part states that
+% substitution of index expressions in types can be interpreted by the
+% composition of relational environments with simultaneous
+% substitutions.
 \begin{lemma}\label{lem:tyeqsubst-relational}
   \begin{enumerate}
   \item If $\Delta \vdash A \equiv B \isType$, then for all $\rho \in
     \relEnv{E}(\Delta)$, $\rsem{A}{\relEnv{E}}{\rho} =
     \rsem{B}{\relEnv{E}}{\rho}$;
-  \item If $\Delta' \vdash A \isType$ and $\sigma : \Delta \Rightarrow
-    \Delta'$, then for all $\rho \in \relEnv{E}(\Delta)$,
+  \item If $\Delta' \vdash A \isType$ and $\Delta \vdash \sigma
+    \Rightarrow \Delta'$, then for all $\rho \in \relEnv{E}(\Delta)$,
     $\rsem{\sigma^*A}{\relEnv{E}}\rho = \rsem{A}{\relEnv{E}}(\rho
     \circ \sigma)$.
   \end{enumerate}
 \end{lemma}
+
+Note that both parts of \lemref{lem:tyeqsubst-relational} depend on
+\lemref{lem:tyeqsubst-erasure} to be ``well-typed''.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -605,9 +640,7 @@ semantics of types we defined in
 (\thmref{thm:abstraction}) is that the index-erasure semantics of
 every well-typed program is related to itself in the relational
 interpretation of its type: this is the abstraction theorem for every
-calculus in our general framework. In the \fixme{next section} we will
-use this theorem to derive several interesting results about the
-programs expressible in instances of our general framework.
+calculus in our general framework.
 
 Well-typed programs are defined with respect to well-indexed typing
 contexts, which are in turn defined with respect to an index
@@ -628,12 +661,12 @@ following two rules:
 Application of simultaneous substitutions extends to typing contexts
 by applying the simultaneous substitution to each type.
 
-The typing rules for our system define the well-typed terms with
+The typing rules for our system define the well-typed programs with
 respect to an index context $\Delta$ and a type context $\Delta \vdash
 \Gamma \isCtxt$. The judgment $\Delta; \Gamma \vdash M : A$ is defined
 in \autoref{fig:programs}. The equational theory on types is
 incorporated into the type system via the rule \TirName{TyEq}, which
-allows for a term that is judged to have type $A$ to also have any
+allows for a program that is judged to have type $A$ to also have any
 other equal type $B$.
 \begin{figure*}[t]
   \centering
@@ -713,7 +746,7 @@ $\ctxtSem{\epsilon} = \{*\}$ and $\ctxtSem{\Gamma, x : A} =
 function $\tmSem{e} : \ctxtSem{\Gamma} \to \tySem{A}$, completely
 ignoring the indexing information. In light of
 \lemref{lem:tyeqsubst-erasure}, we define this function directly on
-the syntax of well-typed terms, rather than on the typing
+the syntax of well-typed programs, rather than on the typing
 derivations. We define $\tmSem{e}$ by the following clauses:
 \begin{displaymath}
   \begin{array}{@{\hspace{0em}}l@{\hspace{0.5em}}c@{\hspace{0.5em}}l}
@@ -749,18 +782,21 @@ corresponding to the variable $x$ in the context.
 \label{sec:abstraction-theorem}
 
 We now state and prove the abstraction theorem for well-typed programs
-in our system. To state and prove this theorem for open terms, we
+in our system. To state and prove this theorem for open programs, we
 first need to extend the relational interpretation of types to typing
 contexts. The relational interpretation of contexts is defined by the
-following clauses, where we have used the pairing operation
-$-\relTimes-$ defined in \autoref{sec:relational-semantics}.
-\begin{eqnarray*}
-  \rsem{\epsilon}{\relEnv{E}}{\rho} & \isDefinedAs & \{(*,*)\} \\
-  \rsem{\Gamma, x : A}{\relEnv{E}}{\rho} & \isDefinedAs & \rsem{\Gamma}{\relEnv{E}}\rho \relTimes \rsem{A}{\relEnv{E}}\rho
-\end{eqnarray*}
-The relational interpretation of contexts inherits from the relational
-interpretation of types the property of interpreting the application
-of simultaneous substitutions as composition:
+following clauses, where we have used the relational lifting of
+cartesian product $-\relTimes-$ defined in
+\autoref{sec:relational-semantics}.
+\begin{displaymath}
+  \begin{array}{@{}l@{\hspace{0.1em}\isDefinedAs\hspace{0.1em}}l@{\hspace{1.5em}}l@{\hspace{0.1em}\isDefinedAs\hspace{0.1em}}l}
+    \rsem{\epsilon}{\relEnv{E}}{\rho} & \{(*,*)\} &
+    \rsem{\Gamma, x : A}{\relEnv{E}}{\rho} & \rsem{\Gamma}{\relEnv{E}}\rho \relTimes \rsem{A}{\relEnv{E}}\rho
+  \end{array}
+\end{displaymath}
+% The relational interpretation of contexts inherits from the relational
+% interpretation of types the property of interpreting the application
+% of simultaneous substitutions as composition:
 \begin{lemma}\label{lem:ctxtsubst-rel}
   If $\Delta \vdash' \Gamma \isCtxt$ and $\sigma : \Delta \Rightarrow
   \Delta'$, then for all $\rho \in \relEnv{E}(\Delta)$,

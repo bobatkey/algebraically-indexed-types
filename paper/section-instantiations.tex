@@ -1,20 +1,51 @@
 \section{Consequences of the Abstraction Theorem}
 \label{sec:instantiations}
 
+\fixme{explain the general setup, with a set of operations for each
+  instantiation.}
+
+\subsection{Theorems for Free}
+\label{sec:theorems-for-free}
+
+Wadler's influential ``Theorems for Free!''  \cite{wadler89theorems}
+emphasised a particular aspect of Reynolds' theory of relational
+parametricity: the fact that we can read off theorems about a program
+simply by looking at the relational interpretation of its type. We now
+state some free theorems that are derivable in each of the three main
+examples we introduced in \autoref{sec:motivating-examples}.
+
+\subsubsection{Two-Dimensional Geometry}
+\label{sec:geometry-consequences}
+
+(In)variance properties
+
+\subsubsection{Logical Information Flow}
+\label{sec:information-flow-consequences}
+
+Non-interference properties
+
+\subsubsection{Metric Spaces}
+\label{sec:metric-space-consequences}
+
+Continuity via $\epsilon$-$\delta$ proofs.
+
+\subsection{Types Indexed by Abelian Groups}
+\label{sec:types-indexed-abelian-groups}
+
 \begin{enumerate}
-\item Basic free theorems
-  \begin{enumerate}
-  \item Invariance under change of origin, change of basis (different
-    types)
-  \end{enumerate}
-\item Group-indexed types (origin invariance, rotation invariance,
-  scaling invariance)
-  \begin{enumerate}
-  \item Definability results
-  \item Type isomorphisms based on Smith Normal Form
-  \end{enumerate}
-\item Non-interference results in the information flow example.
+\item Two cases: when we have a total ``division'' operation, and when
+  we don't.
+\item Type isomorphisms, based on Smith Normal Form
+\item Non-definability results, based on the non-compositional
+  relational environments
+\item Alteration of the non-definability results in the light of
+  addition of a square root operation
+\item Mention the variation we can obtain by changing some types,
+  e.g. the type of $\mathrm{abs}$. Also, the complex numbers example.
 \end{enumerate}
+
+
+
 
 %%% Local Variables:
 %%% TeX-master: "paper"
