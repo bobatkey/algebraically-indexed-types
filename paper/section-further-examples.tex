@@ -1,0 +1,124 @@
+\section{Further Examples}
+\label{sec:further-examples}
+
+\subsection{Logical Information Flow}
+\label{sec:information-flow}
+
+An extreme example of invariance under change of representation is the
+tracking of information flow through programs. If a program does not
+depend upon a particular piece of information, then it will be
+invariant under \emph{all} changes of representation of this
+information. As thoroughly described by Sabelfeld and Sands
+\cite{sabelfeld01per}, information flow can be captured semantically
+through the use of partial equivalence relations (PERs). PERs form an
+instance of Reynolds' approach to abstraction and representation
+independence. Abadi, Banerjee, Heintze and Riecke \cite{abadi99core}
+built a \emph{Core Calculus for Dependency}, using a type system based
+around a security level indexed monad $T_lA$. Tse and Zdancewic
+\cite{tse04translating} showed that it is possible to translate Abadi
+et al.'s calculus into System F, translating the monadic type $T_lA$
+to $\alpha_l \to A$ for some free type variable $\alpha_l$, and making
+direct use of Reynolds' abstraction theorem to prove information flow
+properties. We now show how a refined variant of Tse and Zdancewic's
+translation can be expressed via algebraically-indexed types.
+
+We assume a single indexing sort $\mathsf{principal}$, intended to
+represent (possibly composite) principals in a system. Principals are
+combined using the connectives of boolean logic ($\top$, $\bot$,
+$\lor$, $\land$, $\lnot$). For the equational theory of principals, we
+assume all the axioms of boolean algebra, and semantically we
+interpret composite principals as boolean values: either true ($\top$)
+or false ($\bot$). We introduce a single primitive type, indexed by
+expressions of sort $\mathsf{principal}$, $\tyPrim{T}{e}$, with the
+following interpretations:
+\begin{displaymath}
+  \begin{array}{l@{\hspace{0.5em}=\hspace{0.5em}}l}
+    \tySem{\tyPrim{T}{e}} & \{*\} \\
+    \rsem{\tyPrim{T}{e}}{}\rho & \left\{
+      \begin{array}{ll}
+        \{(*,*)\} & \textrm{if }\sem{e}\rho = \top \\
+        \{\}      & \textrm{if }\sem{e}\rho = \bot
+      \end{array}
+      \right.
+  \end{array}
+\end{displaymath}
+The relational interpretation of $\tyPrim{T}{e}$ forces this type to
+only be inhabited when the boolean expression $e$ evaluates to true
+under the environment $\rho$. To write programs, we assume the
+following pair of primitive operations:
+\begin{eqnarray*}
+  \mathrm{proj} & : & \forall p, q\mathord:\mathsf{principal}.\ \tyPrim{T}{p \land q} \to \tyPrim{T}{p} \\
+  \mathrm{combine} & : & \forall p, q\mathord:\mathsf{principal}.\ \tyPrim{T}{p} \to \tyPrim{T}{q} \to \tyPrim{T}{p \land q}
+\end{eqnarray*}
+We can now adapt Tse and Zdancewic's translation of Abadi et al.'s
+monadic type to our setting. We define a type synonym, for each type
+$A$ and expression $e$ of sort $\mathsf{principal}$:
+\begin{displaymath}
+  T_eA = \tyPrim{T}{e} \to A
+\end{displaymath}
+For every principal $e$, we can endow the types $T_e-$ with the
+structure of a monad. This is due to the fact that it is an instance
+of the ``environment'' (or ``reader'') monad \cite{jones95functional}.
+
+\begin{example}
+  Suppose we have a program with the following type:
+  \begin{displaymath}
+    \forall p,q\mathord:\mathsf{principal}. \tyPrim{T}{e} \to T_p(\tyPrimNm{unit} + \tyPrimNm{unit}) \to T_q(\tyPrimNm{unit} + \tyPrimNm{unit})
+  \end{displaymath}
+  where $e$ is some boolean algebra expression involving $p$ and
+  $q$. We will show in \autoref{sec:instantiations} that programs with
+  this type are non-constant (i.e.~depend on their input) if and only
+  if the formula $e \Rightarrow q \Rightarrow p$ is valid in boolean
+  logic.
+\end{example}
+
+
+% Go a step further by considering equivalence relations on word32, and
+% their lattice structure. Link this to quantative information
+% flow. Will also need to include singleton types.
+
+\subsection{Metric Spaces and Simple Continuity Analysis}
+\label{sec:continuity-analysis}
+
+Our final motivating example of algebraically indexed types and
+representation independence makes use of the metric space structure of
+the real numbers. In the geometry example, we used relational
+interpretations that related values via geometrical
+transformations. An alternative relational interpretation of the real
+numbers is to relate values that are close, in the metric space
+sense. By indexing types by a measure of closeness, we can actually
+state continuity of functions as a typing problem.
+
+We introduce an indexing sort $\mathsf{R}^{>0}$, representing positive
+distances between real numbers. Our type of real numbers is indexed by
+expressions of sort $\mathsf{R}^{>0}$, and we use the following
+index-erasure and relational interpretations:
+\begin{displaymath}
+  \begin{array}{l@{\hspace{0.5em}=\hspace{0.5em}}l}
+    \tySem{\tyPrim{real}{e}} & \mathbb{R} \\
+    \rsem{\tyPrim{real}{e}}{}\rho & \{ (x,x') \sepbar |x-x'| < \sem{e}\rho \}
+  \end{array}
+\end{displaymath}
+Thus, two real numbers are related if they only differ by the positive
+real number assigned to $e$. With this interpretation, and a
+straightforward interpretation of existential types, we can state the
+standard $\epsilon$-$\delta$ definition of continuity as a type:
+\begin{displaymath}
+  \forall \epsilon \mathord: \mathsf{R}^{>0}.\ \exists \delta\mathord: \mathsf{R}^{>0}.\ \tyPrim{real}{\delta} \to \tyPrim{real}{\epsilon}
+\end{displaymath}
+Chaudhuri, Gulwani and Lublinerman \cite{chaudhuri10continuity} have
+presented a program logic based approach to verifying the continuity
+of programs. Algebraically indexed types give us a way of expressing
+and verifying continuity properties of functions in a type based way.
+
+% \begin{eqnarray*}
+%   \underline{c} & : & \forall \epsilon\mathord:\mathsf{R}^{>0}.\ \tyPrim{real}{\epsilon} \\
+%   (+) & : & \forall \epsilon_1, \epsilon_2\mathord:\mathsf{R}^{>0}.\ \tyPrim{real}{\epsilon_1} \to \tyPrim{real}{\epsilon_2} \to \tyPrim{real}{\epsilon_1 + \epsilon_2} \\
+%   (-) & : & \forall \epsilon_1, \epsilon_2\mathord:\mathsf{R}^{>0}.\ \tyPrim{real}{\epsilon_1} \to \tyPrim{real}{\epsilon_2} \to \tyPrim{real}{\epsilon_1 + \epsilon_2} \\
+%   (*) & : & \forall \epsilon_1, \epsilon_2\mathord:\mathsf{R}^{>0}.\ \tyPrim{real}{\epsilon_1} \to \tyPrim{real}{\epsilon_2} \to \tyPrim{real}{\epsilon_1\epsilon_2}
+% \end{eqnarray*}
+
+
+%%% Local Variables:
+%%% TeX-master: "paper"
+%%% End:
