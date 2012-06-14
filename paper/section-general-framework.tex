@@ -28,27 +28,27 @@ framework are derived from the following data:
 \begin{example}[Two-Dimensional Geometry]
   The two-dimensional geometry system has a sort for each of the
   geometric groups that we mentioned in
-  \autoref{sec:motivating-examples}. Thus, $\SortSet = \{\SynTransl_2,
-  \SynGL_2, \SynOrth_2, \SynGL_1 \}$. For the index operations, we
-  have additive group structure on $\SynTransl_2$, multiplicative
-  group structure on $\SynGL_1$, $\SynGL_2$ and $\SynOrth_2$,
-  injections from $\SynOrth_2$ and $\SynGL_1$ into $\SynGL_2$,
+  \autoref{sec:motivating-examples}. Thus, $\SortSet = \{\SynTransl{2},
+  \SynGL{2}, \SynOrth{2}, \SynGL{1} \}$. For the index operations, we
+  have additive group structure on $\SynTransl{2}$, multiplicative
+  group structure on $\SynGL{1}$, $\SynGL{2}$ and $\SynOrth{2}$,
+  injections from $\SynOrth{2}$ and $\SynGL{1}$ into $\SynGL{2}$,
   determinant and absolute value. Thus, $\IndexOpSet = \{ 0, +, -,
   1_G, -\cdot_G-, -^{-1_G}, \iota_O, \iota_1, \det, |\cdot| \}$, where
-  $G \in \{\SynGL_1, \SynGL_2, \SynOrth_1\}$, with the following
+  $G \in \{\SynGL{1}, \SynGL{2}, \SynOrth{2}\}$, with the following
   assignment of arities:
   \begin{displaymath}
     \begin{array}{@{}l@{\hspace{0em}=\hspace{0em}}l@{\hspace{0.5em}}l@{\hspace{0em}=\hspace{0em}}l}
-      \indexOpArity(0) & ([], \SynTransl_2) &
+      \indexOpArity(0) & ([], \SynTransl{2}) &
       \indexOpArity(1_G) & ([], G) \\
-      \indexOpArity(+) & ([\SynTransl_2, \SynTransl_2], \SynTransl_2) &
+      \indexOpArity(+) & ([\SynTransl{2}, \SynTransl{2}], \SynTransl{2}) &
       \indexOpArity(\cdot_G) & ([G,G],G) \\
-      \indexOpArity(-) & ([\SynTransl_2], \SynTransl_2) &
+      \indexOpArity(-) & ([\SynTransl{2}], \SynTransl{2}) &
       \indexOpArity(^{-1_G}) & ([G], G) \\
-      \indexOpArity(\iota_o) & ([\SynOrth_2], \SynGL_2) &
-      \indexOpArity(\iota_1) & ([\SynGL_1], \SynGL_2) \\
-      \indexOpArity(\det) & ([\SynGL_2], \SynGL_1) &
-      \indexOpArity(|\cdot|) & ([\SynGL_1], \SynGL_1)
+      \indexOpArity(\iota_o) & ([\SynOrth{2}], \SynGL{2}) &
+      \indexOpArity(\iota_1) & ([\SynGL{1}], \SynGL{2}) \\
+      \indexOpArity(\det) & ([\SynGL{2}], \SynGL{1}) &
+      \indexOpArity(|\cdot|) & ([\SynGL{1}], \SynGL{1})
     \end{array}
   \end{displaymath}
   The intended interpretations of the top three pairs of operations
@@ -57,8 +57,8 @@ framework are derived from the following data:
   expressions in \autoref{sec:type-equality} below, we will impose the
   (abelian) group laws. For this example, we have $\PrimTypeSet = \{
   \tyPrimNm{vec}, \tyPrimNm{real} \}$, with
-  $\primTyArity(\tyPrimNm{vec}) = [\SynGL_2, \SynTransl_2]$ and
-  $\primTyArity(\tyPrimNm{real}) = [\SynGL_1]$.
+  $\primTyArity(\tyPrimNm{vec}) = [\SynGL{2}, \SynTransl{2}]$ and
+  $\primTyArity(\tyPrimNm{real}) = [\SynGL{1}]$.
 \end{example}
 
 % \begin{example}[Logical Information Flow]
@@ -302,19 +302,19 @@ rules for the judgmental equality.
   abelian group axioms for translations:
   \begin{displaymath}
     \begin{array}{l}
-      t : \SynTransl_2 \vdash t + 1 \stackrel{ax}\equiv t : \SynTransl_2 \\
-      t_1, t_2, t_3 : \SynTransl_2 \vdash t_1 + (t_2 + t_3) \stackrel{ax}\equiv (t_1 + t_2) + t_3 : \SynTransl_2 \\
-      t : \SynTransl_2 \vdash t + (-t) \stackrel{ax}\equiv 1 : \SynTransl_2 \\
-      t_1, t_2 : \SynTransl_2 \vdash t_1 + t_2 \stackrel{ax}\equiv t_2 + t_1 : \SynTransl_2 \\
+      t : \SynTransl{2} \vdash t + 1 \stackrel{ax}\equiv t : \SynTransl{2} \\
+      t_1, t_2, t_3 : \SynTransl{2} \vdash t_1 + (t_2 + t_3) \stackrel{ax}\equiv (t_1 + t_2) + t_3 : \SynTransl{2} \\
+      t : \SynTransl{2} \vdash t + (-t) \stackrel{ax}\equiv 1 : \SynTransl{2} \\
+      t_1, t_2 : \SynTransl{2} \vdash t_1 + t_2 \stackrel{ax}\equiv t_2 + t_1 : \SynTransl{2} \\
     \end{array}
   \end{displaymath}
-  Similarly, the sort of scale factors $\SynGL_1$ forms an abelian
-  group under multiplication, and the sorts $\SynGL_2$ and
-  $\SynOrth_2$ form (non-abelian) multiplicative groups, so we assume
+  Similarly, the sort of scale factors $\SynGL{1}$ forms an abelian
+  group under multiplication, and the sorts $\SynGL{2}$ and
+  $\SynOrth{2}$ form (non-abelian) multiplicative groups, so we assume
   the appropriate axioms. We also assume that the operations $\iota_O,
   \iota_1, \det$ and $|\cdot|$ are group homomorphisms, and that
   expressions of the form $\iota_1(s)$ commute with group
-  multiplication in the sort $\SynGL_2$. The absolute value of the
+  multiplication in the sort $\SynGL{2}$. The absolute value of the
   determinant of orthgonal transformations is always $1$, so we also
   assume $|\det(\iota_OO)| \stackrel{ax}\equiv 1$. Likewise, scaling
   maps have a determined determinant: $\det(\iota_1(s))

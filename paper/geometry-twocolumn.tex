@@ -70,11 +70,11 @@ which is indexed by changes of origin. Changes of origin are
 represented by vectors in $\mathbb{R}^2$, and form a group under
 addition. To emphasise the group structure, and the intended meaning
 as translations, we write the collection of all change of origin
-offsets as $\Transl_2$. By quantifying over all changes of origin we
+offsets as $\Transl{2}$. By quantifying over all changes of origin we
 will be able to ensure that our programs are invariant with respect to
 the particular choice of origin. The members of the
-$\Transl_2$-indexed family of binary relations $\{ R_{\vec{t}}
-\subseteq \mathbb{R}^2 \times \mathbb{R}^2 \}_{\vec{t} \in \Transl_2}$
+$\Transl{2}$-indexed family of binary relations $\{ R_{\vec{t}}
+\subseteq \mathbb{R}^2 \times \mathbb{R}^2 \}_{\vec{t} \in \Transl{2}}$
 are defined as follows:
 \begin{displaymath}
   R_{\vec{t}} = \{ (\vec{v}, \vec{v'}) \sepbar \vec{v'} = \vec{v} + \vec{t} \}
@@ -85,7 +85,7 @@ $\mathbb{R}^2$ and returns a single tuple in $\mathbb{R}^2$. We intend
 that all these tuples represent points with respect to the same
 origin, but that the function itself should be invariant with respect
 to the choice of origin. We use Reynolds' idea of preservation of
-relations to formalise this: for any $\vec{t} \in \Transl_2$ (i.e.~any
+relations to formalise this: for any $\vec{t} \in \Transl{2}$ (i.e.~any
 change of origin), the function $f$ should satisfy the following
 statement:
 \begin{equation}\label{eq:f-preserve-rel-frame}
@@ -93,7 +93,7 @@ statement:
 \end{equation}
 Unfolding the definition of $R_{\vec{t}}$, this statement is
 equivalent to the following statement expressing invariance of $f$
-with respect to changes of origin: for all $\vec{t} \in \Transl_2$:
+with respect to changes of origin: for all $\vec{t} \in \Transl{2}$:
 \begin{equation}\label{eq:f-invariant-frame}
   \forall \vec{v_1}, \vec{v_2}.\ f(\vec{v_1} + \vec{t},\vec{v_2} + \vec{t}) = f(\vec{v_1},\vec{v_2}) + \vec{t}.
 \end{equation}
@@ -175,13 +175,13 @@ did not quantify over all relations. Instead, we quantified over all
 changes of origin and used the choice to select a relation from the
 family $\{R_{\vec{t}}\}$. Driven by this observation, we introduce
 quantification over changes of origin into the language of types.  We
-use the notation $\forall t \mathord: \SynTransl_2. A$ for
+use the notation $\forall t \mathord: \SynTransl{2}. A$ for
 quantification over all 2-dimensional translations (i.e.~choices of
-origin) $t$. We refer to $\SynTransl_2$ as the \emph{sort} of
+origin) $t$. We refer to $\SynTransl{2}$ as the \emph{sort} of
 $t$. Note that we have used a different font to distinguish the
-semantic group $\Transl_2$ from the syntactic sort $\SynTransl_2$.
+semantic group $\Transl{2}$ from the syntactic sort $\SynTransl{2}$.
 
-The sort $\SynTransl_2$ represents an abelian group, so we can combine
+The sort $\SynTransl{2}$ represents an abelian group, so we can combine
 its elements using the usual group operations. We write operations
 additively, using $e_1 + e_2$ for the group operation, $-e$ for
 inverse and $0$ for the unit.  We also regard expressions built from
@@ -203,19 +203,19 @@ and hence two elements of $\tyPrimNm{real} \times \tyPrimNm{real}$
 will be related if and only if they are equal, by Reynolds' definition
 of the relational interpretation of tuple types.) Therefore, we
 introduce a new type parameterised by expressions $e$ of sort
-$\SynTransl_2$ to represent points \emph{and} vectors:
+$\SynTransl{2}$ to represent points \emph{and} vectors:
 $\tyPrim{vec}{e}$. We have used the name $\tyPrimNm{vec}$, even though
 we have taken pains to separate geometric points and vectors, to
 recall the computer science notion of vector as a sequence of values
 of homogeneous type which has a known length (in this case two).
 
 We now sketch the interpretation of the types $\tyPrim{vec}{e}$ and
-$\forall t\mathord:\SynTransl_2.A$. In our calculus, each type has two
+$\forall t\mathord:\SynTransl{2}.A$. In our calculus, each type has two
 interpretations: an index-erasure interpretation that ignores the
 indexing expression $e$, and a relational interpretation as a binary
 relation on the index-erasure interpretation. For now, we assume we
-are given some way of turning an expression $e$ of sort $\SynTransl_2$
-into an actual element $\sem{e}\rho$ of the group $\Transl_2$, under
+are given some way of turning an expression $e$ of sort $\SynTransl{2}$
+into an actual element $\sem{e}\rho$ of the group $\Transl{2}$, under
 some environment $\rho$ which tells how to interpret the free
 variables. The (simplified) index-erasure and relation interpretations
 of the types $\tyPrim{vec}{e}$ are:
@@ -226,21 +226,21 @@ of the types $\tyPrim{vec}{e}$ are:
   \end{array}
 \end{displaymath}
 The index-erasure interpetation of universal quantification $\forall
-t\mathord:\SynTransl_2.A$ is simply the interpretation of the
+t\mathord:\SynTransl{2}.A$ is simply the interpretation of the
 underlying type $A$. The relational interpretation intersects the
 relational interpretations of the type $A$ under all extensions of the
 relational environment $\rho$:
 \begin{displaymath}
   \begin{array}{l@{\hspace{0.5em}=\hspace{0.5em}}l}
-    \tySem{\forall t\mathord:\SynTransl_2.A} & \tySem{A} \\
-    \rsem{\forall t\mathord:\SynTransl_2.A}{}\rho & \bigcap\{ \rsem{A}{}{\rho'} \sepbar \rho' \in \extends{\rho}{t\mathord:\SynTransl_2} \}
+    \tySem{\forall t\mathord:\SynTransl{2}.A} & \tySem{A} \\
+    \rsem{\forall t\mathord:\SynTransl{2}.A}{}\rho & \bigcap\{ \rsem{A}{}{\rho'} \sepbar \rho' \in \extends{\rho}{t\mathord:\SynTransl{2}} \}
   \end{array}
 \end{displaymath}
-The exact definition of $\extends{\rho}{t\mathord:\SynTransl_2}$
+The exact definition of $\extends{\rho}{t\mathord:\SynTransl{2}}$
 depends on which (possibly non-compositional) interpretation of
 relational environments that we take. For now, it will suffice to
 think of relational environments as simply mappings from free
-variables of sort $\SynTransl_2$ to the group $\Transl_2$, and
+variables of sort $\SynTransl{2}$ to the group $\Transl{2}$, and
 extension as just adding an extra component to the tuple. The general
 index-erasure semantics will be given in
 \autoref{sec:index-erasure-semantics}. The relational interpretation
@@ -254,7 +254,7 @@ In the previous section, we discussed functions $f : \mathbb{R}^2
 preserve all changes of origin. We can now express this property as a
 type:
 \begin{displaymath}
-  \mathrm{f} : \forall t \mathord: \SynTransl_2.\ \tyPrim{vec}{t} \times \tyPrim{vec}{t} \to \tyPrim{vec}{t}
+  \mathrm{f} : \forall t \mathord: \SynTransl{2}.\ \tyPrim{vec}{t} \times \tyPrim{vec}{t} \to \tyPrim{vec}{t}
 \end{displaymath}
 Spelling out the relational interpretation of this type using the
 definitions above (and the standard relational interpretations for
@@ -273,7 +273,7 @@ $\vec{v_1}$ and $\vec{v_2}$. We add affine combination of points to
 our calculus, with the following typing and intended denotation:
 \begin{displaymath}
   \begin{array}{l}
-    \mathrm{affComb} :\forall t \mathord: \SynTransl_2.\ \tyPrim{vec}{t} \to \tyPrimNm{real} \to \tyPrim{vec}{t} \to \tyPrim{vec}{t} \\
+    \mathrm{affComb} :\forall t \mathord: \SynTransl{2}.\ \tyPrim{vec}{t} \to \tyPrimNm{real} \to \tyPrim{vec}{t} \to \tyPrim{vec}{t} \\
     \sem{\mathrm{affComb}}\ \vec{v_1}\ r\ \vec{v_2} = (1-r)\vec{v_1} + r\vec{v_2}
   \end{array}
 \end{displaymath}
@@ -292,7 +292,7 @@ type.
   Casteljau's algorithm:
   \begin{displaymath}
     \begin{array}{@{}l}
-      \mathrm{quadB\acute{e}zier} : \forall t \mathord:\SynTransl_2.\ \tyPrim{vec}{t} \to \tyPrim{vec}{t} \to \tyPrim{vec}{t} \to \tyPrimNm{real} \to \tyPrim{vec}{t} \\
+      \mathrm{quadB\acute{e}zier} : \forall t \mathord:\SynTransl{2}.\ \tyPrim{vec}{t} \to \tyPrim{vec}{t} \to \tyPrim{vec}{t} \to \tyPrimNm{real} \to \tyPrim{vec}{t} \\
       \mathrm{quadB\acute{e}zier}\ [t]\ p_0\ p_1\ p_2\ s = \\
       \quad \mathrm{affComb}\ [t]\ (\mathrm{affComb}\ [t]\ p_0\ s\ p_1)\ s\ (\mathrm{affComb}\ [t]\ p_1\ s\ p_2) \\
     \end{array}
@@ -324,18 +324,18 @@ syntax.)
 However, it is possible to give vector addition a more precise type
 that shows how it is variant with change of origin:
 \begin{displaymath}
-  (+) : \forall t_1, t_2 \mathord: \SynTransl_2.\ \tyPrim{vec}{t_1} \to \tyPrim{vec}{t_2} \to \tyPrim{vec}{t_1 + t_2}
+  (+) : \forall t_1, t_2 \mathord: \SynTransl{2}.\ \tyPrim{vec}{t_1} \to \tyPrim{vec}{t_2} \to \tyPrim{vec}{t_1 + t_2}
 \end{displaymath}
 We can also negate vectors, yielding a vector which points in the
 opposite direction. Negation negates translation arguments:
 \begin{displaymath}
-  \mathrm{negate} : \forall t \mathord: \SynTransl_2.\ \tyPrim{vec}{t} \to \tyPrim{vec}{-t}
+  \mathrm{negate} : \forall t \mathord: \SynTransl{2}.\ \tyPrim{vec}{t} \to \tyPrim{vec}{-t}
 \end{displaymath}
 With the primitive operations of addition and negation of vectors, we
 can define the derived operation of subtraction:
 \begin{displaymath}
   \begin{array}{l}
-    (-) : \forall t_1,t_2 \mathord:\SynTransl_2.\ \tyPrim{vec}{t_1} \to \tyPrim{vec}{t_2} \to \tyPrim{vec}{t_1 - t_2} \\
+    (-) : \forall t_1,t_2 \mathord:\SynTransl{2}.\ \tyPrim{vec}{t_1} \to \tyPrim{vec}{t_2} \to \tyPrim{vec}{t_1 - t_2} \\
     (-)\ [t_1]\ [t_2]\ p_1\ p_2 = p_1 + \mathrm{negate}\ p_2
   \end{array}
 \end{displaymath}
@@ -347,7 +347,7 @@ expressed with respect to the null change of origin. The offset
 operation is a special case of vector subtraction:
 \begin{displaymath}
   \begin{array}{l}
-    \mathrm{offset} : \forall t \mathord:\SynTransl_2.\ \tyPrim{vec}{t} \to \tyPrim{vec}{t} \to \tyPrim{vec}{0} \\
+    \mathrm{offset} : \forall t \mathord:\SynTransl{2}.\ \tyPrim{vec}{t} \to \tyPrim{vec}{t} \to \tyPrim{vec}{0} \\
     \mathrm{offset}\ [t]\ p_1\ p_2 = p_1 - p_2
   \end{array}
 \end{displaymath}
@@ -358,7 +358,7 @@ addition operation can be specialised to the case of moving a point by
 a vector:
 \begin{displaymath}
   \begin{array}{l}
-    \mathrm{moveBy} : \forall t \mathord:\SynTransl_2.\ \tyPrim{vec}{t} \to \tyPrim{vec}{0} \to \tyPrim{vec}{t} \\
+    \mathrm{moveBy} : \forall t \mathord:\SynTransl{2}.\ \tyPrim{vec}{t} \to \tyPrim{vec}{0} \to \tyPrim{vec}{t} \\
     \mathrm{moveBy}\ [t]\ p\ v = p + v
   \end{array}
 \end{displaymath}
@@ -380,11 +380,11 @@ effect on translations:
   types allow us to establish a useful type isomorphism. Consider
   functions with types following the schema:
   \begin{displaymath}
-    \tau_{n} \isDefinedAs \forall t\mathord:\SynTransl_2.\ \underbrace{\tyPrim{vec}{t} \to ... \tyPrim{vec}{t}}_{n+1\textrm{ times}} \to \tyPrimNm{real}
+    \tau_{n} \isDefinedAs \forall t\mathord:\SynTransl{2}.\ \underbrace{\tyPrim{vec}{t} \to ... \tyPrim{vec}{t}}_{n+1\textrm{ times}} \to \tyPrimNm{real}
   \end{displaymath}
   Just by looking at the types $\tau_{n}$, we know that their
   inhabitants will be invariant under change of origin, due to the
-  quantification over all $t$ in $\SynTransl_2$. Therefore, we may as well pick
+  quantification over all $t$ in $\SynTransl{2}$. Therefore, we may as well pick
   one of the input points as the origin and assume that all the other
   points are defined with respect to this chosen origin. This is
   similar to the common mathematical step of stating that, ``without
@@ -428,7 +428,7 @@ effect on translations:
   about programs from their types, so called ``free theorems''. By
   refining our relational interpretations of types appropriately it is
   also possible to show that certain types are uninhabited. For
-  example, the type $\forall t \mathord: \SynTransl_2.\ \tyPrim{vec}{t
+  example, the type $\forall t \mathord: \SynTransl{2}.\ \tyPrim{vec}{t
     + t} \to \tyPrim{vec}{t}$ does not have any inhabitants. We
   demonstrate this in \autoref{sec:types-indexed-abelian-groups}. In
   order to obtain such a result, we require a more sophisticated
@@ -446,11 +446,11 @@ methodology as we did for origin invariance, we can express basis
 invariance by means of preservation of relations indexed by changes of
 basis. Change of basis is accomplished by applying an invertible
 linear map, and the collection of all invertible linear maps on
-$\mathbb{R}^2$ forms the group $\GL_2$. We reflect in our language the
-group $\GL_2$ as a new indexing sort $\SynGL_2$, which has
+$\mathbb{R}^2$ forms the group $\GL{2}$. We reflect in our language the
+group $\GL{2}$ as a new indexing sort $\SynGL{2}$, which has
 (non-abelian) group structure that we will write multiplicatively. We
 also extend the $\tyPrimNm{vec}$ type to be indexed by elements of
-$\SynGL_2$ as well as $\SynTransl_2$. Thus, $\tyPrim{vec}{B,t}$ is a
+$\SynGL{2}$ as well as $\SynTransl{2}$. Thus, $\tyPrim{vec}{B,t}$ is a
 vector which varies with change of basis $B$ and change of origin
 $t$. Formally, the index-erasure and (simplified) relational semantics
 of this type are as follows:
@@ -469,19 +469,19 @@ transformations:
 \begin{eqnarray*}
   \mathrm{affComb} & : &
   \begin{array}[t]{@{}l}
-    \forall B \mathord: \SynGL_2, t \mathord: \SynTransl_2.\\
+    \forall B \mathord: \SynGL{2}, t \mathord: \SynTransl{2}.\\
     \hspace{0.2cm} \tyPrim{vec}{B,t} \to \tyPrimNm{real} \to \tyPrim{vec}{B,t} \to \tyPrim{vec}{B,t}
   \end{array}
   \\
   (+) & : &
   \begin{array}[t]{@{}l}
-    \forall B \mathord: \SynGL_2, t_1,t_2 \mathord: \SynTransl_2. \\
+    \forall B \mathord: \SynGL{2}, t_1,t_2 \mathord: \SynTransl{2}. \\
     \hspace{0.2cm}\tyPrim{vec}{B,t_1} \to \tyPrim{vec}{B,t_2} \to \tyPrim{vec}{B,t_1 + t_2}
   \end{array}
   \\
-  \mathrm{negate} & : & \forall B \mathord: \SynGL_2, t \mathord: \SynTransl_2.\ \tyPrim{vec}{B,t} \to \tyPrim{vec}{B,-t} \\
-  0 & : & \forall B \mathord: \SynGL_2.\ \tyPrim{vec}{B,0} \\
-  (*) & : & \forall B \mathord: \SynGL_2.\ \tyPrimNm{real} \to \tyPrim{vec}{B,0} \to \tyPrim{vec}{B,0}
+  \mathrm{negate} & : & \forall B \mathord: \SynGL{2}, t \mathord: \SynTransl{2}.\ \tyPrim{vec}{B,t} \to \tyPrim{vec}{B,-t} \\
+  0 & : & \forall B \mathord: \SynGL{2}.\ \tyPrim{vec}{B,0} \\
+  (*) & : & \forall B \mathord: \SynGL{2}.\ \tyPrimNm{real} \to \tyPrim{vec}{B,0} \to \tyPrim{vec}{B,0}
 \end{eqnarray*}
 
 \paragraph{Euclidean Geometry} Euclidean geometry extends affine
@@ -499,33 +499,33 @@ way:
 % if $\vec{v_1}\cdot\vec{v_2} = 0$.
 To incorporate the operation of dot product into our calculus, we must
 assign it a type. The dot product is not invariant under the action of
-either of the groups $\GL_2$ and $\Transl_2$ that we have considered
+either of the groups $\GL{2}$ and $\Transl{2}$ that we have considered
 so far. However, the dot product is invariant under the subgroup
-$\Orth_2$ of $\GL_2$ of \emph{orthogonal} linear transformations:
+$\Orth{2}$ of $\GL{2}$ of \emph{orthogonal} linear transformations:
 invertible linear maps whose determinant is either $1$ or $-1$. We
-introduce orthogonal transformations as a new sort $\SynOrth_2$, and
+introduce orthogonal transformations as a new sort $\SynOrth{2}$, and
 overload the multiplicative group operations syntax for inhabitants of
-$\SynOrth_2$. We also assume a function $\iota_O$ that takes $e :
-\SynOrth_2$ to $\iota_O(e) : \SynGL_2$. We may now assign a type to
-the dot product, using quantification over $\SynOrth_2$:
+$\SynOrth{2}$. We also assume a function $\iota_O$ that takes $e :
+\SynOrth{2}$ to $\iota_O(e) : \SynGL{2}$. We may now assign a type to
+the dot product, using quantification over $\SynOrth{2}$:
 \begin{displaymath}
-  (\cdot) : \forall O \mathord: \SynOrth_2.\ \tyPrim{vec}{\iota_OO, 0} \to \tyPrim{vec}{\iota_OO, 0} \to \tyPrimNm{real}
+  (\cdot) : \forall O \mathord: \SynOrth{2}.\ \tyPrim{vec}{\iota_OO, 0} \to \tyPrim{vec}{\iota_OO, 0} \to \tyPrimNm{real}
 \end{displaymath}
 
 \begin{figure}[t]
   \centering
   \begin{eqnarray*}
-    0   &:& \forall s \mathord:\SynGL_1.\ \tyPrim{real}{s} \\
+    0   &:& \forall s \mathord:\SynGL{1}.\ \tyPrim{real}{s} \\
     1   &:& \tyPrim{real}{1} \\
-    (+) &:& \forall s \mathord:\SynGL_1.\ \tyPrim{real}{s} \to \tyPrim{real}{s} \to \tyPrim{real}{s} \\
-    (-) &:& \forall s \mathord:\SynGL_1.\ \tyPrim{real}{s} \to \tyPrim{real}{s} \to \tyPrim{real}{s} \\
-    (*) &:& \forall s_1,s_2 \mathord:\SynGL_1.\ \tyPrim{real}{s_1} \to \tyPrim{real}{s_2} \to \tyPrim{real}{s_1s_2} \\
+    (+) &:& \forall s \mathord:\SynGL{1}.\ \tyPrim{real}{s} \to \tyPrim{real}{s} \to \tyPrim{real}{s} \\
+    (-) &:& \forall s \mathord:\SynGL{1}.\ \tyPrim{real}{s} \to \tyPrim{real}{s} \to \tyPrim{real}{s} \\
+    (*) &:& \forall s_1,s_2 \mathord:\SynGL{1}.\ \tyPrim{real}{s_1} \to \tyPrim{real}{s_2} \to \tyPrim{real}{s_1s_2} \\
     (/) &:&
     \begin{array}[t]{@{}l@{}l}
-      \forall s_1,s_2 \mathord:\SynGL_1.\ \tyPrim{real}{s_1}\ & \to \tyPrim{real}{s_2} \\
+      \forall s_1,s_2 \mathord:\SynGL{1}.\ \tyPrim{real}{s_1}\ & \to \tyPrim{real}{s_2} \\
       &\to \tyPrim{real}{s_1s_2^{-1}} + \tyPrimNm{unit} \\
     \end{array}\\
-    \mathrm{abs} &:& \forall s \mathord:\SynGL_1.\ \tyPrim{real}{s} \to \tyPrim{real}{|s|} %\\
+    \mathrm{abs} &:& \forall s \mathord:\SynGL{1}.\ \tyPrim{real}{s} \to \tyPrim{real}{|s|} %\\
 %    \mathrm{sqrt} &:& \tyPrim{real}{1} \to \tyPrim{real}{1}
   \end{eqnarray*}
   \caption{Operations on scaled real numbers}
@@ -541,23 +541,23 @@ cross product of two vectors varies with the determinant of $B$. This
 corresponds to the scaling of the plane by the change of basis
 transformation.
 
-We therefore augment our calculus with a new sort $\SynGL_1$ of scale
+We therefore augment our calculus with a new sort $\SynGL{1}$ of scale
 factors (i.e.~$1$-dimensional invertible linear maps). Semantically,
-$\SynGL_1$ ranges over the non-zero real numbers and forms an abelian
+$\SynGL{1}$ ranges over the non-zero real numbers and forms an abelian
 group, which we write multiplicatively. We also add two new
 operations: determinant, $\det B$, which takes an inhabitant of
-$\SynGL_2$ to its determinant in $\SynGL_1$, and the operation of
+$\SynGL{2}$ to its determinant in $\SynGL{1}$, and the operation of
 absolute value that takes scaling factors to scaling factors which we
 write as $|e|$. We also refine the type $\tyPrimNm{real}$ of real
-numbers to be indexed by the sort $\SynGL_1$: $\tyPrim{real}{e}$,
+numbers to be indexed by the sort $\SynGL{1}$: $\tyPrim{real}{e}$,
 where the old type $\tyPrimNm{real}$ is just $\tyPrim{real}{1}$. The
 collection of operations on real numbers indexed by scaling factors is
 shown in \autoref{fig:real-ops}.
 
-With the additional sort $\SynGL_1$, and the refined type of real
+With the additional sort $\SynGL{1}$, and the refined type of real
 numbers, we can assign a type to the cross product:
 \begin{displaymath}
-  (\times) : \forall B \mathord: \SynGL_2.\ \tyPrim{vec}{B,0} \to \tyPrim{vec}{B,0} \to \tyPrim{real}{\det B}
+  (\times) : \forall B \mathord: \SynGL{2}.\ \tyPrim{vec}{B,0} \to \tyPrim{vec}{B,0} \to \tyPrim{real}{\det B}
 \end{displaymath}
 Since the absolute value of the determinant of an orthogonal
 transformation is always $1$, we assume $|\det (\iota_O O)| = 1$ to
@@ -572,7 +572,7 @@ hold.
 %   known as isometries: distance preserving maps.
   \begin{displaymath}
     \begin{array}{@{}l}
-      \mathrm{area} : \forall B\mathord:\SynGL_2, t\mathord:\SynTransl_2.\ \\
+      \mathrm{area} : \forall B\mathord:\SynGL{2}, t\mathord:\SynTransl{2}.\ \\
       \hspace{0.8cm}\tyPrim{vec}{B, t} \to \tyPrim{vec}{B, t} \to \tyPrim{vec}{B, t} \to \tyPrim{real}{|\det B|} \\
       \mathrm{area}\ [B]\ [t]\ p_1\ p_2\ p_3 = \frac{1}{2} * \mathrm{abs}\ ((p_2 - p_1) \times (p_3 - p_1))
     \end{array}
@@ -598,7 +598,7 @@ hold.
   $|\det (\iota_OO)| = 1$:
   \begin{displaymath}
     \begin{array}{@{}l}
-      \mathrm{area} : \forall O\mathord:\SynOrth_2, t\mathord:\SynTransl_2.\ \\
+      \mathrm{area} : \forall O\mathord:\SynOrth{2}, t\mathord:\SynTransl{2}.\ \\
       \hspace{0.8cm}\tyPrim{vec}{\iota_OO, t} \to \tyPrim{vec}{\iota_OO, t} \to \tyPrim{vec}{\iota_OO, t} \to \tyPrim{real}{1}
     \end{array}
   \end{displaymath}
@@ -633,8 +633,8 @@ operation in \autoref{sec:types-indexed-abelian-groups}.
 
 In our two-dimensional setting, we can make additions to Kennedy's
 one-dimensional scaling invariance. We add an operation $\iota_1$
-that, semantically, takes scale factors in $\GL_1$ to invertible
-linear maps in $\GL_2$: i.e.~takes numbers $s$ to matrices $\left(
+that, semantically, takes scale factors in $\GL{1}$ to invertible
+linear maps in $\GL{2}$: i.e.~takes numbers $s$ to matrices $\left(
   \begin{smallmatrix}s & 0 \\ 0 & s\end{smallmatrix}\right)$.  This
 operation satisfies the equation $\det (\iota_1 s) = s^2$, indicating
 that if we scale the plane by $s$ in all directions, we scale areas by
@@ -647,7 +647,7 @@ $s^2$. This is illustrated by the next example.
   transformations. This yields the type:
   \begin{displaymath}
     \begin{array}{@{}l}
-      \mathrm{area} : \forall s\mathord:\SynGL_1, t\mathord:\SynTransl_2.\ \\
+      \mathrm{area} : \forall s\mathord:\SynGL{1}, t\mathord:\SynTransl{2}.\ \\
       \hspace{0.8cm} \tyPrim{vec}{\iota_1s, t} \to \tyPrim{vec}{\iota_1s, t} \to \tyPrim{vec}{\iota_1s, t} \to \tyPrim{real}{s^2}
     \end{array}
   \end{displaymath}
@@ -657,18 +657,18 @@ $s^2$. This is illustrated by the next example.
 
 Purely scaling linear maps, as generated by $\iota_1$, commute with
 all other invertible linear maps, and form the centre of the group
-$\GL_2$. Thus we add the equation $\iota_1(s)B = B\iota_1(s)$ to our
+$\GL{2}$. Thus we add the equation $\iota_1(s)B = B\iota_1(s)$ to our
 calculus.
 
 If we keep track of scalings, we may assign more precise types to
 scalar multiplcation:
 \begin{displaymath}
-  (*) : \forall s \mathord: \SynGL_1, B \mathord: \SynGL_2.\ \tyPrim{real}{s} \to \tyPrim{vec}{B,0} \to \tyPrim{vec}{\iota_1(s)B,0}
+  (*) : \forall s \mathord: \SynGL{1}, B \mathord: \SynGL{2}.\ \tyPrim{real}{s} \to \tyPrim{vec}{B,0} \to \tyPrim{vec}{\iota_1(s)B,0}
 \end{displaymath}
 and dot product:
 \begin{displaymath}
   \begin{array}{l@{}l}
-    (\cdot) : \forall s : \SynGL_1, O : \SynOrth_2.\ & \tyPrim{vec}{\iota_1(s)\iota_O(O),0} \to\\
+    (\cdot) : \forall s \mathord: \SynGL{1}, O \mathord: \SynOrth{2}.\ & \tyPrim{vec}{\iota_1(s)\iota_O(O),0} \to\\
     &\tyPrim{vec}{\iota_1(s)\iota_O(O),0} \to \tyPrim{real}{s^2}
   \end{array}
 \end{displaymath}
@@ -677,7 +677,7 @@ and dot product:
   With the operations in \autoref{fig:real-ops}, it is not possible to
   write a program with the following type that is not constantly zero:
   \begin{displaymath}
-    \forall s : \SynGL_2.\ \tyPrim{real}{s^2} \to \tyPrim{real}{s}
+    \forall s \mathord: \SynGL{2}.\ \tyPrim{real}{s^2} \to \tyPrim{real}{s}
   \end{displaymath}
   This was shown by Kennedy for his units of measure system
   \cite{kennedy97relational}.  In particular, it is not possible to

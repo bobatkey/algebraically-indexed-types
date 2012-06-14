@@ -32,17 +32,17 @@
 \usepackage{stmaryrd}
 \usepackage[all]{xy}
 
-\newcommand{\GA}{\mathrm{GA}}
-\newcommand{\GL}{\mathrm{GL}}
-\newcommand{\Is}{\mathrm{Is}}
-\newcommand{\Orth}{\mathrm{O}}
-\newcommand{\SOrth}{\mathrm{SO}}
-\newcommand{\Transl}{\mathrm{T}}
-\newcommand{\SynTransl}{\mathsf{T}}
-\newcommand{\SynGL}{\mathsf{GL}}
-\newcommand{\SynOrth}{\mathsf{O}}
-\newcommand{\Scale}{\mathrm{Scale}}
+\newcommand{\GL}[1]{\mathrm{GL}_#1}
+\newcommand{\SynGL}[1]{\mathsf{GL}_#1}
+\newcommand{\Orth}[1]{\mathrm{O}_#1}
+\newcommand{\SynOrth}[1]{\mathsf{O}_#1}
+\newcommand{\Transl}[1]{\mathrm{T}_#1}
+\newcommand{\SynTransl}[1]{\mathsf{T}_#1}
 
+% \newcommand{\GLtwo}{\mathrm{GL}_2}
+% \newcommand{\SynGLtwo}{\mathsf{GL}_2}
+% \newcommand{\GLone}{\mathrm{GL}_1}
+% \newcommand{\SynGLone}{\mathsf{GL}_1}
 
 \newcommand{\sepbar}{\mathrel|}
 
@@ -156,7 +156,7 @@
 \input{section-introduction.tex}
 %\input{section-motivating-examples.tex}
 \input{geometry-twocolumn.tex}
-\input{section-background.tex}
+%\input{section-background.tex}
 \input{section-general-framework.tex}
 \input{section-instantiations.tex}
 \input{section-discussion.tex}
