@@ -22,8 +22,8 @@
            {\{Robert.Atkey,Neil.Ghani,Patricia.Johann\}@cis.strath.ac.uk}
 
 \authorinfo{Andrew Kennedy}
-           {Microsoft Research}
-           {}
+           {Microsoft Research Cambridge}
+           {akenn@microsoft.com}
 
 \usepackage{mathpartir}
 \usepackage{amsmath}
@@ -32,8 +32,11 @@
 \usepackage{stmaryrd}
 \usepackage[all]{xy}
 
+\newcommand{\todo}[1]{[\textbf{TODO}: #1]}
+
 \newcommand{\GL}[1]{\mathrm{GL}_#1}
 \newcommand{\SynGL}[1]{\mathsf{GL}_#1}
+\newcommand{\SynSE}[1]{\mathsf{SE}_#1}
 \newcommand{\Orth}[1]{\mathrm{O}_#1}
 \newcommand{\SynOrth}[1]{\mathsf{O}_#1}
 \newcommand{\Transl}[1]{\mathrm{T}_#1}
@@ -68,6 +71,7 @@
 \newcommand{\tyInt}{\texttt{int}}
 \newcommand{\tyBool}{\texttt{bool}}
 \newcommand{\tyUnit}{\texttt{unit}}
+\newcommand{\tyReal}{\texttt{real}}
 \newcommand{\tyPrim}[2]{\textup{\texttt{#1}}\langle #2 \rangle}
 \newcommand{\tyPrimNm}[1]{\texttt{#1}}
 \newcommand{\primTyArity}{\mathrm{tyArity}}
@@ -149,7 +153,7 @@
   Languages, Theory, Types
 
 \keywords
-  parametricity, dimension types, computational geometry
+  parametricity, units of measure, dimensional analysis, invariance, computational geometry
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -162,7 +166,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\bibliographystyle{plainnat}
+\bibliographystyle{abbrvnat}
 \bibliography{paper}
 
 \newpage
