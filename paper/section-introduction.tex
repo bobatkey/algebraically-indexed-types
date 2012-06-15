@@ -1,5 +1,64 @@
 \section{Introduction}
 \label{sec:introduction}
+Types express properties of programs. The statement $\mathit{b}: \tyBool$ tells
+us that $\mathit{b}$ has value $\mathtt{true}$ or $\mathtt{false}$;
+the statement $\mathit{pos}:\tyReal\tyProduct\tyReal$ says that
+$\mathit{pos}$ is a pair whose components are real numbers. More interestingly,
+the statement $\mathit{f} : \forall X. \tyPrim{list}X\tyArr\tyPrim{list}X$ tells us that
+if we apply $\mathit{f}$ to a list whose elements satisfy some property $\psi$, 
+then the result is a list whose elements also satisfy $\psi$.
+
+Unary predicates only go so far, and for polymorphic types
+particularly do not express everything that follows from possessing that type. 
+Imagine a function $\mathit{oddRev}$ that reverses any list whose first element
+is an odd number, otherwise behaving as the identity. It certainly
+preserves properties of the elements -- but truly parametric
+polymorphism should tell us more.
+
+To obtain stronger properties we must \emph{relate} multiple
+executions of the same code. The statement $\mathit{f}:\forall
+X. \tyPrim{list}X\tyArr\tyPrim{list}X$ then says that any change in
+representation of the list elements supplied to $\mathit{f}$ is
+reflected in the elements in the result.  Formally, for any function
+$g$, we have $\mathit{f}(\mathrm{map}\:\mathit{g}\:\mathit{x}) =
+\mathrm{map}\:\mathit{g}\:(\mathit{f}\:\mathit{x})$.  This is the
+essence of \emph{relational parametricity} as formulated by
+Reynolds~\cite{reynolds83types}. Its consequences are striking.  It
+immediately tells us that $\mathit{oddRev}$ cannot be given a
+polymorphic type: simply consider the change-of-representation given
+by $\lambda x. x+1$.  But more profoundly it can be used to prove blah
+blah (initial algebras, term reps, non-inhabitation, etc.).
+
+The relational interpretation of polymorphism gives us a principle of
+\emph{invariance}, namely that generic code is invariant under changes of
+representation. It is central to information hiding, abstract data
+types, encapsulation and modularity -- at its broadest, software
+engineering!  The idea of invariance is also ubiquitous in mathematics
+and physics.  The area of a triangle is invariant with respect to
+isometries of the Euclidean plane; the determinant of a matrix is
+invariant under changes of basis; and Newton's laws are the same in all
+inertial frames.  Typically, transformations in mathematics and
+physics have interesting structure; for example, translations in the Euclidean plane
+form an Abelian group.
+
+Inspired by this connection, we study relational parametricity for 
+types that are \emph{indexed} by attributes that themselves have algebraic structure.
+For example, in geometry, points in 2-space can be indexed by a co-ordinate frame;
+in physical modelling, quantities are indexed by units-of-measure;
+in information-flow security, computations are indexed by principals. 
+Types that are polymorphic over such indices induce invariance properties. 
+A function that computes the area of a triangle might have simple type
+\[
+\mathit{area} : \tyPrimNm{vec}\tyArr\tyPrimNm{vec}\tyArr\tyPrimNm{vec}\tyArr\tyReal
+\]
+but by assigning a polymorphic type
+\[
+\mathrm{area} : \forall i\mathord:\SynSE{2}.
+  \tyPrim{vec}{i} \to \tyPrim{vec}{i} \to \tyPrim{vec}{i} \to \tyReal \\
+\]
+we can deduce that it is invariant under direct isometries (rigid body motions) as 
+represented by the index $i$ on the type of vectors.
+\todo{polymorphism imposes abstraction barrier; talk about co-ordinate free geometry}
 
 % Possible angles of attack:
 % \begin{itemize}
