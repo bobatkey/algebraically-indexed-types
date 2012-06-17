@@ -360,7 +360,7 @@ operation is a special case of vector subtraction:
   \end{array}
 \end{displaymath}
 Note how the type of the result of $\mathrm{offset}$ simplifies from
-$\tyPrim{vec}{t-t}$ to $\tyPrim{vec}{0}$. The algebraic structure on
+$\tyPrim{vec}{t-t}$ to $\tyPrim{vec}{0}$: the algebraic structure on
 the indexing theory induces type equalities.  The type of the vector
 addition operation can be specialised to the case of moving a point by
 a vector:
@@ -512,12 +512,13 @@ assign it a type. The dot product is not invariant under the action of
 either of the groups $\GL{2}$ and $\Transl{2}$ that we have considered
 so far. However, the dot product is invariant under the subgroup
 $\Orth{2}$ of $\GL{2}$ of \emph{orthogonal} linear transformations:
-invertible linear maps whose determinant is either $1$ or $-1$. We
-introduce orthogonal transformations as a new sort $\SynOrth{2}$, and
-overload the multiplicative group operations syntax for inhabitants of
-$\SynOrth{2}$. We also assume a function $\iota_O$ that takes $e :
-\SynOrth{2}$ to $\iota_O(e) : \SynGL{2}$. We may now assign a type to
-the dot product, using quantification over $\SynOrth{2}$:
+invertible linear maps whose matrix representation's transpose is
+equal to their inverse. We introduce orthogonal transformations as a
+new sort $\SynOrth{2}$, and overload the multiplicative group
+operations syntax for inhabitants of $\SynOrth{2}$. We also assume a
+function $\iota_O$ that takes $e : \SynOrth{2}$ to $\iota_O(e) :
+\SynGL{2}$. We may now assign a type to the dot product, using
+quantification over $\SynOrth{2}$:
 \begin{displaymath}
   (\cdot) : \forall O \mathord: \SynOrth{2}.\ \tyPrim{vec}{\iota_OO, 0} \to \tyPrim{vec}{\iota_OO, 0} \to \tyPrimNm{real}
 \end{displaymath}

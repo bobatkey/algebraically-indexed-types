@@ -118,6 +118,119 @@ and verifying continuity properties of functions in a type based way.
 %   (*) & : & \forall \epsilon_1, \epsilon_2\mathord:\mathsf{R}^{>0}.\ \tyPrim{real}{\epsilon_1} \to \tyPrim{real}{\epsilon_2} \to \tyPrim{real}{\epsilon_1\epsilon_2}
 % \end{eqnarray*}
 
+\subsection{Monoid Indexed Types}
+\label{sec:monoid-indexed-types}
+
+Primitive type is a monoid, and we index by a commutative monoid. An
+example of this is strings with tainting information, or bags, or sets
+of stuff. This gives a slightly different information flow analysis to
+the logical information flow above. In particular, we can now count
+uses of input data.
+
+Primitive operations $\Gamma_{\mathit{Mon}}$:
+\begin{displaymath}
+  \begin{array}{c@{\hspace{0.5em}:\hspace{0.5em}}l}
+    1 & \tyPrim{M}{1} \\
+    (\cdot) & \forall a,b.\ \tyPrim{M}{a} \to \tyPrim{M}{b} \to \tyPrim{M}{a\cdot b}
+  \end{array}
+\end{displaymath}
+
+For the index-erasure interpretation, we assume a commutative monoid
+$\mathcal{M}$. The primitive type $\tyPrimNm{M}$ is interpreted as
+$\tySem{\tyPrim{M}{e}} = \mathcal{M}$. The primitive operations in
+$\Gamma_{\mathit{Mon}}$ are interpreted just as the unit and multiplication of
+the monoid $\mathcal{M}$.
+
+
+% Need the following definitions: syntatic group/monoid arising from
+% the syntax, and a neater way of defining relational
+% environments. Also, a neat way of formally introducing a load of
+% primitive operations.
+
+For each index context $\relEnv{E}(\Delta)$, the set
+$\relEnv{E}(\Delta)$ of relational environments is defined to be $\{
+\rho_{(M,h)} \sepbar M\textrm{ is a submonoid of }(\Delta \Rightarrow
+\mathsf{M})/\equiv, h\textrm{ is a monoid homomorphism }M \to
+Z(\mathcal{M}) \}$, where
+\begin{displaymath}
+  \rho_{(M,h)}\ \tyPrimNm{M}\ (e) = \left\{
+    \begin{array}{ll}
+      \{ \} & \textrm{if}\ e\not\in M \\
+      \{ (x, h(e)\cdot x) \sepbar x \in \mathcal{M} \} & \textrm{if}\ e\in M
+    \end{array}
+  \right.
+\end{displaymath}
+Note the mapping to the centre of the monoid $\mathcal{M}$.
+
+\begin{lemma}
+  For all $\Delta$ and $\rho \in \relEnv{E}(\Delta)$,
+  $(\eta_{M},\eta_{M}) \in \rsem{\Gamma_{\mathit{Mon}}}{\relEnv{E}}\rho$.
+\end{lemma}
+
+\begin{theorem}
+  Let $m$ and $n$ be natural numbers. For all $n$-by-$m$-matricies of
+  natural numbers $A$ and $m$-by-$1$ matricies of natural numbers $b$,
+  there exists a program $M$ such that
+  \begin{equation}
+    \label{eq:fo-monoid-type}
+    \Gamma_{\mathit{Mon}} \vdash M : \forall i_1,\dots,i_m\mathord:\mathsf{M}.\ \tyPrim{M}{e_1} \to \dots \to \tyPrim{M}{e_n} \to \tyPrim{M}{e}
+  \end{equation}
+  where $e_j = i_1^{A_{j1}}\dots i_m^{A_{jm}}$ and $e =
+  i_1^{b_1}\dots i_m^{b_m}$, if and only if there is a solution
+  $\vec{x} = (x_1,\cdots,x_n)$ in the natural numbers to the equation
+  $A x^\top = b$.
+\end{theorem}
+
+\begin{proof}
+  (If) The program $\Lambda i_1\dots i_m.\ \lambda z_1\dots z_n.\
+  z_1^{x_1}\dots z_n^{x_n}$ satisfies the typing judgment
+  (\ref{eq:fo-monoid-type}).
+
+  (Only if) Assume that there is a program $M$ satisfying the typing
+  judgment (\ref{eq:fo-monoid-type}). By \thmref{thm:abstraction} we
+  know that for all relational environments $\rho \in
+  \relEnv{E}(i_1,\dots,i_m)$, and all $z_j,z'_j \in \mathcal{M}$,
+  \begin{displaymath}
+    \begin{array}{l}
+      (z_1,z'_1) \in \rho\ \tyPrimNm{M}\ (e_1) \land \dots \land (z_n,z'_n) \in \rho\ \tyPrimNm{M}\ (e_n) \Rightarrow \\
+      \quad (\tmSem{M}z_1\dots z_n, \tmSem{M}z'_1\dots z'_n) \in \rho\ \tyPrimNm{M}\ (e)
+    \end{array}
+  \end{displaymath}
+  We select the relational environments
+  \begin{displaymath}
+    \rho\ \tyPrimNm{M}\ (e) = \left\{
+      \begin{array}{ll}
+        \{(z,z) \sepbar z \in \mathcal{M} \} &
+        \begin{array}[t]{@{}l}
+          \textrm{if}\ e = e_1^{x_1}\dots e_n^{x_n} \\
+          \textrm{ for some }x_1,\dots,x_n \in \mathbb{N}
+        \end{array}
+        \\
+        \{\} & \textrm{otherwise}
+      \end{array}
+    \right.
+  \end{displaymath}
+  Now, for any $z_1,\dots,z_m \in \mathcal{M}$, we know that, for all
+  $j$, $(z_j,z_j) \in \rho\ \tyPrimNm{M}\ (e_j)$, so we know that
+  $(\tySem{M}z_1\dots z_n, \tySem{M}z_1 \dots z_n) \in \rho\
+  \tyPrimNm{M}\ (e)$. Thus there exist $x_1,...,x_n$ such that $e =
+  e_1^{x_1}\dots e_n^{x_n}$. But we also know that $e =
+  i_1^{b_1}...i_m^{b_m}$. By the cancellation property of free
+  monoids, we learn that $x_1,...,x_n$ is the solution we need.
+\end{proof}
+
+We can further assume that there are other operations that distribute
+over the multiplication of the monoid, for example semi-ring
+operations (e.g.~relational algebra).
+
+Examples
+\begin{enumerate}
+\item Finite sets of stuff.
+\item Let $\mathcal{M} = \Sigma^* \times
+  \mathcal{P}_{\mathit{fin}}(C)$, where $\Sigma$ is some alphabet, and
+  $C$ is some set of taint markers. The centre of this monoid is
+  $\{([], c) \sepbar c \in \mathcal{P}_{\mathit{fin}}(C) \}$.
+\end{enumerate}
 
 %%% Local Variables:
 %%% TeX-master: "paper"
