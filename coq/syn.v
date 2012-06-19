@@ -4,9 +4,15 @@ Set Implicit Arguments.
 Unset Strict Implicit.
 Import Prenex Implicits.
 
-(*---------------------------- SYNTAX ------------------------------------------------------*)
 Section Syntax.
 
+(*---------------------------------------------------------------------------
+   Everything is parameterized on a signature, which specifies a type
+   for index sorts, for primitive type constructors, and for
+   index-level constructors, along with their arities.
+
+   Axioms are introduced later. 
+   ---------------------------------------------------------------------------*)
 Structure SIG := mkSIG {
   (* Type of sorts e.g. one sort: unit-of-measure *)
   Srt: Type;                  
@@ -24,95 +30,114 @@ Structure SIG := mkSIG {
   tyArity: PrimType -> seq Srt
 }.
 
+(* In this section, assume some sig: SIG *)
 Variable sig: SIG.
 
 (* Index variables each have a sort *)
-Definition IxCtxt := seq (Srt sig). 
+Definition Ctxt := seq (Srt sig). 
 
-(* Index variables, in context *)
-Inductive IxVar : IxCtxt -> Srt sig -> Type :=
-| IxZ D s : IxVar (s::D) s
-| IxS D s' s : IxVar D s' -> IxVar (s::D) s'.
+(* Index variables, in context. D is \Delta in paper *)
+Inductive Var : Ctxt -> Srt sig -> Type :=
+| VarZ D s : Var (s::D) s
+| VarS D s s' : Var D s -> Var (s'::D) s.
 
 (* Well-sorted index expressions, in context. D is \Delta in paper *)
-Inductive IxExp (D: IxCtxt) : Srt sig -> Type :=
-| VarIx s : IxVar D s -> IxExp D s
-| ConIx op : IxExpSeq D (opArity op).1 -> IxExp D (opArity op).2
+Inductive Exp (D: Ctxt) : Srt sig -> Type :=
+| VarAsExp s :> Var D s -> Exp D s
+| AppCon op : Exps D (opArity op).1 -> Exp D (opArity op).2
 
 (* Well-sorted sequences of index expressions, in context *)
-with IxExpSeq (D: IxCtxt) : IxCtxt -> Type :=
-| NilIx : IxExpSeq D nil
-| ConsIx s ss : IxExp D s -> IxExpSeq D ss -> IxExpSeq D (s::ss).
+with Exps (D: Ctxt) : Ctxt -> Type :=
+| Nil : Exps D nil
+| Cons s ss : Exp D s -> Exps D ss -> Exps D (s::ss).
 
-Implicit Arguments ConIx [D].
+Implicit Arguments AppCon [D].
+Implicit Arguments Nil [D]. 
+
+Scheme Exp_ind2 := Induction for Exp Sort Prop
+with Exps_ind2 := Induction for Exps Sort Prop.
+
+Combined Scheme Exp_Exps_ind from Exp_ind2, Exps_ind2. 
 
 (* Renamings and substitutions. *)
 Structure Ren D D' := mkRen {
-  getRen:> forall s, IxVar D s -> IxVar D' s
+  getRen :> forall s, Var D s -> Var D' s
 }. 
 
 Structure Sub D D' := mkSub {
-  getSub :> forall s, IxVar D s -> IxExp D' s
+  getSub :> forall s, Var D s -> Exp D' s
 }.
 
-Definition seqAsSub D D' (ixs: IxExpSeq D D') : Sub D' D.
+Lemma inj_Ren D D' (R1 R2: Ren D D') : getRen R1 = getRen R2 -> R1 = R2. 
+Proof. destruct R1; destruct R2. move => E. injection E. by  move ->. Qed. 
+
+Lemma inj_Sub D D' (S1 S2: Sub D D') : getSub S1 = getSub S2 -> S1 = S2. 
+Proof. destruct S1; destruct S2. move => E. injection E. by  move ->. Qed. 
+
+Global Coercion expsAsSub D D' (ixs: Exps D D') : Sub D' D.
 refine (mkSub _) => s. 
 induction ixs => v.
 inversion v.  
 dependent destruction v.
-+ exact i. 
++ exact e. 
 + exact (IHixs v). 
 Defined.
-
-Coercion seqAsSub : IxExpSeq >-> Sub.
 
 Program Definition liftRen D D' s (R: Ren D D') : Ren (s::D) (s::D') := 
   mkRen (fun s' v =>
   match v with
-  | IxZ _ _ => IxZ _ _
-  | IxS _ _ _ v' => IxS _ (R _ v')
+  | VarZ _ _ => VarZ _ _
+  | VarS _ _ _ v' => VarS _ (R _ v')
   end).
 
-Fixpoint apRen D D' s (r: Ren D D') (ix: IxExp D s): IxExp D' s :=
+Fixpoint apRen D D' s (r: Ren D D') (ix: Exp D s): Exp D' s :=
   match ix with
-  | VarIx _ v => VarIx (r _ v)
-  | ConIx op ixs => ConIx op (apRenSeq r ixs)
+  | VarAsExp _ v => VarAsExp (r _ v)
+  | AppCon op ixs => AppCon op (apRenSeq r ixs)
   end
-with apRenSeq D D' ss (r: Ren D D') (ixs: IxExpSeq D ss) : IxExpSeq D' ss  :=
-  if ixs is ConsIx _ _ ix ixs 
-  then ConsIx (apRen r ix) (apRenSeq r ixs) 
-  else NilIx _.
+with apRenSeq D D' ss (r: Ren D D') (ixs: Exps D ss) : Exps D' ss  :=
+  if ixs is Cons _ _ ix ixs 
+  then Cons (apRen r ix) (apRenSeq r ixs) 
+  else Nil.
 
-Definition shIxExp D s s' : IxExp D s -> IxExp (s'::D) s := apRen (mkRen (fun _ v => IxS _ v)).
+Definition shExp D s s' : Exp D s -> Exp (s'::D) s := apRen (mkRen (fun _ v => VarS _ v)).
 
-Definition idSub D : Sub D D := mkSub (@VarIx _).
+Definition idSub D : Sub D D := mkSub (@VarAsExp _).
 
-Program Definition consSub D D' s (ix: IxExp D' s) (S: Sub D D') : Sub (s::D) D' :=
-  mkSub (fun s' (v: IxVar (s::D) s') =>
-    match v with IxZ _ _ => ix
-               | IxS _ _ _ v' => S _ v'
+Program Definition consSub D D' s (ix: Exp D' s) (S: Sub D D') : Sub (s::D) D' :=
+  mkSub (fun s' (v: Var (s::D) s') =>
+    match v with VarZ _ _ => ix
+               | VarS _ _ _ v' => S _ v'
     end).
 
-Definition tlSub D D' s (S: Sub (s::D) D') : Sub D D' := mkSub (fun s' v => S s' (IxS s v)).
-Definition hdSub D D' s (S: Sub (s::D) D') : IxExp D' s := S s (IxZ _ _). 
+Definition tlSub D D' s (S: Sub (s::D) D') : Sub D D' := mkSub (fun s' v => S s' (VarS s v)).
+Definition hdSub D D' s (S: Sub (s::D) D') : Exp D' s := S s (VarZ _ _). 
 
 
-Fixpoint apSub D D' s (S: Sub D D') (ix: IxExp D s): IxExp D' s :=
+Fixpoint apSub D D' s (S: Sub D D') (ix: Exp D s): Exp D' s :=
   match ix with
-  | VarIx _ v => S _ v
-  | ConIx op ixs => ConIx op (apSubSeq S ixs)
+  | VarAsExp _ v => S _ v
+  | AppCon op ixs => AppCon op (apSubSeq S ixs)
   end
-with apSubSeq D D' ss (S: Sub D D') (ixs: IxExpSeq D ss) : IxExpSeq D' ss  :=
-  if ixs is ConsIx _ _ ix ixs 
-  then ConsIx (apSub S ix) (apSubSeq S ixs) 
-  else NilIx _.
+with apSubSeq D D' ss (S: Sub D D') (ixs: Exps D ss) : Exps D' ss  :=
+  if ixs is Cons _ _ ix ixs 
+  then Cons (apSub S ix) (apSubSeq S ixs) 
+  else Nil.
+
+Lemma apSubAppCon D D' (S: Sub D D') op (ixs: Exps D _) : 
+  apSub S (AppCon op ixs) = AppCon op (apSubSeq S ixs). 
+Proof. done. Qed.
+
+Lemma apSubSeqCons D D' (S: Sub D D') s ss (e: Exp D s) (es: Exps D ss) :
+  apSubSeq S (Cons e es) = Cons (apSub S e) (apSubSeq S es).
+Proof. done. Qed.
 
 (* This is the lifting operation \sigma_{i:s} of the paper *)
 Program Definition liftSub D D' s (S: Sub D D') : Sub (s::D) (s::D') :=
   mkSub (fun s' v =>
   match v with
-  | IxZ _ _ => VarIx (IxZ _ _)
-  | IxS _ _ _ v' => shIxExp s (S _ v')
+  | VarZ _ _ => VarAsExp (VarZ _ _)
+  | VarS _ _ _ v' => shExp s (S _ v')
   end).
 
 Definition RcR D D' D'' (R: Ren D' D'') (R': Ren D D') : Ren D D'' := 
@@ -127,14 +152,76 @@ Definition RcS D D' D'' (R: Ren D' D'') (S: Sub D D') : Sub D D'' :=
 Definition ScS D D' D'' (S: Sub D' D'') (S': Sub D D') : Sub D D'' :=
   mkSub (fun s v => apSub S (S' s v)).
 
+Ltac Rewrites E := 
+  (intros; simpl; try rewrite E; 
+   repeat (match goal with | [H:context[_=_] |- _] => rewrite H end); 
+   auto).
+
+Require Import FunctionalExtensionality.
+Ltac ExtVar :=
+ match goal with
+    [ |- ?X = ?Y ] => 
+    (apply (@functional_extensionality_dep _ _ X Y) ; 
+     let t := fresh "t" in intro t;
+     apply functional_extensionality; 
+     let v := fresh "v" in intro v; 
+     dependent destruction v; auto) 
+  end.
+
+Lemma liftSubId D s : liftSub _ (@idSub D) = @idSub (s::D). 
+Proof. apply inj_Sub. ExtVar. Qed.
+
+Lemma apSubId D :
+  (forall s (e : Exp D s), apSub (idSub _) e = e) /\ 
+  (forall ss (es: Exps D ss), apSubSeq (idSub _) es = es). 
+Proof. apply Exp_Exps_ind; Rewrites liftSubId. Qed.
+
+(*=ComposeLemmas *)
+Lemma liftRcR E E' E'' s (r:Ren E' E'') (r':Ren E E') :
+  liftRen s (RcR r r') = RcR (liftRen s r) (liftRen s r').
+Proof. apply inj_Ren; ExtVar. Qed.
+
+Lemma apRcR E E' E'' (r:Ren E' E'') (r':Ren E E') :
+  (forall s (e:Exp E s), apRen (RcR r r') e = apRen r (apRen r' e)) /\
+  (forall ss (es:Exps E ss), apRenSeq (RcR r r') es = apRenSeq r (apRenSeq r' es)). 
+Proof. apply Exp_Exps_ind; Rewrites liftRcR. Qed.
+
+Lemma liftScR E E' E'' s (S:Sub E' E'') (R:Ren E E') :
+  liftSub s (ScR S R) = ScR (liftSub s S) (liftRen s R).
+Proof. apply inj_Sub; ExtVar. Qed.
+
+Lemma apScR E E' E'' (S:Sub E' E'') (R:Ren E E') : 
+  (forall s (e:Exp E s), apSub (ScR S R) e = apSub S (apRen R e)) /\
+  (forall ss (es:Exps E ss), apSubSeq (ScR S R) es = apSubSeq S (apRenSeq R es)).
+Proof. apply Exp_Exps_ind; Rewrites liftScR. Qed.
+
+Lemma liftRcS E E' E'' s (R:Ren E' E'') (S:Sub E E') : 
+  liftSub s (RcS R S) = RcS (liftRen s R) (liftSub s S).
+Proof. apply inj_Sub; ExtVar. simpl. rewrite /shExp. by rewrite -!(proj1 (apRcR _ _)). Qed. 
+
+Lemma apRcS E E' E'' (R:Ren E' E'') (S:Sub E E') : 
+  (forall s (e:Exp E s), apSub (RcS R S) e = apRen R (apSub S e)) /\
+  (forall ss (es:Exps E ss), apSubSeq (RcS R S) es = apRenSeq R (apSubSeq S es)).
+Proof. apply Exp_Exps_ind; Rewrites liftScR. Qed.
+
+Lemma liftScS E E' E'' s (S:Sub E' E'') (S':Sub E E') :
+  liftSub s (ScS S S') = ScS (liftSub s S) (liftSub s S').
+Proof. apply inj_Sub; ExtVar. simpl. rewrite /shExp. rewrite -(proj1 (apRcS _ _)). 
+by rewrite -(proj1 (apScR _ _)). Qed. 
+
+Lemma apScS E E' E'' (S:Sub E' E'') (S':Sub E E') : 
+  (forall s (e:Exp E s), apSub (ScS S S') e = apSub S (apSub S' e)) /\
+  (forall ss (es:Exps E ss), apSubSeq (ScS S S') es = apSubSeq S (apSubSeq S' es)).
+Proof. apply Exp_Exps_ind; Rewrites liftScR. Qed.
+
 
 (* Well-sorted type expressions, in context *)
-Inductive Ty (D: IxCtxt) :=
+Inductive Ty (D: Ctxt) :=
 | TyUnit
 | TyProd (t1 t2: Ty D) 
 | TySum (t1 t2: Ty D)
 | TyArr (t1 t2: Ty D)
-| TyPrim (p: PrimType sig) (ixs: IxExpSeq D (tyArity p))
+| TyPrim (p: PrimType sig) (ixs: Exps D (tyArity p))
 | TyAll s (t: Ty (s::D))
 | TyExists s (t: Ty (s::D)).
 
@@ -150,44 +237,86 @@ Fixpoint apSubTy D D' (S: Sub D D') (t: Ty D): Ty D' :=
   end.
 
 Definition shiftSub D D' s (S: Sub D D') : Sub D (s::D') := 
-  mkSub (fun s v => apRen (mkRen (fun s => IxS _)) (S s v)). 
+  mkSub (fun s v => apRen (mkRen (fun s => VarS _)) (S s v)). 
 
 (* This is the operation \pi_{i:s} of the paper *)
 Definition pi D s : Sub D (s::D) := shiftSub s (idSub D). 
 
 (* Well-sorrted axiom, in context *)
-Inductive Ax := mkAx D s (lhs: IxExp D s) (rhs: IxExp D s).
+Inductive Ax := mkAx D s (lhs: Exp D s) (rhs: Exp D s).
 
 (* Equational theory induced by axioms *)
-Inductive equiv D : forall s, seq Ax -> relation (IxExp D s) :=
-| EquivRefl s axs (e: IxExp D s) : 
+Inductive equiv D : forall s, seq Ax -> relation (Exp D s) :=
+| EquivRefl s axs (e: Exp D s) : 
   equiv axs e e
 
-| EquivSym s axs (e1 e2: IxExp D s) : 
+| EquivSym s axs (e1 e2: Exp D s) : 
   equiv axs e1 e2 -> equiv axs e2 e1
 
-| EquivTrans s axs (e1 e2 e3: IxExp D s) : 
+| EquivTrans s axs (e1 e2 e3: Exp D s) : 
   equiv axs e1 e2 -> equiv axs e2 e3 -> equiv axs e1 e3
 
-| EquivComp axs p (es es': IxExpSeq D _) : 
-  equivSeq axs es es' -> equiv axs (ConIx p es) (ConIx p es')
+| EquivComp axs p (es es': Exps D _) : 
+  equivSeq axs es es' -> equiv axs (AppCon p es) (AppCon p es')
 
-| EquivByAxZ s axs D' sigma (e e':IxExp D' s) : 
+| EquivByAxZ s axs D' sigma (e e':Exp D' s) : 
   equiv (mkAx e e' :: axs) (apSub sigma e) (apSub sigma e')
 
-| EquivByAxS s ax axs (e e':IxExp D s) : 
+| EquivByAxS s ax axs (e e':Exp D s) : 
   equiv axs e e' ->
   equiv (ax :: axs) e e'
 
-with equivSeq D : forall ss, seq Ax -> relation (IxExpSeq D ss) :=
+with equivSeq D : forall ss, seq Ax -> relation (Exps D ss) :=
 | EquivNil axs : 
-  equivSeq axs (NilIx _) (NilIx _)
+  equivSeq axs Nil Nil
 
-| EquivCons axs s ss (e e': IxExp D s) (es es': IxExpSeq D ss) : 
-  equiv axs e e' -> equivSeq axs es es' -> equivSeq axs (ConsIx e es) (ConsIx e' es').
+| EquivCons axs s ss (e e': Exp D s) (es es': Exps D ss) : 
+  equiv axs e e' -> equivSeq axs es es' -> equivSeq axs (Cons e es) (Cons e' es').
+
+Scheme equiv_ind2 := Induction for equiv Sort Prop
+with equivSeq_ind2 := Induction for equivSeq Sort Prop.
+
+Combined Scheme equivBoth_ind from equiv_ind2, equivSeq_ind2. 
 
 End Syntax.
 
-Implicit Arguments ConIx [sig D].
+Notation "c '<>'" := (AppCon c (@Nil _ _)) (at level 2). 
+
+Notation "c '@<' x , .. , y '>'" := (AppCon c (Cons x .. (Cons y Nil) ..)) (at level 80).
+Notation "D '|-' e '===' f" := (@mkAx _ D _ e f) (at level 80, e, f at next level).
+Notation "t '-->' s" := (TyArr t s) (at level 55, right associativity) : Ty_scope.
+Notation "t * s" := (TyProd t s) (at level 40, left associativity) : Ty_scope.
+Notation "t + s" := (TySum t s) (at level 50, left associativity) : Ty_scope.
+Delimit Scope Ty_scope with Ty.
+
+Implicit Arguments AppCon [sig D].
 Implicit Arguments TyPrim [sig D].
+
+(* This is lemma 2, part 1 *)
+Lemma equivSubst sig D D' (S: Sub D D') : 
+   (forall s A (e f: Exp (sig:=sig) _ s), 
+    equiv A e f -> equiv A (apSub S e) (apSub S f))
+
+/\ (forall ss A (es fs: Exps (sig:=sig) _ ss), 
+    equivSeq A es fs -> equivSeq A (apSubSeq S es) (apSubSeq S fs)).
+Proof.
+apply equivBoth_ind.
+(* EquivRefl *)
++ move => s A e. by apply: EquivRefl.
+(* EquivSym *)
++ move => s A e1 e2 E1 E2. by apply: EquivSym.
+(* EquivTrans *)
++ move => s A e1 e2 e3 _ E2 _ E4. by apply: EquivTrans E2 E4. 
+(* EquivComp *)
++ move => A op es es' E1 E2. rewrite 2!apSubAppCon. by apply EquivComp. 
+(* EquivByAxZ *)
++ move => s A D'' S' e e'. 
+  rewrite -2!(proj1 (apScS S S')). by apply EquivByAxZ.       
+(* EquivByAxS *)
++ move => s A As e e' E1 E2. by apply EquivByAxS. 
+(* EquivNil *)
++ move => A. by apply: EquivNil.
+(* EquivCons *)
++ move => A s ss e1 e2 es1 es2 E1 E2 E3 E4. rewrite 2!apSubSeqCons. by apply: EquivCons. 
+Qed. 
 
