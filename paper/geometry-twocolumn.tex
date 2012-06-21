@@ -388,7 +388,7 @@ effect on translations:
   types allow us to establish a useful type isomorphism. Consider
   functions with types following the schema:
   \begin{displaymath}
-    \tau_{n} \isDefinedAs \forall t\mathord:\SynTransl{2}.\ \underbrace{\tyPrim{vec}{t} \to ... \tyPrim{vec}{t}}_{n+1\textrm{ times}} \to \tyPrimNm{real}
+    \tau_{n} \isDefinedAs \forall t\mathord:\SynTransl{2}.\ \underbrace{\tyPrim{vec}{t} \to ... \to \tyPrim{vec}{t}}_{n+1\textrm{ times}} \to \tyPrimNm{real}
   \end{displaymath}
   Just by looking at the types $\tau_{n}$, we know that their
   inhabitants will be invariant under change of origin, due to the

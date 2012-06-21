@@ -389,6 +389,42 @@ equality here:
   \end{enumerate}
 \end{proof}
 
+For reference, we state the complete index-erasure semantics of terms
+here. For a well-typed program $\Delta; \Gamma \vdash M : A$, we
+define the \emph{erasure interpretation} as a function $\tmSem{M} :
+\ctxtSem{\Gamma} \to \tySem{A}$ by the following clauses:
+\begin{displaymath}
+  \begin{array}{@{\hspace{0em}}l@{\hspace{0.5em}}c@{\hspace{0.5em}}l}
+    \tmSem{x}\eta & \isDefinedAs & \eta_x \\
+    \tmSem{(M,N)}\eta & \isDefinedAs & (\tmSem{M}\eta, \tmSem{N}\eta) \\
+    \tmSem{\pi_1M}\eta & \isDefinedAs & \pi_1(\tmSem{M}\eta) \\
+    \tmSem{\pi_2M}\eta & \isDefinedAs & \pi_2(\tmSem{M}\eta) \\
+    \tmSem{\mathrm{inl}\ M}\eta & \isDefinedAs & \mathrm{inl}\ (\tmSem{M}\eta) \\
+    \tmSem{\mathrm{inr}\ M}\eta & \isDefinedAs & \mathrm{inr}\ (\tmSem{M}\eta) \\
+    \left\llbracket
+      \begin{array}{l}
+        \textrm{case}\ M\ \textrm{of}\\
+        \textrm{inl}\ x.N_1;\\
+        \textrm{inr}\ y.N_2
+      \end{array}\right\rrbracket^{\mathit{tm}}\eta & \isDefinedAs &
+    \left\{
+      \begin{array}{ll}
+        \tmSem{N_1}(\eta,a) & \textrm{if }\tmSem{M}\eta = \mathrm{inl}(a) \\
+        \tmSem{N_2}(\eta,b) & \textrm{if }\tmSem{M}\eta = \mathrm{inr}(b)
+      \end{array}
+    \right. \\
+    \tmSem{\lambda x. M}\eta & \isDefinedAs & \lambda v. \tmSem{M}(\eta, v) \\
+    \tmSem{M N}\eta & \isDefinedAs & (\tmSem{M}\eta) (\tmSem{N}\eta) \\
+    \tmSem{\Lambda i.\ M}\eta & \isDefinedAs & \tmSem{M}\eta \\
+    \tmSem{M[e]}\eta & \isDefinedAs & \tmSem{M}\eta \\
+    \tmSem{\mathrm{pack}\ [e]\ M}\eta & \isDefinedAs & \tmSem{M}\eta \\
+    \tmSem{\mathrm{unpack}\ [i]\ x = M\ \mathrm{in}\ N}\eta & \isDefinedAs & \tmSem{N}(\eta, \tmSem{M}\eta)
+  \end{array}
+\end{displaymath}
+In the above, we have written $\eta_x$ to denote the appropriate
+projection from $\eta$ to get the value in the environment
+corresponding to the variable $x$ in the context.
+
 \begin{restateTheorem}[\thmref{thm:abstraction}]
   If $\Delta; \Gamma \vdash M : A$, then for all $\rho \in
   \relEnv{E}(\Delta)$ and $\eta_1, \eta_2 \in \ctxtSem{\Gamma}$ such
