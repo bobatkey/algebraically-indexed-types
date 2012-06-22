@@ -37,15 +37,16 @@ Definition unitInv D (u: unitExpr D) : unitExpr D :=
 Definition abs D (u: unitExpr D) : unitExpr D :=
   AppCon UnitAbs (Cons u (Nil _)). 
 
-Definition real D (u: unitExpr D) : tyExpr D :=
-  TyPrim TyReal (Cons u (Nil _)).  
-
-Definition allUnits D (t: tyExpr (Unit::D)) : tyExpr D := TyAll t. 
-
 Notation "u '*' v" := (unitProd u v) (at level 40, left associativity) : Unit_scope. 
 Notation "u ^-1" := (unitInv u) (at level 3, left associativity, format "u ^-1") : Unit_scope.
 Notation "'one'" := (unitOne _). 
 Delimit Scope Unit_scope with Un.
+
+Definition real D (u: unitExpr D) : tyExpr D :=
+  TyPrim TyReal (Cons u (Nil _)).  
+Arguments Scope real [Unit_scope].
+
+Definition allUnits D (t: tyExpr (Unit::D)) : tyExpr D := TyAll t. 
 
 Notation "#0" := (VarAsExp (VarZ _ _)).
 Notation "#1" := (VarAsExp (VarS _ (VarZ _ _))).
@@ -71,7 +72,6 @@ Definition ExAxioms : seq (Ax ExSIG) :=
 
 Definition uequiv D : relation (unitExpr D) := equiv (sig:=ExSIG) ExAxioms.
 
-Arguments Scope real [Unit_scope].
 Definition ExPrimTypes : seq (tyExpr [::]) := 
 [::
   (* 0 *)
@@ -99,7 +99,7 @@ Definition ExPrimTypes : seq (tyExpr [::]) :=
 Variable F: fieldType.
 
 Require Import sem.
-Canonical ExSem := mkSEM (sig:=ExSIG) (fun _ => F). 
+(*Canonical ExSem := mkSEM (sig:=ExSIG) (fun _ => F). *)
 
 
 

@@ -100,6 +100,9 @@ with apRenSeq D D' ss (r: Ren D D') (ixs: Exps D ss) : Exps D' ss  :=
   then Cons (apRen r ix) (apRenSeq r ixs) 
   else Nil.
 
+Lemma apRenVar D D' s f (v: Var D s) : apRen (mkRen (D':=D') f) v = f s v. 
+Proof. done. Qed. 
+
 Definition shExp D s s' : Exp D s -> Exp (s'::D) s := apRen (mkRen (fun _ v => VarS _ v)).
 
 Definition idSub D : Sub D D := mkSub (@VarAsExp _).
@@ -123,6 +126,10 @@ with apSubSeq D D' ss (S: Sub D D') (ixs: Exps D ss) : Exps D' ss  :=
   if ixs is Cons _ _ ix ixs 
   then Cons (apSub S ix) (apSubSeq S ixs) 
   else Nil.
+
+Lemma apSubVar D D' s f (v: Var D s) : apSub (mkSub (D':=D') f) v = f s v. 
+Proof. done. Qed. 
+
 
 Lemma apSubAppCon D D' (S: Sub D D') op (ixs: Exps D _) : 
   apSub S (AppCon op ixs) = AppCon op (apSubSeq S ixs). 
@@ -213,6 +220,10 @@ Lemma apScS E E' E'' (S:Sub E' E'') (S':Sub E E') :
   (forall ss (es:Exps E ss), apSubSeq (ScS S S') es = apSubSeq S (apSubSeq S' es)).
 Proof. apply Exp_Exps_ind; Rewrites liftScR. Qed.
 
+Lemma ScS_assoc E E' E'' E''' (S1: Sub E'' E''') (S2: Sub E' E'') (S3: Sub E E') :
+  ScS S1 (ScS S2 S3) = ScS (ScS S1 S2) S3.
+Proof. apply inj_Sub; ExtVar. simpl. by rewrite (proj1 (apScS S1 S2)). 
+simpl. by rewrite (proj1 (apScS S1 S2)). Qed. 
 
 (* Well-sorted type expressions, in context *)
 Inductive Ty (D: Ctxt) :=
@@ -236,10 +247,23 @@ Fixpoint apSubTy D D' (S: Sub D D') (t: Ty D): Ty D' :=
   end.
 
 Definition shiftSub D D' s (S: Sub D D') : Sub D (s::D') := 
-  mkSub (fun s v => apRen (mkRen (fun s => VarS _)) (S s v)). 
+  mkSub (fun s v => shExp _ (S s v)). 
 
 (* This is the operation \pi_{i:s} of the paper *)
 Definition pi D s : Sub D (s::D) := shiftSub s (idSub D). 
+
+Lemma apSubPi D s s' (e:Exp D s') : apSub (pi D s) e = shExp s e.
+Proof. rewrite /pi/shExp/shiftSub/shExp. simpl. admit. 
+Qed. 
+
+Lemma liftSubDef E E' t (s:Sub E' E) : liftSub t s = consSub (VarZ _ _) (shiftSub _ s).
+Proof. apply inj_Sub. ExtVar. Qed. 
+
+Lemma liftPi D D' s (S: Sub D D') : ScS (liftSub s S) (pi D s) = ScS (pi D' s) S.
+Proof. 
+apply inj_Sub. apply functional_extensionality_dep => s'. 
+apply functional_extensionality => v. simpl. by rewrite apSubPi. 
+Qed. 
 
 (*---------------------------------------------------------------------------
    Now we introduce equational theories for indices, induced by a set of
@@ -283,39 +307,39 @@ with equivSeq_ind2 := Induction for equivSeq Sort Prop.
 Combined Scheme equivBoth_ind from equiv_ind2, equivSeq_ind2. 
 
 (* Equational theory lifted to types *)
-Inductive equivTy D : seq Ax -> relation (Ty D) :=
-| EquivTyRefl axs (t: Ty D) :
-  equivTy axs t t
+Inductive equivTy D A : relation (Ty D) :=
+| EquivTyRefl (t: Ty D) :
+  equivTy A t t
 
-| EquivTySym axs (t1 t2: Ty D) :
-  equivTy axs t1 t2 -> equivTy axs t2 t1
+| EquivTySym (t1 t2: Ty D) :
+  equivTy A t1 t2 -> equivTy A t2 t1
 
-| EquivTyTrans axs (t1 t2 t3: Ty D) : 
-  equivTy axs t1 t2 -> equivTy axs t2 t3 -> equivTy axs t1 t3
+| EquivTyTrans (t1 t2 t3: Ty D) : 
+  equivTy A t1 t2 -> equivTy A t2 t3 -> equivTy A t1 t3
 
-| EquivTyProd axs (t1 t1' t2 t2': Ty D) :
-  equivTy axs t1 t1' -> equivTy axs t2 t2' ->
-  equivTy axs (TyProd t1 t2) (TyProd t1' t2')
+| EquivTyProd (t1 t1' t2 t2': Ty D) :
+  equivTy A t1 t1' -> equivTy A t2 t2' ->
+  equivTy A (TyProd t1 t2) (TyProd t1' t2')
 
-| EquivTySum axs (t1 t1' t2 t2': Ty D) :
-  equivTy axs t1 t1' -> equivTy axs t2 t2' ->
-  equivTy axs (TySum t1 t2) (TySum t1' t2')
+| EquivTySum (t1 t1' t2 t2': Ty D) :
+  equivTy A t1 t1' -> equivTy A t2 t2' ->
+  equivTy A (TySum t1 t2) (TySum t1' t2')
 
-| EquivTyArr axs (t1 t1' t2 t2': Ty D) :
-  equivTy axs t1 t1' -> equivTy axs t2 t2' ->
-  equivTy axs (TyArr t1 t2) (TyArr t1' t2')
+| EquivTyArr (t1 t1' t2 t2': Ty D) :
+  equivTy A t1 t1' -> equivTy A t2 t2' ->
+  equivTy A (TyArr t1 t2) (TyArr t1' t2')
 
-| EquivTyPrim axs (op: PrimType sig) (es es': Exps D _):
-  equivSeq axs es es' ->
-  equivTy axs (TyPrim (p:= op) es) (TyPrim es')
+| EquivTyPrim (op: PrimType sig) (es es': Exps D _):
+  equivSeq A es es' ->
+  equivTy A (TyPrim (p:= op) es) (TyPrim es')
 
-| EquivTyAll axs s (t t': Ty (s::D)) :
-  equivTy (D:=s::D) axs t t' ->
-  equivTy axs (TyAll t) (TyAll t')
+| EquivTyAll s (t t': Ty (s::D)) :
+  equivTy A (D:=s::D) t t' ->
+  equivTy A (TyAll t) (TyAll t')
 
-| EquivTyExists axs s (t t': Ty (s::D)) :
-  equivTy (D:=s::D) axs t t' ->
-  equivTy axs (TyExists t) (TyExists t').
+| EquivTyExists s (t t': Ty (s::D)) :
+  equivTy A (D:=s::D) t t' ->
+  equivTy A (TyExists t) (TyExists t').
   
 End Syntax.
 
