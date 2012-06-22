@@ -1,8 +1,86 @@
-\section{Further Examples}
+\section{More Algebraically Indexed Types}
 \label{sec:further-examples}
+
+\subsection{Singleton Types}
+\label{sec:singleton-types}
+
+Singleton types differ from the ``variation'' types that we have
+considered so far because they nail down exactly the underlying value
+instead of describing how it varies.
+
+Indexing theory contains all the integers as constants, along with
+$+$, $-$ and $*$. Normal arithmetic laws for these
+operations. Program-level operations:
+\begin{displaymath}
+  \begin{array}{@{}c@{\hspace{0.5em}:\hspace{0.5em}}l}
+    \underline{z} & \tyPrim{int}{z} \\ % FIXME: only need zero and one
+    (+) & \forall z_1,z_2\mathord:\mathsf{integer}.\ \tyPrim{int}{z_1} \to \tyPrim{int}{z_2} \to \tyPrim{int}{z_1 + z_2} \\
+    (-) & \forall z_1,z_2\mathord:\mathsf{integer}.\ \tyPrim{int}{z_1} \to \tyPrim{int}{z_2} \to \tyPrim{int}{z_1 - z_2} \\
+    (*) & \forall z_1,z_2\mathord:\mathsf{integer}.\ \tyPrim{int}{z_1} \to \tyPrim{int}{z_2} \to \tyPrim{int}{z_1 * z_2}
+  \end{array}
+\end{displaymath}
+
+\begin{enumerate}
+\item Take integers as a useful example
+\item The relational interpretation is simply that two things are
+  related if they are both equal to the indexing value (and each
+  other).
+\item Types are extremely precise... Can this be quantified?
+\item Indefinability result by considering sub-algebras? Is this a
+  general method? Can't write:
+  \begin{displaymath}
+    \forall z_1,z_2,z_3.\ \tyPrim{int}{z_1} \to \tyPrim{int}{z_2} \to \tyPrim{int}{z_3}
+  \end{displaymath}
+  because there is no way of getting $z_3$ from $z_1$ and $z_2$. Can
+  prove this using the relational environments. Is there a nice
+  matrix-style way of characterising the allowable things? I guess it
+  is harder when there are two operations lying around (multiplication
+  and addition here). Maybe we could restrict to multiplication by
+  constants? Then we could possibly characterise the definable
+  elements by a matrix representation?
+\end{enumerate}
+
+\subsection{Predicate Types}
+\label{sec:predicate-types}
+
+\begin{enumerate}
+\item Let the indexing theory be predicates on the underlying value
+\item With the laws of boolean algebra
+\item Singleton types are a special case (i.e. with equality to a fixed value)
+\item But also have $\land$, $\lor$, $\lnot$ (and derived $\Rightarrow$)
+\item A pair of things is related if they both satisfy the predicate
+  (and are equal?)
+\item Need a special type for comparisons?
+  \begin{displaymath}
+    (<) : \forall z_1,z_2:\mathsf{integer}.\ \tyPrim{int}{z_1} \to \tyPrim{int}{z_2} \to (\tyPrim{int}{< z_1} \times 
+  \end{displaymath}
+\end{enumerate}
 
 \subsection{Logical Information Flow}
 \label{sec:information-flow}
+
+\begin{enumerate}
+\item This is now a special case of the preceeding subsection
+\item Also makes use of the relational aspect, the previous stuff
+  could make do with unary logical predicates as the interpretations
+  of types, but the information flow properties make use of the
+  relational interpretation.
+\end{enumerate}
+
+\fixme{
+  \begin{enumerate}
+  \item Make the definition of control of information flow clearer
+  \item Make the example a bit more compelling
+  \item Put in some examples of composite principals formed from
+    boolean logic, and the use of boolean algebra to do reasoning in
+    the types. List the laws of boolean algebra, and the laws of
+    Heyting algebra. Need to explain the difference between 
+  \item Possibly use singleton types to be able to do more interesting
+    security policies?
+  \item Put in the formal statement of the information flow property
+    and the proof.
+  \end{enumerate}
+}
 
 An extreme example of invariance under change of representation is the
 tracking of information flow through programs. If a program does not
@@ -10,17 +88,18 @@ depend upon a particular piece of information, then it will be
 invariant under \emph{all} changes of representation of this
 information. As thoroughly described by Sabelfeld and Sands
 \cite{sabelfeld01per}, information flow can be captured semantically
-through the use of partial equivalence relations (PERs). PERs form an
-instance of Reynolds' approach to abstraction and representation
-independence. Abadi, Banerjee, Heintze and Riecke \cite{abadi99core}
-built a \emph{Core Calculus for Dependency}, using a type system based
-around a security level indexed monad $T_lA$. Tse and Zdancewic
-\cite{tse04translating} showed that it is possible to translate Abadi
-et al.'s calculus into System F, translating the monadic type $T_lA$
-to $\alpha_l \to A$ for some free type variable $\alpha_l$, and making
-direct use of Reynolds' abstraction theorem to prove information flow
-properties. We now show how a refined variant of Tse and Zdancewic's
-translation can be expressed via algebraically-indexed types.
+through the use of partial equivalence relations (PERs). Interpreting
+types as PERs forms an instance of Reynolds' approach to abstraction
+and representation independence. Abadi, Banerjee, Heintze and Riecke
+\cite{abadi99core} built a \emph{Core Calculus for Dependency}, using
+a type system based around a security level indexed monad $T_lA$. Tse
+and Zdancewic \cite{tse04translating} showed that it is possible to
+translate Abadi et al.'s calculus into System F, translating the
+monadic type $T_lA$ to $\alpha_l \to A$ for some free type variable
+$\alpha_l$, and making direct use of Reynolds' abstraction theorem to
+prove information flow properties. We now show how a refined variant
+of Tse and Zdancewic's translation can be expressed via
+algebraically-indexed types.
 
 We assume a single indexing sort $\mathsf{principal}$, intended to
 represent (possibly composite) principals in a system. Principals are
@@ -72,6 +151,39 @@ of the ``environment'' (or ``reader'') monad \cite{jones95functional}.
   logic.
 \end{example}
 
+\begin{enumerate}
+\item Treat the information flow thing as a type isomorphism, in the
+  same way that Tse and Zdancewic do
+  \begin{displaymath}
+    \begin{array}{l}
+    \forall \vec{p}\mathord:\mathsf{principal}.\ T_{e_1}\tyPrimNm{bool} \to T_{e_2}\tyPrimNm{bool}\\
+    \hspace{4em}\cong \\
+    \left\{
+      \begin{array}{ll}
+        \tyPrimNm{bool} \tyArr \tyPrimNm{bool} & \textrm{if }e_2 \vdash e_1 \\
+        \tyPrimNm{bool} & \textrm{if }e_2 \not\vdash e_1
+      \end{array}
+    \right.
+  \end{array}
+  \end{displaymath}
+  where $\tyPrimNm{bool} = \tyUnit + \tyUnit$.
+\item mention the issue with bogus tokens if we allow for a
+  call-by-name style of non-termination
+\item if we axiomatise intuitionistic logic instead of
+  boolean/classical logic, we get a different type isomorphism.
+\item The isomorphism relies upon $e_1 \vdash e_2 \Leftrightarrow e_1
+  \lor e_2 = e_1$.
+\item Relevant logic? Look at the Wikipedia page to see how to do
+  residuated (commutative) monoids on lattices with just
+  equations. With this, we will be able to do substructural logics
+  too. As long as we know that a particular axiomatisation is sound
+  and complete for some reasoning system, then we can state and prove
+  the non-interference isomorphism above.
+\item Compare to Tse and Zdancewic's addition of axioms to the logic.
+\item Internalising equality? The logical structure can then be used
+  on types as well as everything else. Need the special rules for
+  equality... (see the Fomega paper).
+\end{enumerate}
 
 % Go a step further by considering equivalence relations on word32, and
 % their lattice structure. Link this to quantative information
@@ -111,15 +223,210 @@ presented a program logic based approach to verifying the continuity
 of programs. Algebraically indexed types give us a way of expressing
 and verifying continuity properties of functions in a type based way.
 
-% \begin{eqnarray*}
-%   \underline{c} & : & \forall \epsilon\mathord:\mathsf{R}^{>0}.\ \tyPrim{real}{\epsilon} \\
-%   (+) & : & \forall \epsilon_1, \epsilon_2\mathord:\mathsf{R}^{>0}.\ \tyPrim{real}{\epsilon_1} \to \tyPrim{real}{\epsilon_2} \to \tyPrim{real}{\epsilon_1 + \epsilon_2} \\
-%   (-) & : & \forall \epsilon_1, \epsilon_2\mathord:\mathsf{R}^{>0}.\ \tyPrim{real}{\epsilon_1} \to \tyPrim{real}{\epsilon_2} \to \tyPrim{real}{\epsilon_1 + \epsilon_2} \\
-%   (*) & : & \forall \epsilon_1, \epsilon_2\mathord:\mathsf{R}^{>0}.\ \tyPrim{real}{\epsilon_1} \to \tyPrim{real}{\epsilon_2} \to \tyPrim{real}{\epsilon_1\epsilon_2}
-% \end{eqnarray*}
+\begin{displaymath}
+  \begin{array}{r@{\hspace{0.5em}:\hspace{0.5em}}l}
+    \underline{c} & \forall \epsilon\mathord:\mathsf{R}^{>0}.\ \tyPrim{real}{\epsilon} \\
+    (+) & \forall \epsilon_1, \epsilon_2\mathord:\mathsf{R}^{>0}.\ \tyPrim{real}{\epsilon_1} \to \tyPrim{real}{\epsilon_2} \to \tyPrim{real}{\epsilon_1 + \epsilon_2} \\
+    (-) & \forall \epsilon_1, \epsilon_2\mathord:\mathsf{R}^{>0}.\ \tyPrim{real}{\epsilon_1} \to \tyPrim{real}{\epsilon_2} \to \tyPrim{real}{\epsilon_1 + \epsilon_2} \\
+    (*) & \forall \epsilon_1, \epsilon_2\mathord:\mathsf{R}^{>0}.\ \tyPrim{real}{\epsilon_1} \to \tyPrim{real}{\epsilon_2} \to \tyPrim{real}{\epsilon_1\epsilon_2}
+  \end{array}
+\end{displaymath}
+
+\begin{enumerate}
+\item State the operations and equations (rational powers, addition
+  and multiplication (remember: positive reals))
+\item Derive subtyping by addition of $0$
+\item Do the probability monad as a special case, with a specific
+  relational interpretation that relates things according to the
+  differential privacy notion. Need to think about the
+  measure-theoretic problems...
+\item Work out the details of the continuity example, especially the
+  implementation of an ADT for continuous functions that can handle
+  polynomials.
+\end{enumerate}
+
+\subsection{Abelian Group Indexed Types}
+\label{sec:abelian-group-indexed-types}
+
+\newcommand{\Grp}{\mathit{Grp}}
+
+Primitive operations $\Gamma_\Grp$:
+\begin{displaymath}
+  \begin{array}{r@{\hspace{0.5em}:\hspace{0.5em}}l}
+    1 & \tyPrim{G}{1} \\
+    (\cdot) & \forall a,b\mathord:\mathsf{G}.\ \tyPrim{G}{a} \to \tyPrim{G}{b} \to \tyPrim{G}{a b} \\
+    \ ^{-1} & \forall a\mathord:\mathsf{G}.\ \tyPrim{G}{a} \to \tyPrim{G}{a^{-1}}
+  \end{array}
+\end{displaymath}
+
+For the index-erasure interpretation, we assume a group $(G, 1, \cdot,
+\ ^{-1})$. Let $Z(G)$ be the centre of the $G$: i.e.,~the set of
+elements that commute with every other element in $G$. We set
+$\tyPrimSem{G} = G$. The primitive operations in $\Gamma_\Grp$ are
+interpreted just as the unit, multiplication and inverse operations
+of $G$. For each index context $\Delta$, the set
+$\relEnv{E}_\Grp(\Delta)$ of relational environments is defined to be
+$\{ \rho_{(H,h)} \sepbar H\textrm{ is a subgroup of }(\Delta
+\Rightarrow \mathsf{G})/\equiv, h\textrm{ is a group homomorphism }H
+\to Z(G) \}$, where
+\begin{displaymath}
+  \rho_{(H,h)}\ \tyPrimNm{G}\ (e) = \left\{
+    \begin{array}{ll}
+      \{ \} & \textrm{if}\ e\not\in H \\
+      \{ (x, h(e)\cdot x) \sepbar x \in G \} & \textrm{if}\ e\in H
+    \end{array}
+  \right.
+\end{displaymath}
+
+\begin{lemma}
+  For all $\Delta$ and $\rho \in \relEnv{E}_\Grp(\Delta)$,
+  $(\eta_\Grp,\eta_\Grp) \in \rsem{\Gamma_\Grp}{\relEnv{E}}\rho$.
+\end{lemma}
+
+\begin{theorem}
+  Let $m$ and $n$ be natural numbers. For all $n$-by-$m$-matricies of
+  natural numbers $A$ and $m$-by-$1$ matricies of integers $b$,
+  there exists a program $M$ such that
+  \begin{equation}
+    \label{eq:fo-group-type}
+    \Gamma_\Grp \vdash M : \forall i_1,\dots,i_m\mathord:\mathsf{G}.\ \tyPrim{G}{e_1} \to \dots \to \tyPrim{G}{e_n} \to \tyPrim{G}{e}
+  \end{equation}
+  where $e_j = i_1^{A_{j1}}\dots i_m^{A_{jm}}$ and $e = i_1^{b_1}\dots
+  i_m^{b_m}$, if and only if there is a solution $\vec{x} =
+  (x_1,\cdots,x_n)$ in the integers to the equation $A x^\top = b$.
+\end{theorem}
+
+\fixme{Define shorthand notation $x^z$}
+
+\begin{proof}
+  (If) The program $\Lambda i_1\dots i_m.\ \lambda g_1\dots g_n.\
+  g_1^{x_1}\dots g_n^{x_n}$ satisfies the typing judgment
+  (\ref{eq:fo-group-type}).
+
+  (Only if) Assume that there is a program $M$ satisfying the typing
+  judgment (\ref{eq:fo-group-type}). By \thmref{thm:abstraction} we
+  know that for all relational environments $\rho \in
+  \relEnv{E}_\Grp(i_1,\dots,i_m)$, and all $g_j,g'_j \in G$,
+  \begin{displaymath}
+    \begin{array}{l}
+      (g_1,g'_1) \in \rho\ \tyPrimNm{G}\ (e_1) \land \dots \land (g_n,g'_n) \in \rho\ \tyPrimNm{G}\ (e_n) \Rightarrow \\
+      \quad (\tmSem{M}g_1\dots g_n, \tmSem{M}g'_1\dots g'_n) \in \rho\ \tyPrimNm{G}\ (e)
+    \end{array}
+  \end{displaymath}
+  We select the relational environments
+  \begin{displaymath}
+    \rho\ \tyPrimNm{G}\ (e) = \left\{
+      \begin{array}{ll}
+        \{(g,g) \sepbar g \in \mathcal{G} \} &
+        \begin{array}[t]{@{}l}
+          \textrm{if}\ e = e_1^{x_1}\dots e_n^{x_n} \\
+          \textrm{ for some }x_1,\dots,x_n \in \mathbb{Z}
+        \end{array}
+        \\
+        \{\} & \textrm{otherwise}
+      \end{array}
+    \right.
+  \end{displaymath}
+  Now, for any $g_1,\dots,g_m \in \mathcal{G}$, we know that, for all
+  $j$, $(g_j,g_j) \in \rho\ \tyPrimNm{G}\ (e_j)$, so we know that
+  $(\tySem{M}g_1\dots g_n, \tySem{M}g_1 \dots g_n) \in \rho\
+  \tyPrimNm{G}\ (e)$. Thus there exist integers $x_1,...,x_n$ such
+  that $e = e_1^{x_1}\dots e_n^{x_n}$. But we also know that $e =
+  i_1^{b_1}...i_m^{b_m}$. By the cancellation property of free groups,
+  we learn that $x_1,...,x_n$ is the solution we need.
+\end{proof}
+
+\begin{enumerate}
+\item Can add any other operations that distribute over the group
+  multiplication.
+\item What about partial division operations? Make division just
+  return $0$.
+\item Adding square root as an operation. Need to check that all the
+  other operations preserve the new relational environments. Square
+  root is also supported by the plain relational environments, so the
+  type isomorphism result still holds.
+\end{enumerate}
+
+
+
+\subsubsection{Type isomorphisms}
+\label{sec:abelian-group-type-isos}
+
+\begin{enumerate}
+\item This only needs the simpler relational environments, but needs
+  the group used for the index-erasure semantics to be abelian.
+\item One direction is easy, but the other requires the use of the
+  free theorem for the type.
+\item There are two version: one with some fixed ground type as the
+  result, and one with the same type as the result, but with the same
+  parameter.
+\item Integrates into the Smith Normal Form thing too, since
+  invertible integer-valued matrices can be turned into type
+  isomorphisms.
+\item Partiality?
+\end{enumerate}
+
+\fixme{Define what a type isomorphism is}
+
+\begin{theorem}
+  For all natural numbers $n$, the types
+  \begin{displaymath}
+    \tau_{n} \isDefinedAs \forall a\mathord:\mathsf{G}.\ \underbrace{\tyPrim{G}{a} \to ... \to \tyPrim{G}{a}}_{n+1\textrm{ times}} \to \tyPrim{G}{a}
+  \end{displaymath}
+  and
+  \begin{displaymath}
+    \sigma_{n} \isDefinedAs \underbrace{\tyPrim{G}{1} \to ... \tyPrim{G}{1}}_{n\textrm{ times}} \to \tyPrim{G}{1}
+  \end{displaymath}
+  are isomorphic.
+\end{theorem}
+
+\begin{proof}
+  We define programs $\Gamma_\Grp \vdash M : \tau_n \to \sigma_n$ and
+  $\Gamma_\Grp \vdash M^{-1} : \sigma_n \to \tau_n$ as follows:
+  \begin{displaymath}
+    M = \lambda f. \lambda g_1 \dots g_n.\ f\ [1]\ 1\ g_1\ \dots\ g_n
+  \end{displaymath}
+  and
+  \begin{displaymath}
+    M^{-1} = \lambda f. \Lambda a.\ \lambda g_0 \dots g_n.\ (f\ (g_1 g^{-1}_0)\ \dots\ (g_n g^{-1}_0)) g_0
+  \end{displaymath}
+  In one direction, the proof that these are mutually inverse is
+  straightfoward, using only the fact that $G$ is a group. For any
+  program $\Gamma_\Grp \vdash f : \sigma_n$, we have
+  \begin{displaymath}
+    \begin{array}{cl}
+        & \tmSem{M\ (M^{-1}\ f)}\eta_\Grp \\
+      = & (\tmSem{M}\eta_{\Grp})\ (\lambda g_0 \dots g_n.\ (\tmSem{f}\eta_\Grp\ (g_1 g^{-1}_0)\ \dots\ (g_n g^{-1}_0)) g_0) \\
+      = & \lambda g_1\dots g_n.\ \tmSem{f}\eta_\Grp\ (g_1 1^{-1})\ \dots\ (g_n 1^{-1})) 1) \\
+      = & \lambda g_1\dots g_n.\ \tmSem{f}\eta_\Grp\ g_1\ \dots\ g_n \\
+      = & \tmSem{f}\eta_\Grp
+    \end{array}
+  \end{displaymath}
+  as required. In the other direction, we need to use the abstraction
+  theorem. For any program $\Gamma_\Grp \vdash f : \tau_n$, we have
+  \begin{displaymath}
+    \begin{array}{cl}
+        & \tmSem{M^{-1}\ (M\ f)}\eta_\Grp \\
+      = & (\tmSem{M^{-1}}\eta_\Grp)\ (\lambda g_1\dots g_n.\ (\tmSem{f}\eta_\Grp\ 1\ g_1\ \dots\ g_n)) \\
+      = & \lambda g_0\dots g_n.\ (\tmSem{f}\eta_\Grp\ 1\ (g_1g^{-1}_0)\ \dots\ (g_ng^{-1}_0))g_0
+    \end{array}
+  \end{displaymath}
+  By \thmref{thm:abstraction}, we know that the following holds of
+  $\tmSem{f}$:
+  \begin{displaymath}
+    \forall a.\ \forall g_0 \dots g_n.\ \tmSem{f}\eta_\Grp\ (g_0a)\ \dots\ (g_na) = (\tmSem{f}\eta_\Grp\ g_0\ \dots\ g_n)a
+  \end{displaymath}
+  As a special case, we set $a = g^{-1}_0$, and learn that
+  \begin{displaymath}
+    \forall g_0 \dots g_n.\ \tmSem{f}\eta_\Grp\ 1\ (g_1g^{-1}_0) \dots\ (g_ng^{-1}_0) = (\tmSem{f}\eta_\Grp\ g_0\ \dots\ g_n)g^{-1}_0.
+  \end{displaymath}
+  By functional extensionality, we are done.
+\end{proof}
 
 \subsection{Monoid Indexed Types}
 \label{sec:monoid-indexed-types}
+
+\newcommand{\Mon}{\textit{Mon}}
 
 Primitive type is a monoid, and we index by a commutative monoid. An
 example of this is strings with tainting information, or bags, or sets
@@ -129,29 +436,28 @@ uses of input data.
 
 Primitive operations $\Gamma_{\mathit{Mon}}$:
 \begin{displaymath}
-  \begin{array}{c@{\hspace{0.5em}:\hspace{0.5em}}l}
+  \begin{array}{r@{\hspace{0.5em}:\hspace{0.5em}}l}
     1 & \tyPrim{M}{1} \\
     (\cdot) & \forall a,b.\ \tyPrim{M}{a} \to \tyPrim{M}{b} \to \tyPrim{M}{a\cdot b}
   \end{array}
 \end{displaymath}
 
-For the index-erasure interpretation, we assume a commutative monoid
+For the index-erasure interpretation, we assume a monoid
 $\mathcal{M}$. The primitive type $\tyPrimNm{M}$ is interpreted as
 $\tySem{\tyPrim{M}{e}} = \mathcal{M}$. The primitive operations in
-$\Gamma_{\mathit{Mon}}$ are interpreted just as the unit and multiplication of
-the monoid $\mathcal{M}$.
-
+$\Gamma_{\mathit{Mon}}$ are interpreted just as the unit and
+multiplication of the monoid $\mathcal{M}$.
 
 % Need the following definitions: syntatic group/monoid arising from
 % the syntax, and a neater way of defining relational
 % environments. Also, a neat way of formally introducing a load of
 % primitive operations.
 
-For each index context $\relEnv{E}(\Delta)$, the set
-$\relEnv{E}(\Delta)$ of relational environments is defined to be $\{
-\rho_{(M,h)} \sepbar M\textrm{ is a submonoid of }(\Delta \Rightarrow
-\mathsf{M})/\equiv, h\textrm{ is a monoid homomorphism }M \to
-Z(\mathcal{M}) \}$, where
+For each index context $\Delta$, the set
+$\relEnv{E}_\Mon(\Delta)$ of relational environments is
+defined to be $\{ \rho_{(M,h)} \sepbar M\textrm{ is a submonoid of
+}(\Delta \Rightarrow \mathsf{M})/\equiv, h\textrm{ is a monoid
+  homomorphism }M \to Z(\mathcal{M}) \}$, where
 \begin{displaymath}
   \rho_{(M,h)}\ \tyPrimNm{M}\ (e) = \left\{
     \begin{array}{ll}
@@ -160,11 +466,12 @@ Z(\mathcal{M}) \}$, where
     \end{array}
   \right.
 \end{displaymath}
-Note the mapping to the centre of the monoid $\mathcal{M}$.
+Note the mapping to the centre of the monoid
+$\mathcal{M}$. \fixme{introduce the centre notation earlier on}
 
 \begin{lemma}
-  For all $\Delta$ and $\rho \in \relEnv{E}(\Delta)$,
-  $(\eta_{M},\eta_{M}) \in \rsem{\Gamma_{\mathit{Mon}}}{\relEnv{E}}\rho$.
+  For all $\Delta$ and $\rho \in \relEnv{E}_\Mon(\Delta)$,
+  $(\eta_\Mon,\eta_\Mon) \in \rsem{\Gamma_\Mon}{\relEnv{E}}\rho$.
 \end{lemma}
 
 \begin{theorem}
@@ -173,7 +480,7 @@ Note the mapping to the centre of the monoid $\mathcal{M}$.
   there exists a program $M$ such that
   \begin{equation}
     \label{eq:fo-monoid-type}
-    \Gamma_{\mathit{Mon}} \vdash M : \forall i_1,\dots,i_m\mathord:\mathsf{M}.\ \tyPrim{M}{e_1} \to \dots \to \tyPrim{M}{e_n} \to \tyPrim{M}{e}
+    \Gamma_\Mon \vdash M : \forall i_1,\dots,i_m\mathord:\mathsf{M}.\ \tyPrim{M}{e_1} \to \dots \to \tyPrim{M}{e_n} \to \tyPrim{M}{e}
   \end{equation}
   where $e_j = i_1^{A_{j1}}\dots i_m^{A_{jm}}$ and $e =
   i_1^{b_1}\dots i_m^{b_m}$, if and only if there is a solution
