@@ -4,33 +4,35 @@ Set Implicit Arguments.
 Unset Strict Implicit.
 Import Prenex Implicits.
 
-Require Import syn.
+Require Import syn Casts.
 
 (*---------------------------------------------------------------------------
    Semantics
    ---------------------------------------------------------------------------*)
+Section Sem.
 
 Structure SEM (sig: SIG) := mkSEM {
   (* Underlying interpretation of primitive type constructors *)
   interpPrim : PrimType sig -> Type
 }.
 
-Section USem.
-
 Variable sig: SIG.
 Variable sem: SEM sig.
+
+Reserved Notation "| t |" (at level 60).
 
 (* Index-erasure interpretation of types *)
 Fixpoint interpTy D (t: Ty D) : Type :=
   match t with
   | TyUnit       => unit
-  | TyProd t1 t2 => (interpTy t1 * interpTy t2)%type
-  | TySum  t1 t2 => (interpTy t1 + interpTy t2)%type
-  | TyArr  t1 t2 => interpTy t1 -> interpTy t2
-  | TyAll    _ t => interpTy t
-  | TyExists _ t => interpTy t
+  | TyProd t1 t2 => |t1| * |t2|
+  | TySum  t1 t2 => |t1| + |t2|
+  | TyArr  t1 t2 => |t1| -> |t2|
+  | TyAll    _ t => |t| 
+  | TyExists _ t => |t|
   | TyPrim   p _ => interpPrim sem p
-  end.
+  end%type
+where "| t |" := (interpTy t).
 
 (* Relation environments *)
 Definition RelEnv D := 
@@ -62,8 +64,8 @@ Definition ext D (rho: RelEnv D) (s: Srt sig) (rho': RelEnv (s::D)) :=
 
 Implicit Arguments ext [D].
 
-Fixpoint semTy D (rho: RelEnv D) (t:Ty D) : relation (interpTy t) :=
-  match t return relation (interpTy t) with
+Fixpoint semTy D (rho: RelEnv D) (t:Ty D) : relation (|t|) :=
+  match t with
   | TyUnit => fun x y => True
   | TyProd t1 t2 => fun x y => semTy rho x.1 y.1 /\ semTy rho x.2 y.2
   | TySum t1 t2 => fun x y => 
@@ -77,57 +79,74 @@ Fixpoint semTy D (rho: RelEnv D) (t:Ty D) : relation (interpTy t) :=
   | TyExists s t => fun x y => exists rho', ext rho s rho' -> semTy rho' x y
   end.
 
-Lemma interpSubst D (t: Ty D) : 
-  forall D' (S: Sub D D'), interpTy t = interpTy (apSubTy S t).
+Notation "r '|=' x '===' y : t" := (semTy (t:=t) r x y)  (at level 80, x, y at next level).
+
+(* This is lemma 3, part 1 *)
+Lemma interpEquiv D (t1 t2: Ty D) A : equivTy A t1 t2 -> |t1| = |t2|.
+Proof. move => E. induction E => /=//; congruence. Qed. 
+
+(* This is lemma 3, part 2 *)
+Lemma interpSubst D (t: Ty D) : forall D' (S: Sub D D'), |t| = |apSubTy S t|.
 Proof. induction t => /=//; congruence. Qed.
 
-Require Import Casts.
-Definition up D D'(S:Sub D D') t (x: interpTy t) : interpTy (apSubTy S t) :=  
-  (eq_rect _ (fun X : _ => X) x _ (interpSubst t S)).  
 
-Definition dn D D'(S:Sub D D') t (x: interpTy (apSubTy S t)) := 
-  (eq_rect _ (fun X : _ => X) x _ (sym_equal (interpSubst t S))).
+(*---------------------------------------------------------------------------
+   Unfortunately we need casts just to state the semSubst lemma. 
+   "up" sends a value from |t| to |apSubTy S t|
+   "dn" sends a value from |apSubTy S t| to |t|
+   We have various lemmas connecting these.
+   ---------------------------------------------------------------------------*)
+Section UpDn. 
 
-Lemma dnup D D' t (S: Sub D D') (x: interpTy t) : dn (up S x) = x.
-Proof. by rewrite /up/dn cast_coalesce cast_id. Qed. 
-
-Lemma updn D D' t (S: Sub D D') (x: interpTy (apSubTy S t)) : up S (dn x) = x.
-Proof. by rewrite /up/dn cast_coalesce cast_id. Qed. 
-
-Section upLift.
   Variables D D' : Ctxt sig.
   Variables S : Sub D D'.
-  Variables t1 t2 : Ty D.
+  Variables t t1 t2 : Ty D.
 
-  Lemma upApp (f:interpTy (TyArr t1 t2)) (x:interpTy t1) : up _ (f x) = (up _ f) (up S x). 
+  Definition up t x := x :? interpSubst t S.
+  Definition dn t x := x :? sym_equal (interpSubst t S).
+
+  Lemma dnup (x: |t|) : dn (up x) = x.
+  Proof. by rewrite /up/dn cast_coalesce cast_id. Qed. 
+
+  Lemma updn (x: |apSubTy S t|) : up (dn x) = x.
+  Proof. by rewrite /up/dn cast_coalesce cast_id. Qed. 
+End UpDn.
+
+Section UpDnProps.
+
+  Variables D D' : Ctxt sig.
+  Variables S : Sub D D'.
+  Variables t t1 t2 : Ty D.
+
+  Lemma upApp (f: |TyArr t1 t2|) (x: |t1|) : up S (f x) = (up _ f) (up S x). 
   Proof. rewrite /up. rewrite (cast_app (interpSubst t1 S) (interpSubst t2 S)).
   set F1 := f :? arrow_eq _ _. simpl in F1. 
   set F2 := f :? interpSubst _ _. simpl (id _) in F2. 
   have: F1 = F2 by apply cast_UIP. by move ->. 
   Qed. 
 
-  Lemma upFst (p : interpTy (TyProd t1 t2)) : (up _ p).1 = (up S p.1).
+  Lemma upFst (p: |TyProd t1 t2|) : (up _ p).1 = (up S p.1).
   Proof. 
   rewrite /up -(cast_fst (interpSubst t1 S) (interpSubst t2 S)). 
   set H := interpSubst _ _. 
   set H':= prod_eq _ _. simpl interpTy in H. by rewrite cast_UIP. 
   Qed. 
 
-  Lemma upSnd (p : interpTy (TyProd t1 t2)) : (up _ p).2 = (up S p.2).
+  Lemma upSnd (p: |TyProd t1 t2|) : (up _ p).2 = (up S p.2).
   Proof. 
   rewrite /up -(cast_snd (interpSubst t1 S) (interpSubst t2 S)). 
   set H := interpSubst _ _. 
   set H':= prod_eq _ _. simpl interpTy in H. by rewrite cast_UIP. 
   Qed. 
 
-  Lemma upInl (x : interpTy t1) : up (t:=TySum t1 t2) S (inl _ x) = inl _ (up (t:=t1) S x).
+  Lemma upInl (x: |t1|) : up (t:=TySum t1 t2) S (inl _ x) = inl _ (up (t:=t1) S x).
   Proof.  
   rewrite /up -(cast_inl (interpSubst t1 S) (interpSubst t2 S)). 
   set H := interpSubst _ _. 
   set H' := sum_eq _ _. simpl interpTy in H. by rewrite cast_UIP. 
   Qed. 
 
-  Lemma upInr (x : interpTy t2) : up (t:=TySum t1 t2) S (inr _ x) = inr _ (up (t:=t2) S x).
+  Lemma upInr (x: |t2|) : up (t:=TySum t1 t2) S (inr _ x) = inr _ (up (t:=t2) S x).
   Proof.  
   rewrite /up -(cast_inr (interpSubst t1 S) (interpSubst t2 S)). 
   set H := interpSubst _ _. 
@@ -141,16 +160,17 @@ Section upLift.
   Qed.
 *)
 
-End upLift.
+End UpDnProps.
 
-
-
+(* This is lemma 4, part 2 *)
 Lemma semSubst D (t: Ty D) : forall D' (S:Sub D D') rho v v', 
-  semTy (t:=apSubTy S t) rho (up S v) (up S v') <-> semTy (t:=t) (EcS rho S) v v'.
+  rho |= up S v === up S v' : apSubTy S t 
+  <->
+  EcS rho S |= v === v' : t.
 Proof. induction t => /= D' S rho v v'.
 
 (* TyUnit *)
-reflexivity. 
+by reflexivity. 
 
 (* TyProd *)
 by rewrite -IHt1 -IHt2 2!upFst 2!upSnd. 
@@ -212,6 +232,7 @@ split.
 
 (* TyPrim *)
 rewrite /EcS/up/=.
+have SS:= (apScS S (expsAsSub ixs)). 
 admit. 
 
 (* TyAll *)
@@ -228,5 +249,7 @@ split.
 + move => H. admit. 
 Qed. 
 
-End USem.
+
+End Sem.
+
 

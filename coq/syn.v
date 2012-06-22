@@ -176,7 +176,6 @@ Lemma apSubId D :
   (forall ss (es: Exps D ss), apSubSeq (idSub _) es = es). 
 Proof. apply Exp_Exps_ind; Rewrites liftSubId. Qed.
 
-(*=ComposeLemmas *)
 Lemma liftRcR E E' E'' s (r:Ren E' E'') (r':Ren E E') :
   liftRen s (RcR r r') = RcR (liftRen s r) (liftRen s r').
 Proof. apply inj_Ren; ExtVar. Qed.
@@ -242,7 +241,12 @@ Definition shiftSub D D' s (S: Sub D D') : Sub D (s::D') :=
 (* This is the operation \pi_{i:s} of the paper *)
 Definition pi D s : Sub D (s::D) := shiftSub s (idSub D). 
 
-(* Well-sorrted axiom, in context *)
+(*---------------------------------------------------------------------------
+   Now we introduce equational theories for indices, induced by a set of
+   axioms. The equational theory is lifted to types.
+   ---------------------------------------------------------------------------*)
+
+(* Well-sorted axiom, in context *)
 Inductive Ax := mkAx D s (lhs: Exp D s) (rhs: Exp D s).
 
 (* Equational theory induced by axioms *)
@@ -278,11 +282,43 @@ with equivSeq_ind2 := Induction for equivSeq Sort Prop.
 
 Combined Scheme equivBoth_ind from equiv_ind2, equivSeq_ind2. 
 
+(* Equational theory lifted to types *)
+Inductive equivTy D : seq Ax -> relation (Ty D) :=
+| EquivTyRefl axs (t: Ty D) :
+  equivTy axs t t
+
+| EquivTySym axs (t1 t2: Ty D) :
+  equivTy axs t1 t2 -> equivTy axs t2 t1
+
+| EquivTyTrans axs (t1 t2 t3: Ty D) : 
+  equivTy axs t1 t2 -> equivTy axs t2 t3 -> equivTy axs t1 t3
+
+| EquivTyProd axs (t1 t1' t2 t2': Ty D) :
+  equivTy axs t1 t1' -> equivTy axs t2 t2' ->
+  equivTy axs (TyProd t1 t2) (TyProd t1' t2')
+
+| EquivTySum axs (t1 t1' t2 t2': Ty D) :
+  equivTy axs t1 t1' -> equivTy axs t2 t2' ->
+  equivTy axs (TySum t1 t2) (TySum t1' t2')
+
+| EquivTyArr axs (t1 t1' t2 t2': Ty D) :
+  equivTy axs t1 t1' -> equivTy axs t2 t2' ->
+  equivTy axs (TyArr t1 t2) (TyArr t1' t2')
+
+| EquivTyPrim axs (op: PrimType sig) (es es': Exps D _):
+  equivSeq axs es es' ->
+  equivTy axs (TyPrim (p:= op) es) (TyPrim es')
+
+| EquivTyAll axs s (t t': Ty (s::D)) :
+  equivTy (D:=s::D) axs t t' ->
+  equivTy axs (TyAll t) (TyAll t')
+
+| EquivTyExists axs s (t t': Ty (s::D)) :
+  equivTy (D:=s::D) axs t t' ->
+  equivTy axs (TyExists t) (TyExists t').
+  
 End Syntax.
 
-Notation "c '<>'" := (AppCon c (@Nil _ _)) (at level 2). 
-
-Notation "c '@<' x , .. , y '>'" := (AppCon c (Cons x .. (Cons y Nil) ..)) (at level 80).
 Notation "D '|-' e '===' f" := (@mkAx _ D _ e f) (at level 80, e, f at next level).
 Notation "t '-->' s" := (TyArr t s) (at level 55, right associativity) : Ty_scope.
 Notation "t * s" := (TyProd t s) (at level 40, left associativity) : Ty_scope.
@@ -318,5 +354,30 @@ apply equivBoth_ind.
 + move => A. by apply: EquivNil.
 (* EquivCons *)
 + move => A s ss e1 e2 es1 es2 E1 E2 E3 E4. rewrite 2!apSubSeqCons. by apply: EquivCons. 
+Qed. 
+
+(* This is lemma 2, part 2 *)
+Lemma equivTySubst sig D A (t t': Ty (sig:=sig) D) :
+  equivTy A t t' -> forall D' (S: Sub D D'), equivTy A (apSubTy S t) (apSubTy S t').
+Proof.
+move => E. induction E => D' S. 
+(* EquivTyRefl *)
++ by apply: EquivTyRefl.
+(* EquivTySym *)
++ by apply: EquivTySym.
+(* EquivTyTrans *)
++ apply: EquivTyTrans => //. 
+(* EquivTyProd *)
++ apply: EquivTyProd => //. 
+(* EquivTySum *)
++ apply: EquivTySum => //. 
+(* EquivTyArr *)
++ apply: EquivTyArr => //. 
+(* EquivTyPrim *)
++ apply: EquivTyPrim. apply equivSubst => //.  
+(* EquivTyAll *)
++ apply: EquivTyAll. apply IHE. 
+(* EquivTyExists *)
++ apply: EquivTyExists. apply IHE. 
 Qed. 
 

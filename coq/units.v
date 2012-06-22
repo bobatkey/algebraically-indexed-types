@@ -1,4 +1,4 @@
-Require Import ssreflect ssrbool ssrfun seq.
+Require Import ssreflect ssrbool ssrfun seq ssralg.
 Require Import Relations.
 
 Require Import syn.
@@ -95,5 +95,12 @@ Definition ExPrimTypes : seq (tyExpr [::]) :=
   (* abs *)
   allUnits (real #0 --> real (abs #0))
 ]%Ty.
+
+Variable F: fieldType.
+
+Require Import sem.
+Canonical ExSem := mkSEM (sig:=ExSIG) (fun _ => F). 
+
+
 
                            
