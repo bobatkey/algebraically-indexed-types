@@ -1,4 +1,7 @@
-TARGETS = Casts.vo \
+
+TARGETS = Rel.vo \
+          Casts.vo \
           syn.vo \
           units.vo \
           sem.vo \
+          iso.vo

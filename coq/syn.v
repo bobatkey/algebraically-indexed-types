@@ -225,6 +225,10 @@ Lemma ScS_assoc E E' E'' E''' (S1: Sub E'' E''') (S2: Sub E' E'') (S3: Sub E E')
 Proof. apply inj_Sub; ExtVar. simpl. by rewrite (proj1 (apScS S1 S2)). 
 simpl. by rewrite (proj1 (apScS S1 S2)). Qed. 
 
+Lemma ScExpsAsSub E E' E'' (S: Sub E'' E') (ixs: Exps _ E) :
+expsAsSub (apSubSeq S ixs) = ScS S (expsAsSub ixs).
+Proof. admit.  Qed. 
+
 (* Well-sorted type expressions, in context *)
 Inductive Ty (D: Ctxt) :=
 | TyUnit

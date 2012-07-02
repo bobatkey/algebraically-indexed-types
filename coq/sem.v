@@ -41,11 +41,24 @@ Proof. induction t => /=//; congruence. Qed.
 
 (*---------------------------------------------------------------------------
    Relational semantics
+
+   Some problems with logical relations:
+   * Existentials mess up proof that difunctional environments => difunctional semantics
+   * Would like to prove composition property but function types mess it up
+   * Perhaps should attempt to use prelogical relations of some kind
+   * Or perhaps we could do perp-perp for existentials
+   * Or perhaps just take "difunctional closure"
    ---------------------------------------------------------------------------*)
 
 (* Relation environments *)
 Definition RelEnv D := 
   forall p, Sub (tyArity p) D -> relation (interpPrim p).
+
+Require Import Rel.
+Definition invEnv D (R: RelEnv D) : RelEnv D := fun p ixs => fun x y => R p ixs y x.
+Definition composeEnv D (R1 R2: RelEnv D) : RelEnv D := 
+  fun p ixs => RelComp (R1 p ixs) (R2 p ixs).
+
 
 (* Relation environments that respect equivalence for a set of axioms A *)
 Definition GoodRelEnv D A (rho: RelEnv D) :=
@@ -62,17 +75,24 @@ Notation "rho' >> rho" := (ext rho rho') (at level 70).
 (* This is \cal E from Section 4.2.2 *)
 Definition RelEnvSet := forall D, RelEnv D -> Prop.
 
+Notation "'forall:' x 'in' S ',' P" := (forall x, S x -> P) 
+  (at level 200, x ident, right associativity) : type_scope.
+Notation "'exists:' x 'in' S ',' P" := (exists x, S x /\ P) 
+  (at level 200, x ident, right associativity) : type_scope.
+
+
 (* These are the two conditions on sets of environments specified in 4.2.2 *)
 (* We also include the condition that environments respect equivalence *)
 Structure ClosedRelEnvSet A (E:RelEnvSet) := {
   goodEnvs : forall D rho, E D rho -> GoodRelEnv A rho;
   closedWrtSubst : forall D D' (S: Sub D' D) rho, E D rho -> E D' (EcS rho S);
-  closedWrtLift : forall D D' s (S: Sub D' D) rho1 rho2, 
-  E (s::D') rho1 -> 
-  E D rho2 ->
+  closedWrtInv : forall D rho, E D rho -> E D (invEnv rho);
+  closedWrtCompose : forall D rho1 rho2, E D rho1 -> E D rho2 -> E D (composeEnv rho1 rho2);
+  closedWrtLift : forall D D' s (S: Sub D' D), 
+  forall: rho1 in E (s::D'),
+  forall: rho2 in E D,
   rho1 >> EcS rho2 S ->
-  exists rho, 
-  E (s::D) rho /\
+  exists: rho in E (s::D), 
   EcS rho (liftSub s S) = rho1 /\
   rho >> rho2
 }.
@@ -91,12 +111,13 @@ Fixpoint semTy D (rho: RelEnv D) (t:Ty D) : relation (|t|) :=
   | TyArr t1 t2  => fun x y => forall x' y', semTy rho x' y' -> semTy rho (x x') (y y')
   | TyPrim p ixs => rho p (expsAsSub ixs)
   | TyAll    s t => fun x y => forall rho', ES rho' -> rho' >> rho -> semTy rho' x y
-  | TyExists s t => fun x y => exists rho', ES rho' -> rho' >> rho -> semTy rho' x y
+  | TyExists s t => fun x y => exists rho', ES rho' /\ rho' >> rho /\ semTy rho' x y
   end.
 
 Notation "rho |= x == y :> t" := (semTy (t:=t) rho x y) (at level 67, x at level 67, y at level 67).
 
 Variable A: seq (Ax sig). 
+
 
 (*---------------------------------------------------------------------------
    Unfortunately we need casts just to state the semSubst and semEquiv lemmas. 
@@ -162,7 +183,65 @@ Section UpDnProps.
   Lemma upSpec s (ty: Ty (s::D)) (x: | TyAll ty|): up S x = up (liftSub _ S) x.
   Proof. rewrite /up. by apply cast_UIP. Qed. 
 
+  Lemma upInst s (ty: Ty (s::D)) (x: | TyExists ty|): up S x = up (liftSub _ S) x.
+  Proof. rewrite /up. by apply cast_UIP. Qed. 
+
 End UpDnProps.
+
+
+Lemma invEnvK D (R: RelEnv D) : invEnv (invEnv R) = R. 
+Proof. 
+apply functional_extensionality_dep => p.  
+apply functional_extensionality => z.
+apply functional_extensionality => z'. 
+by apply functional_extensionality. 
+Qed. 
+
+Lemma invExt s D (rho': RelEnv (s::D)) (rho: RelEnv D) :
+  rho' >> invEnv rho -> invEnv rho' >> rho. 
+Proof. rewrite /ext. move => H.  
+apply functional_extensionality_dep => p. 
+apply functional_extensionality => S. 
+apply functional_extensionality => z. 
+apply functional_extensionality => z'.
+have H': EcS rho' (pi D s) S z' z = invEnv rho S z' z. by rewrite H. 
+rewrite /invEnv in H'. by rewrite -H'. 
+Qed. 
+
+Variable CLOSED: ClosedRelEnvSet A ES. 
+
+
+Lemma semInv : forall D (t : Ty D) rho x x', semTy (t:=t) rho x x' -> semTy (t:=t) (invEnv rho) x' x. 
+Proof.
+  induction t => /= rho x x' xx'. 
+  (* TyUnit *)
+  done. 
+
+  (* TyProd *)
+  split; firstorder. 
+
+  (* TySum *)
+  destruct x'; destruct x; firstorder. 
+
+  (* TyArr *)
+  move => y y' yy'. specialize (IHt1 _ _ _ yy'). 
+  rewrite invEnvK in IHt1. specialize (xx' _ _ IHt1). 
+  by apply (IHt2 _ _ _ xx'). 
+
+  (* TyPrim *)
+  rewrite /invEnv. apply xx'. 
+  
+  (* TyAll *)  
+  move => rho' ESrho' EXT. 
+  specialize (IHt (invEnv rho') x x'). rewrite invEnvK in IHt. apply IHt.
+  apply xx'. by apply (closedWrtInv CLOSED). by apply: invExt EXT. 
+
+  (* TyExists *)
+  destruct xx' as [rho' [ESrho' [EXT H]]]. 
+  exists (invEnv rho'). split. by apply (closedWrtInv CLOSED). 
+  split. apply invExt. rewrite invEnvK. apply EXT. apply IHt. apply H. 
+Qed. 
+
 
 
 (* This is lemma 4, part 1 *)
@@ -182,9 +261,52 @@ admit.
 (* EquivTyProd *)
 Admitted.
 
-Variable CLOSED: ClosedRelEnvSet A ES. 
 
+Lemma sem_difunctional : 
+  (forall D (psi: RelEnv D) p exps, difunctional (psi p exps)) ->
+  forall D (t: Ty D) (psi: RelEnv D), difunctional (semTy (t:=t) psi).
+Proof.
+  move => DIF. 
+  induction t => /= rho. 
+  
+  (* TyUnit *)
+  by intuition. 
 
+  (* TyProd *)
+  specialize (IHt1 rho). specialize (IHt2 rho). by apply: prod_difunctional.  
+
+  (* TySum *)
+  specialize (IHt1 rho). specialize (IHt2 rho). by apply: sum_difunctional.
+
+  (* TyArrow *)
+  specialize (IHt1 rho). specialize (IHt2 rho). by apply: arrow_difunctional. 
+
+  (* TyBase *)
+  apply DIF.     
+
+  (* For all *)
+  intros x x' y y' xy x'y' xy'.
+  intros psi' ESpsi' ext.
+  assert (xy0 := xy psi' ESpsi' ext).
+  assert (x'y'0 := x'y' psi' ESpsi' ext).
+  assert (xy'0 := xy' psi' ESpsi' ext).
+  by apply (IHt psi' x x' y y' xy0 x'y'0 xy'0). 
+
+  (* Exists *)
+  rewrite /difunctional. 
+  intros x x' y y' xy x'y' xy'.
+  destruct xy as [rho0 [ESrho0 [EXTrho0 H0]]].
+  destruct x'y' as [rho1 [ESrho1 [EXTrho1 H1]]].  
+  destruct xy' as [rho2 [ESrho2 [EXTrho2 H2]]].  
+  (* Could we do this? *)
+  set rho' := composeEnv rho1 (composeEnv (invEnv rho2) rho0).
+  exists rho'.   
+
+  (* Answer: no, we don't have a nice property regarding composition *)
+  admit. 
+Qed. 
+
+  
 (* This is lemma 4, part 2 *)
 Lemma semSubst D (t: Ty D) : forall D' (S:Sub D D') rho (ESrho: ES rho) v v',
   (rho |= up S v == up S v' :> apSubTy S t
@@ -255,20 +377,17 @@ split.
 
 (* TyPrim *)
 rewrite /EcS/up/=.
-have SS:= (apScS S (expsAsSub ixs)). 
-admit. 
+rewrite ScExpsAsSub. by rewrite cast_UIP cast_id cast_UIP cast_id. 
 
 (* TyAll *)
 specialize (IHt _ (liftSub _ S)).
 split => H rho' ESrho' EXT. 
   (* For this case we need second closure property of environments *)
-+ have CL2 := closedWrtLift CLOSED. 
-  specialize (CL2 _ _ s S rho' rho ESrho' ESrho EXT). 
++ have CL2 := closedWrtLift CLOSED ESrho' ESrho EXT. 
   destruct CL2 as [rho0 [H2 [H3 H4]]]. 
-  specialize (IHt rho0 H2 v v').
-  rewrite -!upSpec in IHt. 
+  destruct (IHt rho0 H2 v v') as [IH1 _].
+  rewrite -!upSpec in IH1. 
   specialize (H _ H2 H4). 
-  destruct IHt as [IH1 IH2].   
   rewrite H3 in IH1. apply IH1. 
   by apply H. 
 
@@ -276,20 +395,36 @@ split => H rho' ESrho' EXT.
      together with simple properties of pi and lifting *)
 + specialize (IHt rho' ESrho' v v'). 
   rewrite -!upSpec in IHt. apply IHt. apply H. 
-  have CL1 := closedWrtSubst CLOSED. 
-  apply (CL1 _ _ (liftSub s S) rho' ESrho').
-  rewrite /ext. rewrite /ext in EXT. rewrite -EXT.  
+  apply (closedWrtSubst CLOSED (liftSub s S) ESrho').    
+  rewrite /ext in EXT. rewrite -EXT.  
   apply functional_extensionality_dep => p. 
   apply functional_extensionality => S'.
   rewrite /EcS 2!ScS_assoc. 
   by rewrite liftPi.  
 
 (* TyExists *)
-specialize (IHt _ (liftSub _ S)).
-split => H. 
-+ destruct H as [rho' H'].  
-admit.
-admit. 
+split => [[rho' [H1 [H2 H3]]] | [rho1 [H1 [H2 H3]]]]. 
++ exists (EcS rho' (liftSub _ S)).
+  split. by apply (closedWrtSubst CLOSED). 
+  split. rewrite /ext. rewrite -H2. 
+  apply functional_extensionality_dep => p. 
+  apply functional_extensionality => S'. 
+  rewrite /EcS 2!ScS_assoc.
+  by rewrite liftPi.
+
+  specialize (IHt _ (liftSub s S) rho' H1 v v'). rewrite -IHt.
+  rewrite -2!upInst. apply H3. 
+
++ have CL1 := closedWrtLift CLOSED.   
+  specialize (CL1 _ _ s S rho1 H1 _ ESrho H2). 
+  destruct CL1 as [rho0 [H4 [H5 H6]]]. 
+  exists rho0.  
+  split => //. 
+  split => //. 
+  specialize (IHt _ (liftSub s S) _ H4 v v'). 
+  rewrite 2!upInst. 
+  rewrite IHt {IHt}.
+  rewrite H5. apply H3. 
 Qed.
 
 End Sem.
