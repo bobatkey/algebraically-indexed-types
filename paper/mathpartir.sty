@@ -285,7 +285,7 @@
 \newbox \mpr@right
 \define@key {mpr}{flushleft}[]{\mpr@centerfalse}
 \define@key {mpr}{center}[]{\mpr@centertrue}
-\define@key {mpr}{left}{\setbox0 \hbox {$\TirName {(#1)}\;$}\relax
+\define@key {mpr}{left}{\setbox0 \hbox {$\TirName {#1}\;$}\relax
      \advance \hsize by -\wd0\box0}
 \define@key {mpr}{width}{\hsize #1}
 \define@key {mpr}{before}{#1}
@@ -296,11 +296,11 @@
 \define@key {mpr}{reduce}[]{\let \mpr@fraction \mpr@@reduce}
 \define@key {mpr}{rightskip}
   {\setbox \mpr@right \hbox {\unhbox \mpr@right \hskip -#1}}
-\define@key {mpr}{left}{\setbox0 \hbox {$\TirName {(#1)}\;$}\relax
+\define@key {mpr}{left}{\setbox0 \hbox {$\TirName {#1}\;$}\relax
      \advance \hsize by -\wd0\box0}
 \define@key {mpr}{Left}{\llap{$\TirName {(#1)}\;$}}
 \define@key {mpr}{right}
-  {\setbox0 \hbox {$\;\TirName {(#1)}$}\relax \advance \hsize by -\wd0
+  {\setbox0 \hbox {$\;\TirName {#1}$}\relax \advance \hsize by -\wd0
    \setbox \mpr@right \hbox {\unhbox \mpr@right \unhbox0}}
 \define@key {mpr}{Right}
   {\setbox \mpr@right \hbox {\unhbox \mpr@right \rlap {$\;\TirName {(#1)}$}}}
