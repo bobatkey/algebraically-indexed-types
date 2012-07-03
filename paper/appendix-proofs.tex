@@ -1,4 +1,4 @@
-\section{Details of proofs}
+\section{Proofs for \autoref{sec:a-general-framework}}
 
 This appendix includes proofs for some of the lemmas and theorems in
 the main text. For reference, we include the rules for judgmental type
@@ -417,8 +417,8 @@ define the \emph{erasure interpretation} as a function $\tmSem{M} :
     \tmSem{M N}\eta & \isDefinedAs & (\tmSem{M}\eta) (\tmSem{N}\eta) \\
     \tmSem{\Lambda i.\ M}\eta & \isDefinedAs & \tmSem{M}\eta \\
     \tmSem{M[e]}\eta & \isDefinedAs & \tmSem{M}\eta \\
-    \tmSem{\mathrm{pack}\ [e]\ M}\eta & \isDefinedAs & \tmSem{M}\eta \\
-    \tmSem{\mathrm{unpack}\ [i]\ x = M\ \mathrm{in}\ N}\eta & \isDefinedAs & \tmSem{N}(\eta, \tmSem{M}\eta)
+    \tmSem{\langle[e], M\rangle}\eta & \isDefinedAs & \tmSem{M}\eta \\
+    \tmSem{\mathrm{let}\langle[i], x\rangle = M\ \mathrm{in}\ N}\eta & \isDefinedAs & \tmSem{N}(\eta, \tmSem{M}\eta)
   \end{array}
 \end{displaymath}
 In the above, we have written $\eta_x$ to denote the appropriate
@@ -476,8 +476,8 @@ corresponding to the variable $x$ in the context.
     \lemref{lem:ctxtsubst-rel}, conclude that $(\tmSem{M'}\eta_1,
     \tmSem{M'}\eta_2) \in \rsem{(\id_\Delta,e)^*A'}{\relEnv{E}}\rho$,
     as required.
-  \item[Case \TirName{ExPack}] In this case, $M = \mathrm{pack}\ [e]\
-    M'$ and $A = \exists i\mathord:s.A'$. We know from the
+  \item[Case \TirName{ExPack}] In this case, $M = \langle[e],
+    M'\rangle$ and $A = \exists i\mathord:s.A'$. We know from the
     ind.~hyp.~that $(\tmSem{M'}\eta_1, \tmSem{M'}\eta_2) \in
     \rsem{(\id_\Delta, e)^*A'}{\relEnv{E}}\rho$. By
     \lemref{lem:tyeqsubst-relational} on substitutions, we can deduce
@@ -486,8 +486,8 @@ corresponding to the variable $x$ in the context.
     \circ (\id_\Delta, e)) \in \extends{\rho}{i\mathord:s}$, we have
     $(\tmSem{M'}\eta_1, \tmSem{M'}\eta_2) \in \rsem{\exists
       i\mathord:s.A'}{\relEnv{E}}{\rho}$, as required.
-  \item[Case \TirName{ExUnpack}] In this case, $M = \mathrm{unpack}\
-    [i]\ x = M'\ \mathrm{in}\ N$. Let $\exists i\mathord:s. A'$ be the
+  \item[Case \TirName{ExUnpack}] In this case, $M = \mathrm{let}\langle
+    [i], x\rangle = M'\ \mathrm{in}\ N$. Let $\exists i\mathord:s. A'$ be the
     existential type that is being eliminated. By the induction
     hypothesis we know that there exists a $\rho' \in \extends{\rho}{i\mathord:s}$ such that
     \begin{equation}
@@ -522,6 +522,62 @@ corresponding to the variable $x$ in the context.
   The remaining cases are standard for proofs of the fundamental lemma
   of logical relations for simply-typed systems.
 \end{proof}
+
+\section{Proofs for \autoref{sec:monoid-indexed-types}}
+
+\begin{restateTheorem}[\thmref{thm:monoid-indefinability}]
+  Let $m$ and $n$ be natural numbers. For all $n$-by-$m$-matricies of
+  natural numbers $A$ and $m$-by-$1$ matricies of natural numbers $b$,
+  there exists a program $M$ such that
+  \begin{equation}
+    \label{eq-appendix:fo-monoid-type}
+    \Gamma_\Mon \vdash M : \forall i_1,\dots,i_m\mathord:\mathsf{M}.\ \tyPrim{M}{e_1} \to \dots \to \tyPrim{M}{e_n} \to \tyPrim{M}{e}
+  \end{equation}
+  where $e_j = i_1^{A_{j1}}\dots i_m^{A_{jm}}$ and $e =
+  i_1^{b_1}\dots i_m^{b_m}$, if and only if there is a solution
+  $\vec{x} = (x_1,\cdots,x_n)$ in the natural numbers to the equation
+  $A x^\top = b$.
+\end{restateTheorem}
+
+\begin{proof}
+  (If) The program $\Lambda i_1\dots i_m.\ \lambda z_1\dots z_n.\
+  z_1^{x_1}\dots z_n^{x_n}$ satisfies the typing judgment
+  (\ref{eq-appendix:fo-monoid-type}).
+
+  (Only if) Assume that there is a program $M$ satisfying the typing
+  judgment (\ref{eq-appendix:fo-monoid-type}). By
+  \thmref{thm:abstraction} we know that for all relational
+  environments $\rho \in \relEnv{E}(i_1,\dots,i_m)$, and all $z_j,z'_j
+  \in \mathcal{M}$,
+  \begin{displaymath}
+    \begin{array}{l}
+      (z_1,z'_1) \in \rho\ \tyPrimNm{M}\ (e_1) \land \dots \land (z_n,z'_n) \in \rho\ \tyPrimNm{M}\ (e_n) \Rightarrow \\
+      \quad (\tmSem{M}z_1\dots z_n, \tmSem{M}z'_1\dots z'_n) \in \rho\ \tyPrimNm{M}\ (e)
+    \end{array}
+  \end{displaymath}
+  We select the relational environments
+  \begin{displaymath}
+    \rho\ \tyPrimNm{M}\ (e) = \left\{
+      \begin{array}{ll}
+        \{(z,z) \sepbar z \in \mathcal{M} \} &
+        \begin{array}[t]{@{}l}
+          \textrm{if}\ e = e_1^{x_1}\dots e_n^{x_n} \\
+          \textrm{ for some }x_1,\dots,x_n \in \mathbb{N}
+        \end{array}
+        \\
+        \{\} & \textrm{otherwise}
+      \end{array}
+    \right.
+  \end{displaymath}
+  Now, for any $z_1,\dots,z_m \in \mathcal{M}$, we know that, for all
+  $j$, $(z_j,z_j) \in \rho\ \tyPrimNm{M}\ (e_j)$, so we know that
+  $(\tySem{M}z_1\dots z_n, \tySem{M}z_1 \dots z_n) \in \rho\
+  \tyPrimNm{M}\ (e)$. Thus there exist $x_1,...,x_n$ such that $e =
+  e_1^{x_1}\dots e_n^{x_n}$. But we also know that $e =
+  i_1^{b_1}...i_m^{b_m}$. By the cancellation property of free
+  monoids, we learn that $x_1,...,x_n$ is the solution we need.
+\end{proof}
+
 
 %%% Local Variables:
 %%% TeX-master: "paper"

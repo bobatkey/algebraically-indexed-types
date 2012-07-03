@@ -26,6 +26,7 @@ framework are derived from the following data:
 \end{enumerate}
 
 \begin{example}[Two-Dimensional Geometry]
+  \label{ex:two-dim-geo-operations}
   The two-dimensional geometry system has a sort for each of the
   geometric groups that we mentioned in
   \autoref{sec:motivating-examples}. Thus, $\SortSet =
@@ -61,32 +62,6 @@ framework are derived from the following data:
   $\primTyArity(\tyPrimNm{real}) = [\SynGL{1}]$.
 \end{example}
 
-% \begin{example}[Logical Information Flow]
-%   \fixme{Do this}
-% \end{example}
-
-% \begin{example}[Units of Measure]
-%   To instantiate our general framework as Kennedy's original units
-%   of measure system, we would take the following settings. For the
-%   collection of sorts we take $\SortSet = \{ \mathsf{unit} \}$. For
-%   the collection of index operations, we take $\mathit{IndexOp} = \{1,
-%   -\cdot-, -^{-1}\}$, with:
-%   \begin{eqnarray*}
-%     \indexOpArity{(1)} &=& ([],\mathsf{unit}) \\
-%     \indexOpArity{(-\cdot-)} & = & ([\mathsf{unit},\mathsf{unit}],\mathsf{unit}) \\
-%     \indexOpArity{(-^{-1})} & = & ([\mathsf{unit}],\mathsf{unit})
-%   \end{eqnarray*}
-%   The intended interpretation of these operations is group unit, group
-%   multiplication and group inverse, respectively. When we discuss
-%   equational theories for index expressions in
-%   \autoref{sec:type-equality} below, we will impose the abelian group
-%   laws on these operations.
-
-%   The primitive types for the units of measure example are taken to be
-%   $\PrimTypeSet = \{ \mathsf{num} \}$, with
-%   $\primTyArity(\mathsf{num}) = [\mathsf{unit}]$.
-% \end{example}
-
 We assume a countably infinite collection of index variable names $i,
 i_1, i_2,\ldots$. \emph{Index contexts} $\Delta = i_1 \mathord: s_1,
 ..., i_n \mathord: s_n$ are lists of variable/sort pairs, such that
@@ -100,6 +75,7 @@ all the variable names are distinct.
 
   % \bigskip
 
+  {\small
   \textbf{Well-sorted index expressions}
   \begin{mathpar}
     \inferrule* [right=IVar]
@@ -143,10 +119,10 @@ all the variable names are distinct.
     {\Delta, i \mathord: s \vdash A \isType}
     {\Delta \vdash \forall i \mathord: s. A \isType}
 
-    \inferrule* [right=TyExist]
+    \inferrule* [right=TyEx]
     {\Delta, i \mathord: s \vdash A \isType}
     {\Delta \vdash \exists i \mathord: s. A \isType}
-  \end{mathpar}
+  \end{mathpar}}
   \caption{Index expressions and types}
   \label{fig:indexes-and-types}
 \end{figure*}
@@ -169,7 +145,7 @@ expressions $e_1,...,e_n$, the well-indexed type
 $\tyPrim{X}{e_1,...,e_n}$. The rule \TirName{TyForall} permits the
 formation of universally quantified types, where the universal
 quantification ranges over all index expressions of some
-sort. Existential types are constructed using the \TirName{TyExist}
+sort. Existential types are constructed using the \TirName{TyEx}
 rule, and allow for abstraction by hiding. %FIXME: think about the introduction of existentials more, perhaps forward ref to their use
 
 \subsubsection{Simultaneous Substitution of Index Expressions}
@@ -292,9 +268,13 @@ We also assume the standard reflexivity, symmetry and transitivity
 rules for the equality judgment.
 
 \begin{example}[Two-Dimensional Geometry]
-  \fixme{Tie this example back to section 2}
-  Translations form an abelian group under addition, so we assume the
-  abelian group axioms for translations:
+  \label{ex:two-dim-geo-axioms}
+  In \autoref{sec:motivating-examples}, we assumed that various
+  equational axioms hold for the indexing expressions standing for
+  elements of geometric groups. We can now make this assumption formal
+  in our general framework. Semantically, translations form an abelian
+  group under addition, so we assume the abelian group axioms for
+  translations:
   \begin{displaymath}
     \begin{array}{l}
       t : \SynTransl{2} \vdash t + 1 \stackrel{ax}\equiv t : \SynTransl{2} \\
@@ -315,24 +295,6 @@ rules for the equality judgment.
   maps have a determined determinant: $\det(\iota_1(s))
   \stackrel{ax}\equiv s \cdot s$.
 \end{example}
-
-% \begin{example}[Logical Information Flow]
-%   \fixme{Do this}
-% \end{example}
-
-% \begin{example}[Units of Measure]
-%   For the units of measure system, seen as an instantiation of our
-%   general framework, the set $\IndexAxiomSet$ consists of the abelian
-%   group axioms:
-%   \begin{displaymath}
-%     \begin{array}{l}
-%       u : \mathsf{unit} \vdash u \cdot 1 \stackrel{ax}\equiv u : \mathsf{unit} \\
-%       u_1, u_2, u_3 : \mathsf{unit} \vdash u_1 \cdot (u_2 \cdot u_3) \stackrel{ax}\equiv (u_1 \cdot u_2) \cdot u_3 : \mathsf{unit} \\
-%       u_1, u_2 : \mathsf{unit} \vdash u_1 \cdot u_2 \stackrel{ax}\equiv u_2 \cdot u_1 : \mathsf{unit} \\
-%       u : \mathsf{unit} \vdash u \cdot u^{-1} \stackrel{ax}\equiv 1 : \mathsf{unit} \\
-%     \end{array}
-%   \end{displaymath}
-% \end{example}
 
 The equality judgment $\Delta \vdash e \equiv e' : s$ on index
 expressions generates the equality judgment $\Delta \vdash A \equiv
@@ -421,9 +383,10 @@ well-indexed type by induction on the type structure:
     \end{array}
   \end{array}
 \end{displaymath}
-The interpretation of the unit type is a chosen one element set, and
-the interpretations of the function, tuple and sum types are simply
-the corresponding constructions on sets. The interpretations of the
+% The interpretation of the unit type is a chosen one element set, and
+% the interpretations of the function, tuple and sum types are simply
+% the corresponding constructions on sets. 
+The interpretations of the
 universal and existential quantifiers ignore the indexing: the
 interpretation of the type $\forall i\mathord:s.A$ is exactly the
 interpretation of the type $A$, and likewise for $\exists
@@ -450,10 +413,6 @@ i\mathord:s.A$.
   $\tyPrimSem{\tyPrimNm{real}} = \mathbb{R}$.
 \end{example}
 
-% \begin{example}[Logical Information Flow]
-%   \fixme{do this}
-% \end{example}
-
 \subsubsection{The Relational Interpretation of Types}
 \label{sec:relational-semantics}
 
@@ -467,9 +426,27 @@ relational interpretation as a standard logical relation. The
 relational interpretations of primitive types with index arguments and
 the universally quantified types require an interpretation of index
 contexts. We assign interpretations to index contexts in terms of sets
-of \emph{relational environments}, which we now define.
+of \emph{relational environments}.
 
-A relation environment for a context $\Delta$ is a (dependently typed)
+The definition of relational environments is the most subtle part of
+our development. The straightforward approach would be to assume some
+interpretation of the indexing expressions, where sorts are
+interpreted as sets and index operations as functions, and then define
+the relational interpretation of a primtive type
+$\tyPrim{X}{e_1,...,e_n}$ in terms of the interpretations of
+$e_1,...,e_n$. This approach suffices to prove free theorems and type
+isomorphisms for instantiations of our general framework. However, in
+order to prove non-definability results (like, for example, the one in
+\exref{ex:uninhabited-type}), we choose a more subtle interpretation
+of index contexts and primitive types that can account more precisely
+for the definable programs permitted by the algebraic indexing. In
+this section, we set out the general requirements that we require of
+relational environments in order for the abstraction theorem to
+hold. In \autoref{sec:constr-rel-env}, we give a general construction
+of relational environments that will allow us to prove several
+non-definability results.
+
+A relational environment for a context $\Delta$ is a (dependently typed)
 function $\rho$ that, for each primitive type $\tyPrimNm{X}$ and
 instantiation of its arguments $\sigma$, assigns a binary relation
 $\rho\ \tyPrimNm{X}\ \sigma$ on the index-erasure interpretation of
@@ -485,8 +462,6 @@ substitutions $\Delta \vdash \sigma \Rightarrow
 \Rightarrow \primTyArity(\tyPrimNm{X})$, then $\rho\ \tyPrimNm{X}\
 \sigma = \rho\ \tyPrimNm{X}\ \sigma'$.
 
-% FIXME: an example?
-
 We write $\mathrm{RelEnv}(\Delta)$ for the set of all relation
 environments for a context $\Delta$. Given a relational environment
 $\rho \in \mathrm{RelEnv}(\Delta')$ and a simultaneous substitution
@@ -495,89 +470,78 @@ relational environment (with an abuse of notation) $\rho \circ \sigma
 \in \mathrm{RelEnv}(\Delta)$ as $(\rho \circ \sigma)\ \tyPrimNm{X}\
 \sigma' = \rho\ \tyPrimNm{X}\ (\sigma' \circ \sigma)$.
 
-% FIXME: fix the notation here for interpretation of index contexts:
-% should use some sort of semantic brackets
-
 As we stated above, index contexts $\Delta$ are interpreted as certain
 sets of relation environments, i.e.,~subsets of
 $\mathrm{RelEnv}(\Delta)$. Depending on the primitive operations that
 we assume for our system, we may have different sets of relational
-environments that enforce different invariants. For the general
-framework, we assume that, for each index context $\Delta$, we are
-given a set of relation environments $\relEnv{E}(\Delta)$. Note that
-this assignment of sets of relation environments to index contexts is
-not assumed to be compositional: it is not necessarily the case that
-the set of relational environments $\relEnv{E}(\Delta_1,\Delta_2)$ is
-defined in terms of $\relEnv{E}(\Delta_1)$ and
-$\relEnv{E}(\Delta_2)$. However, it must satisfy the following two
-properties:
-\begin{enumerate}
-\item Closure under simultaneous substitutions: if $\rho \in
-  \relEnv{E}(\Delta)$ and $\Delta' \vdash \sigma \Rightarrow \Delta$,
-  then $\rho \circ \sigma \in \relEnv{E}(\Delta')$.
-\item If we have a pair of relation environments $\rho_1 \in
-  \relEnv{E}(\Delta', i\mathord:s')$ and $\rho_2 \in
-  \relEnv{E}(\Delta)$, along with a simultaneous substitution $\Delta'
-  \vdash \sigma \Rightarrow \Delta$, such that $\rho_1 \circ
-  \pi_{i\mathord:s'} = \rho_2 \circ \sigma$, then there exists a $\rho
-  \in \relEnv{E}(\Delta, i\mathord:s')$ such that $\rho \circ
-  \sigma_{i\mathord:s'} = \rho_1$ and $\rho \circ \pi_{i\mathord:s'} =
-  \rho_2$.
-  % such that the outer edges of the
-  % following diagram commute, for all primitive types $\tyPrimNm{X} \in
-  % \mathit{PrimType}$:
-  % %FIXME: check that these compositions are the right way round
-  % %FIXME: re-do this as a set of equations
-  % %FIXME: give a better English description of why this is needed
-  % \begin{displaymath}
-  %   \xymatrix{
-  %     {\Delta \Rightarrow \primTyArity(\tyPrimNm{X})} \ar[r]^(.45){- \circ \pi_{i\mathord:s'}} \ar[d]_{- \circ \sigma}
-  %     &
-  %     {\Delta,i\mathord:s' \Rightarrow \primTyArity(\tyPrimNm{X})} \ar[d]^{- \circ \sigma_{s'}} \ar@/^/[rdd]^{\rho_1 \tyPrimNm{X}}
-  %     \\
-  %     {\Delta' \Rightarrow \primTyArity(\tyPrimNm{X})} \ar[r]^(.45){- \circ \pi_{i\mathord:s'}} \ar@/_/[rrd]_{\rho_2\ \tyPrimNm{X}}
-  %     &
-  %     {\Delta,i\mathord:s' \Rightarrow \primTyArity(\tyPrimNm{X})} \ar@{.>}[dr]_{\rho\ \tyPrimNm{X}}
-  %     \\
-  %     &
-  %     &
-  %     {\Rel(\tyPrimSem{\tyPrimNm{X}})}
-  %   }
-  % \end{displaymath}
-  % Then there exists a relation environment $\rho \in
-  % \relEnv{E}(\Delta,i\mathord:s')$ (the dotted arrow) such that the
-  % two triangles in the bottom right of the diagram commute.
-  % FIXME: mention that we already know that the square commutes
-\end{enumerate}
+environments that enforce different invariants. We require that the
+sets of relational environments are \emph{valid} in the following
+sense:
+
+\begin{definition}
+  \label{defn:valid-rel-env-family}
+  A family of sets of relational environments $\relEnv{E}(\Delta)
+  \subseteq \mathrm{RelEnv}(\Delta)$ is \emph{valid} if the following
+  two properties are satisfied:
+  \begin{enumerate}
+  \item Closure under simultaneous substitutions: if $\rho \in
+    \relEnv{E}(\Delta)$ and $\Delta' \vdash \sigma \Rightarrow \Delta$,
+    then $\rho \circ \sigma \in \relEnv{E}(\Delta')$.
+  \item If we have a pair of relation environments $\rho_1 \in
+    \relEnv{E}(\Delta', i\mathord:s')$ and $\rho_2 \in
+    \relEnv{E}(\Delta)$, along with a simultaneous substitution
+    $\Delta' \vdash \sigma \Rightarrow \Delta$, such that $\rho_1
+    \circ \pi_{i\mathord:s'} = \rho_2 \circ \sigma$, then there exists
+    a $\rho \in \relEnv{E}(\Delta, i\mathord:s')$ such that $\rho
+    \circ \sigma_{i\mathord:s'} = \rho_1$ and $\rho \circ
+    \pi_{i\mathord:s'} = \rho_2$.
+    % such that the outer edges of the
+    % following diagram commute, for all primitive types $\tyPrimNm{X} \in
+    % \mathit{PrimType}$:
+    % % FIXME: check that these compositions are the right way round
+    % % FIXME: re-do this as a set of equations
+    % % FIXME: give a better English description of why this is needed
+    % \begin{displaymath}
+    %   \xymatrix{
+    %   {\Delta \Rightarrow \primTyArity(\tyPrimNm{X})} \ar[r]^(.45){- \circ \pi_{i\mathord:s'}} \ar[d]_{- \circ \sigma}
+    %   &
+    %   {\Delta,i\mathord:s' \Rightarrow \primTyArity(\tyPrimNm{X})} \ar[d]^{- \circ \sigma_{s'}} \ar@/^/[rdd]^{\rho_1 \tyPrimNm{X}}
+    %   \\
+    %   {\Delta' \Rightarrow \primTyArity(\tyPrimNm{X})} \ar[r]^(.45){- \circ \pi_{i\mathord:s'}} \ar@/_/[rrd]_{\rho_2\ \tyPrimNm{X}}
+    %   &
+    %   {\Delta,i\mathord:s' \Rightarrow \primTyArity(\tyPrimNm{X})} \ar@{.>}[dr]_{\rho\ \tyPrimNm{X}}
+    %   \\
+    %   &
+    %   &
+    %   {\Rel(\tyPrimSem{\tyPrimNm{X}})}
+    % }
+    % \end{displaymath}
+    % Then there exists a relation environment $\rho \in
+    % \relEnv{E}(\Delta,i\mathord:s')$ (the dotted arrow) such that the
+    % two triangles in the bottom right of the diagram commute.
+    % FIXME: mention that we already know that the square commutes
+  \end{enumerate}
+\end{definition}
+
+% For the general
+% framework, we assume that, for each index context $\Delta$, we are
+% given a set of relation environments $\relEnv{E}(\Delta)$. Note that
+% this assignment of sets of relation environments to index contexts is
+% not assumed to be compositional: it is not necessarily the case that
+% the set of relational environments $\relEnv{E}(\Delta_1,\Delta_2)$ is
+% defined in terms of $\relEnv{E}(\Delta_1)$ and
+% $\relEnv{E}(\Delta_2)$. However, it must satisfy the following two
+% properties:
 
 These conditions ensure that the relational interpretation of types
 that we define below behaves correctly with respect to simultaneous
 substitution of index expressions (see
-\lemref{lem:tyeqsubst-relational}, below).
+\lemref{lem:tyeqsubst-relational}, below). 
 
 % The second condition may
 % seem mysterious at first, but it is essential for proving that the
 % relational interpretation of universal quantification types behaves
 % correctly with respect to application of simultaneous substitution.
-
-% \begin{example}
-%   The construction of relational environments is the most subtle part
-%   of our development. \fixme{complete this part}
-% \end{example}
-
-% \begin{example}[Units of Measure]
-%   We give two examples of assignments of sets of relational
-%   environments to index contexts in the units of measure example. The
-%   second example is a refinment of the first. FIXME: some general
-%   words about relational environments in these cases.
-%   \begin{enumerate}
-%   \item FIXME: assign a positive scaling factor to each variable in an
-%     index context, extend homomorphically to all index expressions,
-%     and then use this to define a scaling relation
-%   \item FIXME: given an index context, assume a subgroup and a
-%     homomorphism into the scaling factors
-%   \end{enumerate}
-% \end{example}
 
 Given a relation environment $\rho \in \relEnv{E}(\Delta)$, we define
 the set of extensions $\extends{\rho}{i\mathord:s}$ of $\rho$ by an
@@ -635,9 +599,127 @@ Note that the equations in both parts of
 \lemref{lem:tyeqsubst-relational} are well-typed by virtue of the
 corresponding parts of \lemref{lem:tyeqsubst-erasure}.
 
+\subsubsection{A General Construction of Relational Environments}
+\label{sec:constr-rel-env}
+
+\newcommand{\Free}{\mathrm{Free}}
+\newcommand{\semSort}[1]{\llbracket #1 \rrbracket^{\mathcal{S}}}
+\newcommand{\semIndexExp}[1]{\llbracket #1 \rrbracket^{\mathcal{I}}}
+
+We now give a general construction of valid families of sets of
+relational environments that will allow us to derive useful
+consequences of the abstraction theorem, including free theorem, type
+isomorphisms and non-definability results. We make use of some
+concepts of universal algebra, which we recall here. \fixme{Desperately needs some intuition: do so in terms of clumpiness}
+
+\paragraph{Some Universal Algebra}
+For each sort $s \in \SortSet$ we assume a carrier set
+$\semSort{s}$. We extend this assignment to index contexts and other
+sequences of sorts (e.g., type arities) using the cartesian product of
+sets: $\semSort{i_1\mathord:s_1,...,i_n\mathord:s_n} = \semSort{s_1}
+\times ... \times \semSort{s_n}$. For each index operation $\texttt{f}
+\in \IndexOpSet$ with $\indexOpArity(\texttt{f}) = ([s_1,...,s_n],s)$,
+we assume a function $\semIndexExp{\texttt{f}} : \semSort{s_1,...,s_n}
+\to \semSort{s}$. For each well-sorted index expression $\Delta \vdash
+e : s$, we assign a function $\semIndexExp{e} : \semSort{\Delta} \to
+\semSort{s}$ by recursion on the structure of $e$. We further assume
+that for each axiom $\Delta \vdash e \stackrel{ax}\equiv e' : s \in
+\IndexAxiomSet$, we have $\semIndexExp{e} = \semIndexExp{e'}$. A
+\emph{model} is a pair $\mathcal{M} = (\semSort{\cdot}_{\mathcal{M}},
+\semIndexExp{\cdot}_{\mathcal{M}})$ such that all the axioms in
+$\IndexAxiomSet$ are satisfied. 
+
+% A sub-model $\mathcal{N}$ of a given
+% model $\mathcal{M}$ (written $\mathcal{N} \subseteq \mathcal{M}$) is a
+% model such that $\semSort{s}_{\mathcal{N}} \subseteq
+% \semSort{s}_{\mathcal{M}}$ for all $s \in \SortSet$.
+
+\fixme{Define free models for any sort-indexed collection of sets}
+Given an index context $\Delta$, the \emph{free} model on $\Delta$,
+$\Free(\Delta)$, has $\semSort{s}_{\Free(\Delta)} = \{e \sepbar \Delta
+\vdash e : s\}/\mathord\equiv$: the set of expressions of sort $s$ in
+the indexing context $\Delta$, quotiented by the equality
+judgment. The free model has
+$\semIndexExp{\texttt{f}}_{\Free(\Delta)}(e_1,..,e_n) =
+\texttt{f}(e_1,...,e_n)$.
+
+Given a pair of models $\mathcal{M}_1 = (\semSort{\cdot}_1,
+\semIndexExp{\cdot}_1)$ and $\mathcal{M}_2 = (\semSort{\cdot}_2,
+\semIndexExp{\cdot}_2)$, a \emph{homomorphism} $h : \mathcal{M}_1 \to
+\mathcal{M}_2$ is a family of functions $\{ h_s : \semSort{s}_1 \to
+\semSort{s}_2 \}_{s \in \SortSet}$ such that for each $\texttt{f} \in
+\IndexOpSet$, we have $h_s(\semIndexExp{\texttt{f}}_1 (x_1,...,x_n)) =
+\semIndexExp{\texttt{f}}_2(h_{s_1}x_1, ..., h_{s_n}x_n)$.
+
+\paragraph{Relational Environments} \fixme{Say some stuff in english to make sure that the construction is understandable}
+
+To assign a relational meaning to
+each of the primitive types we assume a some model $\mathcal{M}$ of
+the indexing theory along with a function $R_{\tyPrimNm{X}} :
+\semSort{\primTyArity(\tyPrimNm{X})}_{\mathcal{M}} \to
+\Rel(\tyPrimSem{\tyPrimNm{X}})$ for each primitive type
+$\tyPrimNm{X}$, and a constant $R^\bullet_{\tyPrimNm{X}} \in
+\Rel(\tyPrimSem{\tyPrimNm{X}})$. We set
+$\relEnv{E}_{\mathcal{M},R}(\Delta) = \{ \rho^{\mathcal{A},h} \sepbar \mathcal{A}
+\subseteq \Free(\Delta), h : \mathcal{A} \to \mathcal{M} \}$, where:
+\begin{displaymath}
+  \rho^{\mathcal{A},h}\ \tyPrimNm{X}\ (e_1,...,e_n) = \left\{
+    \begin{array}{ll}
+      R^\bullet_{\tyPrimNm{X}} & \textrm{if any }e_i \not\in \mathcal{A} \\
+      R_{\tyPrimNm{X}}(h(e_1),...,h(e_n)) & \textrm{if all }e_i \in \mathcal{A}
+    \end{array}
+  \right.
+\end{displaymath}
+
+\begin{lemma}
+  The family $\relEnv{E}_{\mathcal{M},R}$ of sets of relation
+  environments is valid (c.f.~\defref{defn:valid-rel-env-family}).
+\end{lemma}
+
+% \fixme{Note that we can recover the basic approach by restricting the
+%   sub-algebras to just the whole thing. Does this work in general?
+%   What about arbitrary collections of sub-algebras?}
+
+\begin{example}[Two-dimensional Geometry] We define the ``standard''
+  model of the indexing theory for the two-dimensional geometry
+  example as follows. Each of the sorts are interpreted just as their
+  semantic counterparts:
+  \begin{displaymath}
+    \begin{array}{@{}llll}
+      \semSort{\SynTransl{2}} = \Transl{2}
+      &
+      \semSort{\SynGL{2}} = \GL{2}
+      &
+      \semSort{\SynOrth{2}} = \Orth{2}
+      &
+      \semSort{\SynGL{1}} = \GL{1}
+    \end{array}
+  \end{displaymath}
+  Each of the index operations (e.g.,~the group structure and
+  determinant) are interpreted by the intended semantic
+  operations. These clearly satisfy the axioms we stated in
+  \exref{ex:two-dim-geo-axioms}. The assignment of relations for the
+  primitive types $\tyPrimNm{vec}$ and $\tyPrimNm{real}$ are given by
+  the following definitions:
+  \begin{displaymath}
+    \begin{array}{ll}
+      R^{\bullet}_{\tyPrimNm{vec}} = \{( \vec{0}, \vec{0} ) \}&
+      R_{\tyPrimNm{vec}}(B,\vec{t}) = \{ (\vec{v}, B\vec{v} + \vec{t}) \sepbar \vec{v} \in \mathbb{R}^2 \} \\
+      R^{\bullet}_{\tyPrimNm{real}} = \{(0,0)\} &
+      R_{\tyPrimNm{real}}(k) = \{ (x, kx) \sepbar x \in \mathbb{R} \}
+    \end{array}
+  \end{displaymath}
+  The definitions of $R_{\tyPrimNm{vec}}$ and $R_{\tyPrimNm{real}}$
+  are as may be expected given the informal definitions in
+  \autoref{sec:motivating-examples}. We have set
+  $R^\bullet_{\tyPrimNm{vec}}$ and $R^\bullet_{\tyPrimNm{real}}$ to
+  relate $\vec{0}$ and $0$ to themselves to account for the
+  polymorphic zero constants we have assumed.
+\end{example}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Well-typed Programs}
+\subsection{Well-typed Programs and the Abstraction Theorem}
 \label{sec:well-typed-programs}
 
 We now present the rules for well-typed programs over the collection
@@ -678,6 +760,7 @@ allows for a program that is judged to have type $A$ to also have any
 other equal type $B$.
 \begin{figure*}[t]
   \centering
+  {\tiny
   \begin{mathpar}
     \inferrule* [right=Var]
     {\Delta \vdash \Gamma \isCtxt \\ x : A \in \Gamma}
@@ -737,20 +820,19 @@ other equal type $B$.
 
     \inferrule* [right=ExPack]
     {\Delta; \Gamma \vdash M : (\id_\Delta, e)^*A \\ \Delta, i\mathord:s \vdash A \isType}
-    {\Delta; \Gamma \vdash \mathrm{pack}\ [e]\ M : \exists i\mathord:s. A}
+    {\Delta; \Gamma \vdash \langle[e], M\rangle: \exists i\mathord:s. A}
 
     \inferrule* [right=ExUnpack]
     {\Delta; \Gamma \vdash M : \exists i\mathord:s. A \\
       \Delta, i\mathord:s; \pi_{i\mathord:s}^*\Gamma, x : A \vdash N : \pi_{i\mathord:s}^*B}
-    {\Delta; \Gamma \vdash \mathrm{unpack}\ [i]\ x = M\ \mathrm{in}\ N : B}
-  \end{mathpar}
+    {\Delta; \Gamma \vdash \mathrm{let}\langle[i],x\rangle = M\ \mathrm{in}\ N : B}
+  \end{mathpar}}
   
   \caption{Well-typed Programs}
   \label{fig:programs}
 \end{figure*}
 
-\subsubsection{The Index-Erasure Interpretation of Programs}
-\label{sec:erasure-semantics-programs}
+\paragraph{Index-Erasure Interpretation of Programs}
 
 % FIXME: do we need to prove something about the effect
 % of substitution on the erasure semantics of contexts?
@@ -767,24 +849,26 @@ the syntax of well-typed programs, rather than on the typing
 derivations. The definition of $\tmSem{M}$ is completely standard,
 except for the clauses for universal and existential types:
 \begin{displaymath}
-  \begin{array}{@{\hspace{0em}}l@{\hspace{0.5em}}c@{\hspace{0.5em}}l}
-    \tmSem{\Lambda i.\ M}\eta & \isDefinedAs & \tmSem{M}\eta \\
-    \tmSem{M[e]}\eta & \isDefinedAs & \tmSem{M}\eta \\
-    \tmSem{\mathrm{pack}\ [e]\ M}\eta & \isDefinedAs & \tmSem{M}\eta \\
-    \tmSem{\mathrm{unpack}\ [i]\ x = M\ \mathrm{in}\ N}\eta & \isDefinedAs & \tmSem{N}(\eta, \tmSem{M}\eta)
+  \begin{array}{@{}l}
+    \begin{array}{@{}l@{\hspace{0.5em}}c@{\hspace{0.5em}}l@{\hspace{2em}}l@{\hspace{0.5em}}c@{\hspace{0.5em}}l@{}}
+      \tmSem{\Lambda i.\ M}\eta & \isDefinedAs & \tmSem{M}\eta
+      &
+      \tmSem{M[e]}\eta & \isDefinedAs & \tmSem{M}\eta \\
+      \tmSem{\langle [e], M\rangle}\eta & \isDefinedAs & \tmSem{M}\eta
+    \end{array} \\
+    \tmSem{\mathrm{let}\langle[i], x\rangle = M\ \mathrm{in}\ N}\eta \isDefinedAs \tmSem{N}(\eta, \tmSem{M}\eta)
   \end{array}
 \end{displaymath}
 
-\subsubsection{The Abstraction Theorem}
-\label{sec:abstraction-theorem}
+\paragraph{The Abstraction Theorem}
+%\label{sec:abstraction-theorem}
 
-We now state and prove the abstraction theorem for well-typed programs
-in our system. To state and prove this theorem for open programs, we
-must extend the relational interpretation of types to typing
-contexts. The relational interpretation of contexts is defined by the
-following clauses, where we have used the relational lifting of
-cartesian product $-\relTimes-$ defined in
-\autoref{sec:relational-semantics}.
+We now state the abstraction theorem for well-typed programs. To state
+and prove this theorem for open programs, we must extend the
+relational interpretation of types to typing contexts. The relational
+interpretation of contexts is defined by the following clauses, where
+we have used the relational lifting of cartesian product $-\relTimes-$
+defined in \autoref{sec:relational-semantics}.
 \begin{displaymath}
   \begin{array}{@{}l@{\hspace{0.1em}\isDefinedAs\hspace{0.1em}}l@{\hspace{1.5em}}l@{\hspace{0.1em}\isDefinedAs\hspace{0.1em}}l}
     \rsem{\epsilon}{\relEnv{E}}{\rho} & \{(*,*)\} &

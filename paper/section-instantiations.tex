@@ -1,51 +1,63 @@
-\section{Consequences of the Abstraction Theorem}
+\section{Geometric Consequences of Abstraction}
 \label{sec:instantiations}
 
 \fixme{explain the general setup, with a set of operations for each
   instantiation.}
 
+\begin{lemma}
+  The thing about $\Gamma_\Geom$.
+\end{lemma}
+
 \subsection{Theorems for Free}
 \label{sec:theorems-for-free}
 
-Wadler's influential ``Theorems for Free!''  \cite{wadler89theorems}
-emphasised a particular aspect of Reynolds' theory of relational
-parametricity: the fact that we can read off theorems about a program
-simply by looking at the relational interpretation of its type. We now
-state some free theorems that are derivable in each of the three main
-examples we introduced in \autoref{sec:motivating-examples}.
+Consider the type of the area of a triangle function we defined in
+\exref{ex:area-of-triangle-1}:
+\begin{displaymath}
+  \begin{array}{@{}l}
+    \mathrm{area} : \forall B\mathord:\SynGL{2}, t\mathord:\SynTransl{2}.\ \\
+    \hspace{0.8cm}\tyPrim{vec}{B, t} \to \tyPrim{vec}{B, t} \to \tyPrim{vec}{B, t} \to \tyPrim{real}{|\det B|}
+  \end{array}
+\end{displaymath}
+By \thmref{thm:abstraction}, we can derive the following free theorem. For all $B \in \GL{2}$, $\vec{t} \in \Transl{2}$, and $\vec{x}, \vec{y}, \vec{z} \in \mathbb{R}^2$, we have 
+\begin{displaymath}
+  |\det B|(\tmSem{\mathrm{area}}\ \vec{x}\ \vec{y}\ \vec{z}) = \tmSem{\mathrm{area}}\ (B\vec{x} + \vec{t})\ (B\vec{y} + \vec{t})\ (B\vec{z} + \vec{t})
+\end{displaymath}
+Thus, directly from the type of the $\mathrm{area}$ function, we can
+see that its index-erasure semantics is (a) invariant under
+translations, and (b) if the inputs are subjected to a linear
+transformation $B$, the output varies with the absolute value of the
+determinant of $B$.
 
-\subsubsection{Two-Dimensional Geometry}
-\label{sec:geometry-consequences}
 
-(In)variance properties
 
-\subsubsection{Logical Information Flow}
-\label{sec:information-flow-consequences}
+% Wadler's influential ``Theorems for Free!''  \cite{wadler89theorems}
+% emphasised a particular aspect of Reynolds' theory of relational
+% parametricity: the fact that we can read off theorems about a program
+% simply by looking at the relational interpretation of its type. We now
+% state some free theorems that are derivable in each of the three main
+% examples we introduced in \autoref{sec:motivating-examples}.
 
-Non-interference properties
-
-\subsubsection{Metric Spaces}
-\label{sec:metric-space-consequences}
-
-Continuity via $\epsilon$-$\delta$ proofs.
-
-\subsection{Types Indexed by Abelian Groups}
+\subsection{Isomorphisms for Types Indexed by Abelian Groups}
 \label{sec:types-indexed-abelian-groups}
 
 \begin{enumerate}
 \item Two cases: when we have a total ``division'' operation, and when
   we don't.
 \item Type isomorphisms, based on Smith Normal Form
-\item Non-definability results, based on the non-compositional
-  relational environments
-\item Alteration of the non-definability results in the light of
-  addition of a square root operation
-\item Mention the variation we can obtain by changing some types,
-  e.g. the type of $\mathrm{abs}$. Also, the complex numbers example.
+% \item Non-definability results, based on the non-compositional
+%   relational environments
+% \item Alteration of the non-definability results in the light of
+%   addition of a square root operation
+% \item Mention the variation we can obtain by changing some types,
+%   e.g. the type of $\mathrm{abs}$. Also, the complex numbers example.
 \end{enumerate}
 
+\fixme{Copy the stuff over from the other file}
 
+\subsection{Indefinability}
 
+\fixme{Copy the stuff over from the other file}
 
 %%% Local Variables:
 %%% TeX-master: "paper"
