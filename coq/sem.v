@@ -31,6 +31,9 @@ Fixpoint interpTy D (t: Ty D) : Type :=
   end%type
 where "| t |" := (interpTy t).
 
+Fixpoint interpCtxt D (G: Ctxt D) : Type :=
+  if G is t::G then (interpTy t * interpCtxt G)%type else unit.
+
 (* This is lemma 3, part 1 *)
 Lemma interpEquiv D (t1 t2: Ty D) A : equivTy A t1 t2 -> |t1| = |t2|.
 Proof. move => E. induction E => /=//; congruence. Qed. 
@@ -38,6 +41,52 @@ Proof. move => E. induction E => /=//; congruence. Qed.
 (* This is lemma 3, part 2 *)
 Lemma interpSubst D (t: Ty D) : forall D' (S: Sub D D'), |t| = |apSubTy S t|.
 Proof. induction t => /=//; congruence. Qed.
+
+Lemma interpTyAll D s (t: Ty (s::D)) e : |TyAll t| = |apSubTy (consSub e (idSub D)) t|.
+Proof. by rewrite -interpSubst. Qed.
+
+Lemma interpTyExists D s (t: Ty (s::D)) e : |apSubTy (consSub e (idSub D)) t| = |TyExists t|.
+Proof. by rewrite -interpSubst. Qed.
+
+Lemma interpTyPack D s (t: Ty (s::D)) : |TyExists t| = |t|. Proof. done. Qed.
+
+Lemma interpSubCtxt D (G: Ctxt D) : forall D' (S: Sub D D'), interpCtxt G = interpCtxt (apSubCtxt S G). 
+Proof. 
+induction G. done. move => D' S. simpl. by rewrite (interpSubst t S) (IHG _ S). 
+Qed. 
+
+Fixpoint interpVar D (G: Ctxt D) (t: Ty D) (v: TmVar G t) : interpCtxt G -> (|t|) :=
+  match v with
+  | TmVarZ _ _ => fun eta => eta.1
+  | TmVarS _ _ _ v => fun eta => interpVar v eta.2
+  end.
+
+Variable A: seq (Ax sig). 
+
+Fixpoint interpTm D (G: Ctxt D) (t: Ty D) (M: Tm A G t) : interpCtxt G -> (|t|) :=
+  match M in Tm _ _ t return interpCtxt G -> |t| with
+  | VAR _ v       => fun eta => interpVar v eta
+  | UNIT          => fun eta => tt
+  | TYEQ _ _ pf M => fun eta => interpTm M eta :? interpEquiv pf 
+  | PAIR _ _ M N  => fun eta => (interpTm M eta, interpTm N eta)
+  | PROJ1 _ _ M   => fun eta => (interpTm M eta).1
+  | PROJ2 _ _ M   => fun eta => (interpTm M eta).2
+  | INL _ _ M     => fun eta => inl _ (interpTm M eta)
+  | INR _ _ M     => fun eta => inr _ (interpTm M eta)
+  | CASE _ _ _ M M1 M2 => fun eta => 
+    match interpTm M eta with 
+    | inl x => interpTm M1 (x,eta) 
+    | inr y => interpTm M2 (y,eta) 
+    end
+  | ABS _ _ M     => fun eta => fun x => interpTm M (x,eta)
+  | APP _ _ M N   => fun eta => (interpTm M eta) (interpTm N eta)
+  | UNIVABS s t M  => fun eta => interpTm M (eta :? interpSubCtxt G (pi D s))
+  | UNIVAPP s t e M => fun eta => interpTm M eta :? interpTyAll t e
+  | EXPACK _ e t M => fun eta => interpTm M eta :? interpTyExists t e
+  | EXUNPACK s t t' M N => fun eta => 
+    interpTm N (interpTm M eta :? interpTyPack t, eta :? interpSubCtxt G (pi D s)) 
+      :? sym_equal (interpSubst t' (pi D s))
+  end.
 
 (*---------------------------------------------------------------------------
    Relational semantics
@@ -116,8 +165,6 @@ Fixpoint semTy D (rho: RelEnv D) (t:Ty D) : relation (|t|) :=
 
 Notation "rho |= x == y :> t" := (semTy (t:=t) rho x y) (at level 67, x at level 67, y at level 67).
 
-Variable A: seq (Ax sig). 
-
 
 (*---------------------------------------------------------------------------
    Unfortunately we need casts just to state the semSubst and semEquiv lemmas. 
@@ -127,7 +174,7 @@ Variable A: seq (Ax sig).
    ---------------------------------------------------------------------------*)
 Section UpDn. 
 
-  Variables D D' : Ctxt sig.
+  Variables D D' : IxCtxt sig.
   Variables S : Sub D D'.
   Variables t t1 t2 : Ty D.
   Variables E : equivTy A t1 t2.
@@ -145,7 +192,7 @@ End UpDn.
 
 Section UpDnProps.
 
-  Variables D D' : Ctxt sig.
+  Variables D D' : IxCtxt sig.
   Variables S : Sub D D'.
   Variables t t1 t2 t1' t2' : Ty D.
 

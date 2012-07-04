@@ -34,20 +34,20 @@ Structure SIG := mkSIG {
 Variable sig: SIG.
 
 (* Index variables each have a sort *)
-Definition Ctxt := seq (Srt sig). 
+Definition IxCtxt := seq (Srt sig). 
 
 (* Index variables, in context. D is \Delta in paper *)
-Inductive Var : Ctxt -> Srt sig -> Type :=
+Inductive Var : IxCtxt -> Srt sig -> Type :=
 | VarZ D s : Var (s::D) s
 | VarS D s s' : Var D s -> Var (s'::D) s.
 
 (* Well-sorted index expressions, in context. D is \Delta in paper *)
-Inductive Exp (D: Ctxt) : Srt sig -> Type :=
+Inductive Exp (D: IxCtxt) : Srt sig -> Type :=
 | VarAsExp s :> Var D s -> Exp D s
 | AppCon op : Exps D (opArity op).1 -> Exp D (opArity op).2
 
 (* Well-sorted sequences of index expressions, in context *)
-with Exps (D: Ctxt) : Ctxt -> Type :=
+with Exps (D: IxCtxt) : IxCtxt -> Type :=
 | Nil : Exps D nil
 | Cons s ss : Exp D s -> Exps D ss -> Exps D (s::ss).
 
@@ -229,8 +229,12 @@ Lemma ScExpsAsSub E E' E'' (S: Sub E'' E') (ixs: Exps _ E) :
 expsAsSub (apSubSeq S ixs) = ScS S (expsAsSub ixs).
 Proof. admit.  Qed. 
 
+(*---------------------------------------------------------------------------
+   Having formalized the syntax of index expressions, we now move on to types
+   ---------------------------------------------------------------------------*)
+
 (* Well-sorted type expressions, in context *)
-Inductive Ty (D: Ctxt) :=
+Inductive Ty (D: IxCtxt) :=
 | TyUnit
 | TyProd (t1 t2: Ty D) 
 | TySum (t1 t2: Ty D)
@@ -239,6 +243,10 @@ Inductive Ty (D: Ctxt) :=
 | TyAll s (t: Ty (s::D))
 | TyExists s (t: Ty (s::D)).
 
+(* Typing contexts: just a sequences of types *)
+Definition Ctxt D := seq (Ty D). 
+
+(* The action of an index substitution on types *)
 Fixpoint apSubTy D D' (S: Sub D D') (t: Ty D): Ty D' :=
   match t with
   | TyUnit       => TyUnit _
@@ -249,6 +257,9 @@ Fixpoint apSubTy D D' (S: Sub D D') (t: Ty D): Ty D' :=
   | TyExists s t => TyExists (apSubTy (liftSub s S) t)
   | TyPrim p ixs => TyPrim   (apSubSeq S ixs)
   end.
+
+Fixpoint apSubCtxt D D' (S: Sub D D') (G: Ctxt D) : Ctxt D' :=
+  if G is t::G then apSubTy S t :: apSubCtxt S G else nil.
 
 Definition shiftSub D D' s (S: Sub D D') : Sub D (s::D') := 
   mkSub (fun s v => shExp _ (S s v)). 
@@ -344,7 +355,35 @@ Inductive equivTy D A : relation (Ty D) :=
 | EquivTyExists s (t t': Ty (s::D)) :
   equivTy A (D:=s::D) t t' ->
   equivTy A (TyExists t) (TyExists t').
-  
+
+(*---------------------------------------------------------------------------
+   Finally, we define terms
+   ---------------------------------------------------------------------------*)
+Inductive TmVar D : Ctxt D -> Ty D -> Type := 
+| TmVarZ : forall G t, TmVar (t::G) t
+| TmVarS : forall G t' t, TmVar G t -> TmVar (t' :: G) t.
+
+Variable A: seq Ax. 
+
+Inductive Tm D (G: Ctxt D) : Ty D -> Type :=
+| VAR t : TmVar G t -> Tm G t
+| TYEQ t1 t2 : equivTy A t1 t2 -> Tm G t1 -> Tm G t2
+| UNIT : Tm G (TyUnit _)
+| PAIR t1 t2 : Tm G t1 -> Tm G t2 -> Tm G (TyProd t1 t2)
+| PROJ1 t1 t2 : Tm G (TyProd t1 t2) -> Tm G t1
+| PROJ2 t1 t2 : Tm G (TyProd t1 t2) -> Tm G t2
+| INL t1 t2 : Tm G t1 -> Tm G (TySum t1 t2)
+| INR t1 t2 : Tm G t2 -> Tm G (TySum t1 t2)
+| CASE t1 t2 t : Tm G (TySum t1 t2) -> Tm (t1::G) t -> Tm (t2::G) t -> Tm G t
+| ABS t1 t2 : Tm (t1::G) t2 -> Tm G (TyArr t1 t2)  
+| APP t1 t2 : Tm G (TyArr t1 t2) -> Tm G t1 -> Tm G t2
+| UNIVABS s t : Tm (D:=s::D) (apSubCtxt (pi D s) G) t -> Tm G (TyAll t)
+| UNIVAPP s t e : Tm G (TyAll (s:=s) t) -> Tm G (apSubTy (consSub e (idSub _)) t)
+| EXPACK s e t : Tm G (apSubTy (consSub e (idSub _)) t) -> Tm G (TyExists (s:=s) t)
+| EXUNPACK s t t' : Tm G (TyExists t) -> 
+                    Tm (D:=s::D) (t :: apSubCtxt (pi D s) G) (apSubTy (pi D s) t') -> Tm G t'
+.
+
 End Syntax.
 
 Notation "D '|-' e '===' f" := (@mkAx _ D _ e f) (at level 80, e, f at next level).
@@ -408,4 +447,5 @@ move => E. induction E => D' S.
 (* EquivTyExists *)
 + apply: EquivTyExists. apply IHE. 
 Qed. 
+
 
