@@ -496,22 +496,32 @@ Proof. induction v => /= H.
 + apply H. + apply IHv. apply H. 
 Qed. 
 
+Lemma castConsCtxt D D' (t: Ty D) (G: Ctxt D) (S: Sub D D') (v:|t|) (eta: interpCtxt G) : 
+  ((v, eta) :? (interpSubCtxt (t :: G) S)) = 
+  (v :? interpSubst t S, eta :? interpSubCtxt G S). 
+Proof. 
+Admitted. 
+
+
 (* This is lemma 4 *)
 Lemma semSubstCtxt D (G: Ctxt D) : forall D' (S:Sub D D') rho (ESrho: ES rho) eta eta',
   semCtxt rho (eta :? interpSubCtxt G S) (eta' :? interpSubCtxt G S)
   <->
   semCtxt (EcS rho S) eta eta'.  
 Proof. induction G => //.  
-move => D' S rho ESrho eta eta'. 
-destruct eta as [v eta]. 
-destruct eta' as [v' eta']. fold interpCtxt in *.
-simpl. split.  
+move => D' S rho ESrho [v eta] [v' eta']. 
+fold interpCtxt in *.
+specialize (IHG _ S _ ESrho eta eta').
+simpl semCtxt.  
+rewrite -IHG. 
+rewrite !castConsCtxt. simpl. split. 
 move => [H1 H2]. 
-split.
-
-simpl in H1. 
-admit. 
-admit. admit. Qed. 
+split => //. 
+apply semSubst => //. 
+move => [H1 H2]. 
+split => //. 
+apply semSubst => //. 
+Qed.  
 
 (* Theorem 1 *)
 Theorem Abstraction D (G: Ctxt D) (t: Ty D) (M: Tm A G t) (rho: RelEnv D) eta1 eta2:
