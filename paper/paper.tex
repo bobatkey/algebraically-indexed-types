@@ -15,11 +15,11 @@
 \def\subsectionautorefname{Section}
 \def\subsubsectionautorefname{Section}
 
-\title{Relational Parametricity for Algebraically Indexed Types}
+\title{Abstraction and Invariance for Algebraically Indexed Types}
 
-\authorinfo{Robert Atkey\and Neil Ghani\\\and Patricia Johann}
+\authorinfo{Robert Atkey\and Patricia Johann}
            {University of Strathclyde}
-           {\{Robert.Atkey,Neil.Ghani,Patricia.Johann\}@cis.strath.ac.uk}
+           {\{Robert.Atkey,Patricia.Johann\}@strath.ac.uk}
 
 \authorinfo{Andrew Kennedy}
            {Microsoft Research Cambridge}
@@ -148,7 +148,32 @@
 \maketitle
 
 \begin{abstract}
-  
+  Reynolds' relational parametricity provides a powerful way to reason
+  about programs in terms of invariance under changes of data
+  representation. A dazzling array of applications of Reynolds' theory
+  exists, exploiting invariance to yield ``theorems for free'',
+  uninhabitation results, and encodings of algebraic datatypes.
+
+  Outside computer science, invariance under change is a common theme
+  running through many areas mathematics and physics. For example, the
+  area of a triangle is not altered by rotation or flipping. If we
+  scale a triangle, then we scale its area, maintaining an invariant
+  relationship between the triangle and its area. The transformations
+  that properties are invariant under are often organised into groups,
+  the algebraic structure reflecting the composability and
+  invertibility of transformations.
+
+  In this paper, we investigate programming languages whose types are
+  indexed by algebraic structures such as groups of geometric
+  transformations. Other examples include types indexed by
+  principals--for information flow security--and types indexed by
+  distances--for analysis of analytic continuity properties. Following
+  Reynolds, we prove a general abstraction theorem that covers all
+  these instances. Consequences of the abstraction theorem include
+  free theorems expressing invariance properties of programs, type
+  isomorphisms based on invariance properties, and non-definability
+  results, indicating when certain algebraically indexed types are
+  uninhabited or only inhabited by trivial programs.
 \end{abstract}
 
 \category{D.1.1}{Programming techniques}{Applicative (functional)
