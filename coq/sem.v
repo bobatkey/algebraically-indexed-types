@@ -165,6 +165,9 @@ Fixpoint semTy D (rho: RelEnv D) (t:Ty D) : relation (|t|) :=
 
 Notation "rho |= x == y :> t" := (semTy (t:=t) rho x y) (at level 67, x at level 67, y at level 67).
 
+Fixpoint semCtxt D (rho: RelEnv D) (G:Ctxt D) : relation (interpCtxt G) :=
+  if G is t::G then fun eta1 eta2 => semTy rho eta1.1 eta2.1 /\ semCtxt rho eta1.2 eta2.2
+  else fun _ _ => True.
 
 (*---------------------------------------------------------------------------
    Unfortunately we need casts just to state the semSubst and semEquiv lemmas. 
@@ -289,9 +292,15 @@ Proof.
   split. apply invExt. rewrite invEnvK. apply EXT. apply IHt. apply H. 
 Qed. 
 
+Lemma semTyCast D (t1 t2: Ty D) rho (v1 v2: |t1|) (p1 p2 p3 p4: (|t1|) = (|t2|) ) : 
+  (rho |= (v1 :? p1) == (v2 :? p2) :> t2) ->
+  (rho |= (v1 :? p3) == (v2 :? p4) :> t2).
+Proof.   
+move => H.
+by rewrite (cast_UIP _ _ v1 _ p1) (cast_UIP _ _ v2 _ p2). 
+Qed. 
 
-
-(* This is lemma 4, part 1 *)
+(* This is lemma 2, part 1 *)
 Lemma semEquiv D (t1 t2: Ty D) (E: equivTy A t1 t2) : forall (rho: RelEnv D) (v v':interpTy t1),
   semTy rho v v' <->
   semTy rho (rt E v) (rt E v'). 
@@ -302,11 +311,22 @@ induction E => pf rho v v'.
 (* EquivTyRefl *)
 by rewrite 2!cast_id. 
 (* EquivTySym *)
-admit. 
+rewrite IHE => //. rewrite cast_coalesce => //. move => HH. 
+rewrite cast_id. rewrite cast_coalesce. by rewrite cast_id. 
 (* EquivTyTrans *)
-admit. 
+rewrite IHE1 => //. rewrite IHE2 => //. rewrite cast_coalesce.  
+apply: interpEquiv E1. apply: interpEquiv E2. 
+move => H1 H2. rewrite cast_coalesce. 
+split => H. apply (semTyCast _ _ H). apply (semTyCast _ _ H). 
 (* EquivTyProd *)
-Admitted.
+admit. 
+
+(*simpl. rewrite IHE1 => //. rewrite IHE2 => //. destruct v. destruct v'. fold interpTy in *. 
+simpl. admit. rewrite -upFst. rewrite cast_fst. done. Admitted.
+*)
+(* EquivTySum *)
+admit. 
+Admitted. 
 
 
 Lemma sem_difunctional : 
@@ -353,8 +373,7 @@ Proof.
   admit. 
 Qed. 
 
-  
-(* This is lemma 4, part 2 *)
+(* This is lemma 2, part 2 *)
 Lemma semSubst D (t: Ty D) : forall D' (S:Sub D D') rho (ESrho: ES rho) v v',
   (rho |= up S v == up S v' :> apSubTy S t
   <->
@@ -473,5 +492,99 @@ split => [[rho' [H1 [H2 H3]]] | [rho1 [H1 [H2 H3]]]].
   rewrite IHt {IHt}.
   rewrite H5. apply H3. 
 Qed.
+
+Lemma AbstractionVar D (G: Ctxt D) (t: Ty D) (v: TmVar G t) (rho: RelEnv D) eta1 eta2:
+  semCtxt rho eta1 eta2 -> semTy rho (interpVar v eta1) (interpVar v eta2). 
+Proof. induction v => /= H. 
++ apply H. + apply IHv. apply H. 
+Qed. 
+
+(* This is lemma 4 *)
+Lemma semSubstCtxt D (G: Ctxt D) : forall D' (S:Sub D D') rho (ESrho: ES rho) eta eta',
+  semCtxt rho (eta :? interpSubCtxt G S) (eta' :? interpSubCtxt G S)
+  <->
+  semCtxt (EcS rho S) eta eta'.  
+Proof. induction G => //.  
+move => D' S rho ESrho eta eta'. 
+destruct eta as [v eta]. 
+destruct eta' as [v' eta']. fold interpCtxt in *.
+simpl. split.  
+move => [H1 H2]. 
+split.
+rewrite /interpSubCtxt in H1.  
+Check cast_fst.  in H1. 
+
+admit.  
+Qed. 
+
+Theorem Abstraction D (G: Ctxt D) (t: Ty D) (M: Tm A G t) (rho: RelEnv D) eta1 eta2:
+  ES rho -> 
+  semCtxt rho eta1 eta2 -> semTy rho (interpTm M eta1) (interpTm M eta2). 
+Proof. induction M => /= ESrho H. 
+(* VAR *)
+apply AbstractionVar => //. 
+(* TYEQ *)
+apply semEquiv. apply IHM => //. 
+(* UNIT *)
+done. 
+(* PAIR *)
+split; [apply IHM1 => // | apply IHM2 => //].
+(* PROJ1 *)
+apply IHM => //.
+(* PROJ2 *)
+apply IHM => //. 
+(* INL *)
+apply IHM => //. 
+(* INR *)
+apply IHM => //. 
+(* CASE *)
+simpl in IHM1.
+specialize (IHM1 rho eta1 eta2 ESrho H). 
+case E1: (interpTm M1 eta1) => [a | a]. 
+case E2: (interpTm M1 eta2) => [b | b]. 
+rewrite E1 E2 in IHM1. apply IHM2 => //. 
+by rewrite E1 E2 in IHM1. 
+case E2: (interpTm M1 eta2) => [b | b]. 
+by rewrite E1 E2 in IHM1. 
+rewrite E1 E2 in IHM1. apply IHM3 => //. 
+(* ABS *)
+move => x x' xx'. apply IHM => //.   
+(* APP *)
+apply IHM1 => //. apply IHM2 => //. 
+(* UNIVABS *)
+move => rho' ESrho' EXT.
+apply IHM => //. rewrite /ext in EXT. rewrite -EXT in H.
+apply semSubstCtxt => //. 
+(* UNIVAPP *)
+specialize (IHM rho _ _ ESrho H). simpl in IHM.
+have ESrho': ES (EcS rho (consSub e (idSub D))). apply (closedWrtSubst CLOSED) => //. 
+have EXTrho': EcS rho (consSub e (idSub D)) >> rho.
+rewrite /ext/EcS. apply functional_extensionality_dep => p.  
+apply functional_extensionality => ixs. rewrite ScS_assoc. by rewrite consPi idScS. 
+specialize (IHM _ ESrho' EXTrho'). have SS := proj2 (semSubst _ _ _ _) IHM. 
+specialize (SS ESrho).
+rewrite /up in SS. 
+apply: (semTyCast (interpTyAll t e) _ SS).  
+(* EXPACK *)
+specialize (IHM rho eta1 eta2 ESrho H). exists (EcS rho (consSub e (idSub D))). 
+split. apply (closedWrtSubst CLOSED) => //. 
+split. rewrite /ext/EcS. 
+apply functional_extensionality_dep => p.  
+apply functional_extensionality => ixs. rewrite ScS_assoc. by rewrite consPi idScS. 
+have SS := (semSubst (consSub e (idSub D)) _ (interpTm M eta1 :? _) (interpTm M eta2 :? _) (t:=t) (rho:=rho)).
+destruct (SS ESrho (sym_equal (interpSubst _ _)) (sym_equal (interpSubst _ _))) as [SS1 _].
+clear SS. rewrite /up in SS1. rewrite !cast_coalesce !cast_id in SS1. specialize (SS1 IHM).
+have STC := semTyCast.  
+Check (interpTm M eta1).
+(*specialize (STC D _ (apSubTy (consSub e (idSub D)) t) rho
+  (interpTm M eta1) (interpTm M eta2)). *)
+move: SS1. set p1 := Logic.eq_sym _. 
+specialize (STC D _ (apSubTy (consSub e (idSub D)) t) rho (interpTm M eta1) (interpTm M eta2)). 
+(* Now just need to do UIP on casts *)
+admit. 
+(* EXUNPACK *)
+specialize (IHM1 rho eta1 eta2 ESrho H).
+admit.  
+Qed. 
 
 End Sem.

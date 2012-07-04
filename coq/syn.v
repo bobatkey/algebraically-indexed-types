@@ -225,6 +225,10 @@ Lemma ScS_assoc E E' E'' E''' (S1: Sub E'' E''') (S2: Sub E' E'') (S3: Sub E E')
 Proof. apply inj_Sub; ExtVar. simpl. by rewrite (proj1 (apScS S1 S2)). 
 simpl. by rewrite (proj1 (apScS S1 S2)). Qed. 
 
+Lemma idScS E E' (S: Sub E' E) :
+  ScS (idSub E) S = S.
+Proof. apply inj_Sub; ExtVar. simpl. apply apSubId. simpl. apply apSubId. Qed. 
+
 Lemma ScExpsAsSub E E' E'' (S: Sub E'' E') (ixs: Exps _ E) :
 expsAsSub (apSubSeq S ixs) = ScS S (expsAsSub ixs).
 Proof. admit.  Qed. 
@@ -278,6 +282,12 @@ Lemma liftPi D D' s (S: Sub D D') : ScS (liftSub s S) (pi D s) = ScS (pi D' s) S
 Proof. 
 apply inj_Sub. apply functional_extensionality_dep => s'. 
 apply functional_extensionality => v. simpl. by rewrite apSubPi. 
+Qed. 
+
+Lemma consPi D D' s e (S: Sub D D') : ScS (consSub e S) (pi D s) = S.
+Proof. 
+apply inj_Sub. apply functional_extensionality_dep => s'. 
+by apply functional_extensionality. 
 Qed. 
 
 (*---------------------------------------------------------------------------
