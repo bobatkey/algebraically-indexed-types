@@ -437,14 +437,13 @@ $\tyPrim{X}{e_1,...,e_n}$ in terms of the interpretations of
 $e_1,...,e_n$. This approach suffices to prove free theorems and type
 isomorphisms for instantiations of our general framework. However, in
 order to prove non-definability results (like, for example, the one in
-\exref{ex:uninhabited-type}), we choose a more subtle interpretation
-of index contexts and primitive types that can account more precisely
-for the definable programs permitted by the algebraic indexing. In
-this section, we set out the general requirements that we require of
-relational environments in order for the abstraction theorem to
-hold. In \autoref{sec:constr-rel-env}, we give a general construction
-of relational environments that will allow us to prove several
-non-definability results.
+\exref{ex:uninhabited-type}), we choose a more refined interpretation
+that accounts more precisely for the definable programs permitted by
+the algebraic indexing. In this section, we set out the general
+requirements that we require of relational environments in order for
+the abstraction theorem to hold. In \autoref{sec:constr-rel-env}, we
+give a general construction of relational environments that will allow
+us to prove several non-definability results.
 
 A relational environment for a context $\Delta$ is a (dependently typed)
 function $\rho$ that, for each primitive type $\tyPrimNm{X}$ and
@@ -598,124 +597,6 @@ $\{ (\mathrm{inl}\ x, \mathrm{inl}\ x') \sepbar (x,x') \in R \} \cup
 Note that the equations in both parts of
 \lemref{lem:tyeqsubst-relational} are well-typed by virtue of the
 corresponding parts of \lemref{lem:tyeqsubst-erasure}.
-
-\subsubsection{A General Construction of Relational Environments}
-\label{sec:constr-rel-env}
-
-\newcommand{\Free}{\mathrm{Free}}
-\newcommand{\semSort}[1]{\llbracket #1 \rrbracket^{\mathcal{S}}}
-\newcommand{\semIndexExp}[1]{\llbracket #1 \rrbracket^{\mathcal{I}}}
-
-We now give a general construction of valid families of sets of
-relational environments that will allow us to derive useful
-consequences of the abstraction theorem, including free theorem, type
-isomorphisms and non-definability results. We make use of some
-concepts of universal algebra, which we recall here. \fixme{Desperately needs some intuition: do so in terms of clumpiness}
-
-\paragraph{Some Universal Algebra}
-For each sort $s \in \SortSet$ we assume a carrier set
-$\semSort{s}$. We extend this assignment to index contexts and other
-sequences of sorts (e.g., type arities) using the cartesian product of
-sets: $\semSort{i_1\mathord:s_1,...,i_n\mathord:s_n} = \semSort{s_1}
-\times ... \times \semSort{s_n}$. For each index operation $\texttt{f}
-\in \IndexOpSet$ with $\indexOpArity(\texttt{f}) = ([s_1,...,s_n],s)$,
-we assume a function $\semIndexExp{\texttt{f}} : \semSort{s_1,...,s_n}
-\to \semSort{s}$. For each well-sorted index expression $\Delta \vdash
-e : s$, we assign a function $\semIndexExp{e} : \semSort{\Delta} \to
-\semSort{s}$ by recursion on the structure of $e$. We further assume
-that for each axiom $\Delta \vdash e \stackrel{ax}\equiv e' : s \in
-\IndexAxiomSet$, we have $\semIndexExp{e} = \semIndexExp{e'}$. A
-\emph{model} is a pair $\mathcal{M} = (\semSort{\cdot}_{\mathcal{M}},
-\semIndexExp{\cdot}_{\mathcal{M}})$ such that all the axioms in
-$\IndexAxiomSet$ are satisfied. 
-
-% A sub-model $\mathcal{N}$ of a given
-% model $\mathcal{M}$ (written $\mathcal{N} \subseteq \mathcal{M}$) is a
-% model such that $\semSort{s}_{\mathcal{N}} \subseteq
-% \semSort{s}_{\mathcal{M}}$ for all $s \in \SortSet$.
-
-\fixme{Define free models for any sort-indexed collection of sets}
-Given an index context $\Delta$, the \emph{free} model on $\Delta$,
-$\Free(\Delta)$, has $\semSort{s}_{\Free(\Delta)} = \{e \sepbar \Delta
-\vdash e : s\}/\mathord\equiv$: the set of expressions of sort $s$ in
-the indexing context $\Delta$, quotiented by the equality
-judgment. The free model has
-$\semIndexExp{\texttt{f}}_{\Free(\Delta)}(e_1,..,e_n) =
-\texttt{f}(e_1,...,e_n)$.
-
-Given a pair of models $\mathcal{M}_1 = (\semSort{\cdot}_1,
-\semIndexExp{\cdot}_1)$ and $\mathcal{M}_2 = (\semSort{\cdot}_2,
-\semIndexExp{\cdot}_2)$, a \emph{homomorphism} $h : \mathcal{M}_1 \to
-\mathcal{M}_2$ is a family of functions $\{ h_s : \semSort{s}_1 \to
-\semSort{s}_2 \}_{s \in \SortSet}$ such that for each $\texttt{f} \in
-\IndexOpSet$, we have $h_s(\semIndexExp{\texttt{f}}_1 (x_1,...,x_n)) =
-\semIndexExp{\texttt{f}}_2(h_{s_1}x_1, ..., h_{s_n}x_n)$.
-
-\paragraph{Relational Environments} \fixme{Say some stuff in english to make sure that the construction is understandable}
-
-To assign a relational meaning to
-each of the primitive types we assume a some model $\mathcal{M}$ of
-the indexing theory along with a function $R_{\tyPrimNm{X}} :
-\semSort{\primTyArity(\tyPrimNm{X})}_{\mathcal{M}} \to
-\Rel(\tyPrimSem{\tyPrimNm{X}})$ for each primitive type
-$\tyPrimNm{X}$, and a constant $R^\bullet_{\tyPrimNm{X}} \in
-\Rel(\tyPrimSem{\tyPrimNm{X}})$. We set
-$\relEnv{E}_{\mathcal{M},R}(\Delta) = \{ \rho^{\mathcal{A},h} \sepbar \mathcal{A}
-\subseteq \Free(\Delta), h : \mathcal{A} \to \mathcal{M} \}$, where:
-\begin{displaymath}
-  \rho^{\mathcal{A},h}\ \tyPrimNm{X}\ (e_1,...,e_n) = \left\{
-    \begin{array}{ll}
-      R^\bullet_{\tyPrimNm{X}} & \textrm{if any }e_i \not\in \mathcal{A} \\
-      R_{\tyPrimNm{X}}(h(e_1),...,h(e_n)) & \textrm{if all }e_i \in \mathcal{A}
-    \end{array}
-  \right.
-\end{displaymath}
-
-\begin{lemma}
-  The family $\relEnv{E}_{\mathcal{M},R}$ of sets of relation
-  environments is valid (c.f.~\defref{defn:valid-rel-env-family}).
-\end{lemma}
-
-% \fixme{Note that we can recover the basic approach by restricting the
-%   sub-algebras to just the whole thing. Does this work in general?
-%   What about arbitrary collections of sub-algebras?}
-
-\begin{example}[Two-dimensional Geometry] We define the ``standard''
-  model of the indexing theory for the two-dimensional geometry
-  example as follows. Each of the sorts are interpreted just as their
-  semantic counterparts:
-  \begin{displaymath}
-    \begin{array}{@{}llll}
-      \semSort{\SynTransl{2}} = \Transl{2}
-      &
-      \semSort{\SynGL{2}} = \GL{2}
-      &
-      \semSort{\SynOrth{2}} = \Orth{2}
-      &
-      \semSort{\SynGL{1}} = \GL{1}
-    \end{array}
-  \end{displaymath}
-  Each of the index operations (e.g.,~the group structure and
-  determinant) are interpreted by the intended semantic
-  operations. These clearly satisfy the axioms we stated in
-  \exref{ex:two-dim-geo-axioms}. The assignment of relations for the
-  primitive types $\tyPrimNm{vec}$ and $\tyPrimNm{real}$ are given by
-  the following definitions:
-  \begin{displaymath}
-    \begin{array}{ll}
-      R^{\bullet}_{\tyPrimNm{vec}} = \{( \vec{0}, \vec{0} ) \}&
-      R_{\tyPrimNm{vec}}(B,\vec{t}) = \{ (\vec{v}, B\vec{v} + \vec{t}) \sepbar \vec{v} \in \mathbb{R}^2 \} \\
-      R^{\bullet}_{\tyPrimNm{real}} = \{(0,0)\} &
-      R_{\tyPrimNm{real}}(k) = \{ (x, kx) \sepbar x \in \mathbb{R} \}
-    \end{array}
-  \end{displaymath}
-  The definitions of $R_{\tyPrimNm{vec}}$ and $R_{\tyPrimNm{real}}$
-  are as may be expected given the informal definitions in
-  \autoref{sec:motivating-examples}. We have set
-  $R^\bullet_{\tyPrimNm{vec}}$ and $R^\bullet_{\tyPrimNm{real}}$ to
-  relate $\vec{0}$ and $0$ to themselves to account for the
-  polymorphic zero constants we have assumed.
-\end{example}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -891,6 +772,129 @@ defined in \autoref{sec:relational-semantics}.
   that $(\eta_1, \eta_2) \in \rsem{\Gamma}{\relEnv{E}}\rho$, we have
   $(\tmSem{M}\eta_1, \tmSem{M}\eta_2) \in \rsem{A}{\relEnv{E}}\rho$.
 \end{theorem}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{A General Construction of Relational Environments}
+\label{sec:constr-rel-env}
+
+\newcommand{\Free}{\mathrm{Free}}
+\newcommand{\semSort}[1]{\llbracket #1 \rrbracket^{\mathcal{S}}}
+\newcommand{\semIndexExp}[1]{\llbracket #1 \rrbracket^{\mathcal{I}}}
+
+We now give a general construction of valid families of sets of
+relational environments (in the sense of
+\defref{defn:valid-rel-env-family}) that will allow us to derive
+useful consequences of \thmref{thm:abstraction}. In particular, we
+wish to show that certain types are uninhabited. To motivate this,
+consider the following type, which makes use of vectors indexed by
+translations, as in \autoref{sec:affine-vector-ops}:
+\begin{displaymath}
+  \forall t\mathord:\SynTransl{2}.\ \tyPrim{vec}{t + t} \to \tyPrim{vec}{t}
+\end{displaymath}
+In \exref{ex:uninhabited-type} we claimed that this type is
+uninhabited. Intuitively, it is clear why: given the operations on
+vectors we presented in \autoref{sec:affine-vector-ops}, there is no
+way of cancelling the additional $t$ in the argument type to get the
+result type. More generally, the operations on vectors only allow us
+to combine indexes according to the group operations. Thus, if the
+index of the result type of a function does not lie within the free
+abelian group generated by the indexes of the input types, then there
+is no way of writing a program with the given type. We now develop
+this idea to generate a family of sets of relational environments that
+is valid in the sense of \defref{defn:valid-rel-env-family}. The key
+idea is to assign different relational interpretations to types with
+indexes that lie outside some fintely generated of index expressions.
+
+\paragraph{Some Universal Algebra}
+We make use of some concepts of universal algebra, which now recall.
+
+A \emph{model} for our indexing expressions and their equality is
+defined as follows. For each sort $s \in \SortSet$ we assume a carrier
+set $\semSort{s}$. We extend this assignment to index contexts and
+other sequences of sorts (e.g., type arities) using the cartesian
+product of sets: $\semSort{i_1\mathord:s_1,...,i_n\mathord:s_n} =
+\semSort{s_1} \times ... \times \semSort{s_n}$. For each index
+operation $\texttt{f} \in \IndexOpSet$ with $\indexOpArity(\texttt{f})
+= ([s_1,...,s_n],s)$, we assume a function $\semIndexExp{\texttt{f}} :
+\semSort{s_1,...,s_n} \to \semSort{s}$. For each well-sorted index
+expression $\Delta \vdash e : s$, we assign a function
+$\semIndexExp{e} : \semSort{\Delta} \to \semSort{s}$ by recursion on
+the structure of $e$. We further assume that for each axiom $\Delta
+\vdash e \stackrel{ax}\equiv e' : s \in \IndexAxiomSet$, we have
+$\semIndexExp{e} = \semIndexExp{e'}$. A \emph{model} is a pair
+$\mathcal{M} = (\semSort{\cdot}_{\mathcal{M}},
+\semIndexExp{\cdot}_{\mathcal{M}})$ such that all the axioms in
+$\IndexAxiomSet$ are satisfied.
+
+Given a pair of models $\mathcal{M}_1 = (\semSort{\cdot}_1,
+\semIndexExp{\cdot}_1)$ and $\mathcal{M}_2 = (\semSort{\cdot}_2,
+\semIndexExp{\cdot}_2)$, a \emph{homomorphism} $h : \mathcal{M}_1 \to
+\mathcal{M}_2$ is a family of functions $\{ h_s : \semSort{s}_1 \to
+\semSort{s}_2 \}_{s \in \SortSet}$ such that for each $\texttt{f} \in
+\IndexOpSet$, we have $h_s(\semIndexExp{\texttt{f}}_1 (x_1,...,x_n)) =
+\semIndexExp{\texttt{f}}_2(h_{s_1}x_1, ..., h_{s_n}x_n)$.
+
+Let $A = \{ A_s \}_{s \in \SortSet}$ be a family of finite sets
+indexed by sorts. We construct an index context $\Delta_A$ which has
+variables $a\mathord:s$ for each $a \in A_s$. The \emph{free} model
+over $A$, denoted $\Free(A)$, is defined by setting
+$\semSort{s}_{\Free(A)} = \{e \sepbar \Delta_A \vdash e :
+s\}/\mathord\equiv$, where we quotient by the equality judgment
+defined in \autoref{sec:type-equality}. The free model has
+$\semIndexExp{\texttt{f}}_{\Free(A)}(e_1,..,e_n) =
+\texttt{f}(e_1,...,e_n)$.
+
+\paragraph{Relational Environments} We now fix some model
+$\mathcal{M}$ that will provide the underlying interpretation of index
+expressions. As we indicated above, we wish to discriminate between
+index expressions that are generated from some finite set of ``input''
+expressions and those that are not. Accordingly, we assume that for
+each primitive type $\tyPrimNm{X}$ we have two ways of assigning a
+relational meaning to that type. When the index arguments of the type
+are within the generated set, we will use a function $R_{\tyPrimNm{X}}
+\in \semSort{\primTyArity(\tyPrimNm{X})}_{\mathcal{M}} \to
+\Rel(\tyPrimSem{\tyPrimNm{X}})$ that assigns a relational meaning to
+every element in the interpretation of the type's argument sorts. When
+the index arguments are not within the generated set we default to a
+constant relational meaning $R^\bullet_{\tyPrimNm{X}} \in
+\Rel(\tyPrimSem{\tyPrimNm{X}})$.
+
+We now use $R_{\tyPrimNm{X}}$ and $R^\bullet_{\tyPrimNm{X}}$ to
+construct the relational environments that we are interested in.  Fix
+an index context $\Delta$. Let $A = \{ A_s \}_{s \in \SortSet}$ be a
+sort-indexed family of finite sets of expressions such that if $e \in
+A_s$, then $\Delta \vdash e : s$. Let $h : \Free(A) \to \mathcal{M}$
+be a homomorphism. For each $A$ and $h$ we have a relational
+environment for the context $\Delta$:
+\begin{displaymath}
+  \rho^A_h\ \tyPrimNm{X}\ (e_1,...,e_n) = \left\{
+    \begin{array}{@{}l@{\hspace{0.5em}}l}
+      R^\bullet_{\tyPrimNm{X}} & \textrm{if any }e_i \not\in \Free(A) \\
+      R_{\tyPrimNm{X}}(h(e_1),...,h(e_n)) & \textrm{if all }e_i \in \Free(A)
+    \end{array}
+  \right.
+\end{displaymath}
+Collecting all these relational environments together yields a family
+of relational environments, parameterised by our choice of model,
+$\mathcal{M}$, and relational interpretations of primitive types
+$R^\bullet,R$:
+\begin{displaymath}
+  \relEnv{E}_{\mathcal{M},R,R^\bullet}(\Delta) = \{ \rho^A_h \sepbar \forall s.A_s \subseteq \semSort{s}_{\Free(\Delta)}, h : \Free(A) \to \mathcal{M} \}
+\end{displaymath}
+
+\begin{theorem}
+  The family $\relEnv{E}_{\mathcal{M},R,R^\bullet}$ of sets of
+  relation environments is valid in the sense of
+  \defref{defn:valid-rel-env-family}.
+\end{theorem}
+
+Note that we still need to prove for each instantiation of our general
+framework that the program-level primitive operations preserve all the
+relations, in order to fulfil the hypothesis of
+\thmref{thm:abstraction}. \fixme{This is the content of lemma X, lemma
+  Y, lemma Z, below}.
 
 %%% Local Variables:
 %%% TeX-master: "paper"
