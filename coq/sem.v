@@ -66,17 +66,17 @@ Proof.
 induction G. done. move => D' S. simpl. by rewrite (interpSubst t S) (IHG _ S). 
 Qed. 
 
-Fixpoint interpVar D (G: Ctxt D) (t: Ty D) (v: TmVar G t) : interpCtxt G -> (|t|) :=
+Fixpoint interpTmVar D (G: Ctxt D) (t: Ty D) (v: TmVar G t) : interpCtxt G -> (|t|) :=
   match v with
   | TmVarZ _ _ => fun eta => eta.1
-  | TmVarS _ _ _ v => fun eta => interpVar v eta.2
+  | TmVarS _ _ _ v => fun eta => interpTmVar v eta.2
   end.
 
 Variable A: seq (Ax sig). 
 
 Fixpoint interpTm D (G: Ctxt D) (t: Ty D) (M: Tm A G t) : interpCtxt G -> (|t|) :=
   match M in Tm _ _ t return interpCtxt G -> |t| with
-  | VAR _ v       => fun eta => interpVar v eta
+  | VAR _ v       => fun eta => interpTmVar v eta
   | UNIT          => fun eta => tt
   | TYEQ _ _ pf M => fun eta => interpTm M eta :? interpEquiv pf 
   | PAIR _ _ M N  => fun eta => (interpTm M eta, interpTm N eta)
@@ -532,7 +532,7 @@ split => [[rho' [H1 [H2 H3]]] | [rho1 [H1 [H2 H3]]]].
 Qed.
 
 Lemma AbstractionVar D (G: Ctxt D) (t: Ty D) (v: TmVar G t) (rho: RelEnv D) eta1 eta2:
-  semCtxt rho eta1 eta2 -> semTy rho t (interpVar v eta1) (interpVar v eta2). 
+  semCtxt rho eta1 eta2 -> semTy rho t (interpTmVar v eta1) (interpTmVar v eta2). 
 Proof. induction v => /= H. 
 + apply H. + apply IHv. apply H. 
 Qed. 
@@ -638,5 +638,66 @@ rewrite !cast_id. specialize (IHM2 (conj IHM1 H2)).
 have SS := (@semSubst _ t' _ (pi D s) rho' ESrho'). rewrite /up in SS. 
 apply SS. rewrite !cast_coalesce !cast_id. apply IHM2. 
 Qed. 
+
+(*---------------------------------------------------------------------------
+   Models of equational theory
+   ---------------------------------------------------------------------------*)
+Fixpoint interpSeq X (interp: X -> Type) (xs: seq X): Type :=
+  if xs is x::xs then (interp x * interpSeq interp xs)%type
+  else unit.
+
+(* Interpretation of sorts and index operations *)
+Structure Interpretation := mkIntepretation {
+  (* Carrier for each sort *)
+  interpSrt : Srt sig -> Type; 
+
+  (* Function for each index operation *)
+  interpOp : forall p, interpSeq interpSrt (opArity p).1 -> interpSrt (opArity p).2  
+}.
+
+Implicit Arguments interpOp [].
+
+Fixpoint interpVar I D s (v: Var D s) : interpSeq (interpSrt I) D -> interpSrt I s :=
+  match v with 
+  | VarZ _ _     => fun env => env.1
+  | VarS _ _ _ v => fun env => interpVar v env.2
+  end.
+
+(* Interpret an index expression compositionally *)
+Fixpoint interpExp I D s (e: Exp D s) : interpSeq (interpSrt I) D -> interpSrt I s :=
+  match e with
+  | VarAsExp _ v => fun env => interpVar v env
+  | AppCon op es => fun env => interpOp I op (interpExps es env)
+  end
+
+with interpExps I D ss (es: Exps D ss) (env: interpSeq (interpSrt I) D)
+  : interpSeq (interpSrt I) ss :=
+  if es is Cons _ _ ix ixs then (interpExp ix env, interpExps ixs env) else tt.
+
+Definition interpAx I (A: Ax sig) := 
+  let: mkAx D s lhs rhs := A in
+  forall env: interpSeq (interpSrt I) D, interpExp lhs env = interpExp rhs env.
+
+Fixpoint interpAxs I (As: seq (Ax sig)) :=
+  if As is A::As then interpAx I A /\ interpAxs I As else True.
+
+(* A model is an interpretation together with a proof that the axioms are satisfied *)
+Structure Model := mkModel {
+  I :> Interpretation;
+  soundness: interpAxs I A
+}.
+
+Fixpoint apArgs (M1 M2: Model) arity (f:forall s, interpSrt M1 s -> interpSrt M2 s) :
+  interpSeq (interpSrt M1) arity -> interpSeq (interpSrt M2) arity :=
+  if arity is s::ss
+  then fun args => (f s args.1, apArgs f args.2) 
+  else fun args => tt.
+ 
+Structure Homomorphism (M1 M2: Model) := mkHom {
+  hom:> forall s: Srt sig, interpSrt M1 s -> interpSrt M2 s;
+  preserves: forall p xs, hom (interpOp M1 p xs) = interpOp M2 p (apArgs hom xs)
+}.
+
+(* TODO: free models *)
 
 End Sem.
