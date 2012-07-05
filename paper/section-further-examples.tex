@@ -3,21 +3,19 @@
 
 \newcommand{\Mon}{\textit{Mon}}
 
-In the last section we looked at types indexed by abelian groups. We
-now examine an instantiation of our general framework with a monoid
-type indexed by elements of a commutative monoid. Our main example of
-monoid indexed types is strings indexed by ``taint'' markers: when
-strings are appended their taint markers are combined. Thanks to the
-information in the indexes, we are able to prove an indefinability
-result (\thmref{thm:monoid-indefinability}).
+We have investigated types indexed by abelian group expressions, whose
+elements are taken from some group. We now switch from abelian groups
+to commutative monoids.  Our main example is strings indexed by
+``taint'' markers: when strings are appended their taint markers are
+combined. Thanks to the information in the indexes, we are able to
+prove an indefinability result (\thmref{thm:monoid-indefinability}).
 
-We assume a single indexing sort $\mathsf{M}$, with the monoid
-operations of unit and multiplication along with the commutative
-monoid axioms. There is a single primitive type $\tyPrimNm{M}$, with
-$\primTyArity(\tyPrimNm{M}) = [\mathsf{M}]$. For the index-erasure
-semantics, we assume some (not necessarily commutative) monoid $M$,
-which we also write multiplicatively. Thus, we set
-$\tyPrimSem{\tyPrimNm{M}} = M$. The collection of primitive operations
+We assume a single sort $\mathsf{M}$, with the monoid operations of
+unit and multiplication, and the commutative monoid axioms. There is a
+single primitive type $\tyPrimNm{M}$, with $\primTyArity(\tyPrimNm{M})
+= [\mathsf{M}]$. For the index-erasure semantics, we assume some (not
+necessarily commutative) monoid $M$, which we also write
+multiplicatively. The collection of primitive operations
 $\Gamma_{\mathit{Mon}}$ is simply the two monoid operations:
 \begin{displaymath}
   \begin{array}{r@{\hspace{0.5em}:\hspace{0.5em}}l@{\hspace{2em}}r@{\hspace{0.5em}:\hspace{0.5em}}l}
@@ -41,39 +39,35 @@ everything else, we ensure that the following lemma holds:
   $(\eta_\Mon,\eta_\Mon) \in \rsem{\Gamma_\Mon}{\relEnv{E}}\rho$.
 \end{lemma}
 
-\newcommand{\mscup}{\stackrel{ms}\cup}
-
 \begin{example}
   By selecting a suitable monoid $M$, we can simulate a programming
-  language that dynamically annotates strings with taint markers. Let
-  $\Sigma$ be a set of characters from some alphabet, and let $T$ be a
-  set of taint markers. Set $M = \Sigma^* \times
+  language that annotates strings with taint markers. Let $\Sigma$ be
+  a set of characters from some alphabet, and let $T$ be a set of
+  taint markers. Set $M = \Sigma^* \times
   \mathcal{MS}_{\mathit{fin}}(T)$, where $\mathcal{MS}_{\mathit{fin}}$
   denotes the finite power set operator. Since both $\Sigma^*$ and
   $\mathcal{MS}_{\mathit{fin}}(T)$ are monoids (the latter with
   multiset union as the monoid multiplication, which we write as
-  $\mscup$), $M$ is itself a monoid. The centre of $M$, $Z(M)$,
-  consists of all elements of the form $([], t)$ for multisets of
-  taint markers.
+  $\uplus$), $M$ is itself a monoid. The centre of $M$, $Z(M)$,
+  consists of all elements of the form $([], t)$.
 
   As an example of a free theorem for this instantiation of our
   general framework, consider programs of the following type:
   \begin{displaymath}
-    ; \Gamma_\Mon \vdash M : \forall a,b\mathord:\mathsf{M}.\ \tyPrim{M}{a} \to \tyPrim{M}{b} \to \tyPrim{M}{aa}
+    ; \Gamma_\Mon \vdash N : \forall a,b\mathord:\mathsf{M}.\ \tyPrim{M}{a} \to \tyPrim{M}{b} \to \tyPrim{M}{aa}
   \end{displaymath}
   From this type we can derive the following free theorem about
-  $M$. For all $a, b \in \mathcal{MS}_{\mathit{fin}}(T)$, $(s_1,t_1),
+  $N$. For all $a, b \in \mathcal{MS}_{\mathit{fin}}(T)$, $(s_1,t_1),
   (s_2,t_2) \in \Sigma^*$,
   \begin{displaymath}
     \begin{array}{l}
-      \pi_2(\tmSem{M}\ (s_1,t_1 \mscup a)\ (s_2,t_2 \mscup b)) = \\
-      \hspace{2em}\pi_2(\tmSem{M}\ (s_1,t_1)\ (s_2,t_2)) \mscup a \mscup a
+      \pi_2(\tmSem{N}\ (s_1,t_1 \uplus a)\ (s_2,t_2 \uplus b)) = \\
+      \hspace{2em}\pi_2(\tmSem{N}\ (s_1,t_1)\ (s_2,t_2)) \uplus a \uplus a
     \end{array}
   \end{displaymath}
-  We read this result as follows: if we taint the first input by $a$
-  and the second by $b$, then the taint of the output varies according
-  to $M$'s type. In this case the output contains two copies of $a$
-  and none of $b$.
+  If we taint the first input by $a$ and the second by $b$, then two
+  copies of the taint $a$ will flow to the output, and none of taint
+  $b$.
 \end{example}
 
 % if $b$ does not appear in the output, then it cannot have been used in
@@ -87,27 +81,99 @@ everything else, we ensure that the following lemma holds:
 
 % prove this by using a relational environment that excludes 
 
-\begin{theorem}
-  \begin{equation}
-    \label{eq:fo-monoid-type-insensitive}
-    ; \Gamma_\Mon \vdash M : \forall i_1,\dots,i_m\mathord:\mathsf{M}.\ \tyPrim{M}{e_1} \to \dots \to \tyPrim{M}{e_n} \to \tyPrim{M}{e}
-  \end{equation}
-  
-\end{theorem}
+% \begin{theorem}
+%   \begin{equation}
+%     \label{eq:fo-monoid-type-insensitive}
+%     ; \Gamma_\Mon \vdash M : \forall i_1,\dots,i_m\mathord:\mathsf{M}.\ \tyPrim{M}{e_1} \to \dots \to \tyPrim{M}{e_n} \to \tyPrim{M}{e}
+%   \end{equation}
+%   If all solutions to the matrix equation below have a row of zeros at
+%   position $i$, then $\tmSem{M}$ is insensitive to 
+% \end{theorem}
+
+% as long as $e_1$ is not derivable from the other indexes, and the
+% output one is, then the program is insensitive to its first argument:
+% if $e_1 \not\in \Free(\{e_2,...,e_n\})$ and $e \in
+% \Free(\{e_2,...,e_n\})$, then $M$ is insensitive to its first
+% argument.
+
+% \begin{proof}
+%   Use the relational environment generated by the set $\{e_2, ...,
+%   e_n\}$. Then the relational interpretation of the first argument's
+%   type will be the total relation, and the remainder will be in the
+%   identity relation. So for all $x_1,x_1' \in M$, and $x_2,...,x_n \in
+%   M$ we have $\tmSem{M}\eta_\Mon\ x_1\ x_2...x_n = \tmSem{M}\eta_\Mon\
+%   x'_1\ x_2...x_n$.
+% \end{proof}
+
+% Doesn't apply if we have:
+% \begin{displaymath}
+%   \forall a,b.\ \tyPrim{M}{a} \to \tyPrim{M}{a} \to \tyPrim{M}{b}
+% \end{displaymath}
+% but it ought to work... probably ought to state it in terms of minimal
+% set of generators of the input: if there is a set of $e_i$ that
+% generates the result type's index, then each of the inputs that it
+% doesn't generate are not used by the function. Need the restrict to
+% ones it doesn't generate because of the following:
+% \begin{displaymath}
+%   \forall a.\ \tyPrim{M}{a} \to \tyPrim{M}{a} \to \tyPrim{M}{a}
+% \end{displaymath}
+% we don't know which of the inputs will be used...
+
+% Problem: what about
+% \begin{displaymath}
+%   \forall a.\ \tyPrim{M}{a} \to \tyPrim{M}{a^2} \to \tyPrim{M}{a^2}
+% \end{displaymath}
+% The set $\{a^2\}$ generates the output, and doesn't generate $a$, but
+% a program of this type could easily use either of the inputs... 
+
+% Relational environment is:
+% \begin{displaymath}
+%   \rho\ \tyPrimNm{M}\ (e) = \left\{
+%     \begin{array}{ll}
+%       \id_M & \textrm{if }e = a^2 \\
+%       M \times M & \textrm{otherwise}
+%     \end{array}
+%   \right.
+% \end{displaymath}
+
+% In general, we are just setting $R^\bullet_{\tyPrimNm{M}} = M \times
+% M$. However, this is not supported by the monoid multiplication
+% operation: if the two inputs are not in generated set, the output
+% still might be, and is expected to be equal... So we need some notion
+% of \emph{not} being generated by the set... free structures that avoid
+% some argument?
+
+% If we restrict to just variables, then we might be OK... otherwise,
+% I'm stuck.
+
+% The multiplication operation does not satisfy this spec. The
+% generating set needs to be closed under decomposition....
+
+
+
+% so we need to say that, somehow, the redundant arguments' indexes
+% never contribute anything to the result type's index.
+
+% Maybe: if an $e_i$ is not present in any of the minimal sets of
+% generators that produces the output type, then it is redundant.
+
+% Let $S = \{ G \subseteq \{e_1,...,e_n\} \sepbar e \in \Free(G) \}$.
+
+% $S' = $ minimal elements of $S$: all the elements of $S$ that do not
+% have anything beneath them in the subset ordering. Then if some $e_j$
+% is not present in any of these, 
 
 \begin{theorem}
   \label{thm:monoid-indefinability}
   Let $m$ and $n$ be natural numbers. For all $n$-by-$m$-matricies of
   natural numbers $A$ and $m$-by-$1$ matricies of natural numbers $b$,
-  there exists a program $M$ such that
-  \begin{displaymath}
-    \label{eq:fo-monoid-type}
+  there exists a program:
+  \begin{equation}
     ; \Gamma_\Mon \vdash M : \forall i_1,\dots,i_m\mathord:\mathsf{M}.\ \tyPrim{M}{e_1} \to \dots \to \tyPrim{M}{e_n} \to \tyPrim{M}{e}
-  \end{displaymath}
-  where $e_j = i_1^{A_{j1}}\dots i_m^{A_{jm}}$ and $e =
-  i_1^{b_1}\dots i_m^{b_m}$, if and only if there is a solution
-  $\vec{x} = (x_1,\cdots,x_n)$ in the natural numbers to the equation
-  $A x^\top = b$.
+  \end{equation}
+  where $e_j = i_1^{A_{j1}}\dots i_m^{A_{jm}}$ and $e = i_1^{b_1}\dots
+  i_m^{b_m}$, iff there is a solution $\vec{x} = (x_1,...,x_n)$ in the
+  natural numbers to $A x^\top = b$.
 \end{theorem}
 
 \begin{example}
