@@ -183,6 +183,13 @@ Lemma apSubId D :
   (forall ss (es: Exps D ss), apSubSeq (idSub _) es = es). 
 Proof. apply Exp_Exps_ind; Rewrites liftSubId. Qed.
 
+Lemma apSubVarIsApRen D D' (f: forall t, Var D t -> Var D' t) :
+  (forall s (e: Exp D s), apSub (mkSub (fun t v => VarAsExp (f t v))) e = 
+                          apRen (mkRen f) e) /\
+  (forall ss (es: Exps D ss), apSubSeq (mkSub (fun t v => VarAsExp (f t v))) es =
+                          apRenSeq (mkRen f) es).
+Proof. apply Exp_Exps_ind; Rewrites done. Qed. 
+
 Lemma liftRcR E E' E'' s (r:Ren E' E'') (r':Ren E E') :
   liftRen s (RcR r r') = RcR (liftRen s r) (liftRen s r').
 Proof. apply inj_Ren; ExtVar. Qed.
@@ -229,9 +236,14 @@ Lemma idScS E E' (S: Sub E' E) :
   ScS (idSub E) S = S.
 Proof. apply inj_Sub; ExtVar. simpl. apply apSubId. simpl. apply apSubId. Qed. 
 
-Lemma ScExpsAsSub E E' E'' (S: Sub E'' E') (ixs: Exps _ E) :
+Lemma ScExpsAsSub E' E'' (ixs: Exps E' E'') E (S: Sub E' E) :
 expsAsSub (apSubSeq S ixs) = ScS S (expsAsSub ixs).
-Proof. admit.  Qed. 
+Proof. dependent induction ixs.
++ simpl. apply inj_Sub; ExtVar. 
++ simpl. apply inj_Sub. apply functional_extensionality_dep => s'. 
+apply functional_extensionality => v. admit.  
+
+Qed. 
 
 (*---------------------------------------------------------------------------
    Having formalized the syntax of index expressions, we now move on to types
@@ -272,7 +284,8 @@ Definition shiftSub D D' s (S: Sub D D') : Sub D (s::D') :=
 Definition pi D s : Sub D (s::D) := shiftSub s (idSub D). 
 
 Lemma apSubPi D s s' (e:Exp D s') : apSub (pi D s) e = shExp s e.
-Proof. rewrite /pi/shExp/shiftSub/shExp. simpl. admit. 
+Proof. rewrite /pi/shExp/shiftSub/shExp. simpl. 
+by rewrite (proj1 (apSubVarIsApRen _)).
 Qed. 
 
 Lemma liftSubDef E E' t (s:Sub E' E) : liftSub t s = consSub (VarZ _ _) (shiftSub _ s).
