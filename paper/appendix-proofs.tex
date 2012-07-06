@@ -523,6 +523,41 @@ corresponding to the variable $x$ in the context.
   of logical relations for simply-typed systems.
 \end{proof}
 
+\begin{restateTheorem}[\thmref{thm:soundness}]
+  $\Delta; \Gamma_{\mathit{ops}}, \Gamma \vdash M_1 \stackrel{sem}\sim M_2 : A$ implies
+  $\Delta; \Gamma_{\mathit{ops}}, \Gamma \vdash M_1 \stackrel{ctx}\approx M_2 : A$
+\end{restateTheorem}
+\begin{proof}
+  By assumption, we know that for all $\rho \in
+  \relEnv{E}_{\mathit{ops}}$, and all $(\eta_1,\eta_2) \in
+  \rsem{\Gamma}{\relEnv{E}_{\mathit{ops}}}\rho$,
+  $(\tmSem{M_1}(\eta_{\mathit{ops}},
+  \eta_1),\tmSem{M_2}(\eta_{\mathit{ops}}, \eta_2) \in
+  \rsem{A}{\relEnv{E}_{\mathit{ops}}}\rho$.
+
+  From the definition of logical relations at function and universal
+  type, we can deduce that for any $\rho \in
+  \relEnv{E}_{\mathit{ops}}(-)$, we have $(\tmSem{\Lambda
+    \Delta. \lambda \Gamma. M_1}\eta_{\mathit{ops}},\tmSem{\Lambda
+    \Delta. \lambda \Gamma. M_2}\eta_{\mathit{ops}}) \in \rsem{\forall
+    \Delta.\Gamma \to A}{\relEnv{E}_{\mathit{ops}}}\rho$.
+
+  Now assume we are given some $-;\Gamma_{\mathit{ops}} \vdash T :
+  (\forall \Delta. \Gamma \to A) \to \tyPrimNm{unit} +
+  \tyPrimNm{unit}$. By \thmref{thm:abstraction}, we know that for any
+  $\rho \in \relEnv{E}_{\mathit{ops}}(-)$, we have
+  $(\tmSem{T}\eta_{\mathit{ops}}, \tmSem{T}\eta_{\mathit{ops}}) \in
+  \rsem{(\forall \Delta. \Gamma \to A) \to \tyPrimNm{unit} +
+    \tyPrimNm{unit}}{\relEnv{E}_{\mathit{ops}}}\rho$. By the
+  definition of logical relations at function type, we learn that
+  $(\tmSem{T\ M_1}\eta_{\mathit{ops}}, \tmSem{T\
+    M_1}\eta_{\mathit{ops}}) \in \rsem{\tyPrimNm{unit} +
+    \tyPrimNm{unit}}{\relEnv{E}_{\mathit{ops}}}\rho$, which says
+  exactly that $\tmSem{T\ M_1}\eta_{\mathit{ops}} = \tmSem{T\
+    M_2}\eta_{\mathit{ops}}$, as required.
+\end{proof}
+
+
 \section{Proofs for Abelian Groups}
 \subsection{Abelian Group Indexed Types}
 \label{sec:abelian-group-indexed-types}

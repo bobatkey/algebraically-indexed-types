@@ -741,6 +741,27 @@ except for the clauses for universal and existential types:
   \end{array}
 \end{displaymath}
 
+We use our index-erasure semantics to define when a pair of programs
+are contextually equivalent with respect to syntactically defined
+applicative contexts.
+
+\begin{definition}\label{defn:ctxt-equiv}
+  Let $\Gamma_{\mathit{ops}}$ be a typing context with no free index
+  variables that describes the types of the primitive operations, and
+  let $\eta_{\mathit{ops}} \in \ctxtSem{\Gamma}$ be an interpretation
+  of these primitive operations.
+
+  Two programs $\Delta; \Gamma_{\mathit{ops}}, \Gamma \vdash M_1 : A$
+  and $\Delta; \Gamma_{\mathit{ops}}, \Gamma \vdash M_2 : A$ are
+  \emph{contextually equivalent} ($\Delta; \Gamma_{\mathit{ops}},
+  \Gamma \vdash M_1 \stackrel{ctx}\approx M_2 : A$) if for all
+  programs $-;\Gamma_{\mathit{ops}} \vdash T : (\forall \Delta. \Gamma
+  \to A) \to \tyPrimNm{unit} + \tyPrimNm{unit}$, it is the case that
+  $\tmSem{T\ (\Lambda \Delta. \lambda \Gamma. M_1)}\eta_{\mathit{ops}}
+  = \tmSem{T\ (\Lambda \Delta. \lambda
+    \Gamma. M_2)}\eta_{\mathit{ops}}$.
+\end{definition}
+
 \paragraph{The Abstraction Theorem}
 %\label{sec:abstraction-theorem}
 
@@ -771,6 +792,34 @@ defined in \autoref{sec:relational-semantics}.
   \relEnv{E}(\Delta)$ and $\eta_1, \eta_2 \in \ctxtSem{\Gamma}$ such
   that $(\eta_1, \eta_2) \in \rsem{\Gamma}{\relEnv{E}}\rho$, we have
   $(\tmSem{M}\eta_1, \tmSem{M}\eta_2) \in \rsem{A}{\relEnv{E}}\rho$.
+\end{theorem}
+
+We use the relational interpretation to define the notion of semantic
+equivalence, which is a sound approximation of contextual equivalence,
+as a consequence of \thmref{thm:abstraction}.
+\begin{definition}
+  Let $\Gamma_{\mathit{ops}}$ and $\eta_{\mathit{ops}}$ be a context
+  of primitive operations and its interpretation as in
+  \defref{defn:ctxt-equiv}. Let $\relEnv{E}_{\mathit{ops}}$ be a
+  family of sets of relational environments such that for all $\Delta$
+  and $\rho \in \relEnv{E}_{\mathit{ops}}(\Delta)$,
+  $(\eta_{\mathit{ops}}, \eta_{\mathit{ops}}) \in
+  \rsem{\Gamma}{\relEnv{E}_{\mathit{ops}}}\rho$.
+
+  Two programs $\Delta; \Gamma_{\mathit{ops}}, \Gamma \vdash M_1 : A$
+  and $\Delta; \Gamma_{\mathit{ops}}, \Gamma \vdash M_2 : A$ are
+  \emph{semantically equal} ($\Delta; \Gamma_{\mathit{ops}}, \Gamma
+  \vdash M_1 \stackrel{sem}\sim M_2 : A$) if for all $\rho \in
+  \relEnv{E}_{\mathit{ops}}$, and all $(\eta_1,\eta_2) \in
+  \rsem{\Gamma}{\relEnv{E}_{\mathit{ops}}}\rho$, we have
+  $(\tmSem{M_1}(\eta_{\mathit{ops}},
+  \eta_1),\tmSem{M_2}(\eta_{\mathit{ops}}, \eta_2)) \in
+  \rsem{A}{\relEnv{E}_{\mathit{ops}}}\rho$.
+\end{definition}
+
+\begin{theorem}\label{thm:soundness}
+  $\Delta; \Gamma_{\mathit{ops}}, \Gamma \vdash M_1 \stackrel{sem}\sim M_2 : A$ implies
+  $\Delta; \Gamma_{\mathit{ops}}, \Gamma \vdash M_1 \stackrel{ctx}\approx M_2 : A$
 \end{theorem}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
