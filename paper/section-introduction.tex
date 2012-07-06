@@ -51,18 +51,16 @@ the Euclidean plane form an Abelian group.
 Inspired by this connection, we study relational parametricity for
 types that are \emph{indexed} by attributes that themselves have
 algebraic structure.  For example, in computational geometry, points
-in 2-space can be indexed by a co-ordinate frame; in physical
+in 2-space can be indexed by a coordinate frame; in physical
 modelling, quantities are indexed by units-of-measure; in
 information-flow security, computations are indexed by principals.
 Types that are polymorphic over such indices induce invariance
-properties.  
+properties, and introduce a useful abstraction barrier.
 
-A function that computes the area of a triangle might
-have simple type
-\[
-\mathit{areaTri} : \tyPrimNm{vec}\times\tyPrimNm{vec}\times\tyPrimNm{vec}\tyArr\tyReal
-\]
-but instead we can assign it a polymorphic type
+\paragraph{Invariance}
+A function $\mathit{areaTri}$ that computes the area of a triangle might
+have simple type $\tyPrimNm{vec}\times\tyPrimNm{vec}\times\tyPrimNm{vec}\tyArr\tyReal$
+but we can assign it a more expresive polymorphic type
 \[
 \mathrm{areaTri} : \forall\alpha\mathord:\SynTransl{2}.
   \tyPrim{vec}{\alpha} \times \tyPrim{vec}{\alpha} \times \tyPrim{vec}{\alpha} \to \tyReal \\
@@ -87,20 +85,28 @@ we have captured that its area varies as the square of its radius, that is, for 
 \[
 \mathrm{areaCircle}\;(s\cdot r) = s^2\cdot \mathrm{areaCircle}\;r.
 \]
-Here $\alpha$ can be interpreted as the \emph{units} of the argument to
-$\mathrm{areaCircle}$, and `$\cdot$' composes units by forming their
-product. To complete the system, we would add an inverse operation and
-identity unit, together with the algebraic laws of an Abelian group,
-permitting, for example, the identification of
+Here $\alpha$ can be interpreted as the \emph{units of measure} of the argument
+to $\mathrm{areaCircle}$, and `$\cdot$' composes units by forming
+their product. To complete the system, we would add an inverse
+operation and identity unit-of-measure, together with the algebraic laws of
+Abelian groups, permitting, for example, the identification of
 $\tyPrim{real}{\alpha\cdot\alpha^{-1}}$ with $\tyPrim{real}{1}$.
 
-In his original paper, Reynolds asserted that ``type structure is a
-syntactic discipline for enforcing levels of abstraction''. 
-We see something analogous here: supposing that all primitive operations are
-given types that reflect their behaviour under translation, there is no way
-to `break' this property, for example, for $\mathrm{areaTri}$ to depend
-on the actual coordinates of its inputs. In fact, through types alone we can
-derive so-called \emph{coordinate-free} geometry. 
+\paragraph{Abstraction}
+In his original paper on parametricity, Reynolds asserted that \emph{type structure is
+  a syntactic discipline for enforcing levels of abstraction}.  We see
+something analogous here: supposing that all primitive operations are
+given types that reflect their behaviour under translation, there is
+no way to `break' this property, for example, for $\mathrm{areaTri}$
+to depend on the actual coordinates of its inputs. Furthermore, the
+distinction between points and vectors that is often enforced through
+abstract data types~\cite{CGAL} is here captured by the indices
+instead. For example, the operation that takes two points and computes
+their vector `difference' can be assigned the type
+$\forall\alpha\mathord:\SynTransl.\tyPrim{vec}\alpha\times\tyPrim{vec}\alpha\to\tyPrim{vec}0$,
+reflecting the invariance of the result (a pure vector) under
+translations of the point arguments. In essence, through types alone
+we can derive so-called \emph{coordinate-free} geometry~\cite{CFGADT}.
 
 The invariance properties listed above can be seen as `theorems for
 free'~\cite{wadler89theorems} obtained from types alone. We can
@@ -111,7 +117,54 @@ $\tyPrim{real}{1}$, that is, a dimensionless constant. A moment's
 thought reveals why: what possible unary functions can be constructed whose
 outputs scale as the square of the scaling of their inputs? Answer:
 just those functions of the form~$\lambda x. k x^2$ for some constant~$k$.
-(In this case, of course, we expect that~$k = \pi$.)
+In this case, of course, we expect that~$k = \pi$.
+
+\paragraph{Relational parametricity}
+In order to derive such invariance and abstraction properties of types, we
+adopt the techniques of relational parametricity. Over an underlying index-erasure semantics
+we construct binary
+relations parameterized by an environment $\rho$ that describes how values of primitive type
+are related according to their indices. 
+For example, values $v$ and
+$w$ of type $\tyPrim{real}\alpha$ are related when $v$ `scales to' $w$
+according to an interpretation of $\alpha$ (that is, $w=\rho(\alpha)\cdot v$).
+Values of polymorphic type are related exactly when they are related for
+all possible interpretations of the quantified variable. For example, 
+values $v$ and $w$ of type $\forall\alpha\mathord:\SynTransl.\tyPrim{vec}\alpha\to
+\tyPrim{vec}\alpha$ are related when they are related at type 
+$\tyPrim{vec}\alpha\to\tyPrim{vec}\alpha$ for all 
+translations $t\in\Transl{2}$ associated with $\alpha$. 
+
+As it happens, these examples can be expressed using unary functions
+rather than binary relations: we can write functions that scale, or
+translate, one value to another according to their type, even for
+higher-order function types. Also note that the interpretation of
+indices can be built up compositionally, by recursion over the
+syntactic structure. For example, we have $\rho(\alpha\cdot\alpha) =
+\rho(\alpha)\cdot\rho(\alpha)$ where product of units-of-measure is interpreted by
+product of scale factors.
+
+For more sophisticated applications we need the fully generality of
+binary relations. First, as is also the case with type polymorphism,
+it provides the appropriate meaning for nested quantifiers in types
+such as
+$(\forall\alpha\mathord:\SynScal.\tyPrim{real}\alpha\to\tyPrim{real}\alpha)\to\tyBool$.
+More interestingly, we sometimes use relations that are not built up
+in a compositional way -- we can, for instance, use such relations to
+prove that there are no non-trivial functions of type
+$\forall\alpha\mathord:\SynScal.\tyPrim{real}{\alpha\cdot\alpha}\to\tyPrim{real}\alpha$.
+Finally, there are interesting applications in which even the basic
+relations are not functional. Consider a type system in which the
+index in $\tyPrim{real}\alpha$ is interpreted not as a
+unit-of-measure, but as a measure of \emph{closeness}. Two values $x$
+and $y$ of this type are related if $|x-y| < \rho(\alpha)$, in which
+$\rho(\alpha)$ is a positive real number.  Rather beautifully, the
+standard notion of continuous functions can then be expressed as a
+type:
+\begin{displaymath}
+  \forall \epsilon \mathord: \mathsf{R}^{>0}.\ \exists \delta\mathord: \mathsf{R}^{>0}.\ \tyPrim{real}{\delta} \to \tyPrim{real}{\epsilon}
+\end{displaymath}
+
 
 
 
@@ -141,29 +194,35 @@ just those functions of the form~$\lambda x. k x^2$ for some constant~$k$.
 % \item Why study them together?
 % \end{enumerate}
 
-Key lessons:
-
-\paragraph{Relational meanings are induced by indexes}
-
-\paragraph{Indexes can usefully have algebraic structure}
-
-\paragraph{Relational meanings can be non-compositional}
-
 \subsection{Contributions}
 \label{sec:contributions}
 
+We make the following contributions. 
 \begin{itemize}
-\item Formulation of a general class of type systems that can either
-  be used as programming languages in their own right, or as the
-  targets of type-based analyses.
-\item A collection of compelling examples of algebraically indexed
-  types, including a novel type system for geometry, a refined type
-  system for information flow, based on logic, and a simple type
-  system for basic continuity analysis.
-\item Deduction of useful free theorems in each of our main examples.x
-\item A refined relational interpretation in order to derive
-  non-definability results. Fixing a minor problem in Kennedy's work.
+\item 
+We present a collection of compelling examples of algebraically indexed
+types, including a novel type system for geometry, a type system for
+tracking taint marking (or provenance) of strings, a refined type
+system for information flow, based on logic, and a simple type
+system for basic continuity analysis.
+\item 
+We formulate a general class of type systems that can either be
+used as programming languages in their own right, or as the targets of
+type-based analyses. The type system consists of the usual type
+constructors together with a collection of indexed primitive types,
+universal and existential quantification over the indices, and a
+multi-sorted equational theory for indices. 
+\item
+We describe a relational semantics for the type system and prove an analogue
+of Reynolds' Abstraction Theorem. We pin down precise conditions on sets of
+relation environments for which the theorem holds.
+\item
+For each of our main examples we deduce free theorems that are consequences of
+the Abstraction Theorem, prove non-definability results, and derive interesting
+type isomorphisms.
 \end{itemize}
+We have fully formalized the framework and Abstraction Theorem using the Coq proof assistant,
+making use of strongly-typed term representations throughout~\cite{TypedSyntax}.
 
 %%% Local Variables:
 %%% TeX-master: "paper"
