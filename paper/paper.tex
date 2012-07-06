@@ -57,6 +57,7 @@
 \newcommand{\relArrow}{\mathrel{\widehat\to}}
 \newcommand{\relTimes}{\mathrel{\widehat\times}}
 \newcommand{\relSum}{\mathrel{\widehat+}}
+\newcommand{\Eq}{\mathrm{Eq}}
 
 \newcommand{\setOfIntegers}{\mathbb{Z}}
 \newcommand{\setOfBooleans}{\{\tmTT, \tmFF\}}
@@ -168,13 +169,14 @@
   indexed by algebraic structures such as groups of geometric
   transformations. Other examples include types indexed by
   principals--for information flow security--and types indexed by
-  distances--for analysis of analytic continuity properties. Following
-  Reynolds, we prove a general abstraction theorem that covers all
-  these instances. Consequences of the abstraction theorem include
-  free theorems expressing invariance properties of programs, type
-  isomorphisms based on invariance properties, and non-definability
-  results, indicating when certain algebraically indexed types are
-  uninhabited or only inhabited by trivial programs.
+  distances--for analysis of analytic uniform continuity
+  properties. Following Reynolds, we prove a general abstraction
+  theorem that covers all these instances. Consequences of the
+  abstraction theorem include free theorems expressing invariance
+  properties of programs, type isomorphisms based on invariance
+  properties, and non-definability results, indicating when certain
+  algebraically indexed types are uninhabited or only inhabited by
+  trivial programs.
 \end{abstract}
 
 \category{D.1.1}{Programming techniques}{Applicative (functional)
@@ -194,7 +196,10 @@
 \input{geometry-twocolumn.tex}
 \input{section-general-framework.tex}
 \input{section-instantiations.tex}
-\input{section-further-examples.tex}
+\input{section-info-flow.tex}
+\input{section-monoid.tex}
+\input{section-singleton.tex}
+\input{section-metric.tex}
 \input{section-discussion.tex}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

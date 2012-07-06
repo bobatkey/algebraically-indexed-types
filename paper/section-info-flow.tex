@@ -1,0 +1,147 @@
+\section{Logical Information Flow}
+\label{sec:information-flow}
+
+\begin{enumerate}
+\item Make sure the logic is at least a meet semi-lattice
+\item 
+\end{enumerate}
+
+\begin{enumerate}
+\item Also makes use of the relational aspect, the previous stuff
+  could make do with unary logical predicates as the interpretations
+  of types, but the information flow properties make use of the
+  relational interpretation.
+\item Can also obtain a type non-inhabitation result based on logical
+  derivability
+\end{enumerate}
+
+\fixme{
+  \begin{enumerate}
+  \item Make the definition of control of information flow clearer
+  \item Make the example a bit more compelling
+  \item Put in some examples of composite principals formed from
+    boolean logic, and the use of boolean algebra to do reasoning in
+    the types. List the laws of boolean algebra, and the laws of
+    Heyting algebra. Need to explain the difference between 
+  \item Possibly use singleton types to be able to do more interesting
+    security policies?
+  \item Put in the formal statement of the information flow property
+    and the proof.
+  \end{enumerate}
+}
+
+An extreme example of invariance under change of representation is the
+tracking of information flow through programs. If a program does not
+depend upon a particular piece of information, then it will be
+invariant under \emph{all} changes of representation of this
+information. As thoroughly described by Sabelfeld and Sands
+\cite{sabelfeld01per}, information flow can be captured semantically
+through the use of partial equivalence relations (PERs). Interpreting
+types as PERs forms an instance of Reynolds' approach to abstraction
+and representation independence. Abadi, Banerjee, Heintze and Riecke
+\cite{abadi99core} built a \emph{Core Calculus for Dependency}, using
+a type system based around a security level indexed monad $T_lA$. Tse
+and Zdancewic \cite{tse04translating} showed that it is possible to
+translate Abadi et al.'s calculus into System F, translating the
+monadic type $T_lA$ to $\alpha_l \to A$ for some free type variable
+$\alpha_l$, and making direct use of Reynolds' abstraction theorem to
+prove information flow properties. We now show how a refined variant
+of Tse and Zdancewic's translation can be expressed via
+algebraically-indexed types.
+
+We assume a single indexing sort $\mathsf{principal}$, intended to
+represent (possibly composite) principals in a system. Principals are
+combined using the connectives of boolean logic ($\top$, $\bot$,
+$\lor$, $\land$, $\lnot$). For the equational theory of principals, we
+assume all the axioms of boolean algebra, and semantically we
+interpret composite principals as boolean values: either true ($\top$)
+or false ($\bot$). We introduce a single primitive type, indexed by
+expressions of sort $\mathsf{principal}$, $\tyPrim{T}{e}$, with the
+following interpretations:
+\begin{displaymath}
+  \begin{array}{l@{\hspace{0.5em}=\hspace{0.5em}}l}
+    \tySem{\tyPrim{T}{e}} & \{*\} \\
+    \rsem{\tyPrim{T}{e}}{}\rho & \left\{
+      \begin{array}{ll}
+        \{(*,*)\} & \textrm{if }\sem{e}\rho = \top \\
+        \{\}      & \textrm{if }\sem{e}\rho = \bot
+      \end{array}
+      \right.
+  \end{array}
+\end{displaymath}
+The relational interpretation of $\tyPrim{T}{e}$ forces this type to
+only be inhabited when the boolean expression $e$ evaluates to true
+under the environment $\rho$. To write programs, we assume the
+following primitive operations:
+\begin{displaymath}
+  \begin{array}{l}
+  \begin{array}{@{}c@{\hspace{2em}}c}
+    \mathrm{truth} : \tyPrim{T}{\top} &
+    \mathrm{and}   : \forall p, q\mathord:\mathsf{prn}.\ \tyPrim{T}{p} \to \tyPrim{T}{q} \to \tyPrim{T}{p \land q}
+  \end{array} \\
+  \mathrm{coerce} : \forall p, q\mathord:\mathsf{prn}.\ \tyPrim{T}{p \land q} \to \tyPrim{T}{p}
+\end{array}
+\end{displaymath}
+We can now adapt Tse and Zdancewic's translation of Abadi et al.'s
+monadic type to our setting. We define a type synonym, for each type
+$A$ and expression $e$ of sort $\mathsf{principal}$:
+\begin{displaymath}
+  T_eA = \tyPrim{T}{e} \to A
+\end{displaymath}
+For every principal $e$, we can endow the types $T_e-$ with the
+structure of a monad. This is due to the fact that it is an instance
+of the ``environment'' (or ``reader'') monad \cite{jones95functional}.
+
+\begin{example}
+  Suppose we have a program with the following type:
+  \begin{displaymath}
+    \forall p,q\mathord:\mathsf{principal}. \tyPrim{T}{e} \to T_p(\tyPrimNm{unit} + \tyPrimNm{unit}) \to T_q(\tyPrimNm{unit} + \tyPrimNm{unit})
+  \end{displaymath}
+  where $e$ is some boolean algebra expression involving $p$ and
+  $q$. We will show in \autoref{sec:instantiations} that programs with
+  this type are non-constant (i.e.~depend on their input) if and only
+  if the formula $e \Rightarrow q \Rightarrow p$ is valid in boolean
+  logic.
+\end{example}
+
+\begin{enumerate}
+\item Treat the information flow thing as a type isomorphism, in the
+  same way that Tse and Zdancewic do
+  \begin{displaymath}
+    \begin{array}{l}
+    \forall \vec{p}\mathord:\mathsf{principal}.\ T_{e_1}\tyPrimNm{bool} \to T_{e_2}\tyPrimNm{bool}\\
+    \hspace{4em}\cong \\
+    \left\{
+      \begin{array}{ll}
+        \tyPrimNm{bool} \tyArr \tyPrimNm{bool} & \textrm{if }e_2 \vdash e_1 \\
+        \tyPrimNm{bool} & \textrm{if }e_2 \not\vdash e_1
+      \end{array}
+    \right.
+  \end{array}
+  \end{displaymath}
+  where $\tyPrimNm{bool} = \tyUnit + \tyUnit$.
+\item mention the issue with bogus tokens if we allow for a
+  call-by-name style of non-termination
+\item if we axiomatise intuitionistic logic instead of
+  boolean/classical logic, we get a different type isomorphism.
+\item The isomorphism relies upon $e_1 \vdash e_2 \Leftrightarrow e_1
+  \lor e_2 = e_1$.
+\item Relevant logic? Look at the Wikipedia page to see how to do
+  residuated (commutative) monoids on lattices with just
+  equations. With this, we will be able to do substructural logics
+  too. As long as we know that a particular axiomatisation is sound
+  and complete for some reasoning system, then we can state and prove
+  the non-interference isomorphism above.
+\item Compare to Tse and Zdancewic's addition of axioms to the logic.
+\item Internalising equality? The logical structure can then be used
+  on types as well as everything else. Need the special rules for
+  equality... (see the Fomega paper).
+\end{enumerate}
+
+% Go a step further by considering equivalence relations on word32, and
+% their lattice structure. Link this to quantative information
+% flow. Will also need to include singleton types.
+
+%%% Local Variables:
+%%% TeX-master: "paper"
+%%% End:

@@ -27,3 +27,7 @@
 *.mtc0
 *.pdf
 *~
+*.vo
+*.glob
+*.dep
+*.deps

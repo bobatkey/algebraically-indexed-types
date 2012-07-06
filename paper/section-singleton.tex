@@ -1,0 +1,82 @@
+\section{Singleton Types}
+\label{sec:singleton-types}
+
+\newcommand{\Sing}{\mathit{Sing}}
+
+
+
+\begin{enumerate}
+\item Introduce the general idea of singleton types as a way of
+  reifying information held in the indexes into the ``programming''
+  world.
+\item Helps maintain a separation between run-time and compile time
+  data.
+\end{enumerate}
+
+Singleton types differ from the ``variation'' types that we have
+considered so far because they nail down exactly the underlying value
+instead of describing how it varies.
+
+Indexing theory contains all the integers as constants, along with
+$+$, $-$ and $*$. Normal arithmetic laws for these
+operations. Program-level operations:
+\begin{displaymath}
+  \begin{array}{@{}c@{\hspace{0.5em}:\hspace{0.5em}}l}
+    \underline{z} & \tyPrim{int}{z} \\ % FIXME: only need zero and one
+    (+) & \forall z_1,z_2\mathord:\mathsf{integer}.\ \tyPrim{int}{z_1} \to \tyPrim{int}{z_2} \to \tyPrim{int}{z_1 + z_2} \\
+    (-) & \forall z_1,z_2\mathord:\mathsf{integer}.\ \tyPrim{int}{z_1} \to \tyPrim{int}{z_2} \to \tyPrim{int}{z_1 - z_2} \\
+    (*) & \forall z_1,z_2\mathord:\mathsf{integer}.\ \tyPrim{int}{z_1} \to \tyPrim{int}{z_2} \to \tyPrim{int}{z_1 * z_2}
+  \end{array}
+\end{displaymath}
+
+\begin{enumerate}
+\item Given an algebraic theory, and a model, we can define a
+  singleton type system.
+\item Need to carefully define this in general, and give the
+  appropriate relational environments
+\item Give the integers (freely generated monoid) as an example
+\end{enumerate}
+
+\begin{lemma}
+  For all $\Delta$ and $\rho \in \relEnv{E}_\Sing(\Delta)$, $(\eta_\Sing, \eta_\Sing) \in \rsem{\Gamma}{\relEnv{E}_\Sing}{\rho}$.
+\end{lemma}
+
+Due to the precision of the index expressions, we obtain a very
+precise characterisation of the definable programs under the singleton
+typing discipline:
+\begin{theorem}
+  There exists a program
+  \begin{displaymath}
+    -; \Gamma_\Sing \vdash M : \forall i_1,...,i_m\mathord:\mathsf{S}.\ \tyPrim{S}{e_1} \to ... \to \tyPrim{S}{e_n} \to \tyPrim{S}{e}
+  \end{displaymath}
+  if and only if there exists an index expression
+  $i'_1\mathord:\mathsf{S}, ..., i'_n\mathord:\mathsf{S} \vdash e' :
+  \mathsf{S}$ such that $(e_1,...,e_n)^*e' \equiv e$.
+\end{theorem}
+
+\begin{proof}
+  (If) Use the index expression $e'$ to define $M$, replacing each
+  index operation with its program-level counterpart.
+
+  (Only if) \fixme{use a special relational environment...}
+\end{proof}
+
+% \subsection{Predicate Types}
+% \label{sec:predicate-types}
+
+% \begin{enumerate}
+% \item Let the indexing theory be predicates on the underlying value
+% \item With the laws of boolean algebra
+% \item Singleton types are a special case (i.e. with equality to a fixed value)
+% \item But also have $\land$, $\lor$, $\lnot$ (and derived $\Rightarrow$)
+% \item A pair of things is related if they both satisfy the predicate
+%   (and are equal?)
+% \item Need a special type for comparisons?
+%   \begin{displaymath}
+%     (<) : \forall z_1,z_2:\mathsf{integer}.\ \tyPrim{int}{z_1} \to \tyPrim{int}{z_2} \to (\tyPrim{int}{< z_1} \times 
+%   \end{displaymath}
+% \end{enumerate}
+
+%%% Local Variables:
+%%% TeX-master: "paper"
+%%% End:

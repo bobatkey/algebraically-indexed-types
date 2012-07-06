@@ -4,6 +4,43 @@
 \fixme{explain the general setup, with a set of operations for each
   instantiation.}
 
+\begin{example}[Two-dimensional Geometry] We define the ``standard''
+  model of the indexing theory for the two-dimensional geometry
+  example as follows. Each of the sorts are interpreted just as their
+  semantic counterparts:
+  \begin{displaymath}
+    \begin{array}{@{}llll}
+      \semSort{\SynTransl{2}} = \Transl{2}
+      &
+      \semSort{\SynGL{2}} = \GL{2}
+      &
+      \semSort{\SynOrth{2}} = \Orth{2}
+      &
+      \semSort{\SynGL{1}} = \GL{1}
+    \end{array}
+  \end{displaymath}
+  Each of the index operations (e.g.,~the group structure and
+  determinant) are interpreted by the intended semantic
+  operations. These clearly satisfy the axioms we stated in
+  \exref{ex:two-dim-geo-axioms}. The assignment of relations for the
+  primitive types $\tyPrimNm{vec}$ and $\tyPrimNm{real}$ are given by
+  the following definitions:
+  \begin{displaymath}
+    \begin{array}{ll}
+      R^{\bullet}_{\tyPrimNm{vec}} = \{( \vec{0}, \vec{0} ) \}&
+      R_{\tyPrimNm{vec}}(B,\vec{t}) = \{ (\vec{v}, B\vec{v} + \vec{t}) \sepbar \vec{v} \in \mathbb{R}^2 \} \\
+      R^{\bullet}_{\tyPrimNm{real}} = \{(0,0)\} &
+      R_{\tyPrimNm{real}}(k) = \{ (x, kx) \sepbar x \in \mathbb{R} \}
+    \end{array}
+  \end{displaymath}
+  The definitions of $R_{\tyPrimNm{vec}}$ and $R_{\tyPrimNm{real}}$
+  are as may be expected given the informal definitions we gave in
+  \autoref{sec:motivating-examples}. We have set
+  $R^\bullet_{\tyPrimNm{vec}}$ and $R^\bullet_{\tyPrimNm{real}}$ to
+  relate $\vec{0}$ and $0$ to themselves to account for the
+  polymorphic zero constants we have assumed.
+\end{example}
+
 \begin{lemma}
   The thing about $\Gamma_\Geom$.
 \end{lemma}
