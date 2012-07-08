@@ -1,10 +1,12 @@
 \section{Geometric Consequences of Abstraction}
 \label{sec:instantiations}
+We now instantiate the general framework of the previous section with the indexing theory
+of \autoref{sec:motivating-examples}, and present
+more general and formally-justified theorems for free, type isomorphisms, and non-definability
+results.
 
-\fixme{explain the general setup, with a set of operations for each
-  instantiation.}
-
-\begin{example}[Two-dimensional Geometry] We define the ``standard''
+%\begin{example}[Two-dimensional Geometry] 
+We define the ``standard''
   model of the indexing theory for the two-dimensional geometry
   example as follows. Each of the sorts are interpreted just as their
   semantic counterparts:
@@ -39,11 +41,11 @@
   $R^\bullet_{\tyPrimNm{vec}}$ and $R^\bullet_{\tyPrimNm{real}}$ to
   relate $\vec{0}$ and $0$ to themselves to account for the
   polymorphic zero constants we have assumed.
-\end{example}
+%\end{example}
 
-\begin{lemma}
-  The thing about $\Gamma_\Geom$.
-\end{lemma}
+%\begin{lemma}
+%  The thing about $\Gamma_\Geom$.
+%\end{lemma}
 
 \subsection{Theorems for Free}
 \label{sec:theorems-for-free}
@@ -75,22 +77,106 @@ determinant of $B$.
 % state some free theorems that are derivable in each of the three main
 % examples we introduced in \autoref{sec:motivating-examples}.
 
-\subsection{Isomorphisms for Types Indexed by Abelian Groups}
+\subsection{Type Isomorphisms}
 \label{sec:types-indexed-abelian-groups}
+We say that two types $A$ and $B$ are isomorphic, and write $A \cong B$, if there exist maps
+between them that are mutually inverse with respect to contextual equivalence. That is, 
+there are terms $\vdash I : A \to B$ and $\vdash J : B\to A$ such
+that
+\[
+x:A\vdash J(I(x))\stackrel{ctx}\approx x : A
+\text{ and }y:B\vdash I(J(y))\stackrel{ctx}\approx y : B.
+\]
+It is straightforward to prove that $\cong$ is a congruence relation on types. We
+can also derive isomorphisms that are independent of the indexing theory, such as
+$A\times B \cong B \times A$, and $\forall i\mathord:s.A\to B\cong A\to\forall i\mathord:s.B$ for $i$ not free in $A$.
 
-\begin{enumerate}
-\item Two cases: when we have a total ``division'' operation, and when
-  we don't.
-\item Type isomorphisms, based on Smith Normal Form
+Types indexed by abelian groups induce a particularly rich theory of
+type isomorphisms; previous work on units-of-measure~\cite{kennedy97relational} relates
+these to Buckingham's theorem from dimensional analysis. Here we consider the additive 
+abelian groups of translations and the multiplicative abelian group of scalings.
+
+\paragraph{Translations} 
+Consider first the group $\Transl{2}$ of translations as presented in
+\autoref{sec:type-system-geom-intro} and \autoref{sec:affine-vector-ops}. 
+Given any quantifier-free type $A$ we can prove the following isomorphism
+\begin{eqnarray*}
+\forall t\mathord:\SynTransl{2}.\tyPrim{vec}{t}\to A
+& \cong &
+A[0/t]
+\end{eqnarray*}
+where $A[0/t]$ denotes substitution of the identity translation $0$
+for index variable $t$ in type $A$.  Intuitively, the isomorphism
+expresses the equivalence between \emph{coordinate-free} geometry, as
+expressed by a polymorphic type whose first argument can be thought of
+as representing the \emph{origin} with respect to which $A$ is
+specified, and a \emph{coordinate-based} geometry, as expressed by the
+type $A[0/t]$, in which the origin is fixed to be $(0,0)$. (It is sometimes said
+that an affine space is a vector space that's forgotten its origin; we have captured
+this in a type isomorphism.)
+
+\exref{ex:type-iso} is a special case of this isomorphism; another instance is the
+type of vector addition:
+\begin{eqnarray*}
+\forall t_1,t_2\mathord:\SynTransl{2}.\tyPrim{vec}{t_1}\to\tyPrim{vec}{t_2}\to\tyPrim{vec}{t_1+t_2}\\
+\cong\quad
+\forall t_2\mathord:\SynTransl{2}.\tyPrim{vec}{t_2}\to\tyPrim{vec}{t_2}\quad\cong\quad
+\tyPrim{vec}{0}
+\end{eqnarray*}
+
+The maps associated with this isomorphism are as follows:
+\newcommand{\trans}[3]{\mathrm{tr}_{#1}^{{#2}/{#3}}}
+\begin{eqnarray*}
+I = \lambda x. x\ [0]\ 0 & \text{ and } &
+J = \lambda y. \Lambda t.\ \lambda v. \trans A v t(y)
+\end{eqnarray*}
+where $\mathrm{tr}$ is defined as follows:
+\begin{eqnarray*}
+\trans{1} v t(x) & = & x\\
+\trans{A_1\times A_2} v t(p) & = & (\trans{A_1} v t(\pi_1\ p),\trans{A_2} v t(\pi_2\ p))\\
+\trans{A_1 + A_2} v t(x) & = & \textrm{case}\ x\ \textrm{of}\ \textrm{inl}\ y.\textrm{inl}(\trans{A_1} v t(y)); \textrm{inr}\ y.\textrm{inr}(\trans{A_2} v t(y))\\
+\trans{A_1\to A_2} v t(f) & = & \lambda x. (\trans{A_2} v t(f\ (\trans{A_1}{-v} t(x))))\\
+\trans{\tyPrim{vec}{e}} v t (x) & = & x + kv\text{ where }\vdash e \equiv k t + e' : \SynTransl{2}\text{ for some }k\in\setOfIntegers, t \text{ and }e'\\
+\end{eqnarray*}
+To show $I(J(y))$ is contextually equivalent to $y$ is an easy induction on $A$ that
+makes use of the fact that the zero vector $0$ is an identity for vector addition. 
+To show $J(I(x))$ is contextually equivalent to $x$ we must apply the abstraction theorem,
+making use of the fact that $\mathrm{tr}$ is actually a term-based functional representation
+of an instance of the relational interpretation:
+\[
+\rsem A {t \mapsto v} {} = \{ (x, \tmSem{\trans A v t (x)}) \mid x \in \tySem A\}.
+\]
+
+\paragraph{Scalings}
+Now consider the group $\GL{1}$ of scalings. This time, we can treat the real-valued
+argument to a function as a `unit of measure' with which to scale the result. The small
+fly in the ointment is that the argument might be zero, and this cannot be used for scaling.
+Nevertheless, we can obtain the following slightly more complicated isomorphism:
+\begin{eqnarray*}
+\forall s\mathord:\SynGL{1}.\tyPrim{real}{s}\to A
+& \cong &
+A[1/s]\times \forall s\mathord:\SynGL{1}.A
+\end{eqnarray*}
+The type of $\mathrm{areaCircle}$ from the introduction is one instance:
+\begin{eqnarray*}
+\forall s\mathord:\SynGL{1}.\tyPrim{real}{s}\to\tyPrim{real}{s\cdot s}\\
+\quad\cong\quad \tyPrim{real}{1}\times(\forall s\mathord:\SynGL{1}.\tyPrim{real}{s\cdot s})\\
+\quad\cong\quad \tyPrim{real}{1}\times 1\quad\cong\quad \tyPrim{real}{1}
+\end{eqnarray*}
+where the isomorphism $\forall s\mathord:\SynGL{1}.\tyPrim{real}{s\cdot s}\cong 1$ is
+proved using the abstraction theorem. 
+
+%\begin{enumerate}
+%\item Two cases: when we have a total ``division'' operation, and when
+%  we don't.
+%\item Type isomorphisms, based on Smith Normal Form
 % \item Non-definability results, based on the non-compositional
 %   relational environments
 % \item Alteration of the non-definability results in the light of
 %   addition of a square root operation
 % \item Mention the variation we can obtain by changing some types,
 %   e.g. the type of $\mathrm{abs}$. Also, the complex numbers example.
-\end{enumerate}
-
-\fixme{Copy the stuff over from the other file}
+%\end{enumerate}
 
 \subsection{Indefinability}
 
