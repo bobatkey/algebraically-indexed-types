@@ -161,7 +161,7 @@ as
 $(\forall\alpha\mathord:\SynScal.\tyPrim{real}\alpha\to\tyPrim{real}\alpha)\to\tyBool$.
 More interestingly, particular applications sometimes require
 relations that are not built compositionally---we can, for instance,
-use such relations to prove that there are no non-trivial functions of
+use such relations to prove that there are no non-trivial programs of
 type
 $\forall\alpha\mathord:\SynScal.\tyPrim{real}{\alpha\cdot\alpha}\to\tyPrim{real}\alpha$.
 Finally, there are interesting applications in which even the basic
@@ -169,8 +169,8 @@ relations are not functional. In a type system in which the index in
 $\tyPrim{real}\alpha$ is interpreted not as a unit of measure, but as
 a measure of \emph{closeness}, two values $x$ and $y$ of this type are
 related if $|x-y| < \rho(\alpha)$ for a positive real number
-$\rho(\alpha)$.  Rather beautifully, the standard notion of continuous
-functions can then be expressed as a type:
+$\rho(\alpha)$.  Rather beautifully, the standard notion of uniform
+continuity can then be expressed as a type:
 \begin{displaymath}
   \forall \epsilon \mathord: \mathsf{R}^{>0}.\ \exists \delta\mathord: \mathsf{R}^{>0}.\ \tyPrim{real}{\delta} \to \tyPrim{real}{\epsilon}
 \end{displaymath}
@@ -211,7 +211,7 @@ We present a collection of compelling examples of algebraically
 indexed types, including a novel type system for geometry, a type
 system for tracking taint marking (or provenance) of strings, a
 refined type system for information flow based on logic, and a simple
-type system for basic continuity analysis.
+type system for basic uniform continuity analysis.
 \item 
 We formulate a type system that can either be used as a programming
 language in its own right, or as the target of type-based

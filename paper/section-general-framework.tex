@@ -156,6 +156,8 @@ formed using the \TirName{TyEx} rule,
 %and 
 allow for abstraction by hiding. %FIXME: think about the
 %introduction of existentials more, perhaps forward ref to their use
+We say that a type is \emph{quantifier-free} if it does not contain
+ether universal or existential quantification.
 
 \subsubsection{Simultaneous Substitution of Index Expressions}
 \label{sec:simultaneous-substitution}
@@ -452,7 +454,7 @@ We then have:
 \end{lemma}
 
 \begin{example}[Two-Dimensional Geometry]
-  Example~\autoref{ex:two-dim-geo-axioms}
+  \exref{ex:two-dim-geo-axioms}
 %  The two-dimensional geometry instantiation of the general framework
   uses the assignment $\tyPrimSem{\tyPrimNm{vec}} = \mathbb{R}^2$ and
   $\tyPrimSem{\tyPrimNm{real}} = \mathbb{R}$.
@@ -482,16 +484,14 @@ interpretation of indexing expressions in which sorts are
 sets and index operations are functions, and then define the
 relational interpretation of a primtive type $\tyPrim{X}{e_1,...,e_n}$
 in terms of the interpretations of $e_1,...,e_n$. This approach
-suffices to prove free theorems and type isomorphisms for
-instantiations of our general framework. However, to prove
-non-definability results, like the one in
+suffices to prove free theorems and type isomorphisms. However, to
+prove non-definability results, like the one in
 \exref{ex:uninhabited-type}, we need a more refined interpretation
-that accounts more precisely for the definable programs permitted by
-the algebraic indexing. In this section, we identify the 
-properties we require of relational environments in order for
-the abstraction theorem to hold. In \autoref{sec:constr-rel-env}, we
-give a general construction of relational environments and use it 
-to prove several non-definability results.
+that accounts for the definable programs permitted by the algebraic
+indexing. Here, we identify the properties we require of relational
+environments for the abstraction theorem to hold. In
+\autoref{sec:constr-rel-env}, we give two generic constructions of
+relational environments.
 
 A relational environment for a context $\Delta$ is a %(dependently typed)
 function $\rho$ that, for each primitive type $\tyPrimNm{X}$ and
@@ -518,24 +518,25 @@ $\Delta \vdash \sigma \Rightarrow
 %
 We write $\mathrm{RelEnv}(\Delta)$ for the set of all relation
 environments for a context $\Delta$. Given %a relational environment
-$\rho \in \mathrm{RelEnv}(\Delta')$ and %a simultaneous substitution
+$\rho \in \mathrm{RelEnv}(\Delta)$ and %a simultaneous substitution
 $\Delta \vdash \sigma \Rightarrow \Delta'$, we can derive the composed
 relational environment (with an abuse of notation) $\rho \circ \sigma
-\in \mathrm{RelEnv}(\Delta)$ as $(\rho \circ \sigma)\ \tyPrimNm{X}\
+\in \mathrm{RelEnv}(\Delta')$ as $(\rho \circ \sigma)\ \tyPrimNm{X}\
 \sigma' = \rho\ \tyPrimNm{X}\ (\sigma' \circ \sigma)$.
 
 As we stated above, index contexts $\Delta$ are interpreted as certain
 %sets of relation environments, i.e.,~
 subsets of $\mathrm{RelEnv}(\Delta)$. Depending on the primitive
 operations that we assume for our system, we may have different sets
-of relational environments that enforce different invariants. We
-require that the sets of relational environments are \emph{valid} in
-the following sense:
+of relational environments that enforce different invariants. 
+% We
+% require that the sets of relational environments are \emph{valid} in
+% the following sense:
 
 \begin{definition}
   \label{defn:valid-rel-env-family}
   A family of sets of relational environments $\relEnv{E}(\Delta)
-  \subseteq \mathrm{RelEnv}(\Delta)$ is \emph{valid} if the following
+  \subseteq \mathrm{RelEnv}(\Delta)$ is \emph{substitutive} if these
   two properties are satisfied:
   \begin{enumerate}
   \item Closure under simultaneous substitutions: if $\rho \in
@@ -550,8 +551,8 @@ the following sense:
 %    \circ \sigma_{i\mathord:s'} = \rho_1$ and $\rho \circ
 %    \pi_{i\mathord:s'} = \rho_2$.
   \item If $\rho_1 \in \relEnv{E}(\Delta', i\mathord:s')$ and $\rho_2
-    \in \relEnv{E}(\Delta)$, and $\Delta' \vdash \sigma \Rightarrow
-    \Delta$ is such that $\rho_1 \circ \pi_{i\mathord:s'} = \rho_2
+    \in \relEnv{E}(\Delta)$, and $\Delta \vdash \sigma \Rightarrow
+    \Delta'$ is such that $\rho_1 \circ \pi_{i\mathord:s'} = \rho_2
     \circ \sigma$, then there exists a $\rho \in \relEnv{E}(\Delta,
     i\mathord:s')$ such that $\rho \circ \sigma_{i\mathord:s'} =
     \rho_1$ and $\rho \circ \pi_{i\mathord:s'} = \rho_2$.
@@ -581,6 +582,8 @@ the following sense:
     % two triangles in the bottom right of the diagram commute.
     % FIXME: mention that we already know that the square commutes
   \end{enumerate}
+  A family $\relEnv{E}$ is \emph{pre-substitutive} if only the first
+  point holds.
 \end{definition}
 %
 % For the general
@@ -651,8 +654,10 @@ $\{ (\mathrm{inl}\ x, \mathrm{inl}\ x') \sepbar (x,x') \in R \} \cup
   \item If $\Delta \vdash A \equiv B \isType$, then for all $\rho \in
     \relEnv{E}(\Delta)$, $\rsem{A}{\relEnv{E}}{\rho} =
     \rsem{B}{\relEnv{E}}{\rho}$;
-  \item If $\Delta' \vdash A \isType$ and $\Delta \vdash \sigma
-    \Rightarrow \Delta'$, then for all $\rho \in \relEnv{E}(\Delta)$,
+  \item If $\Delta' \vdash A \isType$ and either $\relEnv{E}$ is
+    substitutive or $\relEnv{E}$ is pre-substitutive and $A$ is
+    quantifier-free, then for all $\Delta \vdash \sigma \Rightarrow
+    \Delta'$ and $\rho \in \relEnv{E}(\Delta)$,
     $\rsem{\sigma^*A}{\relEnv{E}}\rho = \rsem{A}{\relEnv{E}}(\rho
     \circ \sigma)$.
   \end{enumerate}
@@ -713,7 +718,7 @@ type $A$ to also have any
 equal type $B$ as well.
 \begin{figure*}[t]
   \centering
-  {\tiny
+  {\small
   \begin{mathpar}
     \inferrule* [right=Var]
     {\Delta \vdash \Gamma \isCtxt \\ x : A \in \Gamma}
@@ -749,8 +754,8 @@ equal type $B$ as well.
     {\Delta; \Gamma \vdash \mathrm{inr}\ M : A + B}
 
     \inferrule* [right=Case]
-    {\Delta; \Gamma \vdash M : A + B \\
-      \Delta; \Gamma, x : A \vdash N_1 : C \\
+    {\Delta; \Gamma \vdash M : A + B \\\\
+      \Delta; \Gamma, x : A \vdash N_1 : C \\\\
       \Delta; \Gamma, y : B \vdash N_2 : C}
     {\Delta; \Gamma \vdash \textrm{case}\ M\ \textrm{of}\ \textrm{inl}\ x.N_1; \textrm{inr}\ y.N_2 : C}
 
@@ -776,7 +781,7 @@ equal type $B$ as well.
     {\Delta; \Gamma \vdash \langle[e], M\rangle: \exists i\mathord:s. A}
 
     \inferrule* [right=ExUnpack]
-    {\Delta; \Gamma \vdash M : \exists i\mathord:s. A \\
+    {\Delta; \Gamma \vdash M : \exists i\mathord:s. A \\\\
       \Delta, i\mathord:s; \pi_{i\mathord:s}^*\Gamma, x : A \vdash N : \pi_{i\mathord:s}^*B}
     {\Delta; \Gamma \vdash \mathrm{let}\langle[i],x\rangle = M\ \mathrm{in}\ N : B}
   \end{mathpar}}
@@ -860,21 +865,35 @@ interpretation of contexts is defined by: % the following clauses: %, where
 \end{lemma}
 
 \begin{theorem}[Abstraction]\label{thm:abstraction}
-  If $\Delta; \Gamma \vdash M : A$, then for all $\rho \in
-  \relEnv{E}(\Delta)$ and $\eta_1, \eta_2 \in \ctxtSem{\Gamma}$ such
-  that $(\eta_1, \eta_2) \in \rsem{\Gamma}{\relEnv{E}}\rho$, we have
-  $(\tmSem{M}\eta_1, \tmSem{M}\eta_2) \in \rsem{A}{\relEnv{E}}\rho$.
+  Assume $\relEnv{E}$ is substitutive. If $\Delta; \Gamma \vdash M :
+  A$, then for all $\rho \in \relEnv{E}(\Delta)$ and $\eta_1, \eta_2
+  \in \ctxtSem{\Gamma}$ such that $(\eta_1, \eta_2) \in
+  \rsem{\Gamma}{\relEnv{E}}\rho$, we have $(\tmSem{M}\eta_1,
+  \tmSem{M}\eta_2) \in \rsem{A}{\relEnv{E}}\rho$.
+
+  If $\relEnv{E}$ is pre-substitutive, then the above restricts to the
+  case when $\Gamma$ only contains types of the form $\forall
+  \vec{i}\mathord:\vec{s}. B$, where $B$ is quantifier-free, $A$ is
+  quantifier-free and $M$ contains no uses of \TirName{UnivAbs},
+  \TirName{ExPack} or \TirName{ExUnpack} and all uses of
+  \TirName{UnivApp} are fully applied.
 \end{theorem}
 
-We use the relational interpretation to define the notion of semantic
-equivalence, which is a sound approximation of contextual equivalence,
-as a consequence of \thmref{thm:abstraction}.
+We refer to programs satisfying the conditions in the second part of
+\thmref{thm:abstraction} as being in the \emph{quantifier-free}
+fragment of our framework. These conditions are very similar to those
+used in the fragment of System F covered by Hindley-Milner type
+inference.
+
+We use the relational interpretation to define semantic equivalence,
+which is a sound approximation of contextual equivalence, as a
+consequence of \thmref{thm:abstraction}.
 \begin{definition}
   Let $\Gamma_{\mathit{ops}}$ and $\eta_{\mathit{ops}}$ be a context
   of primitive operations and its interpretation as in
   \defref{defn:ctxt-equiv}. Let $\relEnv{E}_{\mathit{ops}}$ be a
-  family of sets of relational environments such that for all $\Delta$
-  and $\rho \in \relEnv{E}_{\mathit{ops}}(\Delta)$,
+  substitutive family of sets of relational environments such that for
+  all $\Delta$ and $\rho \in \relEnv{E}_{\mathit{ops}}(\Delta)$,
   $(\eta_{\mathit{ops}}, \eta_{\mathit{ops}}) \in
   \rsem{\Gamma}{\relEnv{E}_{\mathit{ops}}}\rho$.
 
@@ -897,136 +916,113 @@ as a consequence of \thmref{thm:abstraction}.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{A General Construction of Relational Environments}
+\subsection{Construction of Relational Environments}
 \label{sec:constr-rel-env}
 
+\newcommand{\Gen}{\mathrm{Gen}}
 \newcommand{\Free}{\mathrm{Free}}
 \newcommand{\semSort}[1]{\llbracket #1 \rrbracket^{\mathcal{S}}}
 \newcommand{\semIndexExp}[1]{\llbracket #1 \rrbracket^{\mathcal{I}}}
 
-We now give a general construction of valid families of sets of
-relational environments 
-%(in the sense of \defref{defn:valid-rel-env-family}) 
-that allow us to derive
-useful consequences of \thmref{thm:abstraction}, e.g.,
-%in particular, 
-%we wish to show 
-that certain types are uninhabited. To %motivate 
-this end, consider the
-%following 
-type $\forall t\mathord:\SynTransl{2}.\ \tyPrim{vec}{t + t} \to
-\tyPrim{vec}{t}$ involving vectors indexed by translations.
-% as in \autoref{sec:affine-vector-ops}.
-%\begin{displaymath}
-%  \forall t\mathord:\SynTransl{2}.\ \tyPrim{vec}{t + t} \to \tyPrim{vec}{t}
-%\end{displaymath}
-In \exref{ex:uninhabited-type} we claimed that this type is
-uninhabited. Intuitively, it is clear why: given the operations on
-vectors we presented in \autoref{sec:affine-vector-ops}, there is no
-way of cancelling the additional $t$ in the argument type to get the
-result type. More generally, our operations on vectors 
-only allow us to combine indices according to the group operations. Thus,
-if the index of the result type of a function does not lie within the
-free abelian group generated by the indices of the input types, then
-there is no way to write a program with this %given 
-type. We now
-develop this idea to generate a family of sets of relational
-environments that is valid in the sense of
-\defref{defn:valid-rel-env-family}. The key idea is to assign
-different relational interpretations to types with indices that lie
-outside some fintely generated group of index expressions.
+We give two constructions of families of sets of relational
+environments that allow us to derive useful consequences of
+\thmref{thm:abstraction}.
 
-\paragraph{Some Universal Algebra}
-We make use of some concepts of universal algebra, which now recall.
-A \emph{model} for our indexing expressions and their equality is
-defined as follows. To each sort $s \in \SortSet$ we assign a carrier
-set $\semSort{s}$. We extend this assignment to index contexts and
-other sequences of sorts (e.g., type arities) using the cartesian
-product of sets: $\semSort{i_1\mathord:s_1,...,i_n\mathord:s_n} =
-\semSort{s_1} \times ... \times \semSort{s_n}$. For each index
-operation $\texttt{f} \in \IndexOpSet$ with $\indexOpArity(\texttt{f})
-= ([s_1,...,s_n],s)$, we assume a function $\semIndexExp{\texttt{f}} :
-\semSort{s_1,...,s_n} \to \semSort{s}$. For each well-sorted index
-expression $\Delta \vdash e : s$, we assign a function
-$\semIndexExp{e} : \semSort{\Delta} \to \semSort{s}$ by recursion on
-the structure of $e$. We further assume that for each axiom $\Delta
-\vdash e \stackrel{ax}\equiv e' : s \in \IndexAxiomSet$, we have
-$\semIndexExp{e} = \semIndexExp{e'}$. A \emph{model} is a pair
-$\mathcal{M} = (\semSort{\cdot}_{\mathcal{M}},
-\semIndexExp{\cdot}_{\mathcal{M}})$ 
-%such that all the axioms in
-satisfying all the axioms in
+\paragraph{Compositional Relational Environments}
+Our compositional relational environments are defined in terms of
+models. To each sort $s \in \SortSet$ we assign a carrier set
+$\semSort{s}$. We extend this assignment to index contexts and other
+sequences of sorts (e.g., type arities) using the cartesian product of
+sets: $\semSort{i_1\mathord:s_1,...,i_n\mathord:s_n} = \semSort{s_1}
+\times ... \times \semSort{s_n}$. For each index operation $\texttt{f}
+\in \IndexOpSet$ with $\indexOpArity(\texttt{f}) = ([s_1,...,s_n],s)$,
+we assume a function $\semIndexExp{\texttt{f}} : \semSort{s_1,...,s_n}
+\to \semSort{s}$. For each well-sorted index expression $\Delta \vdash
+e : s$, we assign a function $\semIndexExp{e} : \semSort{\Delta} \to
+\semSort{s}$ by recursion on the structure of $e$. We further assume
+that for each axiom $\Delta \vdash e \stackrel{ax}\equiv e' : s \in
+\IndexAxiomSet$, we have $\semIndexExp{e} = \semIndexExp{e'}$. A
+\emph{model} is a pair $\mathcal{M} = (\semSort{\cdot}_{\mathcal{M}},
+\semIndexExp{\cdot}_{\mathcal{M}})$ satisfying all the axioms in
 $\IndexAxiomSet$.
-% are satisfied.
 
-Given a pair of models $\mathcal{M}_1 = (\semSort{\cdot}_1,
-\semIndexExp{\cdot}_1)$ and $\mathcal{M}_2 = (\semSort{\cdot}_2,
-\semIndexExp{\cdot}_2)$, a \emph{homomorphism} $h : \mathcal{M}_1 \to
-\mathcal{M}_2$ is a family of functions $\{ h_s : \semSort{s}_1 \to
-\semSort{s}_2 \}_{s \in \SortSet}$ such that for each $\texttt{f} \in
-\IndexOpSet$, we have $h_s(\semIndexExp{\texttt{f}}_1 (x_1,...,x_n)) =
-\semIndexExp{\texttt{f}}_2(h_{s_1}x_1, ..., h_{s_n}x_n)$.
-
-Let $A = \{ A_s \}_{s \in \SortSet}$ be a family of finite sets
-indexed by sorts. We construct an index context $\Delta_A$ which has
-variables $a\mathord:s$ for each $a \in A_s$. The \emph{free} model
-over $A$, denoted $\Free(A)$, is defined by setting
-$\semSort{s}_{\Free(A)} = \{e \sepbar \Delta_A \vdash e :
-s\}/\mathord\equiv$, where we quotient by the equality judgment
-defined in \autoref{sec:type-equality}. The free model has
-$\semIndexExp{\texttt{f}}_{\Free(A)}(e_1,..,e_n) =
-\texttt{f}(e_1,...,e_n)$.
-
-\paragraph{Relational Environments} We now fix some model
-$\mathcal{M}$ to provide provide the underlying interpretation of
-index expressions. %As we indicated above, we wish 
-To discriminate
-between index expressions that are generated from some finite set of
-``input'' expressions and those that are not, %. Accordingly, 
-we assume that for each primitive type $\tyPrimNm{X}$ we have two ways of
-assigning a relational meaning to that type. When the index arguments
-of the type are within the generated set, we use a function
-$R_{\tyPrimNm{X}} \in
+Now fix a model $\mathcal{M}$ and assume, for each primitive type
+$\tyPrimNm{X}$, a relational interpretation parameterised by elements
+from the model: $R_{\tyPrimNm{X}} :
 \semSort{\primTyArity(\tyPrimNm{X})}_{\mathcal{M}} \to
-\Rel(\tyPrimSem{\tyPrimNm{X}})$ that assigns a relational meaning to
-every element in the interpretation of the type's argument sorts. When
-the index arguments are not within the generated set we default to a
-constant relational meaning $R^\bullet_{\tyPrimNm{X}} \in
-\Rel(\tyPrimSem{\tyPrimNm{X}})$.
-%We now use $R_{\tyPrimNm{X}}$ and $R^\bullet_{\tyPrimNm{X}}$ to
-%construct the relational environments that we are interested in.  
-Now, fix
-an index context $\Delta$, and let $A = \{ A_s \}_{s \in \SortSet}$ be a
-sort-indexed family of finite sets of expressions such that if $e \in
-A_s$, then $\Delta \vdash e : s$. Let $h : \Free(A) \to \mathcal{M}$
-be a homomorphism. For each $A$ and $h$ we have a relational
-environment for the context $\Delta$:
-\begin{displaymath}
-  \rho^A_h\ \tyPrimNm{X}\ (e_1,...,e_n) = \left\{
-    \begin{array}{@{}l@{\hspace{0.5em}}l}
-      R^\bullet_{\tyPrimNm{X}} & \textrm{if any }e_i \not\in \Free(A) \\
-      R_{\tyPrimNm{X}}(h(e_1),...,h(e_n)) & \textrm{if all }e_i \in \Free(A)
-    \end{array}
-  \right.
-\end{displaymath}
-Collecting all these relational environments together yields a family
-of relational environments, parameterised by our choice of model,
-$\mathcal{M}$, and relational interpretations of primitive types
-$R^\bullet,R$:
-\begin{displaymath}
-  \relEnv{E}_{\mathcal{M},R,R^\bullet}(\Delta) = \{ \rho^A_h \sepbar \forall s.A_s \subseteq \semSort{s}_{\Free(\Delta)}, h : \Free(A) \to \mathcal{M} \}
-\end{displaymath}
+\Rel(\tyPrimSem{\tyPrimNm{X}})$. Our family of sets of relational
+environments is $\relEnv{E}_{\mathcal{M},R}(\Delta) = \{ \rho^\delta
+\sepbar \delta \in \semSort{\Delta}_{\mathcal{M}} \}$, where
+$\rho^\delta\ \tyPrimNm{X}\ (e_1,...,e_n) =
+R_{\tyPrimNm{X}}(\semIndexExp{e_1}_{\mathcal{M}}\delta, ...,
+\semIndexExp{e_n}_{\mathcal{M}}\delta)$.
 
 \begin{theorem}
-  The family $\relEnv{E}_{\mathcal{M},R,R^\bullet}$ of sets of
-  relation environments is valid in the sense of
-  \defref{defn:valid-rel-env-family}.
+  The families $\relEnv{E}_{\mathcal{M},R}$ are substitutive.
 \end{theorem}
 
 To satisfy the hypothesis of \thmref{thm:abstraction} we still need to
 prove, for each instantiation of our general framework, that the
 program-level primitive operations preserve all the relations.
 \fixme{This is the content of lemma X, lemma Y, lemma Z, below}.
+
+\paragraph{Non-compositional Relational Environments}
+We now construct relational environments that can be used to prove
+non-definability results. To this end, consider the typing
+$t\mathord:\SynTransl{2}; \Gamma_{\Geom} \vdash M : \tyPrim{vec}{t +
+  t} \to \tyPrim{vec}{t}$ involving vectors indexed by translations.
+In \exref{ex:uninhabited-type} we claimed that this type is
+uninhabited. Intuitively, it is clear why: given the operations on
+vectors we presented in \autoref{sec:affine-vector-ops}, there is no
+way of cancelling the additional $t$ in the argument type to get the
+result type. More generally, our operations on vectors only allow us
+to combine indices according to the group operations. Thus, if the
+index of the result type of a function does not lie within the free
+abelian group generated by the indices of the input types, then there
+is no way to write a program with this %given
+type. We now develop this idea to generate a family of sets of
+relational environments. The key idea is to assign different
+relational interpretations to types with indices that lie outside some
+finitely generated collection of index expressions.
+
+These relational environments are non-compositional in the sense that
+elements of $\relEnv{E}(\Delta,\Delta')$ are not only constructed from
+elements of $\relEnv{E}(\Delta)$ and $\relEnv{E}(\Delta')$. As a
+consequence of their non-compositionality, these relational
+environments will only be \emph{pre-substitutive} in the sense of
+\defref{defn:valid-rel-env-family}. Therefore our non-definability
+results are subject to the conditions in \thmref{thm:abstraction}.
+
+Given a set $S$ of index expressions that are all well-indexed in some
+index context $\Delta$, define $\Gen(S)$ to be the set of terms that
+are generated by the elements of $S$ and the primitive index
+operations. We close under index expression equivalence to get the
+sets $\Gen^\equiv(S) = \{ e \sepbar \exists s.\ \exists e' \in
+\Gen(S).\ \Delta \vdash e \equiv e' : s \}$.
+
+We construct relational environments parameterised by sets of terms
+$S$. We assign the equality relation to primitive types whose index
+arguments are generated up to equivalence by $S$. For terms whose
+index arguments are not in $\Gen^\equiv(S)$, we require a default
+binary relation $R^\bullet_{\tyPrimNm{X}} \subseteq
+\Eq_{\tyPrimSem{\tyPrimNm{S}}}$. We define the non-compositional
+family of sets of relational environments as
+$\relEnv{E}_{R^\bullet}(\Delta) = \{ \rho^S \sepbar \forall e \in S.\
+\exists s. \Delta \vdash e : s \}$, where
+\begin{displaymath}
+  \rho^S\ \tyPrimNm{X}\ (e_1,...,e_n) = \left\{
+    \begin{array}{ll}
+      \mathrm{Eq}_{\tyPrimSem{\tyPrimNm{X}}} & \textrm{if all}\ e_i \in \Gen^\equiv(S) \\
+      R^\bullet_{\tyPrimNm{X}} & \textrm{otherwise}
+    \end{array}
+  \right.
+\end{displaymath}
+
+\begin{theorem}
+  The families $\relEnv{E}_{R^\bullet}$ are pre-substitutive.
+\end{theorem}
+
+% FIXME: look forward to the applications
 
 %%% Local Variables:
 %%% TeX-master: "paper"
