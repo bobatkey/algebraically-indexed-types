@@ -50,27 +50,27 @@ follows, where $c$ stands for arbitrary real-valued constants:
     (+) & \forall \epsilon_1, \epsilon_2\mathord:\metricSort.\ \tyPrim{real}{\epsilon_1} \to \tyPrim{real}{\epsilon_2} \to \tyPrim{real}{\epsilon_1 + \epsilon_2} \\
     (-) & \forall \epsilon_1, \epsilon_2\mathord:\metricSort.\ \tyPrim{real}{\epsilon_1} \to \tyPrim{real}{\epsilon_2} \to \tyPrim{real}{\epsilon_1 + \epsilon_2} \\
     \underline{c} * & \forall \epsilon\mathord:\metricSort.\ \tyPrim{real}{\epsilon} \to \tyPrim{real}{c\epsilon} \\
-    \mathrm{coerce} & \forall \epsilon_1,\epsilon_2\mathord:\metricSort.\ \tyPrim{real}{\epsilon_1} \to \tyPrim{real}{\max(\epsilon_1,\epsilon_2)}
+    \mathrm{up} & \forall \epsilon_1,\epsilon_2\mathord:\metricSort.\ \tyPrim{real}{\epsilon_1} \to \tyPrim{real}{\max(\epsilon_1,\epsilon_2)}
   \end{array}
 \end{displaymath}
 We assume that the index-erasure semantics of the $\tyPrimNm{real}$
 type is just the set $\mathbb{R}$, so all except the last operation
-have straightforward interpretations. The $\mathrm{coerce}$ operation
-is interpreted just as the identity function. The index-erasure
+have straightforward interpretations. The $\mathrm{up}$ operation is
+interpreted just as the identity function. The index-erasure
 interpretations of the primitive operations are collected together
 into an environment $\eta_\Metric \in \ctxtSem{\Gamma_\Mon}$.
 
 For the families of sets of relational environments
-$\relEnv{E}_\Metric$, we use the general construction in
-\autoref{sec:constr-rel-env} with the following interpretations of the
-primitive type $\tyPrimNm{real}$: $R^\bullet_{\tyPrimNm{real}} = \Eq_\mathbb{R}$ and $R_{\tyPrimNm{real}}(\epsilon) = \{ (x,x') \sepbar |x - x'| < \epsilon\}$.
+$\relEnv{E}_\Metric$, we use the compositional construction in
+\autoref{sec:constr-rel-env}, interpreting the primitive type
+$\tyPrimNm{real}$ with $R_{\tyPrimNm{real}}(\epsilon) = \{ (x,x')
+\sepbar |x - x'| < \epsilon\}$.
 %\begin{displaymath} %FIXME: define \Eq earlier on
 %  \begin{array}{l@{\hspace{2em}}l}
 %    R^\bullet_{\tyPrimNm{real}} = \Eq_\mathbb{R} &
 %    R_{\tyPrimNm{real}}(\epsilon) = \{ (x,x') \sepbar |x - x'| < \epsilon \}
 %  \end{array}
 %\end{displaymath}
-We have:
 \begin{lemma}
   For all $\Delta$ and $\rho \in \relEnv{E}_\Metric(\Delta)$,
   $(\eta_\Metric, \eta_\Metric) \in
