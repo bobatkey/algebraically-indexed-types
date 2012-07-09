@@ -145,7 +145,7 @@ $I = \lambda x. x\ [0]\ 0$ and $J = \lambda y. \Lambda t.\lambda v. \transdn A (
 %I = \lambda x. x\ [0]\ 0 & \text{ and } &
 %J = \lambda y. \Lambda t.\ \lambda v. \trans A v t(y)
 %\end{eqnarray*}
-where terms $\transdn A : A\to A[0/t]$ and $\transup A : A[0/t] \to A$ are defined by induction over the syntax of $A$:
+where terms $\transdn A : A\to A[0/t]$ and $\transup A : A[0/t] \to A$ are defined by induction over the syntax of $A$ (cases omitted for $\transup A$ have definition symmetric to $\transdn A$):
 \begin{eqnarray*}
 \transdn{1} & = & \lambda x. x\\ 
 \transdn{A_1\times A_2} & = & \lambda p. (\transdn{A_1}(\pi_1 p),\transdn{A_2}(\pi_2 p))\\ 
