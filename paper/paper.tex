@@ -153,17 +153,16 @@
   Reynolds' relational parametricity provides a powerful way to reason
   about programs in terms of invariance under changes of data
   representation. A dazzling array of applications of Reynolds' theory
-  exists, exploiting invariance to yield ``theorems for free'',
+  exists, exploiting invariance to yield ``free theorems'',
   uninhabitation results, and encodings of algebraic datatypes.
-
-  Outside computer science, invariance under change is a common theme
-  running through many areas mathematics and physics. For example, the
-  area of a triangle is not altered by rotation or flipping. If we
-  scale a triangle, then we scale its area, maintaining an invariant
-  relationship between the triangle and its area. The transformations
-  under which properties are invariant are often organised into
-  groups, with the algebraic structure reflecting the composability
-  and invertibility of transformations.
+  Outside computer science, invariance is a common theme running
+  through many areas mathematics and physics. For example, the area of
+  a triangle is unaltered by rotation or flipping. If we scale a
+  triangle, then we scale its area, maintaining an invariant
+  relationship between the two. The transformations under which
+  properties are invariant are often organised into groups, with the
+  algebraic structure reflecting the composability and invertibility
+  of transformations.
 
   In this paper, we investigate programming languages whose types are
   indexed by algebraic structures such as groups of geometric
@@ -171,12 +170,12 @@
   principals--for information flow security--and types indexed by
   distances--for analysis of analytic uniform continuity
   properties. Following Reynolds, we prove a general abstraction
-  theorem that covers all these instances. Consequences of the
+  theorem that covers all these instances. Consequences of our
   abstraction theorem include free theorems expressing invariance
   properties of programs, type isomorphisms based on invariance
-  properties, and non-definability results, indicating when certain
+  properties, and non-definability results indicating when certain
   algebraically indexed types are uninhabited or only inhabited by
-  trivial programs.
+  trivial programs.  Our results have been fully formalised in Coq.
 \end{abstract}
 
 \category{D.1.1}{Programming techniques}{Applicative (functional)
