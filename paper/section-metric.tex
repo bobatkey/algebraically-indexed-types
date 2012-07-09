@@ -13,7 +13,7 @@ between two terms. In this section, we examine another instantiation
 of our general framework that relates values when they are within a
 certain distance. The free theorems that we obtain inform us of the
 effect that programs have on the distances between values. For
-example, a program $M$ of type
+example, a program $M$ of type:
 \begin{displaymath}
   \forall \epsilon_1,\epsilon_2\mathord:\metricSort.\ \tyPrim{real}{\epsilon_1} \to \tyPrim{real}{\epsilon_2} \to \tyPrim{real}{\epsilon_1 + \epsilon_2}
 \end{displaymath}
@@ -26,22 +26,24 @@ and $x, x', y, y' \in \mathbb{R}$,
   \end{array}
 \end{displaymath}
 A type system with a relational interpretation that tracks distances
-between values has previously been investigated by Reed and Pierce
+between values has %previously 
+been investigated by Reed and Pierce
 \cite{reed10distance} in the setting of differential privacy. Their
 system uses a linear type discipline to ensure that all programs are
-non-expansive (i.e., the distance between the outputs is no greater
-than the distance between the inputs). Here, we instantiate the
-framework from \autoref{sec:a-general-framework} in order to express
-non-expansivity, and more, through algebraically indexed types.
+non-expansive (i.e., the distance between the outputs is no more greater
+than the distance between the inputs). Here, we instantiate our general
+framework %from \autoref{sec:a-general-framework} %in order 
+to express
+non-expansivity, and more, via algebraically indexed types.
 
 \paragraph{Instantiation of the General Framework}
-We assume a single indexing sort $\metricSort$, intended to represent
-positive, non-zero real numbers. For the index operations, we assume
-the operations $\min, \max, +$ and multiplication by constant
-reals. There is a single primitive type $\tyPrimNm{real}$, with
-$\primTyArity(\tyPrimNm{real}) = [\metricSort]$. The primitive
-operations $\Gamma_{\Metric}$ are as follows, where $c$ stands for
-arbitrary real-valued constants.
+We assume a single indexing sort $\metricSort$ %, intended to 
+to represent positive, non-zero real numbers. For the index
+operations, we assume the operations $\min, \max, +$ and
+multiplication by constant reals. There is a single primitive type
+$\tyPrimNm{real}$ with $\primTyArity(\tyPrimNm{real}) =
+[\metricSort]$. The primitive operations $\Gamma_{\Metric}$ are as
+follows, where $c$ stands for arbitrary real-valued constants:
 \begin{displaymath}
   \begin{array}{r@{\hspace{0.5em}:\hspace{0.5em}}l}
     \underline{c} & \forall \epsilon\mathord:\metricSort.\ \tyPrim{real}{\epsilon} \\
@@ -61,14 +63,14 @@ into an environment $\eta_\Metric \in \ctxtSem{\Gamma_\Mon}$.
 For the families of sets of relational environments
 $\relEnv{E}_\Metric$, we use the general construction in
 \autoref{sec:constr-rel-env} with the following interpretations of the
-primitive type $\tyPrimNm{real}$:
-\begin{displaymath} %FIXME: define \Eq earlier on
-  \begin{array}{l@{\hspace{2em}}l}
-    R^\bullet_{\tyPrimNm{real}} = \Eq_\mathbb{R} &
-    R_{\tyPrimNm{real}}(\epsilon) = \{ (x,x') \sepbar |x - x'| < \epsilon \}
-  \end{array}
-\end{displaymath}
-
+primitive type $\tyPrimNm{real}$: $R^\bullet_{\tyPrimNm{real}} = \Eq_\mathbb{R}$ and $R_{\tyPrimNm{real}}(\epsilon) = \{ (x,x') \sepbar |x - x'| < \epsilon\}$.
+%\begin{displaymath} %FIXME: define \Eq earlier on
+%  \begin{array}{l@{\hspace{2em}}l}
+%    R^\bullet_{\tyPrimNm{real}} = \Eq_\mathbb{R} &
+%    R_{\tyPrimNm{real}}(\epsilon) = \{ (x,x') \sepbar |x - x'| < \epsilon \}
+%  \end{array}
+%\end{displaymath}
+We have:
 \begin{lemma}
   For all $\Delta$ and $\rho \in \relEnv{E}_\Metric(\Delta)$,
   $(\eta_\Metric, \eta_\Metric) \in
@@ -76,8 +78,12 @@ primitive type $\tyPrimNm{real}$:
 \end{lemma}
 
 \begin{example}[Uniform Continuity]
-  By making use of the existential types in our framework, we can
-  state the standard $\epsilon$-$\delta$ definition of
+  %By making use of 
+Using %the 
+existential types, % in our framework, 
+we can
+  state the standard 
+$\epsilon$-$\delta$ definition of
   \emph{uniform} continuity as a type:
   \begin{displaymath}
     \forall \epsilon \mathord: \metricSort.\ \exists \delta\mathord: \metricSort.\ \tyPrim{real}{\delta} \to \tyPrim{real}{\epsilon}
@@ -88,13 +94,16 @@ primitive type $\tyPrimNm{real}$:
   \begin{displaymath}
     \forall \epsilon \mathord> 0. \exists \delta \mathord> 0. \forall x,x'. |x - x'| < \delta \Rightarrow |\tmSem{M}\ x - \tmSem{M}\ x'| < \epsilon
   \end{displaymath}
-  Note that this definition differs from the $\epsilon$-$\delta$
-  definition of continuity by the order of quantification. For
-  continuity, the $\forall x$ is before the $\exists \delta$, so the
-  distance $\delta$ may depend on the value of $x$. We suspect that to
+  This definition differs from the $\epsilon$-$\delta$
+  definition of (regular) continuity by the order of quantification: 
+  %For continuity, 
+  there, $\forall x$ comes before $\exists \delta$, so 
+  the distance 
+  $\delta$ may depend on %the value of 
+  $x$. We suspect that to
   express standard continuity as a type would require some form of
   type dependency. Chaudhuri, Gulwani and Lublinerman
-  \cite{chaudhuri10continuity} have presented a program logic based
+  \cite{chaudhuri10continuity} have given a program logic based
   approach to verifying the continuity of programs.
 \end{example}
 
@@ -131,3 +140,4 @@ primitive type $\tyPrimNm{real}$:
 %%% Local Variables:
 %%% TeX-master: "paper"
 %%% End:
+
