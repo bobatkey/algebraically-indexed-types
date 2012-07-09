@@ -47,36 +47,34 @@ gives:
   $(\eta_\Mon,\eta_\Mon) \in \rsem{\Gamma_\Mon}{\relEnv{E}}\rho$.
 \end{lemma}
 
-\begin{example}
-  By selecting a suitable monoid $M$, we can simulate a programming
-  language that annotates strings with taint markers. Let $\Sigma$ be
-  a set of characters from some alphabet, and let $T$ be a set of
-  taint markers. Set $M = \Sigma^* \times
-  \mathcal{MS}_{\mathit{fin}}(T)$, where $\mathcal{MS}_{\mathit{fin}}$
-  denotes the finite power set operator. Since both $\Sigma^*$ and
-  $\mathcal{MS}_{\mathit{fin}}(T)$ are monoids (the latter with
-  multiset union as the monoid multiplication, which we write as
-  $\uplus$), $M$ is itself a monoid. The centre $Z(M)$ of $M$, 
-  consists of all elements of the form $([], t)$.
+By selecting a suitable monoid $M$, we can simulate a programming
+language that annotates strings with taint markers. Let $\Sigma$ be a
+set of characters from some alphabet, and let $T$ be a set of taint
+markers. Set $M = \Sigma^* \times \mathcal{MS}_{\mathit{fin}}(T)$,
+where $\mathcal{MS}_{\mathit{fin}}$ denotes the finite power set
+operator. Since both $\Sigma^*$ and $\mathcal{MS}_{\mathit{fin}}(T)$
+are monoids (the latter with multiset union as the monoid
+multiplication, which we write as $\uplus$), $M$ is itself a
+monoid. The centre $Z(M)$ of $M$, consists of all elements of the form
+$([], t)$.
 
-  As an example of a free theorem for this instantiation of our
-  general framework, consider programs of the following type:
-  \begin{displaymath}
-    ; \Gamma_\Mon \vdash N : \forall a,b\mathord:\mathsf{M}.\ \tyPrim{M}{a} \to \tyPrim{M}{b} \to \tyPrim{M}{aa}
-  \end{displaymath}
-  From this type we can derive the following free theorem about
-  $N$. For all $a, b \in \mathcal{MS}_{\mathit{fin}}(T)$, $(s_1,t_1),
-  (s_2,t_2) \in \Sigma^*$,
-  \begin{displaymath}
-    \begin{array}{l}
-      \pi_2(\tmSem{N}\ (s_1,t_1 \uplus a)\ (s_2,t_2 \uplus b)) = \\
-      \hspace{2em}\pi_2(\tmSem{N}\ (s_1,t_1)\ (s_2,t_2)) \uplus a \uplus a
-    \end{array}
-  \end{displaymath}
-  If we taint the first input by $a$ and the second by $b$, then two
-  copies of the taint $a$ will flow to the output, and none of taint
-  $b$.
-\end{example}
+As an example of a free theorem for this instantiation of our general
+framework, consider programs of the following type:
+\begin{displaymath}
+  ; \Gamma_\Mon \vdash N : \forall a,b\mathord:\mathsf{M}.\ \tyPrim{M}{a} \to \tyPrim{M}{b} \to \tyPrim{M}{aa}
+\end{displaymath}
+From this type we can derive the following free theorem about $N$. For
+all $a, b \in \mathcal{MS}_{\mathit{fin}}(T)$, $(s_1,t_1), (s_2,t_2)
+\in \Sigma^*$,
+\begin{displaymath}
+  \begin{array}{l}
+    \pi_2(\tmSem{N}\ (s_1,t_1 \uplus a)\ (s_2,t_2 \uplus b)) = \\
+    \hspace{2em}\pi_2(\tmSem{N}\ (s_1,t_1)\ (s_2,t_2)) \uplus a \uplus a
+  \end{array}
+\end{displaymath}
+If we taint the first input by $a$ and the second by $b$, then two
+copies of the taint $a$ will flow to the output, and none of taint
+$b$.
 
 % if $b$ does not appear in the output, then it cannot have been used in
 % the program. Turn this into a theorem...
@@ -186,20 +184,16 @@ gives:
 
 The proof of this theorem uses the non-compositional relational
 environments from \autoref{sec:constr-rel-env}, with
-$R^\bullet_{\tyPrimNm{M}} = \emptyset$.
-
-\begin{example}
-  By \thmref{thm:monoid-indefinability}, it is impossible to write a
-  program with the type $\tyPrim{M}{m_1m_2} \to \tyPrim{M}{m_1}$, and is thus % shows that it is
-  impossible to convert a doubly tainted value to a singly tainted
-  one.
+$R^\bullet_{\tyPrimNm{M}} = \emptyset$. From the theorem we can see
+that it is impossible to write a program with the type
+$\tyPrim{M}{m_1m_2} \to \tyPrim{M}{m_1}$, and is thus impossible to
+convert a doubly tainted value to a singly tainted one.
 %
-  By contrast with the situation for abelian group indexed types, the
-  lack of inverses in the monoid indexed setting means that the type
-  $\tyPrim{M}{m_1m_2} \to \tyPrim{M}{m_2} \to \tyPrim{M}{m_1}$ is also
-  uninhabited since there are no naturals $a_1,a_2$ such that
-  $(m_1m_2)^{a_1}m_2^{a_2} \equiv m_1$.
-\end{example}
+By contrast with the situation for abelian group indexed types, the
+lack of inverses in the monoid indexed setting means that the type
+$\tyPrim{M}{m_1m_2} \to \tyPrim{M}{m_2} \to \tyPrim{M}{m_1}$ is also
+uninhabited since there are no naturals $a_1,a_2$ such that
+$(m_1m_2)^{a_1}m_2^{a_2} \equiv m_1$.
 
 % \fixme{Finish this} We can further assume that there are other
 % operations that distribute over the multiplication of the monoid, for
