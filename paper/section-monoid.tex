@@ -171,11 +171,11 @@ $b$.
 
 \begin{theorem}
   \label{thm:monoid-indefinability}
-  Let $m$ and $n$ be natural numbers. For all $n$-by-$m$-matricies of
-  natural numbers $A$ and $m$-by-$1$ matricies of natural numbers $b$,
-  there exists an $M$ in the quantifier-free fragment, with
+  Let $m$, $n$ be natural numbers. For all $n$-by-$m$-matrices of
+  natural numbers $A$ and $m$-by-$1$ matrices of natural numbers $b$,
+  there is a quantifier-free program $N$, with
   \begin{displaymath}
-    i_1,\dots,i_m\mathord:\mathsf{M}; \Gamma_\Mon \vdash M : \tyPrim{M}{e_1} \to \dots \to \tyPrim{M}{e_n} \to \tyPrim{M}{e}
+    i_1,\dots,i_m\mathord:\mathsf{M}; \Gamma_\Mon \vdash N : \tyPrim{M}{e_1} \to \dots \to \tyPrim{M}{e_n} \to \tyPrim{M}{e}
   \end{displaymath}
   where $e_j = i_1^{A_{j1}}\dots i_m^{A_{jm}}$ and $e = i_1^{b_1}\dots
   i_m^{b_m}$ iff there is a solution $\vec{x} = (x_1,...,x_n)$ in the

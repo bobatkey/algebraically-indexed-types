@@ -311,8 +311,8 @@ dictated by its type.
   \begin{displaymath}
     \begin{array}{@{}l}
       \mathrm{quadB\acute{e}zier} : \forall t
-      \mathord:\SynTransl{2}.\ \tyPrim{vec}{t} \to \tyPrim{vec}{t} \to
-      \tyPrim{vec}{t} \to \tyPrimNm{real} \to \tyPrim{vec}{t}
+      \mathord:\SynTransl{2}.\ \tyPrim{vec}{t} \mathord\to \tyPrim{vec}{t}\mathord\to
+      \tyPrim{vec}{t} \mathord\to \tyPrimNm{real} \mathord\to \tyPrim{vec}{t}
       \\ \mathrm{quadB\acute{e}zier}\ [t]\ p_0\ p_1\ p_2\ s = \\ \quad
       \mathrm{affComb}\ [t]\ (\mathrm{affComb}\ [t]\ p_0\ s\ p_1)\ s\ (\mathrm{affComb}\ [t]\ p_1\ s\ p_2)
       \\
@@ -422,7 +422,7 @@ interesting effects on translations.
   common mathematical practice of stating that ``without loss of
   generality'' we can take some point in a description of a problem to
   be the origin provided the problem statement is invariant under
-  translation. Each type $\tau_{n}$ is isomorphic to the coresponding
+  translation. Each type $\tau_{n}$ is isomorphic to the corresponding
   type $\sigma_{n}$:
   \begin{displaymath}
     \sigma_{n} \isDefinedAs \underbrace{\tyPrim{vec}{0} \to
@@ -460,12 +460,13 @@ interesting effects on translations.
   types are uninhabited. For example, the type $\forall t \mathord:
   \SynTransl{2}.\ \tyPrim{vec}{t + t} \to \tyPrim{vec}{t}$ has no
   quantifier-free inhabitants\footnote{We define quantifier-free
-    programs in \thmref{thm:abstraction}.}. Intuitively, this is
-  because there is no way to remove the extra $t$ in
-  $\tyPrim{vec}{t+t}$ using the vector operations. We formalise this
-  indefinability result in \autoref{sec:types-indexed-abelian-groups-indef}
-  using a more sophisticated relational interpretation of free
-  translation variables than the one we sketched above.
+    programs in the statement of
+    \thmref{thm:abstraction}.}. Intuitively, this is because there is
+  no way to remove the extra $t$ in $\tyPrim{vec}{t+t}$ using the
+  vector operations. We formalise this indefinability result in
+  \autoref{sec:types-indexed-abelian-groups-indef} using a more
+  sophisticated relational interpretation of free translation
+  variables than the one we sketched above.
 \end{example}
 
 \subsection{Change of Basis Invariance}
@@ -700,7 +701,7 @@ these form the \emph{centre} of $\GL{2}$. If we keep track of
 scalings, then we can assign the following more precise types to
 scalar multiplcation and dot product:
 \begin{displaymath}
-\begin{array}{l@{}l}
+\begin{array}{@{}l@{}l}
   (*) : \forall s \mathord: \SynGL{1}, B \mathord:
   \SynGL{2}.\ & \tyPrim{real}{s} \to \tyPrim{vec}{B,0} \to
   \tyPrim{vec}{\iota_1(s)B,0}\\

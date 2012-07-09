@@ -41,16 +41,16 @@ between security levels are captured by postulating functions
 $\alpha_{l_1} \to \alpha_{l_2}$ whenever $l_1$ is a lower security
 level than $l_2$.
 
-Using algebraically indexed types, we refine Tse and Zdancewic's
-translation by replacing each type variable $\alpha_l$ with a
-primitive type $\tyPrim{T}{e}$ of representations of the truth of a
-logical proposition $e$. The relationships between security levels are
-now replaced by logical entailment, so we only have functions of type
+Using algebraic indexing, we refine Tse and Zdancewic's translation by
+replacing each type variable $\alpha_l$ with a primitive type
+$\tyPrim{T}{e}$ of representations of the truth of a logical
+proposition $e$. The relationships between security levels are now
+replaced by logical entailment, so we only have functions of type
 $\tyPrim{T}{\phi} \to \tyPrim{T}{\psi}$ when $\phi$ entails
 $\psi$. Inspired by the PER interpretation of information flow, we
 instantiate our general relational framework to interpret
-$\tyPrimNm{T}{e}$ as the identity relation when $e$ is true, and the
-empty relation when $e$ is false. In doing so, we can recover the
+$\tyPrim{T}{\phi}$ as the identity relation when $\phi$ is true, and
+the empty relation when $\phi$ is false. By doing so, we recover the
 information flow properties of Abadi et al. and Tse and Zdancewic.
 
 \paragraph{Instantiation of the General Framework}
@@ -59,9 +59,10 @@ operations and equations of boolean algebra. Thus we have constants
 $\top$, $\bot$ and binary operators $\land$, $\lor$ with the axioms of
 a bounded lattice, and a unary complementation operator $\lnot$. We
 will use $\phi, \psi$ to stand for index expressions of sort
-$\mathsf{prop}$. We use an equational presentation to fit with our
-general framework, but note that we can define an order on index
-expressions as $\phi \leq \psi$ when $\phi = \phi \land \psi$.
+$\mathsf{prop}$. We use an equational presentation of boolean algebras
+to fit with our general framework, but note that we can define an
+order on index expressions as $\phi \leq \psi$ when $\phi = \phi \land
+\psi$.
 
 We have a single primitive type $\tyPrimNm{T}$, with
 $\primTyArity(\tyPrimNm{T}) = [\mathsf{prop}]$ and index-erasure
@@ -104,26 +105,25 @@ $\psi$. In terms of security levels, the ordering is reversed: if a
 high security principal is satisfied, then all of their underlings
 must also be satisfied.
 
-To study information flow, we adapt Tse and Zdancewic's translation of
-Abadi et al.'s monadic type to our setting. We define a type
-abbreviation $T_\phi A = \tyPrim{T}{\phi} \to A$, where $A$ is a type
-and $\phi$ is an expression of sort $\mathsf{prop}$. For every $\phi$,
-we can endow the types $T_\phi-$ with the structure of a monad. This
-is due to the fact that it is an instance of the ``environment'' (or
-``reader'') monad \cite{jones95functional}. We read the types
-$T_\phi A$ as data of type $A$ ``protected'' by the principal
-$\phi$.
+We adapt Tse and Zdancewic's translation of Abadi et al.'s monadic
+type to our setting. We define a type abbreviation $T_\phi A =
+\tyPrim{T}{\phi} \to A$, where $A$ is a type and $\phi$ is an
+expression of sort $\mathsf{prop}$. For every $\phi$, we can endow the
+types $T_\phi-$ with the structure of a monad. This is due to the fact
+that it is an instance of the ``environment'' (or ``reader'') monad
+\cite{jones95functional}. We read the types $T_\phi A$ as data of type
+$A$ ``protected'' by the principal $\phi$.
 
 As a consequence of the relational interpretation given above, it
 follows that if we have an index expression $\phi$ that is interpreted
 as some value other than $\top$ in a relational environment $\rho$,
 then for all $x,x' \in \tySem{T_\phi\tyPrimNm{bool}}$, we have $(x,x')
-\in \rsem{T_\phi\tyPrimNm{bool}}{\relEnv{E}_\infoflow}{\rho}$. In
-terms of the reading above, if a principal is dissatisfied
-(i.e.,~$\phi \not= \top$), then data protected by this principal is
-indistinguishable from any other data. Thus a program cannot get
-access to the exact value. From this and \thmref{thm:abstraction}, we
-obtain the following information flow result:
+\in \rsem{T_\phi\tyPrimNm{bool}}{\relEnv{E}_\infoflow}{\rho}$. Thus if
+a principal is dissatisfied (i.e.,~$\phi \not= \top$), then data
+protected by this principal is indistinguishable from any other
+data. Thus a program cannot get access to the exact value. From this
+and \thmref{thm:abstraction}, we obtain the following information flow
+result:
 
 \begin{theorem}
   Let $\phi$ and $\psi$ be index expressions of sort $\mathsf{prop}$

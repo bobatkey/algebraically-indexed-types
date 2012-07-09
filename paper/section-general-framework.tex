@@ -410,7 +410,7 @@ $\tyPrimSem{\tyPrimNm{X}}$ and %We
 extend this assignment to %every
 well-indexed types by: % induction on the type structure:
 \begin{displaymath}
-  \begin{array}{@{\hspace{0em}}c@{\hspace{0em}}c}
+  \begin{array}{@{}c@{\hspace{0em}}c@{}}
     \begin{array}{@{}l}
       \tySem{\tyUnit} \isDefinedAs \{*\} \\
       \tySem{A \tyProduct B} \isDefinedAs \tySem{A} \times \tySem{B} \\
@@ -885,9 +885,9 @@ fragment of our framework. These conditions are very similar to those
 used in the fragment of System F covered by Hindley-Milner type
 inference.
 
-We use the relational interpretation to define semantic equivalence,
-which is a sound approximation of contextual equivalence, as a
-consequence of \thmref{thm:abstraction}.
+Semantic equivalence of programs is defined in terms of the relational
+interpretation. As a consequence of \thmref{thm:abstraction}, semantic
+equivalence is a sound approximation of contextual equivalence.
 \begin{definition}\label{def:semantic-equality}
   Let $\Gamma_{\mathit{ops}}$ and $\eta_{\mathit{ops}}$ be a context
   of primitive operations and its interpretation as in
@@ -988,13 +988,12 @@ relational environments. The key idea is to assign different
 relational interpretations to types with indices that lie outside some
 finitely generated collection of index expressions.
 
-These relational environments are non-compositional in the sense that
-elements of $\relEnv{E}(\Delta,\Delta')$ are not only constructed from
-elements of $\relEnv{E}(\Delta)$ and $\relEnv{E}(\Delta')$. As a
-consequence of their non-compositionality, these relational
-environments will only be \emph{pre-substitutive} in the sense of
-\defref{defn:valid-rel-env-family}. Therefore our non-definability
-results are subject to the conditions in \thmref{thm:abstraction}.
+These relational environments are non-compositional: elements of
+$\relEnv{E}(\Delta,\Delta')$ are not purely constructed from elements
+of $\relEnv{E}(\Delta)$ and $\relEnv{E}(\Delta')$. As a consequence,
+these relational environments will only be
+\emph{pre-substitutive}. Therefore our non-definability results are
+subject to the quantifier-free conditions in \thmref{thm:abstraction}.
 
 Given a set $S$ of index expressions that are all well-indexed in some
 index context $\Delta$, define $\Gen(S)$ to be the set of terms that

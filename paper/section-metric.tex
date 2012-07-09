@@ -4,16 +4,16 @@
 \newcommand{\Metric}{\mathit{Met}}
 \newcommand{\metricSort}{\mathsf{R}^{>0}}
 
-The previous two sections have presented examples where the relational
-interpretations of primitive types relates a pair of elements by some
-transformation if applying the transformation to the first element
-yields the second. Thus, the free theorems that we derived directly
-take the form of ``invariance'' properties, where some equation holds
-between two terms. In this section, we examine another instantiation
-of our general framework that relates values when they are within a
-certain distance. The free theorems that we obtain inform us of the
-effect that programs have on the distances between values. For
-example, a program $M$ of type:
+\autoref{sec:instantiations} and \autoref{sec:monoid-indexed-types}
+presented examples where the relational interpretations of primitive
+types relates a pair of elements by some transformation if applying
+the transformation to the first element yields the second. Thus, the
+free theorems that we derived directly take the form of ``invariance''
+properties, where some equation holds between two terms. In this
+section, we examine another instantiation of our general framework
+that relates values when they are within a certain distance. The free
+theorems that we obtain inform us of the effect that programs have on
+the distances between values. For example, a program $M$ of type:
 \begin{displaymath}
   \forall \epsilon_1,\epsilon_2\mathord:\metricSort.\ \tyPrim{real}{\epsilon_1} \to \tyPrim{real}{\epsilon_2} \to \tyPrim{real}{\epsilon_1 + \epsilon_2}
 \end{displaymath}
