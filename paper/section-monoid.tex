@@ -3,37 +3,45 @@
 
 \newcommand{\Mon}{\textit{Mon}}
 
-Above, we investigated types indexed by abelian group expressions,
+Above we investigated types indexed by abelian group expressions,
 whose elements are taken from some group. We now switch from abelian
 groups to commutative monoids.  Our main example is strings indexed by
 ``taint'' markers: when strings are appended their taint markers are
-combined. Thanks to the information in the indexes, we are able to
+combined. Thanks to the information in the indices, we are able to
 prove an indefinability result (\thmref{thm:monoid-indefinability}).
 
-We assume a single sort $\mathsf{M}$, with the monoid operations of
-unit and multiplication, and the commutative monoid axioms. There is a
-single primitive type $\tyPrimNm{M}$, with $\primTyArity(\tyPrimNm{M})
+For this, we assume a single sort $\mathsf{M}$, with the monoid operations of
+unit and multiplication and the commutative monoid axioms, and a % There is a
+single primitive type $\tyPrimNm{M}$ with $\primTyArity(\tyPrimNm{M})
 = [\mathsf{M}]$. For the index-erasure semantics, we assume some (not
-necessarily commutative) monoid $M$, which we also write
+necessarily commutative) monoid $M$, which we 
+also write
 multiplicatively. The collection of primitive operations
-$\Gamma_{\mathit{Mon}}$ is simply the two monoid operations:
-\begin{displaymath}
-  \begin{array}{r@{\hspace{0.5em}:\hspace{0.5em}}l@{\hspace{2em}}r@{\hspace{0.5em}:\hspace{0.5em}}l}
-    1 & \tyPrim{M}{1}, &
-    (\cdot) & \forall a,b\mathord:\mathsf{M}.\ \tyPrim{M}{a} \to \tyPrim{M}{b} \to \tyPrim{M}{a b}
-  \end{array}
-\end{displaymath}
-which we interpret using the monoid structure of $M$, giving an
-environment $\eta_\Mon \in \ctxtSem{\Gamma_\Mon}$.
+$\Gamma_{\mathit{Mon}}$ %is simply 
+has the two monoid operations
+%\begin{displaymath}
+ % \begin{array}{r@{\hspace{0.5em}:\hspace{0.5em}}l@{\hspace{2em}}r@{\hspace{0.5em}:\hspace{0.5em}}l}
+%    1 & \tyPrim{M}{1}, &
+%    (\cdot) & \forall a,b\mathord:\mathsf{M}.\ \tyPrim{M}{a} \to \tyPrim{M}{b} \to \tyPrim{M}{a b}
+%  \end{array}
+%\end{displaymath}
+$1 : \tyPrim{M}{1}$ and $(\cdot) : \forall
+a,b\mathord:\mathsf{M}.\ \tyPrim{M}{a} \to \tyPrim{M}{b} \to
+\tyPrim{M}{a b}$, which we interpret using the monoid structure of
+$M$, giving an environment $\eta_\Mon \in \ctxtSem{\Gamma_\Mon}$.
 
-For the sets of relational environments, we make use of the
+For the sets of relational environments, we use %make use of 
+the
 construction in \autoref{sec:constr-rel-env}, setting the chosen model
-$\mathcal{M}$ to be the \emph{centre} $Z(M)$ of $M$ (recall that the
-centre of a monoid is the set of all elements that commute with every
-other element). We then set $R_{\tyPrimNm{M}}(m) = \{ (n,mn) \sepbar n
-\in M \}$ and $R^\bullet_{\tyPrimNm{M}} = \emptyset$. By setting the
-model $\mathcal{M}$ to only be the elements of $M$ that commute with
-everything else, we ensure that the following lemma holds:
+$\mathcal{M}$ to be the centre $Z(M)$ of $M$. % (recall that the
+%centre of a monoid is the set of all elements that commute with every
+%other element). 
+Setting $R_{\tyPrimNm{M}}(m) = \{ (n,mn) \sepbar n
+\in M \}$ and $R^\bullet_{\tyPrimNm{M}} = \emptyset$
+%By setting the model $\mathcal{M}$ to be only the elements of $M$ that
+%commute with everything else, we ensure that the following lemma
+%holds:
+gives:
 \begin{lemma}
   For all $\Delta$ and $\rho \in \relEnv{E}_\Mon(\Delta)$,
   $(\eta_\Mon,\eta_\Mon) \in \rsem{\Gamma_\Mon}{\relEnv{E}}\rho$.
@@ -48,7 +56,7 @@ everything else, we ensure that the following lemma holds:
   denotes the finite power set operator. Since both $\Sigma^*$ and
   $\mathcal{MS}_{\mathit{fin}}(T)$ are monoids (the latter with
   multiset union as the monoid multiplication, which we write as
-  $\uplus$), $M$ is itself a monoid. The centre of $M$, $Z(M)$,
+  $\uplus$), $M$ is itself a monoid. The centre $Z(M)$ of $M$, 
   consists of all elements of the form $([], t)$.
 
   As an example of a free theorem for this instantiation of our
@@ -169,25 +177,28 @@ everything else, we ensure that the following lemma holds:
   natural numbers $A$ and $m$-by-$1$ matricies of natural numbers $b$,
   there exists a program:
   \begin{equation}
-    ; \Gamma_\Mon \vdash M : \forall i_1,\dots,i_m\mathord:\mathsf{M}.\ \tyPrim{M}{e_1} \to \dots \to \tyPrim{M}{e_n} \to \tyPrim{M}{e}
+    ; \Gamma_\Mon \vdash M : \forall
+    i_1,\dots,i_m\mathord:\mathsf{M}.\ \tyPrim{M}{e_1} \to \dots \to
+    \tyPrim{M}{e_n} \to \tyPrim{M}{e}
   \end{equation}
   where $e_j = i_1^{A_{j1}}\dots i_m^{A_{jm}}$ and $e = i_1^{b_1}\dots
-  i_m^{b_m}$, iff there is a solution $\vec{x} = (x_1,...,x_n)$ in the
+  i_m^{b_m}$ iff there is a solution $\vec{x} = (x_1,...,x_n)$ in the
   natural numbers to $A x^\top = b$.
 \end{theorem}
 
 \begin{example}
   By \thmref{thm:monoid-indefinability}, it is impossible to write a
   program with the type $\forall m_1,m_2 \mathord: \mathsf{M}.\
-  \tyPrim{M}{m_1m_2} \to \tyPrim{M}{m_1}$, showing that it is
+  \tyPrim{M}{m_1m_2} \to \tyPrim{M}{m_1}$, and is thus % shows that it is
   impossible to convert a doubly tainted value to a singly tainted
   one.
-
-  In contrast to the case of abelian group indexed types, the lack of
-  inverses in the monoid indexed setting means that the type $\forall
-  m_1,m_2\mathord:\mathsf{M}.\ \tyPrim{M}{m_1m_2} \to \tyPrim{M}{m_2}
-  \to \tyPrim{M}{m_1}$ is also uninhabited. There are no naturals
-  $a_1,a_2$ such that $(m_1m_2)^{a_1}m_2^{a_2} \equiv m_1$.
+%
+  By contrast with the situation for abelian group indexed types, the
+  lack of inverses in the monoid indexed setting means that the type
+  $\forall m_1,m_2\mathord:\mathsf{M}.\ \tyPrim{M}{m_1m_2} \to
+  \tyPrim{M}{m_2} \to \tyPrim{M}{m_1}$ is also uninhabited since there
+  are no naturals $a_1,a_2$ such that $(m_1m_2)^{a_1}m_2^{a_2} \equiv
+  m_1$.
 \end{example}
 
 % \fixme{Finish this} We can further assume that there are other
