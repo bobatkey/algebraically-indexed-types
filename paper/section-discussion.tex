@@ -1,21 +1,80 @@
 \section{Discussion}
 \label{sec:discussion}
 
-\begin{enumerate}
-\item Dependent Types (allow for more precision, in some cases would
-  subsume our general framework, reference Bernardy's work)
-\item Type-indexed types (e.g.~type and effect systems)
-\item Making use of the free theorems, either by internalisation or by
-  deep embedding of our general calculus in a theorem prover.
-\item Extension of the definability work. Is it possible to extend
-  standard definability results for the $\lambda$-calculus to cover
-  algebraically indexed types?
-\item Discussion of the relationship between relational parametricity
-  and the abstraction theorem we have demonstrated. Discussion of the
-  identity extension property in this setting.
-\item Extending the geometric example with linear transformations, or
-  even higher-degree tensors.
-\end{enumerate}
+We have presented a general framework for algebraically indexed types
+and instantiated it to yield novel type systems for geometry, logical
+information flow and distance-indexed types. Our framework further
+demonstrates the power of relational reasoning about typed
+programs. From \thmref{thm:abstraction}, we have derived interesting
+free theorems, type isomorphisms and non-definability results. We
+conclude with some observations and suggestions for further work.
+
+\paragraph{Further Applications and Extensions} We have covered
+several applications of algebraically indexed types in this paper, but
+there are undoubtedly many more. Geometry for dimensions greater than
+two is an obvious candidate, as well as systems that are invariant
+under different geometric groups (e.g.,~the Poincar\'{e} group for
+relativity). Mathematical Physics is particularly rich in theories
+that have some notion of invariance, and it will be exciting to pin
+down the precise connections between these and type systems for which
+analogues of Reynolds' abstraction theorem hold. Geometric theorem
+proving is another possible application area. Harrison
+\cite{harrison09without} comments on the pervasive useful of
+invariance properties in this area. Programs in our framework
+automatically satisfy invariance properties, removing the need for
+ad-hoc proofs of these facts.
+
+In \autoref{sec:metric-types} we presented a type system with
+distance-indexed types, and noted the similarity with Reed and
+Pierce's system for non-expansivity \cite{reed10distance}. Exploring
+the relationship--particularly with respect to probability
+monads--also looks promising.
+
+Type and effect analyses use types indexed by effect annotations that
+have algebraic structure (e.g.~sets of read/write effect labels, with
+the structure of an idempotent monoid). Benton et al.~have used
+relational interpretations to prove effect-dependent equivalences
+\cite{benton06reading}. We expect that an extension of our framework
+with type-indexed types should be able to express their effect-indexed
+monads and prove their equivalences.
+
+Extending our framework with type dependency would also allow for
+further applications. For example, we could consider a type of lists
+of length $n$, indexed by elements of the permutation group
+$S_n$. Bernardy et al.~have presented a general framework for
+relational reasoning and an abstraction theorem for dependent types
+\cite{bernardy12proofs}. However, they work with pure type systems,
+which define type equality via untyped rewriting, so it is not
+immediately obvious how to integrate arbitrary equational theories
+into their framework.
+
+\paragraph{Extension of the non-definability results} Our
+non-definabilty results are currently restricted to the quantifier
+free fragment of our framework, as defined in the statement of
+\thmref{thm:abstraction}. This is a consequence of the
+non-compositionality of the relational environments that we use to
+prove non-definabilty results. Lifting this restriction is a key item
+of future work.
+
+\paragraph{Semantic Equality} In general, the semantic equality
+$\stackrel{sem}\sim$ in \defref{def:semantic-equality} is not an
+equivalence relation. If we assume that the interpretations of all the
+primitive types are partial equivalence relations then semantic
+equality is indeed an equivalence relation. However, this excludes the
+geometry and distance-indexed examples. More generally, we can
+consider relational interpretations that are \emph{difunctional}. (A
+relation is difunctional if whenever $(x,y)$, $(x',y')$ and $(x,y')$
+are in the relation then so is $(x',y)$.) Difunctionality is weaker
+than being a PER, but still suffices to prove that semantic equality
+is an equivalence relation. Hofmann \cite{hofmann08correctness} has
+used difunctional relations in the setting of effect
+analyses. Difunctionality covers all our examples except
+distance-indexed types. Note that for both PERs and difunctional
+relations we need to close the relational interpretation of
+existential types under the appropriate property to ensure that all
+types are interpreted as PERs/difunctional relations. For
+distance-indexed types it is possible that a new notion of
+equivalence, based on closeness, is required.
 
 %%% Local Variables:
 %%% TeX-master: "paper"
