@@ -272,21 +272,16 @@ hold.
 
 Given a set $\IndexAxiomSet$ of axioms, we generate the equality
 judgment between index expressions $\Delta \vdash e \equiv e' : s$ by
-the following rules. The first allows us to use substitution instances
-of axioms. The second ensures that equality is a congruence relation
-with respect to the index operations in $\IndexOpSet$:
-\begin{mathpar}
+a set of rules. The following rule allows us to use substitution
+instances of axioms.
+\begin{displaymath}
   \inferrule*
   {(\Delta' \vdash e \stackrel{ax}\equiv e' : s) \in \IndexAxiomSet \\
     \Delta \vdash \sigma \Rightarrow \Delta'}
   {\Delta \vdash \sigma^*e \equiv \sigma^*e' : s}
-
-  \inferrule*
-  {\{\Delta \vdash e_j \equiv e'_j : s_j\}_{1\leq j\leq n}}
-  {\Delta \vdash \indexOp{f}(e_1, ..., e_n) \equiv \indexOp{f}(e'_1, ..., e'_n) : s}
-\end{mathpar}
-We also assume the standard reflexivity, symmetry and transitivity
-rules for the equality judgment.
+\end{displaymath}
+We also assume the standard congruence, reflexivity, symmetry and
+transitivity rules for the equality judgment.
 
 \begin{example}[Two-Dimensional Geometry]
   \label{ex:two-dim-geo-axioms}
