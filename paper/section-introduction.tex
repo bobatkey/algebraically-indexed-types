@@ -82,20 +82,20 @@ that
 \]
 for any translation $t\in\Transl{2}$.
 
-In more complex examples the transformations \emph{compose} in various
-ways, with the compositions satisfy algebraic laws. For example, 
+Transformations typically \emph{compose} in various
+ways, and the compositions satisfy algebraic laws. For example, 
 we can assign a function that computes the area of a circle given its
 radius the following polymorphic type:
 \[
-\mathrm{areaCircle} : \forall\alpha\mathord:\SynScal.\tyPrim{real}{\alpha}\to
+\mathrm{areaCircle} : \forall\alpha\mathord:\SynGL{1}.\tyPrim{real}{\alpha}\to
 \tyPrim{real}{\alpha\cdot\alpha}
 \]
 This captures the fact that the area of a circle varies as the square
-of its radius, i.e., for any $s>0$, $\mathrm{areaCircle}\;(s\cdot r) =
-s^2\cdot \mathrm{areaCircle}\;r$.  Here, $\alpha$ is interpreted as
+of its radius, i.e., $\mathrm{areaCircle}\;(s\cdot r) =
+s^2\cdot \mathrm{areaCircle}\;r$ for any $s\neq 0$.  Here, $\alpha$ is interpreted as
 the \emph{units of measure} of the argument to $\mathrm{areaCircle}$,
 and `$\cdot$' composes units using the product. We can also add an
-inverse operation and identity unit of measure, and then impose the
+inverse operation and identity unit of measure $1$, and then impose the
 algebraic laws of abelian groups. This permits identification of, for
 example, $\tyPrim{real}{\alpha\cdot\alpha^{-1}}$ with the type
 $\tyPrim{real}{1}$ of dimensionless constants.
@@ -111,7 +111,7 @@ actual coordinates of its inputs. Furthermore, the distinction between
 points and vectors that is often enforced through abstract data
 types~\cite{CGAL} is captured here by indices instead. For example,
 the operation that takes two points and computes their vector
-`difference' can be assigned the type
+difference can be assigned the type
 $\forall\alpha\mathord:\SynTransl.\tyPrim{vec}\alpha\times\tyPrim{vec}\alpha\to\tyPrim{vec}0$,
 reflecting the invariance of the result (a pure vector) under
 translations of the point arguments. As a result through types alone
@@ -139,7 +139,7 @@ according to an interpretation of $\alpha$ (i.e., $w=\rho(\alpha)\cdot
 v$).  Values of polymorphic type are related exactly when they are
 related for all possible interpretations of the quantified
 variable. For example, values $v$ and $w$ of type
-$\forall\alpha\mathord:\SynTransl.\tyPrim{vec}\alpha\to
+$\forall\alpha\mathord:\SynTransl{2}.\tyPrim{vec}\alpha\to
 \tyPrim{vec}\alpha$ are related when they are related at type
 $\tyPrim{vec}\alpha\to\tyPrim{vec}\alpha$ for all translations
 $t\in\Transl{2}$ associated with $\alpha$.
@@ -151,19 +151,19 @@ functions rather than binary relations: we can write functions that
 scale, or translate, one value to another according to their type,
 even for higher-order function types. Moreover, the interpretation of
 indices can be built up compositionally, by recursion over the
-syntactic structure. For example, we have $\rho(\alpha\cdot\alpha) =
-\rho(\alpha)\cdot\rho(\alpha)$ where product of units-of-measure is
+syntactic structure. For example, we have $\rho(\alpha\cdot\beta) =
+\rho(\alpha)\cdot\rho(\beta)$ where product of units-of-measure is
 interpreted by product of scale factors. For more sophisticated
 applications, however, we need the fully generality of binary
-relations. First, as is also the case with type polymorphism, it
+relations. As is the case with type polymorphism, it
 provides the appropriate meaning for nested quantifiers in types such
 as
-$(\forall\alpha\mathord:\SynScal.\tyPrim{real}\alpha\to\tyPrim{real}\alpha)\to\tyBool$.
+$(\forall\alpha\mathord:\SynGL{1}.\tyPrim{real}\alpha\to\tyPrim{real}\alpha)\to\tyBool$.
 More interestingly, particular applications sometimes require
 relations that are not built compositionally---we can, for instance,
 use such relations to prove that there are no non-trivial programs of
 type
-$\forall\alpha\mathord:\SynScal.\tyPrim{real}{\alpha\cdot\alpha}\to\tyPrim{real}\alpha$.
+$\forall\alpha\mathord:\SynGL{1}.\tyPrim{real}{\alpha\cdot\alpha}\to\tyPrim{real}\alpha$.
 Finally, there are interesting applications in which even the basic
 relations are not functional. In a type system in which the index in
 $\tyPrim{real}\alpha$ is interpreted not as a unit of measure, but as
@@ -222,16 +222,19 @@ equational theory for indices.
 \item
 We describe a relational semantics for the type system and prove an
 analogue of Reynolds' Abstraction Theorem. We give precise conditions
-on sets of relation environments under which our Abstraction Theorem
+on sets of relation environments under which our abstraction theorem
 holds.
 \item
 For each of our main examples we deduce free theorems that are
-consequences of our Abstraction Theorem, prove non-definability
+consequences of our abstraction theorem, prove non-definability
 results, and derive interesting type isomorphisms.
 \end{itemize}
 We have fully formalised our framework and Abstraction Theorem in Coq,
 using strongly-typed term representations
-throughout~\cite{TypedSyntax}.
+throughout~\cite{TypedSyntax}, available from
+\\\url{github.com/bobatkey/algebraically-indexed-types/tree/master/coq}
+
+
 
 %%% Local Variables:
 %%% TeX-master: "paper"
