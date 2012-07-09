@@ -459,12 +459,13 @@ interesting effects on translations.
   relational interpretations of types we can also show that certain
   types are uninhabited. For example, the type $\forall t \mathord:
   \SynTransl{2}.\ \tyPrim{vec}{t + t} \to \tyPrim{vec}{t}$ has no
-  inhabitants. Intuitively, this is because there is no way to remove
-  the extra $t$ in $\tyPrim{vec}{t+t}$ using the vector operations. We
-  formalise this indefinability result in
-  \autoref{sec:types-indexed-abelian-groups} using a more
-  sophisticated relational interpretation of free translation
-  variables than the one we sketched above.
+  quantifier-free inhabitants\footnote{We define quantifier-free
+    programs in \thmref{thm:abstraction}.}. Intuitively, this is
+  because there is no way to remove the extra $t$ in
+  $\tyPrim{vec}{t+t}$ using the vector operations. We formalise this
+  indefinability result in \autoref{sec:types-indexed-abelian-groups-indef}
+  using a more sophisticated relational interpretation of free
+  translation variables than the one we sketched above.
 \end{example}
 
 \subsection{Change of Basis Invariance}
@@ -714,7 +715,8 @@ scalar multiplcation and dot product:
 
 \begin{example}
   With the operations in \autoref{fig:real-ops}, it is not possible to
-  write a program with the following type that is not constantly zero:
+  write a quantifier-free program with the following type that is not
+  constantly zero:
   \begin{displaymath}
     \forall s \mathord: \SynGL{2}.\ \tyPrim{real}{s^2} \to \tyPrim{real}{s}
   \end{displaymath}
@@ -724,12 +726,12 @@ scalar multiplcation and dot product:
   indefinability of square root is similar to the uninhabitation of the
   type in \exref{ex:uninhabited-type}.
 
-  In \autoref{sec:types-indexed-abelian-groups} we revisit Kennedy's
-  proof and show that even if we add square root as a primitive
-  operation---with the type above---then it is still not possible to
-  construct the cube root function. The indefinability of cube root is
-  related to the impossibility of trisecting an arbitrary angle by
-  ruler and compass constructions.
+  In \autoref{sec:types-indexed-abelian-groups-indef} we revisit
+  Kennedy's proof and show that even if we add square root as a
+  primitive operation---with the type above---then it is still not
+  possible to construct the cube root function. The indefinability of
+  cube root is related to the impossibility of trisecting an arbitrary
+  angle by ruler and compass constructions.
 %  is of interest due to its relevance to the classical problem of
 %  trisecting an angle by ruler and compass constructions.
 \end{example}
