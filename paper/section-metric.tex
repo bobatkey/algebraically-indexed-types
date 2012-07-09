@@ -71,41 +71,36 @@ $\tyPrimNm{real}$ with $R_{\tyPrimNm{real}}(\epsilon) = \{ (x,x')
 %    R_{\tyPrimNm{real}}(\epsilon) = \{ (x,x') \sepbar |x - x'| < \epsilon \}
 %  \end{array}
 %\end{displaymath}
-\begin{lemma}
+\begin{lemma}\label{lem:metric-environments}
   For all $\Delta$ and $\rho \in \relEnv{E}_\Metric(\Delta)$,
   $(\eta_\Metric, \eta_\Metric) \in
   \rsem{\Gamma}{\relEnv{E}_\Metric}{\rho}$.
 \end{lemma}
 
-\begin{example}[Uniform Continuity]
+\paragraph{Uniform continuity}
   %By making use of 
-Using %the 
-existential types, % in our framework, 
-we can
-  state the standard 
-$\epsilon$-$\delta$ definition of
-  \emph{uniform} continuity as a type:
-  \begin{displaymath}
-    \forall \epsilon \mathord: \metricSort.\ \exists \delta\mathord: \metricSort.\ \tyPrim{real}{\delta} \to \tyPrim{real}{\epsilon}
-  \end{displaymath}
-  Given a program $M$ with this type, we obtain from
-  \thmref{thm:abstraction} a free theorem, which is exactly the
-  definition of uniform continuity:
-  \begin{displaymath}
-    \forall \epsilon \mathord> 0. \exists \delta \mathord> 0. \forall x,x'. |x - x'| < \delta \Rightarrow |\tmSem{M}\ x - \tmSem{M}\ x'| < \epsilon
-  \end{displaymath}
-  This definition differs from the $\epsilon$-$\delta$
-  definition of (regular) continuity by the order of quantification: 
+Using %the
+existential types, % in our framework,
+we can state the standard $\epsilon$-$\delta$ definition of
+\emph{uniform} continuity as a type:
+\begin{displaymath}
+  \forall \epsilon \mathord: \metricSort.\ \exists \delta\mathord: \metricSort.\ \tyPrim{real}{\delta} \to \tyPrim{real}{\epsilon}
+\end{displaymath}
+Given a program $M$ with this type, we obtain from
+\thmref{thm:abstraction} a free theorem, which is exactly the
+definition of uniform continuity:
+\begin{displaymath}
+  \forall \epsilon \mathord> 0. \exists \delta \mathord> 0. \forall x,x'. |x - x'| < \delta \Rightarrow |\tmSem{M}\ x - \tmSem{M}\ x'| < \epsilon
+\end{displaymath}
+This definition differs from the $\epsilon$-$\delta$ definition of
+(regular) continuity by the order of quantification:
   %For continuity, 
-  there, $\forall x$ comes before $\exists \delta$, so 
-  the distance 
-  $\delta$ may depend on %the value of 
-  $x$. We suspect that to
-  express standard continuity as a type would require some form of
-  type dependency. Chaudhuri, Gulwani and Lublinerman
-  \cite{chaudhuri10continuity} have given a program logic based
-  approach to verifying the continuity of programs.
-\end{example}
+there, $\forall x$ comes before $\exists \delta$, so the distance
+$\delta$ may depend on %the value of
+$x$. We suspect that to express standard continuity as a type would
+require some form of type dependency. Chaudhuri, Gulwani and
+Lublinerman \cite{chaudhuri10continuity} have given a program logic
+based approach to verifying the continuity of programs.
 
 % \begin{example}[Differential Privacy]
 %   Relative error? Probability monads?

@@ -22,71 +22,56 @@ output. Information flow can be seen as a kind of invariance property
 of programs, and so our relational interpretation of types is well
 tailored to proving this kind of property.
 
-As was thoroughly described by Sabelfeld and Sands
-\cite{sabelfeld01per}, information flow can be captured semantically
-through the use of partial equivalence relations (PERs). Abadi,
-Banerjee, Heintze and Riecke \cite{abadi99core} built a \emph{Core
-  Calculus for Dependency}, using a type system based around a
-security level indexed monad $T_lA$, using PERs to prove the
+As described by Sabelfeld and Sands \cite{sabelfeld01per}, information
+flow can be captured semantically by partial equivalence relations
+(PERs). Abadi, Banerjee, Heintze and Riecke \cite{abadi99core} built a
+\emph{Core Calculus for Dependency}, using a type system based around
+a security level indexed monad $T_lA$, using PERs to prove the
 information flow properties. Tse and Zdancewic \cite{tse04translating}
-showed that it is possible to translate Abadi et al.'s calculus into
-System F, translating the monadic type $T_lA$ to $\alpha_l \to A$ for
-some free type variable $\alpha_l$, and making direct use of Reynolds'
-abstraction theorem to prove information flow properties. For example,
-if we use the type variable $\alpha_H$ to represent high-level
-information, then the non-interference property of the function $f$
-above could be expressed by the following System F type:
-\begin{displaymath}
-  A \to (\alpha_H \to B) \to C
-\end{displaymath}
-If a program cannot generate a value of type $\alpha_H$, then it
-cannot access the value of $B$, and hence is insensitive to the actual
-value. Relationships between security levels are captured by
-postulating functions $\alpha_{l_1} \to \alpha_{l_2}$ whenever $l_1$
-is a lower security level than $l_2$.
+translated Abadi et al.'s calculus into System F, translating the
+monadic type $T_lA$ to $\alpha_l \to A$ for some free type variable
+$\alpha_l$, and using Reynolds' abstraction theorem to prove
+information flow properties. For example, if the type variable
+$\alpha_H$ represents high-level information, then the
+non-interference property of the function $f$ could be expressed by
+the System F type $A \to (\alpha_H \to B) \to C$. If a program cannot
+generate a value of type $\alpha_H$, then it cannot access the value
+of $B$, and hence is insensitive to the actual value. Relationships
+between security levels are captured by postulating functions
+$\alpha_{l_1} \to \alpha_{l_2}$ whenever $l_1$ is a lower security
+level than $l_2$.
 
-By making use of algebraically indexed types, we are able to refine
-Tse and Zdancewic's translation by replacing the use of type variables
-$\alpha_l$ with a primitive type $\tyPrim{T}{e}$ of representations of
-the truth of a logical proposition $e$. The relationships between
-security levels are now replaced by logical entailment, with the
-consequence that we only have functions of type $\tyPrim{T}{e_1} \to
-\tyPrim{T}{e_2}$ when $e_1$ entails $e_2$. Inspired by the PER
-interpretation of information flow mentioned above, we instantiate our
-general relational framework to interpret $\tyPrimNm{T}{e}$ as the
-identity relation when $e$ is true, and the empty relation when $e$ is
-false. In doing so, we can recover the information flow properties of
-Abadi et al. and Tse and Zdancewic.
+Using algebraically indexed types, we refine Tse and Zdancewic's
+translation by replacing each type variable $\alpha_l$ with a
+primitive type $\tyPrim{T}{e}$ of representations of the truth of a
+logical proposition $e$. The relationships between security levels are
+now replaced by logical entailment, so we only have functions of type
+$\tyPrim{T}{\phi} \to \tyPrim{T}{\psi}$ when $\phi$ entails
+$\psi$. Inspired by the PER interpretation of information flow, we
+instantiate our general relational framework to interpret
+$\tyPrimNm{T}{e}$ as the identity relation when $e$ is true, and the
+empty relation when $e$ is false. In doing so, we can recover the
+information flow properties of Abadi et al. and Tse and Zdancewic.
 
 \paragraph{Instantiation of the General Framework}
-For this instantiation of our framework, we assume a single indexing
-sort $\mathsf{prop}$. For now, we assume that this sort supports
-meet-semilattice structure: we have a binary operation $\land$ and a
-constant $\top$, where $\land$ is commutative, associative and has
-$\top$ as a unit, and $\land$ is idempotent: so $p \land p =
-p$. Recall that we can define a partial order structure on any
-meet-semilattice by setting $p \leq q$ when $p = p \land q$. We take
-an arbitrary meet-semilattive $L$ for our chosen model.
+We assume a single indexing sort $\mathsf{prop}$ and assume the
+operations and equations of boolean algebra. Thus we have constants
+$\top$, $\bot$ and binary operators $\land$, $\lor$ with the axioms of
+a bounded lattice, and a unary complementation operator $\lnot$. We
+will use $\phi, \psi$ to stand for index expressions of sort
+$\mathsf{prop}$. We use an equational presentation to fit with our
+general framework, but note that we can define an order on index
+expressions as $\phi \leq \psi$ when $\phi = \phi \land \psi$.
 
-% Below, we will consider additional structure on the sort
-% $\mathsf{prop}$ and the model $L$ 
-
-We assume a single primitive type $\tyPrimNm{T}$, with
+We have a single primitive type $\tyPrimNm{T}$, with
 $\primTyArity(\tyPrimNm{T}) = [\mathsf{prop}]$ and index-erasure
 semantics $\tyPrimSem{\tyPrimNm{X}} = \{ * \}$. Thus values of type
-$\tyPrimNm{T}{e}$ have no real run-time content; their meaning is
+$\tyPrim{T}{\phi}$ have no run-time content; their only meaning is
 given by the relational semantics. For the relational environments
-$\relEnv{E}_\infoflow$, we use the general construction in
-\autoref{sec:constr-rel-env}, with our chosen model $L$ and the
-following relational interpretations:
-\begin{displaymath}
-  \begin{array}{l@{\hspace{2em}}l}
-    R^\bullet_{\tyPrimNm{T}} = \emptyset &
-    R_{\tyPrimNm{T}}(e) = \{ (*,*) \sepbar e = \top \}
-  \end{array}
-\end{displaymath}
-The primitive operations $\Gamma_\infoflow$ for this instantiation
-reflect the meet-semilattice structure of the indexes:
+$\relEnv{E}_\infoflow$, we use the compositional construction in
+\autoref{sec:constr-rel-env}, with an arbitrary boolean algebra $L$
+and $R_{\tyPrimNm{T}}(x) = \{ (*,*) \sepbar x = \top \}$.  The
+primitive operations $\Gamma_\infoflow$ reflect logical consequence:
 \begin{displaymath}
   \begin{array}{l}
   \begin{array}{@{}c@{\hspace{2em}}c}
@@ -98,198 +83,68 @@ reflect the meet-semilattice structure of the indexes:
 \end{displaymath}
 The combination of the \TirName{TyEq} rule and the primitive
 $\mathrm{up}$ operation allow for logical entailment to be reflected
-in programs. Each of the primitive operations has a trivial
-interpretation, due the index-erasure interpretation of
-$\tyPrim{T}{e}$ as a one-element set, giving an environment
-$\eta_\infoflow \in \ctxtSem{\Gamma}$. Less trivially, we have this
-lemma:
+in programs: if we have $\phi \leq \psi$ and $M : \tyPrim{T}{\phi}$
+then $\mathrm{up}\ M : \tyPrim{T}{\psi}$. Each of the primitive
+operations has a trivial interpretation, due the index-erasure
+interpretation of $\tyPrim{T}{\phi}$ as a one-element set, giving an
+environment $\eta_\infoflow \in \ctxtSem{\Gamma}$. Less trivially, we
+have this lemma:
 \begin{lemma}\label{lem:environments-information-flow}
   For all $\Delta$ and $\rho \in \relEnv{E}_\infoflow$, $(\eta_\infoflow, \eta_\infoflow) \in \rsem{\Gamma_\infoflow}{\relEnv{E}_\infoflow}{\rho}$.
 \end{lemma}
 
-It is also possible to think of more complicated logics, as long as
-they include 
+\paragraph{Information Flow} We think of logical expressions as
+``composite principals''. That is, propositional variables represent
+atomic principals that are combined using the logical connectives. We
+interpret ``truth'' for principals as stating that a principal is true
+when satisfied with the current state of affairs. Thus a relationship
+$\phi \leq \psi$ indicates that satisfaction of the composite
+principal $\phi$ implies satisfaction of the composite principal
+$\psi$. In terms of security levels, the ordering is reversed: if a
+high security principal is satisfied, then all of their underlings
+must also be satisfied.
+
+To study information flow, we adapt Tse and Zdancewic's translation of
+Abadi et al.'s monadic type to our setting. We define a type
+abbreviation $T_\phi A = \tyPrim{T}{\phi} \to A$, where $A$ is a type
+and $\phi$ is an expression of sort $\mathsf{prop}$. For every $\phi$,
+we can endow the types $T_\phi-$ with the structure of a monad. This
+is due to the fact that it is an instance of the ``environment'' (or
+``reader'') monad \cite{jones95functional}. We read the types
+$T_\phi A$ as data of type $A$ ``protected'' by the principal
+$\phi$.
+
+As a consequence of the relational interpretation given above, it
+follows that if we have an index expression $\phi$ that is interpreted
+as some value other than $\top$ in a relational environment $\rho$,
+then for all $x,x' \in \tySem{T_\phi\tyPrimNm{bool}}$, we have $(x,x')
+\in \rsem{T_\phi\tyPrimNm{bool}}{\relEnv{E}_\infoflow}{\rho}$. In
+terms of the reading above, if a principal is dissatisfied
+(i.e.,~$\phi \not= \top$), then data protected by this principal is
+indistinguishable from any other data. Thus a program cannot get
+access to the exact value. From this and \thmref{thm:abstraction}, we
+obtain the following information flow result:
 
 \begin{theorem}
-  Inexpressibility result
+  Let $\phi$ and $\psi$ be index expressions of sort $\mathsf{prop}$
+  in some indexing context $\Delta$, such that $\psi \not\leq
+  \phi$. Then for all programs
+  \begin{displaymath}
+    \Delta; \Gamma_\infoflow,\Gamma \vdash M : T_\phi\tyPrimNm{bool} \to T_\psi\tyPrimNm{bool}
+  \end{displaymath}
+  and all terms $N_1,N_2$ of type $T_\phi\tyPrimNm{bool}$, $M\ N_1
+  \stackrel{ctx}\approx M\ N_2$.  Thus there is no information flow
+  from $M$'s input to its output.
 \end{theorem}
+This result also holds if we move to logics other than boolean
+logic. For example, if our equational theory models intuitionistic
+logic by taking the axioms of Heyting algebras, then the same non-flow
+property for programs of type $T_{p\lor\lnot p}\tyPrimNm{bool} \to
+T_\top\tyPrimNm{bool}$ holds, due to the lack of excluded middle. If
+we take linear logic, then programs of type $T_{p\otimes
+  p}\tyPrimNm{bool} \to T_p\tyPrimNm{bool}$ have no information flow
+from their input, due to non-provability of $p \vdash p \otimes p$.
 
-\paragraph{Application to Information Flow}
-We now think of logical expressions as ``composite principals''. That
-is, propositional variables represent various principals that are
-combined using the logical connectives. We interpret ``truth'' for
-principals as stating that that principal is satisfied with the
-current state of affairs, and that 
-
-
-We adapt Tse and
-Zdancewic's translation of Abadi et al.'s monadic type to our
-setting. We define a type synonym, for each type $A$ and expression
-$e$ of sort $\mathsf{principal}$:
-\begin{displaymath}
-  T_eA = \tyPrim{T}{e} \to A
-\end{displaymath}
-For every principal $e$, we can endow the types $T_e-$ with the
-structure of a monad. This is due to the fact that it is an instance
-of the ``environment'' (or ``reader'') monad \cite{jones95functional}.
-
-For any extension of the logical theory...
-
-
-\begin{example}
-  Different notions of entailment lead to different notions of
-  non-interference.
-\end{example}
-
-\begin{theorem}
-  Type non-inhabitation result
-\end{theorem}
-
-\begin{theorem}
-  Type isomorphism theorem, making sure to emphasi
-\end{theorem}
-
-
-
-% In the previous two sections, we looked at algebraically-indexed types
-% whose relational interpretations used functional relations, with the
-% consequence that the derived free theorems express invariance
-% properties. 
-
-% In this section we examine a type 
-
-% We now look at another application of algebraically indexed types that
-% does not involve the kinds of functional relationships between values
-% that we have looked at the previous two sections. Rather, we use the
-% relational interpretation to restrict the elements of types 
-
-% \begin{enumerate}
-% \item Make sure the logic is at least a meet semi-lattice. We have a
-%   single indexing sort $\mathsf{prn}$. There is a binary operation
-%   $\land$ which is associative and commutative and has unit $\top$,
-%   and also the binary operation is idempotent: $p \land p = p$.
-% \item Have a single primitive type $\tyPrimNm{T}$, with
-%   $\primTyArity(\tyPrimNm{T}) = [\mathsf{prn}]$. The index-erasure
-%   semantics of this type interprets it simply as 
-% \end{enumerate}
-
-% \begin{enumerate}
-% \item Also makes use of the relational aspect, the previous stuff
-%   could make do with unary logical predicates as the interpretations
-%   of types, but the information flow properties make use of the
-%   relational interpretation.
-% \item Can also obtain a type non-inhabitation result based on logical
-%   derivability
-% \end{enumerate}
-
-% \fixme{
-%   \begin{enumerate}
-%   \item Make the definition of control of information flow clearer
-%   \item Make the example a bit more compelling
-%   \item Put in some examples of composite principals formed from
-%     boolean logic, and the use of boolean algebra to do reasoning in
-%     the types. List the laws of boolean algebra, and the laws of
-%     Heyting algebra. Need to explain the difference between 
-%   \item Possibly use singleton types to be able to do more interesting
-%     security policies?
-%   \item Put in the formal statement of the information flow property
-%     and the proof.
-%   \end{enumerate}
-% }
-
-% An extreme example of invariance under change of representation is the
-% tracking of information flow through programs. If a program does not
-% depend upon a particular piece of information, then it will be
-% invariant under \emph{all} changes of representation of this
-% information. As thoroughly described by Sabelfeld and Sands
-% \cite{sabelfeld01per}, information flow can be captured semantically
-% through the use of partial equivalence relations (PERs). Interpreting
-% types as PERs forms an instance of Reynolds' approach to abstraction
-% and representation independence. Abadi, Banerjee, Heintze and Riecke
-% \cite{abadi99core} built a \emph{Core Calculus for Dependency}, using
-% a type system based around a security level indexed monad $T_lA$. Tse
-% and Zdancewic \cite{tse04translating} showed that it is possible to
-% translate Abadi et al.'s calculus into System F, translating the
-% monadic type $T_lA$ to $\alpha_l \to A$ for some free type variable
-% $\alpha_l$, and making direct use of Reynolds' abstraction theorem to
-% prove information flow properties. We now show how a refined variant
-% of Tse and Zdancewic's translation can be expressed via
-% algebraically-indexed types.
-
-% We assume a single indexing sort $\mathsf{principal}$, intended to
-% represent (possibly composite) principals in a system. Principals are
-% combined using the connectives of boolean logic ($\top$, $\bot$,
-% $\lor$, $\land$, $\lnot$). For the equational theory of principals, we
-% assume all the axioms of boolean algebra, and semantically we
-% interpret composite principals as boolean values: either true ($\top$)
-% or false ($\bot$). We introduce a single primitive type, indexed by
-% expressions of sort $\mathsf{principal}$, $\tyPrim{T}{e}$, with the
-% following interpretations:
-% \begin{displaymath}
-%   \begin{array}{l@{\hspace{0.5em}=\hspace{0.5em}}l}
-%     \tySem{\tyPrim{T}{e}} & \{*\} \\
-%     \rsem{\tyPrim{T}{e}}{}\rho & \left\{
-%       \begin{array}{ll}
-%         \{(*,*)\} & \textrm{if }\sem{e}\rho = \top \\
-%         \{\}      & \textrm{if }\sem{e}\rho = \bot
-%       \end{array}
-%       \right.
-%   \end{array}
-% \end{displaymath}
-% The relational interpretation of $\tyPrim{T}{e}$ forces this type to
-% only be inhabited when the boolean expression $e$ evaluates to true
-% under the environment $\rho$. To write programs, 
-
-
-% \begin{example}
-%   Suppose we have a program with the following type:
-%   \begin{displaymath}
-%     \forall p,q\mathord:\mathsf{principal}. \tyPrim{T}{e} \to T_p(\tyPrimNm{unit} + \tyPrimNm{unit}) \to T_q(\tyPrimNm{unit} + \tyPrimNm{unit})
-%   \end{displaymath}
-%   where $e$ is some boolean algebra expression involving $p$ and
-%   $q$. We will show in \autoref{sec:instantiations} that programs with
-%   this type are non-constant (i.e.~depend on their input) if and only
-%   if the formula $e \Rightarrow q \Rightarrow p$ is valid in boolean
-%   logic.
-% \end{example}
-
-% \begin{enumerate}
-% \item Treat the information flow thing as a type isomorphism, in the
-%   same way that Tse and Zdancewic do
-%   \begin{displaymath}
-%     \begin{array}{l}
-%     \forall \vec{p}\mathord:\mathsf{principal}.\ T_{e_1}\tyPrimNm{bool} \to T_{e_2}\tyPrimNm{bool}\\
-%     \hspace{4em}\cong \\
-%     \left\{
-%       \begin{array}{ll}
-%         \tyPrimNm{bool} \tyArr \tyPrimNm{bool} & \textrm{if }e_2 \vdash e_1 \\
-%         \tyPrimNm{bool} & \textrm{if }e_2 \not\vdash e_1
-%       \end{array}
-%     \right.
-%   \end{array}
-%   \end{displaymath}
-%   where $\tyPrimNm{bool} = \tyUnit + \tyUnit$.
-% \item mention the issue with bogus tokens if we allow for a
-%   call-by-name style of non-termination
-% \item if we axiomatise intuitionistic logic instead of
-%   boolean/classical logic, we get a different type isomorphism.
-% \item The isomorphism relies upon $e_1 \vdash e_2 \Leftrightarrow e_1
-%   \lor e_2 = e_1$.
-% \item Relevant logic? Look at the Wikipedia page to see how to do
-%   residuated (commutative) monoids on lattices with just
-%   equations. With this, we will be able to do substructural logics
-%   too. As long as we know that a particular axiomatisation is sound
-%   and complete for some reasoning system, then we can state and prove
-%   the non-interference isomorphism above.
-% \item Compare to Tse and Zdancewic's addition of axioms to the logic.
-% \item Internalising equality? The logical structure can then be used
-%   on types as well as everything else. Need the special rules for
-%   equality... (see the Fomega paper).
-% \end{enumerate}
-
-% Go a step further by considering equivalence relations on word32, and
-% their lattice structure. Link this to quantative information
-% flow. Will also need to include singleton types.
 
 %%% Local Variables:
 %%% TeX-master: "paper"
