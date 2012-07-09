@@ -296,8 +296,8 @@ follows: % typing and intended denotation:for
 \end{array}
 \end{displaymath}
 It can be verified by hand that %the intended denotation
-$\sem{\mathrm{affComb}}$ has the invariance property specified by its
-type. {\bf Vague. Say which invariance property.}
+$\sem{\mathrm{affComb}}$ is invariant under all changes of origin, as
+dictated by its type.
 % By defining the primitive function $\mathrm{affComb}$ to take a
 % single $\tyPrimNm{real}$ parameter $t$, we can easily ensure that we
 % are taking the affine combination of two representatives of points,
@@ -655,10 +655,10 @@ inspiration for the current work: Kennedy's interpretation of his
 units of measure type system via scaling invariance
 \cite{kennedy97relational}. Kennedy shows how interpreting types in
 terms of scaling invariance brings the techniques of dimensional
-analysis \fixme{ref} to bear on programming. The types of the real
-number arithmetic operations in \autoref{fig:real-ops} are exactly the
-types Kennedy assigns in his units of measure system, except for that
-of the absolute value operation. Semantically, our type indexes by
+analysis to bear on programming. The types of the real number
+arithmetic operations in \autoref{fig:real-ops} are exactly the types
+Kennedy assigns in his units of measure system, except for that of the
+absolute value operation. Semantically, our type indexes by
 %our assigned type is that, semantically, we are indexing by
 non-zero scaling factors, whereas Kennedy's indexes by strictly
 positive ones. We examine the typing of the absolute value operation
