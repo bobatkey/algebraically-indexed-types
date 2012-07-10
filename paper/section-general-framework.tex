@@ -647,6 +647,7 @@ $\{ (\mathrm{inl}\ x, \mathrm{inl}\ x') \sepbar (x,x') \in R \} \cup
 % composition of relational environments with simultaneous
 % substitutions.
 \begin{lemma}\label{lem:tyeqsubst-relational}
+\par
   \begin{enumerate}
   \item If $\Delta \vdash A \equiv B \isType$, then for all $\rho \in
     \relEnv{E}(\Delta)$, $\rsem{A}{\relEnv{E}}{\rho} =
@@ -674,7 +675,7 @@ We now present the rules for well-typed programs over the
 %collection of 
 types %we defined 
 in \autoref{sec:algebraically-indexed-types}. Each
-well-type program is assigned an index-erasure semantics, building on
+well-typed program is assigned an index-erasure semantics, building on
 the index-erasure semantics of types %we defined 
 in \autoref{sec:index-erasure-semantics}. Our main result
 (\thmref{thm:abstraction}) is that the index-erasure semantics of
@@ -904,7 +905,7 @@ equivalence is a sound approximation of contextual equivalence.
   \rsem{A}{\relEnv{E}_{\mathit{ops}}}\rho$.
 \end{definition}
 
-\begin{theorem}\label{thm:soundness}
+\begin{theorem}[Soundness]\label{thm:soundness}
   $\Delta; \Gamma_{\mathit{ops}}, \Gamma \vdash M_1 \stackrel{sem}\sim M_2 : A$ implies
   $\Delta; \Gamma_{\mathit{ops}}, \Gamma \vdash M_1 \stackrel{ctx}\approx M_2 : A$
 \end{theorem}
