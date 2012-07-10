@@ -137,8 +137,8 @@ type of vector addition:
 \tyPrim{vec}{0}
 \end{eqnarray*}
 \noindent
-\newcommand{\transup}[1]{\uparrow_{#1}}
-\newcommand{\transdn}[1]{\downarrow_{#1}}
+\newcommand{\transup}[1]{\mathord\uparrow_{#1}}
+\newcommand{\transdn}[1]{\mathord\downarrow_{#1}}
 The maps associated with this isomorphism are 
 $I = \lambda x. x\ [0]\ 0$ and $J = \lambda y. \Lambda t.\lambda v. \transup A (y)$,
 %\begin{eqnarray*}
@@ -150,11 +150,11 @@ where terms $\transdn A : A\to A[0/t]$ and $\transup A : A[0/t] \to A$ are defin
 \transdn{1} & = & \lambda x. x\\ 
 \transdn{A_1\times A_2} & = & \lambda p. (\transdn{A_1}(\pi_1 p),\transdn{A_2}(\pi_2 p))\\ 
 \transdn{A_1 + A_2} & = & \lambda x.
-\textrm{case}\ x\ \textrm{of}\ \textrm{inl}\ y.\textrm{inl}(\transdn{A_1}y)); \textrm{inr}\ y.\textrm{inr}(\transdn{A_2}y)\\ 
-\transdn{A_1\to A_2} & = & \lambda f. \lambda x. (\transdn{A_2} (f(\transup{A_1}(x))))\\ 
+\textrm{case}\ x\ \textrm{of}\ \textrm{inl}\ y.\textrm{inl}(\transdn{A_1}y); \textrm{inr}\ y.\textrm{inr}(\transdn{A_2}y)\\ 
+\transdn{A_1\to A_2} & = & \lambda f. \lambda x. \transdn{A_2} (f(\transup{A_1}x))\\ 
 \transdn{\tyPrim{vec}{e}} & = & \lambda x. x - kv\\ 
 \transup{\tyPrim{vec}{e}} & = & \lambda x. x + kv\\ & & \text{ if }e \equiv k t + e'\text{ for
-  some }k\in\setOfIntegers \text{ and }e'\text{ with }t\notin e'\\
+  some }k\in\setOfIntegers \text{ and }e'\text{ with }t\notin e'
 \end{eqnarray*}
 To show $I(J(y))$ is contextually equivalent to $y$ is an easy
 induction on $A$ using the fact that the vector $0$
@@ -261,12 +261,11 @@ We write $i^n$ for $n$-fold iteration of the group operation.
 The uninhabited type  $\forall t \mathord:
   \SynTransl{2}.\ \tyPrim{vec}{t + t} \to \tyPrim{vec}{t}$
 from \exref{ex:uninhabited-type} is an instance of this theorem.
-
-For types indexed by the scaling group $\SynGL{1}$ the situation is a little more complex, as
-the index-erasure interpretation of $\tyPrim{real}{s}$ is larger than the group $\GL{1}$, as it contains
-zero. We can show, nonetheless, that $\forall s \mathord:
-  \SynGL{1}.\ \tyPrim{real}{s \circ s} \to \tyPrim{real}{s}\cong 1$, reflecting 
-the fact that any term of this type must be the function $\lambda x.0$.
+For types indexed by the scaling group $\SynGL{1}$ the situation is more subtle, as
+the index-erasure interpretation of $\tyPrim{real}{s}$ is group $\GL{1}$ together with zero.
+We can show, nonetheless, that $\forall s \mathord:
+  \SynGL{1}.\ \tyPrim{real}{s \cdot s} \to \tyPrim{real}{s}\cong 1$, reflecting 
+the fact that any term of this type must be $\lambda x.0$.
 
 %\begin{proof}
 %  (If) The program $\Lambda i_1\dots i_m.\ \lambda g_1\dots g_n.\
