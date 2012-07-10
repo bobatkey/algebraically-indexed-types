@@ -139,23 +139,24 @@ type of vector addition:
 \noindent
 \newcommand{\transup}[1]{\mathord\uparrow_{#1}}
 \newcommand{\transdn}[1]{\mathord\downarrow_{#1}}
-The maps associated with this isomorphism are 
+The maps associated with the isomorphism are 
 $I = \lambda x. x\ [0]\ 0$ and $J = \lambda y. \Lambda t.\lambda v. \transup A (y)$,
 %\begin{eqnarray*}
 %I = \lambda x. x\ [0]\ 0 & \text{ and } &
 %J = \lambda y. \Lambda t.\ \lambda v. \trans A v t(y)
 %\end{eqnarray*}
 where terms $\transdn A : A\to A[0/t]$ and $\transup A : A[0/t] \to A$ are defined by induction over the syntax of $A$ (cases omitted for $\transup A$ have definition symmetric to $\transdn A$):
-\begin{eqnarray*}
-\transdn{1} & = & \lambda x. x\\ 
-\transdn{A_1\times A_2} & = & \lambda p. (\transdn{A_1}(\pi_1 p),\transdn{A_2}(\pi_2 p))\\ 
-\transdn{A_1 + A_2} & = & \lambda x.
+\begin{align*}
+\transdn{1} &= \lambda x. x \qquad
+\transdn{A_1\times A_2} = \lambda p. (\transdn{A_1}(\pi_1 p),\transdn{A_2}(\pi_2 p))\\ 
+\transdn{A_1 + A_2} &= \lambda x.
 \textrm{case}\ x\ \textrm{of}\ \textrm{inl}\ y.\textrm{inl}(\transdn{A_1}y); \textrm{inr}\ y.\textrm{inr}(\transdn{A_2}y)\\ 
-\transdn{A_1\to A_2} & = & \lambda f. \lambda x. \transdn{A_2} (f(\transup{A_1}x))\\ 
-\transdn{\tyPrim{vec}{e}} & = & \lambda x. x - kv\\ 
-\transup{\tyPrim{vec}{e}} & = & \lambda x. x + kv\\ & & \text{ if }e \equiv k t + e'\text{ for
+\transdn{A_1\to A_2} &= \lambda f. \lambda x. \transdn{A_2} (f(\transup{A_1}x))\\ 
+\transdn{\tyPrim{vec}{e}} &= \lambda x. x - kv \qquad
+\transup{\tyPrim{vec}{e}} = \lambda x. x + kv\\ 
+\text{ if }e & \equiv k t + e' \text{ for
   some }k\in\setOfIntegers \text{ and }e'\text{ with }t\notin e'
-\end{eqnarray*}
+\end{align*}
 To show $I(J(y))$ is contextually equivalent to $y$ is an easy
 induction on $A$ using the fact that the vector $0$
 is an identity for vector addition. To show $J(I(x))$ is contextually
@@ -168,8 +169,8 @@ considered as relations are simply instances of $\rsem A{}{}$.
 %\]
 
 \paragraph{Scalings}
-Now consider the group $\GL{1}$ of scalings. This time, we can treat
-the real-valued argument to a function as a `unit of measure' with
+For the group $\GL{1}$ of scalings we can treat
+a real-valued argument to a function as a unit-of-measure with
 which to scale the result. 
 %The small fly in the ointment is that the
 Although the argument might be zero, and this cannot be used for scaling,
@@ -212,15 +213,11 @@ $\forall s\mathord:\SynGL{1}.\tyPrim{real}{s\cdot s}\cong 1$.
 For proving non-definability results, we
 consider the general case of a sort $\mathsf{G}$ with the equational theory of abelian groups.
 We assume a group-indexed primitive type $\tyPrimNm{G}$ and
-set of primitive operations typed by $\Gamma_\Grp$ that reflect the group structure at the value level:
-\begin{displaymath}
-  \begin{array}{r@{\hspace{0.5em}:\hspace{0.5em}}l}
-    1 & \tyPrim{G}{1} \\
-    (\cdot) & \forall a,b\mathord:\mathsf{G}.\ \tyPrim{G}{a} \to \tyPrim{G}{b} \to \tyPrim{G}{a\cdot b} \\
-    \ ^{-1} & \forall a\mathord:\mathsf{G}.\ \tyPrim{G}{a} \to \tyPrim{G}{a^{-1}}
-  \end{array}
-\end{displaymath}
-One instance is the sort $\SynTransl{2}$ with $0$, $(+)$ and $\mathrm{negate}$ operations.
+set of primitive operations typed by $\Gamma_\Grp$ that reflect the group structure at the value level,
+with identity $1:\tyPrim{G}{1}$, operation
+$(\cdot): \forall a,b\mathord:\mathsf{G}.\ \tyPrim{G}{a} \to \tyPrim{G}{b} \to \tyPrim{G}{a\cdot b}$
+and inverse $\ ^{-1}: \forall a\mathord:\mathsf{G}.\ \tyPrim{G}{a} \to \tyPrim{G}{a^{-1}}$.
+One instance is the sort~$\SynTransl{2}$ with $0$, $(+)$ and $\mathrm{negate}$ operations.
 
 For index-erasure interpretation, we assume a (not necessarily abelian) group $(G, 1, \cdot,
 \ ^{-1})$. Let $Z(G)$ be the centre of the $G$: i.e.,~the set of
