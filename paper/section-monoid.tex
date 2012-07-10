@@ -3,7 +3,7 @@
 
 \newcommand{\Mon}{\textit{Mon}}
 
-Above we investigated types indexed by abelian group expressions,
+Above, we investigated types indexed by abelian group expressions,
 whose elements are taken from some group. We now switch from abelian
 groups to commutative monoids.  Our main example is strings indexed by
 ``taint'' markers: when strings are appended their taint markers are
@@ -31,7 +31,7 @@ a,b\mathord:\mathsf{M}.\ \tyPrim{M}{a} \to \tyPrim{M}{b} \to
 $M$, giving an environment $\eta_\Mon \in \ctxtSem{\Gamma_\Mon}$.
 
 For the relational environments, we use %make use of 
-the compositional
+the model-based
 construction in \autoref{sec:constr-rel-env}, setting the chosen model
 $\mathcal{M}$ to be the centre $Z(M)$ of $M$. % (recall that the
 %centre of a monoid is the set of all elements that commute with every
@@ -172,17 +172,17 @@ $b$.
 \begin{theorem}
   \label{thm:monoid-indefinability}
   Let $m$, $n$ be natural numbers. For all $n$-by-$m$-matrices of
-  natural numbers $A$ and $m$-by-$1$ matrices of natural numbers $b$,
-  there is a quantifier-free program $N$, with
+  natural numbers $A$ and $m$-by-$1$ matrices of natural numbers $\vec{b}$,
+  there is a quantifier-free program $N$, with:
   \begin{displaymath}
     i_1,\dots,i_m\mathord:\mathsf{M}; \Gamma_\Mon \vdash N : \tyPrim{M}{e_1} \to \dots \to \tyPrim{M}{e_n} \to \tyPrim{M}{e}
   \end{displaymath}
   where $e_j = i_1^{A_{j1}}\dots i_m^{A_{jm}}$ and $e = i_1^{b_1}\dots
-  i_m^{b_m}$ iff there is a solution $\vec{x} = (x_1,...,x_n)$ in the
-  natural numbers to $A x^\top = b$.
+  i_m^{b_m}$, iff there is a solution $\vec{x}$ in the
+  natural numbers to the equation $A \vec{x} = \vec{b}$.
 \end{theorem}
 
-The proof of this theorem uses the non-compositional relational
+The proof of this theorem uses the definability relational
 environments from \autoref{sec:constr-rel-env}, with
 $R^\bullet_{\tyPrimNm{M}} = \emptyset$. From the theorem we can see
 that it is impossible to write a program with the type

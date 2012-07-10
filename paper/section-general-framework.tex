@@ -144,7 +144,9 @@ for
 %constructing types of 
 the simply-typed $\lambda$-calculus with unit, sum and tuple types
 (rules \TirName{TyUnit}, \TirName{TyArr}, \TirName{TyTuple} and
-\TirName{TySum}). The rule \TirName{TyPrim} %allows us to 
+\TirName{TySum}). 
+We use $\tyPrimNm{bool}$ as an abbreviation for $\tyPrimNm{unit} + \tyPrimNm{unit}$.
+The rule \TirName{TyPrim} %allows us to 
 forms, from a primitive type $\tyPrimNm{X}$ and appropriately sorted
 index expressions $e_1,...,e_n$, the well-indexed type
 $\tyPrim{X}{e_1,...,e_n}$. The rule \TirName{TyForall} 
@@ -207,7 +209,7 @@ $\sigma^*(\indexOp{f}(e_1,...,e_n)) \isDefinedAs
 \indexOp{f}(\sigma^*e_1, ..., \sigma^*e_n)$.  %Similarly, 
 Given
 %a well-indexed type 
-$\Delta' \vdash A \isType$, we 
+$\Delta' \vdash A \isType$, 
 %can apply $\sigma$ to $A$ to produce a new well-indexed type 
 we have $\Delta \vdash \sigma^*A
 \isType$. The key clauses defining $\sigma^*A$ are for primitive types
@@ -246,7 +248,7 @@ and $\Delta' \vdash \sigma' \Rightarrow \Delta''$, where $\sigma' =
 Given a context $\Delta = i_1\mathord:s_1,...,i_n\mathord:s_n$, and a
 variable/sort pair $i\mathord:s$ such that $i$ does not appear in
 $\Delta$, we define the \emph{projection} simultaneous substitution
-$\pi_{i\mathord:s} : \Delta,i\mathord:s \Rightarrow \Delta$ as
+$\Delta, i\mathord:s \vdash \pi_{i\mathord:s} \Rightarrow \Delta$ as
 $\pi_{i\mathord:s} = (i_1,...,i_n)$. %The subscript on
 %$\pi_{i\mathord:s}$ is the variable/sort pair that is being discarded.
 
@@ -503,7 +505,7 @@ $\tyPrimNm{X}$:
 %\primTyArity(\tyPrimNm{X})$, if $\Delta \vdash \sigma \equiv \sigma'
 %\Rightarrow \primTyArity(\tyPrimNm{X})$, then $\rho\ \tyPrimNm{X}\
 %\sigma = \rho\ \tyPrimNm{X}\ \sigma'$.
-Relation environments must respect index expression equality: for
+Relational environments must respect index expression equality: for
 all $\tyPrimNm{X} \in \PrimTypeSet$,
 $\Delta \vdash \sigma \Rightarrow
 \primTyArity(\tyPrimNm{X})$, and $\Delta \vdash \sigma' \Rightarrow
@@ -511,7 +513,7 @@ $\Delta \vdash \sigma \Rightarrow
 \Rightarrow \primTyArity(\tyPrimNm{X})$, then $\rho\ \tyPrimNm{X}\
 \sigma = \rho\ \tyPrimNm{X}\ \sigma'$.
 %
-We write $\mathrm{RelEnv}(\Delta)$ for the set of all relation
+We write $\mathrm{RelEnv}(\Delta)$ for the set of all relational
 environments for a context $\Delta$. Given %a relational environment
 $\rho \in \mathrm{RelEnv}(\Delta)$ and %a simultaneous substitution
 $\Delta \vdash \sigma \Rightarrow \Delta'$, we can derive the composed
@@ -519,7 +521,7 @@ relational environment (with an abuse of notation) $\rho \circ \sigma
 \in \mathrm{RelEnv}(\Delta')$ as $(\rho \circ \sigma)\ \tyPrimNm{X}\
 \sigma' = \rho\ \tyPrimNm{X}\ (\sigma' \circ \sigma)$.
 
-As we stated above, index contexts $\Delta$ are interpreted as certain
+We interpret index contexts $\Delta$ as certain
 %sets of relation environments, i.e.,~
 subsets of $\mathrm{RelEnv}(\Delta)$. Depending on the primitive
 operations that we assume for our system, we may have different sets
@@ -602,7 +604,7 @@ substitution of index expressions (see
 % relational interpretation of universal quantification types behaves
 % correctly with respect to application of simultaneous substitution.
 %
-Given a relation environment $\rho \in \relEnv{E}(\Delta)$, %we define
+Given a relational environment $\rho \in \relEnv{E}(\Delta)$, %we define
 the set of extensions %$\extends{\rho}{i\mathord:s}$ 
 of $\rho$ by %an
 %additional index variable 
@@ -610,7 +612,7 @@ $i\mathord:s$ %to be
 is $\extends{\rho}{i\mathord:s} \isDefinedAs \{ \rho' \in
 \relEnv{E}(\Delta,i\mathord:s) \sepbar \rho' \circ \pi_{i\mathord:s} =
 \rho \}$. The set of extensions of a relational environment will be
-used in interpretating the universal and existential type formers.  We
+used in interpreting the universal and existential type formers.  We
 assign a relational interpretation to all well-indexed types $\Delta
 \vdash A \isType$ by induction on their derivations, parameterised by
 %relational environments 
@@ -678,7 +680,7 @@ in \autoref{sec:index-erasure-semantics}. Our main result
 (\thmref{thm:abstraction}) is that the index-erasure semantics of
 every well-typed program is related to itself in the relational
 interpretation of its type: this is the abstraction theorem for every
-calculus that instantiates our general framework.
+instantiation of our general framework.
 
 Well-typed programs are defined with respect to well-indexed typing
 contexts, which are in turn defined with respect to an index
@@ -797,7 +799,7 @@ $\ctxtSem{\epsilon} = \{*\}$ and $\ctxtSem{\Gamma, x : A} =
 \Gamma \vdash M : A$, we define the \emph{erasure interpretation} as a
 function $\tmSem{M} : \ctxtSem{\Gamma} \to \tySem{A}$ that completely
 ignores the indexing information. In light of
-\lemref{lem:tyeqsubst-erasure}, %we define this function is defined
+\lemref{lem:tyeqsubst-erasure}, we do this %we define this function is defined
 directly on the syntax of well-typed programs, rather than on typing
 derivations. The definition of $\tmSem{M}$ is completely standard,
 except for the clauses for universal and existential types:
@@ -815,7 +817,7 @@ except for the clauses for universal and existential types:
 
 We use our index-erasure semantics to define when a pair of programs
 are contextually equivalent with respect to syntactically defined
-applicative contexts.
+contexts, following Hofmann \cite{hofmann08correctness}.
 
 \begin{definition}\label{defn:ctxt-equiv}
   Let $\Gamma_{\mathit{ops}}$ be a typing context with no free index
@@ -828,10 +830,9 @@ applicative contexts.
   \emph{contextually equivalent} ($\Delta; \Gamma_{\mathit{ops}},
   \Gamma \vdash M_1 \stackrel{ctx}\approx M_2 : A$) if for all
   programs $-;\Gamma_{\mathit{ops}} \vdash T : (\forall \Delta. \Gamma
-  \to A) \to \tyPrimNm{unit} + \tyPrimNm{unit}$, it is the case that
-  $\tmSem{T\ (\Lambda \Delta. \lambda \Gamma. M_1)}\eta_{\mathit{ops}}
-  = \tmSem{T\ (\Lambda \Delta. \lambda
-    \Gamma. M_2)}\eta_{\mathit{ops}}$.
+  \to A) \to \tyPrimNm{bool}$, it is the case that $\tmSem{T\ (\Lambda
+    \Delta. \lambda \Gamma. M_1)}\eta_{\mathit{ops}} = \tmSem{T\
+    (\Lambda \Delta. \lambda \Gamma. M_2)}\eta_{\mathit{ops}}$.
 \end{definition}
 
 \paragraph{The Abstraction Theorem}
@@ -852,12 +853,12 @@ interpretation of contexts is defined by: % the following clauses: %, where
 % The relational interpretation of contexts inherits from the relational
 % interpretation of types the property of interpreting the application
 % of simultaneous substitutions as composition:
-\begin{lemma}\label{lem:ctxtsubst-rel}
-  If $\Delta' \vdash \Gamma \isCtxt$ and $\Delta \vdash \sigma
-  \Rightarrow \Delta'$, then for all $\rho \in \relEnv{E}(\Delta)$,
-  $\rsem{\sigma^*\Gamma}{\relEnv{E}}\rho =
-  \rsem{\Gamma}{\relEnv{E}}{(\rho \circ \sigma)}$.
-\end{lemma}
+% \begin{lemma}\label{lem:ctxtsubst-rel}
+%   If $\Delta' \vdash \Gamma \isCtxt$ and $\Delta \vdash \sigma
+%   \Rightarrow \Delta'$, then for all $\rho \in \relEnv{E}(\Delta)$,
+%   $\rsem{\sigma^*\Gamma}{\relEnv{E}}\rho =
+%   \rsem{\Gamma}{\relEnv{E}}{(\rho \circ \sigma)}$.
+% \end{lemma}
 
 \begin{theorem}[Abstraction]\label{thm:abstraction}
   Assume $\relEnv{E}$ is substitutive. If $\Delta; \Gamma \vdash M :
@@ -919,8 +920,8 @@ equivalence is a sound approximation of contextual equivalence.
 \newcommand{\semSort}[1]{\llbracket #1 \rrbracket^{\mathcal{S}}}
 \newcommand{\semIndexExp}[1]{\llbracket #1 \rrbracket^{\mathcal{I}}}
 
-We give two constructions of families of sets of relational
-environments that allow us to derive useful consequences of
+We give two constructions of families $\relEnv{E}$ of sets of
+relational environments that allow us to derive useful consequences of
 \thmref{thm:abstraction}. To satisfy the hypothesis of
 \thmref{thm:abstraction} we still need to prove, for each
 instantiation of our general framework, that the program-level
@@ -930,8 +931,8 @@ constructions. This is the content of Lemmas
 \ref{lem:monoid-ops-related}, \ref{lem:environments-information-flow}
 and \ref{lem:metric-environments}.
 
-\paragraph{Compositional Relational Environments}
-Our compositional relational environments are defined in terms of
+\paragraph{Model-based Relational Environments}
+Our model-based relational environments are defined in terms of
 models. To each sort $s \in \SortSet$ we assign a carrier set
 $\semSort{s}$. We extend this assignment to index contexts and other
 sequences of sorts (e.g., type arities) using the cartesian product of
@@ -963,7 +964,7 @@ R_{\tyPrimNm{X}}(\semIndexExp{e_1}_{\mathcal{M}}\delta, ...,
   The families $\relEnv{E}_{\mathcal{M},R}$ are substitutive.
 \end{theorem}
 
-\paragraph{Non-compositional Relational Environments}
+\paragraph{Definability Relational Environments}
 We now construct relational environments that can be used for
 non-definability results. To this end, consider the typing
 $t\mathord:\SynTransl{2}; \Gamma_{\Geom} \vdash M : \tyPrim{vec}{t +

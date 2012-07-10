@@ -28,7 +28,7 @@ flow can be captured semantically by partial equivalence relations
 \emph{Core Calculus for Dependency}, using a type system based around
 a security level indexed monad $T_lA$, using PERs to prove the
 information flow properties. Tse and Zdancewic \cite{tse04translating}
-translated Abadi et al.'s calculus into System F, translating the
+translated Abadi \emph{et al.}'s calculus into System F, translating the
 monadic type $T_lA$ to $\alpha_l \to A$ for some free type variable
 $\alpha_l$, and using Reynolds' abstraction theorem to prove
 information flow properties. For example, if the type variable
@@ -43,15 +43,16 @@ level than $l_2$.
 
 Using algebraic indexing, we refine Tse and Zdancewic's translation by
 replacing each type variable $\alpha_l$ with a primitive type
-$\tyPrim{T}{e}$ of representations of the truth of a logical
-proposition $e$. The relationships between security levels are now
+$\tyPrim{T}{\phi}$ of representations of the truth of a logical
+proposition $\phi$. The relationships between security levels are now
 replaced by logical entailment, so we only have functions of type
 $\tyPrim{T}{\phi} \to \tyPrim{T}{\psi}$ when $\phi$ entails
-$\psi$. %Inspired by the PER interpretation of information flow, 
+$\psi$. %Inspired by the PER interpretation of information flow,
 We instantiate our general relational framework to interpret
 $\tyPrim{T}{\phi}$ as the identity relation if $\phi$ is true and the
-empty relation if $\phi$ is false. This recovers the information flow
-properties of Abadi {\em et al.} and Tse and Zdancewic.
+empty relation if $\phi$ is false. We shall see that this recovers the
+information flow properties of Abadi {\em et al.} and Tse and
+Zdancewic.
 
 \paragraph{Instantiation of the General Framework}
 We assume a single indexing sort $\mathsf{prop}$ and assume the
@@ -69,7 +70,7 @@ $\primTyArity(\tyPrimNm{T}) = [\mathsf{prop}]$ and index-erasure
 semantics $\tyPrimSem{\tyPrimNm{X}} = \{ * \}$. Thus values of type
 $\tyPrim{T}{\phi}$ have no run-time content; their only meaning is
 given by the relational semantics. For the relational environments
-$\relEnv{E}_\infoflow$, we use the compositional construction in
+$\relEnv{E}_\infoflow$, we use the model-based construction in
 \autoref{sec:constr-rel-env}, with an arbitrary boolean algebra $L$
 and $R_{\tyPrimNm{T}}(x) = \{ (*,*) \sepbar x = \top \}$.  The
 primitive operations $\Gamma_\infoflow$ reflect logical consequence:
@@ -95,17 +96,17 @@ have this lemma:
 \end{lemma}
 
 \paragraph{Information Flow} We think of logical expressions as
-``composite principals''. That is, propositional variables represent
+``composite principals''. That is, propositional variables representing
 atomic principals that are combined using the logical connectives. We
 interpret ``truth'' for principals as stating that a principal is true
 when satisfied with the current state of affairs. Thus a relationship
 $\phi \leq \psi$ indicates that satisfaction of the composite
 principal $\phi$ implies satisfaction of the composite principal
 $\psi$. In terms of security levels, the ordering is reversed: if a
-high security principal is satisfied, then all of their underlings
+high security principal is satisfied, then all of their subordinates
 must also be satisfied.
 
-We adapt Tse and Zdancewic's translation of Abadi et al.'s monadic
+We adapt Tse and Zdancewic's translation of Abadi \emph{et al.}'s monadic
 type to our setting. We define a type abbreviation $T_\phi A =
 \tyPrim{T}{\phi} \to A$, where $A$ is a type and $\phi$ is an
 expression of sort $\mathsf{prop}$. For every $\phi$, we can endow the
@@ -121,7 +122,7 @@ then for all $x,x' \in \tySem{T_\phi\tyPrimNm{bool}}$, we have $(x,x')
 \in \rsem{T_\phi\tyPrimNm{bool}}{\relEnv{E}_\infoflow}{\rho}$. Thus if
 a principal is dissatisfied (i.e.,~$\phi \not= \top$), then data
 protected by this principal is indistinguishable from any other
-data. Thus a program cannot get access to the exact value. From this
+data, and a program cannot get access to the exact value. From this
 and \thmref{thm:abstraction}, we obtain the following information flow
 result:
 
@@ -136,7 +137,9 @@ result:
   \stackrel{ctx}\approx M\ N_2$.  Thus there is no information flow
   from $M$'s input to its output.
 \end{theorem}
-This result also holds if we move to logics other than boolean
+Note that if $\psi \leq \phi$, then it is always possible to write the
+identity function with this type, using the $\mathrm{up}$ operation.
+The theorem also holds if we move to logics other than boolean
 logic. For example, if our equational theory models intuitionistic
 logic by taking the axioms of Heyting algebras, then the same non-flow
 property for programs of type $T_{p\lor\lnot p}\tyPrimNm{bool} \to
