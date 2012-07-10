@@ -3,17 +3,16 @@
 We now instantiate our general framework %of the previous section 
 with
 the indexing theory of \autoref{sec:motivating-examples}, and present
-more general and formally-justified theorems for free, type
+more general and formally-justified free theorems, type
 isomorphisms, and non-definability results.
 
 %\begin{example}[Two-dimensional Geometry] 
 
-We define the ``standard'' model of the indexing theory for the
-two-dimensional geometry example as follows. Each of the sorts is
-interpreted just as its semantic counterpart: $\semSort{\SynTransl{2}}
-= \Transl{2}$, $ \semSort{\SynGL{2}} = \GL{2}$, $
-\semSort{\SynOrth{2}} = \Orth{2}$, and $ \semSort{\SynGL{1}} =
-\GL{1}$.
+We define the model of the indexing theory for the two-dimensional
+geometry instantiation as follows. Each of the sorts is interpreted just as
+its semantic counterpart: $\semSort{\SynTransl{2}} = \Transl{2}$, $
+\semSort{\SynGL{2}} = \GL{2}$, $ \semSort{\SynOrth{2}} = \Orth{2}$,
+and $ \semSort{\SynGL{1}} = \GL{1}$.
 %  \begin{displaymath}
 %    \begin{array}{@{}llll}
 %      \semSort{\SynTransl{2}} = \Transl{2}
@@ -25,34 +24,39 @@ interpreted just as its semantic counterpart: $\semSort{\SynTransl{2}}
 %      \semSort{\SynGL{1}} = \GL{1}
 %    \end{array}
 %  \end{displaymath}
-  Each of the index operations (e.g.,~the group structure and
-  determinant) is interpreted by the intended semantic operation, and
-  clearly satisfy the axioms in \exref{ex:two-dim-geo-axioms}. The
-  assignment of relations for the primitive types $\tyPrimNm{vec}$ and
-  $\tyPrimNm{real}$ is given by: % the following definitions:
-  \begin{displaymath}
-    \begin{array}{ll}
-      R^{\bullet}_{\tyPrimNm{vec}} = \{( \vec{0}, \vec{0} ) \}&
-      R_{\tyPrimNm{vec}}(B,\vec{t}) = \{ (\vec{v}, B\vec{v} + \vec{t}) \sepbar \vec{v} \in \mathbb{R}^2 \} \\
-      R^{\bullet}_{\tyPrimNm{real}} = \{(0,0)\} &
-      R_{\tyPrimNm{real}}(k) = \{ (x, kx) \sepbar x \in \mathbb{R} \}
-    \end{array}
-  \end{displaymath}
-  The definitions of $R_{\tyPrimNm{vec}}$ and $R_{\tyPrimNm{real}}$
-  %are as expected. % given the informal definitions we gave in
-formalise the informal ones from~\autoref{sec:motivating-examples}, and 
-  the definitions of %We have set
-  $R^\bullet_{\tyPrimNm{vec}}$ and $R^\bullet_{\tyPrimNm{real}}$ 
-  %to relate $\vec{0}$ and $0$ to themselves to 
-  account for the
-  polymorphic zero constants we have assumed.
+Each of the index operations (e.g.,~the group structure and
+determinant) is interpreted by the intended semantic operation, and
+clearly satisfy the axioms in \exref{ex:two-dim-geo-axioms}. For the
+relational interpretations of $\tyPrim{vec}{B,t}$ and
+$\tyPrim{real}{s}$, we use the compositional construction from
+\autoref{sec:constr-rel-env}, with $R_{\tyPrimNm{vec}}(B,\vec{t}) = \{
+(\vec{v}, B\vec{v} + \vec{t}) \sepbar \vec{v} \in \mathbb{R}^2 \}$ and
+$R_{\tyPrimNm{real}}(k) = \{ (x, kx) \sepbar x \in \mathbb{R} \}$. The
+types of the primitive vector operations presented in
+\autoref{sec:motivating-examples} are collected into a context
+$\Gamma_\Geom$ with a straightforward interpretation $\eta_\Geom \in
+\ctxtSem{\Gamma_\Geom}$.
+  % \begin{displaymath}
+  %   \begin{array}{l}
+  %     R_{\tyPrimNm{vec}}(B,\vec{t}) = \{ (\vec{v}, B\vec{v} + \vec{t}) \sepbar \vec{v} \in \mathbb{R}^2 \} \\
+  %     R_{\tyPrimNm{real}}(k) = \{ (x, kx) \sepbar x \in \mathbb{R} \}
+  %   \end{array}
+  % \end{displaymath}
+%   The definitions of $R_{\tyPrimNm{vec}}$ and $R_{\tyPrimNm{real}}$
+%   %are as expected. % given the informal definitions we gave in
+% formalise the informal ones from~\autoref{sec:motivating-examples}, and 
+%   the definitions of %We have set
+%   $R^\bullet_{\tyPrimNm{vec}}$ and $R^\bullet_{\tyPrimNm{real}}$ 
+%   %to relate $\vec{0}$ and $0$ to themselves to 
+%   account for the
+%   polymorphic zero constants we have assumed.
 %\end{example}
 
-%\begin{lemma}
-%  The thing about $\Gamma_\Geom$.
-%\end{lemma}
+\begin{lemma}\label{lem:geom-environments-1}
+  For all $\Delta$ and $\rho \in \relEnv{E}_\Geom(\Delta)$, $(\eta_\Geom,\eta_\Geom) \in \rsem{\Gamma_\Geom}{\relEnv{E}_\Geom}\rho$.
+\end{lemma}
 
-\subsection{Theorems for Free}
+\subsection{Free Theorems}
 \label{sec:theorems-for-free}
 
 Consider the type of the area %of a triangle 
@@ -125,7 +129,7 @@ polymorphic type whose first argument can be thought of as the
 \emph{origin} with respect to which $A$ is specified, and a
 \emph{coordinate-based} geometry, expressed by the type $A[0/t]$, in
 which the origin is fixed at $(0,0)$. It is sometimes said that an
-affine space is a vector space that's forgotten its origin; we have
+affine space is a vector space that has forgotten its origin; we have
 captured this in a type isomorphism.
 
 \exref{ex:type-iso} is a special case of this isomorphism; another instance is the
@@ -147,7 +151,7 @@ $I = \lambda x. x\ [0]\ 0$ and $J = \lambda y. \Lambda t.\lambda v. \transup A (
 %\end{eqnarray*}
 where terms $\transdn A : A\to A[0/t]$ and $\transup A : A[0/t] \to A$ are defined by induction over the syntax of $A$ (cases omitted for $\transup A$ have definition symmetric to $\transdn A$):
 \begin{align*}
-\transdn{1} &= \lambda x. x \qquad
+\transdn{\tyPrimNm{unit}} &= \lambda x. x \qquad
 \transdn{A_1\times A_2} = \lambda p. (\transdn{A_1}(\pi_1 p),\transdn{A_2}(\pi_2 p))\\ 
 \transdn{A_1 + A_2} &= \lambda x.
 \textrm{case}\ x\ \textrm{of}\ \textrm{inl}\ y.\textrm{inl}(\transdn{A_1}y); \textrm{inr}\ y.\textrm{inr}(\transdn{A_2}y)\\ 
@@ -207,64 +211,82 @@ $\forall s\mathord:\SynGL{1}.\tyPrim{real}{s\cdot s}\cong 1$.
 %   e.g. the type of $\mathrm{abs}$. Also, the complex numbers example.
 %\end{enumerate}
 
-\subsection{Indefinability}
+\subsection{Non-definability}
 \label{sec:types-indexed-abelian-groups-indef}
 
-\newcommand{\Grp}{\mathit{Grp}}
-For proving non-definability results, we
-consider the general case of a sort $\mathsf{G}$ with the equational theory of abelian groups.
-We assume a group-indexed primitive type $\tyPrimNm{G}$ and
-set of primitive operations typed by $\Gamma_\Grp$ that reflect the group structure at the value level,
-with identity $1:\tyPrim{G}{1}$, operation
-$(\cdot): \forall a,b\mathord:\mathsf{G}.\ \tyPrim{G}{a} \to \tyPrim{G}{b} \to \tyPrim{G}{a\cdot b}$
-and inverse $\ ^{-1}: \forall a\mathord:\mathsf{G}.\ \tyPrim{G}{a} \to \tyPrim{G}{a^{-1}}$.
-One instance is the sort~$\SynTransl{2}$ with $0$, $(+)$ and $\mathrm{negate}$ operations.
+\newcommand{\Grp}{\mathit{Gr}}
 
-For index-erasure interpretation, we assume a (not necessarily
-abelian) group $(G, 1, \cdot, \ ^{-1})$. Let $Z(G)$ be the centre of
-the $G$ %: i.e.,~the set of elements that commute with every other
-%element in $G$. We set 
-and $\tyPrimSem{G} = G$. The primitive operations
-in $\Gamma_\Grp$ are interpreted just as the unit, multiplication and
-inverse operations of $G$. For each index context $\Delta$, the set
-$\relEnv{E}_\Grp(\Delta)$ of relational environments is defined to be
-$\{ \rho_{(H,h)} \sepbar H\textrm{ is a subgroup of }(\Delta
-\Rightarrow \mathsf{G})/\equiv, h\textrm{ is a group homomorphism }H
-\to Z(G) \}$, where
-\begin{displaymath}
-  \rho_{(H,h)}\ \tyPrimNm{G}\ (e) = \left\{
-    \begin{array}{ll}
-      \{ \} & \textrm{if}\ e\not\in H \\
-      \{ (x, h(e)\oplus x) \sepbar x \in G \} & \textrm{if}\ e\in H
-    \end{array}
-  \right.
-\end{displaymath}
+For proving non-definability results, we consider the general case of
+a sort $\mathsf{G}$ with the equational theory of abelian groups.  We
+assume a group-indexed primitive type $\tyPrimNm{G}$ and set of
+primitive operations typed by $\Gamma_\Grp$ that reflect the group
+structure at the value level: identity $1:\tyPrim{G}{1}$, operation
+$(\cdot): \forall a,b\mathord:\mathsf{G}.\ \tyPrim{G}{a} \to
+\tyPrim{G}{b} \to \tyPrim{G}{a\cdot b}$ and inverse $\ ^{-1}: \forall
+a\mathord:\mathsf{G}.\ \tyPrim{G}{a} \to \tyPrim{G}{a^{-1}}$. For the
+index-erasure semantics, we assume some (not-necessarily abelian)
+group $G$ and $\tyPrimSem{\tyPrimNm{G}} = G$.  The interpretation
+$\eta_\Grp$ of the primitive operations in $\Gamma_\Grp$ is just the
+unit, multiplication and inverse operations of $G$. One instance is the
+sort~$\SynTransl{2}$ with $0$, $(+)$ and $\mathrm{negate}$ on
+$\tyPrim{vec}{t}$.
 
-\begin{lemma}
+We use the construction of non-compositional relational environments
+from \autoref{sec:constr-rel-env}, with $R^\bullet_{\tyPrimNm{G}} =
+\emptyset$, to give a pre-substitutive family $\relEnv{E}_\Grp$. This
+gives us the following lemma and theorem.
+
+\begin{lemma}\label{lem:geom-environments-2}
   For all $\Delta$ and $\rho \in \relEnv{E}_\Grp(\Delta)$,
-  $(\eta_\Grp,\eta_\Grp) \in \rsem{\Gamma_\Grp}{\relEnv{E}}\rho$.
+  $(\eta_\Grp,\eta_\Grp) \in \rsem{\Gamma_\Grp}{\relEnv{E}_\Grp}\rho$.
 \end{lemma}
+
+% For index-erasure interpretation, we assume a (not necessarily
+% abelian) group $(G, 1, \cdot, \ ^{-1})$. Let $Z(G)$ be the centre of
+% the $G$ %: i.e.,~the set of elements that commute with every other
+% %element in $G$. We set 
+% and $\tyPrimSem{G} = G$. For each index context $\Delta$, the set
+% $\relEnv{E}_\Grp(\Delta)$ of relational environments is defined to be
+% $\{ \rho_{(H,h)} \sepbar H\textrm{ is a subgroup of }(\Delta
+% \Rightarrow \mathsf{G})/\equiv, h\textrm{ is a group homomorphism }H
+% \to Z(G) \}$, where
+% \begin{displaymath}
+%   \rho_{(H,h)}\ \tyPrimNm{G}\ (e) = \left\{
+%     \begin{array}{ll}
+%       \{ \} & \textrm{if}\ e\not\in H \\
+%       \{ (x, h(e)\oplus x) \sepbar x \in G \} & \textrm{if}\ e\in H
+%     \end{array}
+%   \right.
+% \end{displaymath}
+
 
 Writing $i^n$ for $n$-fold iteration of the group operation, we have:
 \begin{theorem}
   Let $m$ and $n$ be natural numbers. For all $n$-by-$m$-matrices of
   natural numbers $A$ and $m$-by-$1$ matricies of integers $b$,
-  there exists a program $M$ such that
-  \begin{equation}
-    \label{eq:fo-group-type}
-    \Gamma_\Grp \vdash M : \forall i_1,\dots,i_m\mathord:\mathsf{G}.\ \tyPrim{G}{e_1} \to \dots \to \tyPrim{G}{e_n} \to \tyPrim{G}{e}
-  \end{equation}
-  where $e_j = i_1^{A_{j1}}\cdots i_m^{A_{jm}}$ and $e = i_1^{b_1}\cdots i_m^{b_m}$, if and only if there is a solution $\vec{x}$
-  in integers to the equation $A \vec x = b$.
+  there exists a quantifier-free program $M$ such that
+  \begin{displaymath}
+    i_1,\dots,i_m\mathord:\mathsf{G}; \Gamma_\Grp \vdash M : \tyPrim{G}{e_1} \to \dots \to \tyPrim{G}{e_n} \to \tyPrim{G}{e}
+  \end{displaymath}
+  where $e_j = i_1^{A_{j1}}\cdots i_m^{A_{jm}}$ and $e = i_1^{b_1}\cdots i_m^{b_m}$, iff there is a solution $\vec{x}$
+  in the integers to the equation $A \vec x = b$.
 \end{theorem}
-The uninhabited type  $\forall t \mathord:
-  \SynTransl{2}.\ \tyPrim{vec}{t + t} \to \tyPrim{vec}{t}$
-from \exref{ex:uninhabited-type} is an instance of this theorem.
-For types indexed by the scaling group $\SynGL{1}$ the situation is more subtle, as
-the index-erasure interpretation of $\tyPrim{real}{s}$ is group $\GL{1}$ together with zero.
-We can show, nonetheless, that $\forall s \mathord:
-  \SynGL{1}.\ \tyPrim{real}{s \cdot s} \to \tyPrim{real}{s}\cong 1$, reflecting 
-the fact that any term of this type must be $\lambda x.0$.
+The uninhabited type $\forall t \mathord: \SynTransl{2}.\
+\tyPrim{vec}{t + t} \to \tyPrim{vec}{t}$ from
+\exref{ex:uninhabited-type} is an instance of this theorem.  For types
+indexed by the scaling group $\SynGL{1}$ the situation is more subtle,
+as we have assumed that the type $\tyPrim{real}{s}$ has a polymorphic zero
+(see \autoref{fig:real-ops}). We can show, nonetheless, that $\forall
+s \mathord: \SynGL{1}.\ \tyPrim{real}{s^2} \to \tyPrim{real}{s}$ is
+only inhabited by the constantly zero function by setting
+$R^\bullet_{\tyPrimNm{real}} = \{(0,0)\}$. If we augment our sort
+$\SynGL{1}$ with a square root operation $s^{1/2}$, then it is
+possible to add a primitive square root function and still be able to
+prove that the cube root type $\forall s \mathord: \SynGL{1}.\
+\tyPrim{real}{s^3} \to \tyPrim{real}{s}$ is only inhabited by the
+constantly zero function. This is a consequence of the impossibility
+of generating $s$ from $s^3$ with only the abelian group operations
+and square root.
 
 %\begin{proof}
 %  (If) The program $\Lambda i_1\dots i_m.\ \lambda g_1\dots g_n.\
