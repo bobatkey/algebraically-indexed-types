@@ -170,10 +170,10 @@ $\tyPrim{real}\alpha$ is interpreted not as a unit of measure, but as
 a measure of \emph{closeness}, two values $x$ and $y$ of this type are
 related if $|x-y| < \rho(\alpha)$ for a positive real number
 $\rho(\alpha)$.  Rather beautifully, the standard notion of uniform
-continuity can then be expressed as a type:
-\begin{displaymath}
-  \forall \epsilon \mathord: \mathsf{R}^{>0}.\ \exists \delta\mathord: \mathsf{R}^{>0}.\ \tyPrim{real}{\delta} \to \tyPrim{real}{\epsilon}
-\end{displaymath}
+continuity can then be expressed as %a type:
+%\begin{displaymath}
+ $ \forall \epsilon \mathord: \mathsf{R}^{>0}.\ \exists \delta\mathord: \mathsf{R}^{>0}.\ \tyPrim{real}{\delta} \to \tyPrim{real}{\epsilon}$.
+%\end{displaymath}
 
 
 % Possible angles of attack:
@@ -231,7 +231,7 @@ results, and derive interesting type isomorphisms.
 \end{itemize}
 We have fully formalised our framework and Abstraction Theorem in Coq,
 using strongly-typed term representations
-throughout~\cite{TypedSyntax}, available from
+throughout~\cite{TypedSyntax}. The formalisation is available from
 \\{\small \url{https://github.com/bobatkey/algebraically-indexed-types}}
 
 

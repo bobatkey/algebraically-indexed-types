@@ -208,26 +208,32 @@ $\forall s\mathord:\SynGL{1}.\tyPrim{real}{s\cdot s}\cong 1$.
 
 \subsection{Indefinability}
 \label{sec:types-indexed-abelian-groups-indef}
-\newcommand{\Grp}{\mathit{Grp}}
-For proving non-definability results, we
-consider the general case of a sort $\mathsf{G}$ with the equational theory of abelian groups.
-We assume a group-indexed primitive type $\tyPrimNm{G}$ and
-set of primitive operations typed by $\Gamma_\Grp$ that reflect the group structure at the value level:
-\begin{displaymath}
-  \begin{array}{r@{\hspace{0.5em}:\hspace{0.5em}}l}
-    1 & \tyPrim{G}{1} \\
-    (\cdot) & \forall a,b\mathord:\mathsf{G}.\ \tyPrim{G}{a} \to \tyPrim{G}{b} \to \tyPrim{G}{a\cdot b} \\
-    \ ^{-1} & \forall a\mathord:\mathsf{G}.\ \tyPrim{G}{a} \to \tyPrim{G}{a^{-1}}
-  \end{array}
-\end{displaymath}
-One instance is the sort $\SynTransl{2}$ with $0$, $(+)$ and $\mathrm{negate}$ operations.
+\newcommand{\Grp}{\mathit{Grp}} To prove non-definability results,
+consider %the general case of 
+a sort $\mathsf{G}$ with the equational
+theory of abelian groups.  We assume a group-indexed primitive type
+$\tyPrimNm{G}$ and set of primitive operations typed by $\Gamma_\Grp$
+that reflect the group structure at the value level, namely $1 :
+\tyPrim{G}{1}$, $ (\cdot) : \forall
+a,b\mathord:\mathsf{G}.\ \tyPrim{G}{a} \to \tyPrim{G}{b} \to
+\tyPrim{G}{a\cdot b}$, and $\ ^{-1} : \forall
+a\mathord:\mathsf{G}.\ \tyPrim{G}{a} \to \tyPrim{G}{a^{-1}}$.
+%\begin{displaymath} \begin{array}{r@{\hspace{0.5em}:\hspace{0.5em}}l}
+%  1 & \tyPrim{G}{1} \\ (\cdot) & \forall
+%  a,b\mathord:\mathsf{G}.\ \tyPrim{G}{a} \to \tyPrim{G}{b} \to
+%  \ty%Prim{G}{a\cdot b} \\ \ ^{-1} & \forall
+%  a\mathord:\mathsf{G}.\ \tyPrim{G}{a} \to
+%  \tyPrim{G}{a^{-1}} \end{array} \end{displaymath}
+One instance is the sort $\SynTransl{2}$ with $0$, $(+)$ and
+$\mathrm{negate}$ operations.
 
-For index-erasure interpretation, we assume a (not necessarily abelian) group $(G, 1, \cdot,
-\ ^{-1})$. Let $Z(G)$ be the centre of the $G$: i.e.,~the set of
-elements that commute with every other element in $G$. We set
-$\tyPrimSem{G} = G$. The primitive operations in $\Gamma_\Grp$ are
-interpreted just as the unit, multiplication and inverse operations
-of $G$. For each index context $\Delta$, the set
+For index-erasure interpretation, we assume a (not necessarily
+abelian) group $(G, 1, \cdot, \ ^{-1})$. Let $Z(G)$ be the centre of
+the $G$ %: i.e.,~the set of elements that commute with every other
+%element in $G$. We set 
+and $\tyPrimSem{G} = G$. The primitive operations
+in $\Gamma_\Grp$ are interpreted just as the unit, multiplication and
+inverse operations of $G$. For each index context $\Delta$, the set
 $\relEnv{E}_\Grp(\Delta)$ of relational environments is defined to be
 $\{ \rho_{(H,h)} \sepbar H\textrm{ is a subgroup of }(\Delta
 \Rightarrow \mathsf{G})/\equiv, h\textrm{ is a group homomorphism }H
@@ -246,7 +252,7 @@ $\{ \rho_{(H,h)} \sepbar H\textrm{ is a subgroup of }(\Delta
   $(\eta_\Grp,\eta_\Grp) \in \rsem{\Gamma_\Grp}{\relEnv{E}}\rho$.
 \end{lemma}
 
-We write $i^n$ for $n$-fold iteration of the group operation.
+Writing $i^n$ for $n$-fold iteration of the group operation, we have:
 \begin{theorem}
   Let $m$ and $n$ be natural numbers. For all $n$-by-$m$-matrices of
   natural numbers $A$ and $m$-by-$1$ matricies of integers $b$,

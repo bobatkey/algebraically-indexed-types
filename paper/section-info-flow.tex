@@ -47,11 +47,11 @@ $\tyPrim{T}{e}$ of representations of the truth of a logical
 proposition $e$. The relationships between security levels are now
 replaced by logical entailment, so we only have functions of type
 $\tyPrim{T}{\phi} \to \tyPrim{T}{\psi}$ when $\phi$ entails
-$\psi$. Inspired by the PER interpretation of information flow, we
-instantiate our general relational framework to interpret
-$\tyPrim{T}{\phi}$ as the identity relation when $\phi$ is true, and
-the empty relation when $\phi$ is false. By doing so, we recover the
-information flow properties of Abadi et al. and Tse and Zdancewic.
+$\psi$. %Inspired by the PER interpretation of information flow, 
+We instantiate our general relational framework to interpret
+$\tyPrim{T}{\phi}$ as the identity relation if $\phi$ is true and the
+empty relation if $\phi$ is false. This recovers the information flow
+properties of Abadi {\em et al.} and Tse and Zdancewic.
 
 \paragraph{Instantiation of the General Framework}
 We assume a single indexing sort $\mathsf{prop}$ and assume the

@@ -81,14 +81,16 @@ $\tyPrimNm{real}$ with $R_{\tyPrimNm{real}}(\epsilon) = \{ (x,x')
   %By making use of 
 Using %the
 existential types, % in our framework,
-we can state the standard $\epsilon$-$\delta$ definition of
-\emph{uniform} continuity as a type:
-\begin{displaymath}
-  \forall \epsilon \mathord: \metricSort.\ \exists \delta\mathord: \metricSort.\ \tyPrim{real}{\delta} \to \tyPrim{real}{\epsilon}
-\end{displaymath}
-Given a program $M$ with this type, we obtain from
-\thmref{thm:abstraction} a free theorem, which is exactly the
-definition of uniform continuity:
+%we can state 
+the standard $\epsilon$-$\delta$ definition of
+\emph{uniform} continuity can be expressed as %a type:
+%\begin{displaymath}
+$  \forall \epsilon \mathord: \metricSort.\ \exists \delta\mathord: \metricSort.\\ \tyPrim{real}{\delta} \to \tyPrim{real}{\epsilon}$.
+%\end{displaymath}
+For any program $M$ of this type, %we obtain from
+\thmref{thm:abstraction} gives a free theorem that is exactly 
+%the definition of 
+uniform continuity:
 \begin{displaymath}
   \forall \epsilon \mathord> 0. \exists \delta \mathord> 0. \forall x,x'. |x - x'| < \delta \Rightarrow |\tmSem{M}\ x - \tmSem{M}\ x'| < \epsilon
 \end{displaymath}
