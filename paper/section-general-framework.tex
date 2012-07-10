@@ -36,7 +36,7 @@ framework are derived from the following data:
   group structure on $\SynGL{1}$, $\SynGL{2}$, and $\SynOrth{2}$,
   injections from $\SynOrth{2}$ and $\SynGL{1}$ into $\SynGL{2}$,
   determinant, and absolute value. Thus, $\IndexOpSet = \{ 0, +, -,
-  1_G, -\cdot_G-, -^{-1_G}, \iota_O, \iota_1, \det, |\cdot| \}$, where
+  1_G, -\cdot_G-, -^{-1_G}, \iota_O, \iota_1, \det, \abs{\cdot} \}$, where
   $G \in \{\SynGL{1}, \SynGL{2}, \SynOrth{2}\}$, and
   %  with the following assignment of arities:
   \begin{displaymath}
@@ -50,7 +50,7 @@ framework are derived from the following data:
       \indexOpArity(\iota_o) & ([\SynOrth{2}], \SynGL{2}) &
       \indexOpArity(\iota_1) & ([\SynGL{1}], \SynGL{2}) \\
       \indexOpArity(\det) & ([\SynGL{2}], \SynGL{1}) &
-      \indexOpArity(|\cdot|) & ([\SynGL{1}], \SynGL{1})
+      \indexOpArity(\abs{\cdot}) & ([\SynGL{1}], \SynGL{1})
     \end{array}
   \end{displaymath}
 %  The intended interpretations of the top three pairs of operations
@@ -308,11 +308,11 @@ transitivity rules for the equality judgment.
   group under multiplication, and the sorts $\SynGL{2}$ and
   $\SynOrth{2}$ form (non-abelian) multiplicative groups, so we assume
   the appropriate axioms. We also assume that the operations $\iota_O,
-  \iota_1, \det$ and $|\cdot|$ are group homomorphisms, and that
+  \iota_1, \det$ and $\abs{\cdot}$ are group homomorphisms, and that
   expressions of the form $\iota_1(s)$ commute with group
   multiplication in the sort $\SynGL{2}$. The absolute value of the
   determinant of an orthgonal transformation is always $1$, so we also
-  assume $|\det(\iota_OO)| \stackrel{ax}\equiv 1$. Likewise, scaling
+  assume $\abs{\det(\iota_OO)} \stackrel{ax}\equiv 1$. Likewise, scaling
   maps have a determined determinant: $\det(\iota_1(s))
   \stackrel{ax}\equiv s \cdot s$.
 \end{example}

@@ -561,7 +561,7 @@ function $\iota_O$ that takes $e : \SynOrth{2}$ to $\iota_O(e) :
       \forall s_1,s_2 \mathord:\SynGL{1}.\ \tyPrim{real}{s_1}\ & \to \tyPrim{real}{s_2} \\
       &\to \tyPrim{real}{s_1s_2^{-1}} + \tyPrimNm{unit} \\
     \end{array}\\
-    \mathrm{abs} &:& \forall s \mathord:\SynGL{1}.\ \tyPrim{real}{s} \to \tyPrim{real}{|s|} %\\
+    \mathrm{abs} &:& \forall s \mathord:\SynGL{1}.\ \tyPrim{real}{s} \to \tyPrim{real}{\abs{s}} %\\
 %    \mathrm{sqrt} &:& \tyPrim{real}{1} \to \tyPrim{real}{1}
   \end{eqnarray*}
   \caption{Operations on scaled real numbers}
@@ -580,7 +580,7 @@ our calculus with a new sort $\SynGL{1}$ of scale factors
 $\SynGL{1}$ ranges over the non-zero real numbers and forms an abelian
 group which we write multiplicatively. We also add two new operations:
 determinant, $\det B$, which takes an inhabitant of $\SynGL{2}$ to its
-determinant in $\SynGL{1}$, and absolute value, $|e|$, which takes
+determinant in $\SynGL{1}$, and absolute value, $\abs{e}$, which takes
 scaling factors to scaling factors. We also refine the type
 $\tyPrimNm{real}$ of real numbers so that it is indexed by the sort
 $\SynGL{1}$: $\tyPrim{real}{e}$. The old type $\tyPrimNm{real}$ is
@@ -594,7 +594,7 @@ real numbers indexed by scaling factors is shown in
   \tyPrim{vec}{B,0} \to \tyPrim{real}{\det B} 
 \end{displaymath}
 Since the absolute value of the determinant of an orthogonal
-transformation is always $1$, we assume $|\det (\iota_O O)| = 1$ to
+transformation is always $1$, we assume $\abs{\det (\iota_O O)} = 1$ to
 hold.
 
 \begin{example}\label{ex:area-of-triangle-1}
@@ -605,7 +605,7 @@ hold.
       \mathrm{area} : \forall B\mathord:\SynGL{2},
       t\mathord:\SynTransl{2}.\ \\
       \hspace{0.8cm}\tyPrim{vec}{B, t} \to \tyPrim{vec}{B, t} \to
-      \tyPrim{vec}{B, t} \to \tyPrim{real}{|\det B|}
+      \tyPrim{vec}{B, t} \to \tyPrim{real}{\abs{\det B}}
       \\ \mathrm{area}\ [B]\ [t]\ p_1\ p_2\ p_3 = \frac{1}{2} *
       \mathrm{abs}\ ((p_2 - p_1) \times (p_3 - p_1))
     \end{array}
@@ -621,7 +621,7 @@ hold.
   $\tyPrim{real}{\det B}$. This removes some of the symmetry due to
   invertible linear maps, but the cross product still varies with the
   sign of the determinant. We remove this symmetry as well using
-  $\mathrm{abs}$. This gives a value of type $\tyPrim{real}{|\det B|}$
+  $\mathrm{abs}$. This gives a value of type $\tyPrim{real}{\abs{\det B}}$
   which we multiply by $\frac{1}{2}$ to recover the area of the
   triangle rather than that of the whole parallelogram. If we
   specialise $\mathrm{area}$ to just orthogonal transformations, the

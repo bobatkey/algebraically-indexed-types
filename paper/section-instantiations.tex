@@ -61,12 +61,12 @@ function from
 \begin{displaymath}
   \begin{array}{@{}l}
     \mathrm{area} : \forall B\mathord:\SynGL{2}, t\mathord:\SynTransl{2}.\ \\
-    \hspace{0.8cm}\tyPrim{vec}{B, t} \to \tyPrim{vec}{B, t} \to \tyPrim{vec}{B, t} \to \tyPrim{real}{|\det B|}
+    \hspace{0.8cm}\tyPrim{vec}{B, t} \to \tyPrim{vec}{B, t} \to \tyPrim{vec}{B, t} \to \tyPrim{real}{\abs{\det B}}
   \end{array}
 \end{displaymath}
 By \thmref{thm:abstraction}, we can derive the following free theorem. For all $B \in \GL{2}$, $\vec{t} \in \Transl{2}$, and $\vec{x}, \vec{y}, \vec{z} \in \mathbb{R}^2$, we have 
 \begin{displaymath}
-  |\det B|(\tmSem{\mathrm{area}}\ \vec{x}\ \vec{y}\ \vec{z}) = \tmSem{\mathrm{area}}\ (B\vec{x} + \vec{t})\ (B\vec{y} + \vec{t})\ (B\vec{z} + \vec{t})
+  \abs{\det B}(\tmSem{\mathrm{area}}\ \vec{x}\ \vec{y}\ \vec{z}) = \tmSem{\mathrm{area}}\ (B\vec{x} + \vec{t})\ (B\vec{y} + \vec{t})\ (B\vec{z} + \vec{t})
 \end{displaymath}
 Thus, directly from the type of the $\mathrm{area}$ function, we can
 see that its index-erasure semantics is (a) invariant under
