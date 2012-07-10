@@ -10,7 +10,7 @@ operations are invariant under change of basis, and dot product is
 invariant under orthogonal changes of basis. On the other hand, some
 geometric operations are interestingly variant under transformation.
 For example, cross products vary with scalings of the plane. We
-can incorporate (in)variance information about geometric primitives
+incorporate (in)variance information about geometric primitives
 into type systems via algebraically indexed types.
 
 \subsection{Origin Invariance and Representation Independence}\label{sec:oiri}
@@ -25,7 +25,7 @@ both \emph{points}---offsets from some origin---and
 \emph{vectors}---offsets in their own right.  Despite their common
 representation, points and vectors are very different, and
 distinguishing between them is the key feature of \emph{affine
-  geometry} (see, for example, Chapter 2 of
+  geometry} (see, for example, Chapter 2 of Gallier's book
 \cite{gallier11geometric}). Nevertheless, computational geometry
 libraries traditionally either leave it to the programmer to maintain
 the distinction between points and vectors, or else use different
@@ -43,9 +43,9 @@ tuple $(11,21)$ with respect to $(10,20)$ represent \emph{the same
 origins, respectively.
 %It is merely an artifact of the representation of points as pairs of
 %numbers that they appear to be different.
-This suggests that programs that manipulate %data representing points
-should be invariant with respect to changes in the choice of
-origin. Program sthat manipulate vectors, on the other hand, should
+This suggests that programs that manipulate points %data representing points
+should be invariant with respect to changes of
+origin. Programs that manipulate vectors, on the other hand, should
 not be invariant under change of origin. Different vectors represent
 different offsets, and the vector $(0,0)$ always represents the zero
 offset.
@@ -237,7 +237,7 @@ of $\tyPrim{vec}{e}$ are:
     (\vec{v},\vec{v'}) \sepbar \vec{v'} = \vec{v} + \sem{e}\rho \}
   \end{array}
 \end{displaymath}
-The index-erasure and relational interpetations of 
+The index-erasure and relational interpretations of 
 $\forall t\mathord:\SynTransl{2}.A$ are:
 %is simply the interpretation of the
 %underlying type $A$. The relational interpretation intersects the
@@ -616,7 +616,7 @@ hold.
   - p_1$ are computed. These operations remove the effect of
   translations on the result in exactly the same way as the type
   isomorphism in \exref{ex:type-iso}. Next, we compute the cross
-  product of the two vectors is computed, which gives the area of the
+  product of the two vectors, which gives the area of the
   parallelogram described by the sides of the triangle and has type
   $\tyPrim{real}{\det B}$. This removes some of the symmetry due to
   invertible linear maps, but the cross product still varies with the
@@ -662,8 +662,7 @@ Kennedy assigns in his units of measure system, except for that of the
 absolute value operation. Semantically, our type indexes by
 %our assigned type is that, semantically, we are indexing by
 non-zero scaling factors, whereas Kennedy's indexes by strictly
-positive ones. We examine the typing of the absolute value operation
-further in \autoref{sec:types-indexed-abelian-groups}.
+positive ones. 
 
 In our two-dimensional setting we can add to Kennedy's one-dimensional
 scaling invariance an operation $\iota_1$ that, semantically, takes
@@ -728,7 +727,7 @@ scalar multiplcation and dot product:
   type in \exref{ex:uninhabited-type}.
 
   In \autoref{sec:types-indexed-abelian-groups-indef} we revisit
-  Kennedy's proof and show that even if we add square root as a
+  Kennedy's result and show that even if we add square root as a
   primitive operation---with the type above---then it is still not
   possible to construct the cube root function. The indefinability of
   cube root is related to the impossibility of trisecting an arbitrary

@@ -18,23 +18,13 @@ the distances between values. For example, a program $M$ of type:
   \forall \epsilon_1,\epsilon_2\mathord:\metricSort.\ \tyPrim{real}{\epsilon_1} \to \tyPrim{real}{\epsilon_2} \to \tyPrim{real}{\epsilon_1 + \epsilon_2}
 \end{displaymath}
 must satisfy the property that for all $\epsilon_1, \epsilon_2 > 0$
-and $x, x', y, y' \in \mathbb{R}$,
-\begin{displaymath} % FIXME: include \eta_\Metric
+and $x, x', y, y' \in \mathbb{R}$:
+\begin{displaymath}
   \begin{array}{l}
     \textrm{if }|x - x'| < \epsilon_1 \textrm{ and } |y - y'| < \epsilon_2 \textrm{ then}\\
-    \hspace{2em}|\tmSem{M}\ x\ y - \tmSem{M}\ x'\ y'| < \epsilon_1 + \epsilon_2
+    \hspace{2em}|\tmSem{M}\ \eta_\Metric\ x\ y - \tmSem{M}\ \eta_\Metric\ x'\ y'| < \epsilon_1 + \epsilon_2
   \end{array}
 \end{displaymath}
-A type system with a relational interpretation that tracks distances
-between values has %previously 
-been investigated by Reed and Pierce
-\cite{reed10distance} in the setting of differential privacy. Their
-system uses a linear type discipline to ensure that all programs are
-non-expansive (i.e., the distance between the outputs is no more greater
-than the distance between the inputs). Here, we instantiate our general
-framework %from \autoref{sec:a-general-framework} %in order 
-to express
-non-expansivity, and more, via algebraically indexed types.
 
 \paragraph{Instantiation of the General Framework}
 We assume a single indexing sort $\metricSort$ %, intended to 
@@ -61,7 +51,7 @@ interpretations of the primitive operations are collected together
 into an environment $\eta_\Metric \in \ctxtSem{\Gamma_\Mon}$.
 
 For the families of sets of relational environments
-$\relEnv{E}_\Metric$, we use the compositional construction in
+$\relEnv{E}_\Metric$, we use the model-based construction in
 \autoref{sec:constr-rel-env}, interpreting the primitive type
 $\tyPrimNm{real}$ with $R_{\tyPrimNm{real}}(\epsilon) = \{ (x,x')
 \sepbar |x - x'| < \epsilon\}$.
@@ -103,6 +93,21 @@ $x$. We suspect that to express standard continuity as a type would
 require some form of type dependency. Chaudhuri, Gulwani and
 Lublinerman \cite{chaudhuri10continuity} have given a program logic
 based approach to verifying the continuity of programs.
+
+\paragraph{Function Sensitivity}
+A type system with a relational interpretation that tracks distances
+between values has %previously
+been investigated by Reed and Pierce \cite{reed10distance} in the
+setting of differential privacy. Their system uses a linear type
+discipline to ensure that all programs are of $c$-sensitive (i.e., the
+distance between the outputs is no more greater than $c$ times the
+distance between the inputs, for some constant $c$). We can express
+their central concept of $c$-sensitivity (for functions on the reals)
+as an algebraically-indexed type: $\forall
+\epsilon\mathord:\metricSort.\ \tyPrim{real}{\epsilon} \to
+\tyPrim{real}{\frac{1}{c}\epsilon}$. Investigating the precise
+connection between their system and ours is left to future work.
+
 
 % \begin{example}[Differential Privacy]
 %   Relative error? Probability monads?

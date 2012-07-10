@@ -2,7 +2,7 @@
 \label{sec:introduction}
 The best way we know of describing the semantics of parametric
 polymorphism is \emph{relational parametricity}, whose central result
-is Reynolds' Abstraction Theorem~\cite{reynolds83types}. Its striking
+is Reynolds' abstraction theorem~\cite{reynolds83types}. Its striking
 consequences include the well-known ``free theorems'' for polymorphic
 types~\cite{wadler89theorems}, non-inhabitation results, and precise
 correspondences between System F encodings and algebraic
@@ -56,7 +56,7 @@ the types parameterized by units-of-measure, whose invariance
 properties relate to changes of units, or \emph{scaling}~\cite{kennedy97relational}. 
 In this paper we investigate the general case of types indexed by attributes
 with algebraic structure. For example, in computational geometry, points in
-2-space can be indexed by a coordinate frame; in information-flow
+the plane can be indexed by a coordinate frame; in information-flow
 security, computations are indexed by principals; in differential privacy, types
 can be indexed by `distance'. Types that are
 polymorphic over such indices induce invariance properties and
@@ -80,7 +80,7 @@ that
 \mathrm{areaTri}\;(t + v_1, t + v_2, t + v_3) = 
 \mathrm{areaTri}\;(v_1, v_2, v_3)
 \]
-for any translation $t\in\Transl{2}$.
+for any translation $t$ in the group $\Transl{2}$ of translations.
 
 Transformations typically \emph{compose} in various
 ways, and the compositions satisfy algebraic laws. For example, 
@@ -211,7 +211,7 @@ We present a collection of compelling examples of algebraically
 indexed types, including a novel type system for geometry, a type
 system for tracking taint marking (or provenance) of strings, a
 refined type system for information flow based on logic, and a simple
-type system for basic uniform continuity analysis.
+type system with distance-indexed types.
 \item 
 We formulate a type system that can either be used as a programming
 language in its own right, or as the target of type-based
@@ -221,7 +221,7 @@ existential quantification over the indices, and a multi-sorted
 equational theory for indices.
 \item
 We describe a relational semantics for the type system and prove an
-analogue of Reynolds' Abstraction Theorem. We give precise conditions
+analogue of Reynolds' abstraction theorem. We give precise conditions
 on sets of relation environments under which our abstraction theorem
 holds.
 \item
@@ -229,7 +229,7 @@ For each of our main examples we deduce free theorems that are
 consequences of our abstraction theorem, prove non-definability
 results, and derive interesting type isomorphisms.
 \end{itemize}
-We have fully formalised our framework and Abstraction Theorem in Coq,
+We have fully formalised our framework and abstraction theorem in Coq,
 using strongly-typed term representations
 throughout~\cite{TypedSyntax}. The formalisation is available from
 \\{\small \url{https://github.com/bobatkey/algebraically-indexed-types}}
