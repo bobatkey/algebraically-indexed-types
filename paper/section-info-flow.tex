@@ -43,11 +43,12 @@ level than $l_2$.
 
 Using algebraic indexing, we refine Tse and Zdancewic's translation by
 replacing each type variable $\alpha_l$ with a primitive type
-$\tyPrim{T}{\phi}$ of representations of the truth of a logical
-proposition $\phi$. The relationships between security levels are now
-replaced by logical entailment, so we only have functions of type
-$\tyPrim{T}{\phi} \to \tyPrim{T}{\psi}$ when $\phi$ entails
-$\psi$. %Inspired by the PER interpretation of information flow,
+$\tyPrim{T}{\phi_l}$ of representations of the truth of a logical
+proposition $\phi_l$ that stands for the security level $l$. The
+relationships between security levels are now replaced by logical
+entailment, so we only have functions of type $\tyPrim{T}{\phi_{l_1}} \to
+\tyPrim{T}{\phi_{l_2}}$ when $\phi_{l_1}$ entails
+$\phi_{l_2}$. %Inspired by the PER interpretation of information flow,
 We instantiate our general relational framework to interpret
 $\tyPrim{T}{\phi}$ as the identity relation if $\phi$ is true and the
 empty relation if $\phi$ is false. We shall see that this recovers the
@@ -87,7 +88,7 @@ The combination of the \TirName{TyEq} rule and the primitive
 $\mathrm{up}$ operation allow for logical entailment to be reflected
 in programs: if we have $\phi \leq \psi$ and $M : \tyPrim{T}{\phi}$
 then $\mathrm{up}\ M : \tyPrim{T}{\psi}$. Each of the primitive
-operations has a trivial interpretation, due the index-erasure
+operations has a trivial interpretation, due to the index-erasure
 interpretation of $\tyPrim{T}{\phi}$ as a one-element set, giving an
 environment $\eta_\infoflow \in \ctxtSem{\Gamma}$. Less trivially, we
 have this lemma:
