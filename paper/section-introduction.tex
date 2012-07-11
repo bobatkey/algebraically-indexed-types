@@ -91,13 +91,15 @@ radius the following polymorphic type:
 \tyPrim{real}{\alpha\cdot\alpha}
 \]
 This captures the fact that the area of a circle varies as the square
-of its radius, i.e., $\mathrm{areaCircle}\;(s\cdot r) =
-s^2\cdot \mathrm{areaCircle}\;r$ for any $s\neq 0$.  Here, $\alpha$ is interpreted as
-the \emph{units of measure} of the argument to $\mathrm{areaCircle}$,
-and `$\cdot$' composes units using the product. We can also add an
-inverse operation and identity unit of measure $1$, and then impose the
-algebraic laws of abelian groups. This permits identification of, for
-example, $\tyPrim{real}{\alpha\cdot\alpha^{-1}}$ with the type
+of its radius, i.e., $\mathrm{areaCircle}\;(s\cdot r) = s^2\cdot
+\mathrm{areaCircle}\;r$ for any $s\neq 0$ (i.e., any $s$ in the
+one-dimensional general linear group $\GL{1}$).  Here, $\alpha$ is
+interpreted as the \emph{units of measure} of the argument to
+$\mathrm{areaCircle}$, and `$\cdot$' composes units using the
+product. We can also add an inverse operation and identity unit of
+measure $1$, and then impose the algebraic laws of abelian
+groups. This permits identification of, for example,
+$\tyPrim{real}{\alpha\cdot\alpha^{-1}}$ with the type
 $\tyPrim{real}{1}$ of dimensionless constants.
 
 \paragraph{Abstraction}
@@ -112,7 +114,7 @@ points and vectors that is often enforced through abstract data
 types~\cite{CGAL} is captured here by indices instead. For example,
 the operation that takes two points and computes their vector
 difference can be assigned the type
-$\forall\alpha\mathord:\SynTransl.\tyPrim{vec}\alpha\times\tyPrim{vec}\alpha\to\tyPrim{vec}0$,
+$\forall\alpha\mathord:\SynTransl{2}.\tyPrim{vec}\alpha\times\tyPrim{vec}\alpha\to\tyPrim{vec}0$,
 reflecting the invariance of the result (a pure vector) under
 translations of the point arguments. As a result through types alone
 we can, in essence, derive so-called \emph{coordinate-free}
