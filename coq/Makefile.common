@@ -4,4 +4,5 @@ TARGETS = Rel.vo \
           syn.vo \
           units.vo \
           sem.vo \
+          equivalence.vo \
           iso.vo
