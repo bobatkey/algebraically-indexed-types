@@ -74,13 +74,9 @@ Proof. destruct R1; destruct R2. move => E. injection E. by  move ->. Qed.
 Lemma inj_Sub D D' (S1 S2: Sub D D') : getSub S1 = getSub S2 -> S1 = S2. 
 Proof. destruct S1; destruct S2. move => E. injection E. by  move ->. Qed. 
 
-Global Coercion expsAsSub D D' (ixs: Exps D D') : Sub D' D.
-refine (mkSub _) => s. 
-induction ixs => v.
-inversion v.  
-dependent destruction v.
-+ exact e. 
-+ exact (IHixs v). 
+Definition nilSub D : Sub [::] D.
+refine (mkSub _) => s v.
+inversion v.
 Defined.
 
 Program Definition liftRen D D' s (R: Ren D D') : Ren (s::D) (s::D') := 
@@ -116,6 +112,13 @@ Program Definition consSub D D' s (ix: Exp D' s) (S: Sub D D') : Sub (s::D) D' :
 Definition tlSub D D' s (S: Sub (s::D) D') : Sub D D' := mkSub (fun s' v => S s' (VarS s v)).
 Definition hdSub D D' s (S: Sub (s::D) D') : Exp D' s := S s (VarZ _ _). 
 
+Fixpoint expsAsSub_inner D D' (ixs : Exps D D') : Sub D' D :=
+  match ixs as _ in (Exps _ D') return Sub D' D with
+    | Nil => nilSub D
+    | Cons s ss e ixs => consSub e (expsAsSub_inner ixs)
+  end.
+
+Global Coercion expsAsSub D D' (ixs: Exps D D') : Sub D' D := expsAsSub_inner ixs.
 
 Fixpoint apSub D D' s (S: Sub D D') (ix: Exp D s): Exp D' s :=
   match ix with
@@ -238,12 +241,17 @@ Proof. apply inj_Sub; ExtVar. simpl. apply apSubId. simpl. apply apSubId. Qed.
 
 Lemma ScExpsAsSub E' E'' (ixs: Exps E' E'') E (S: Sub E' E) :
 expsAsSub (apSubSeq S ixs) = ScS S (expsAsSub ixs).
-Proof. dependent induction ixs.
-+ simpl. apply inj_Sub; ExtVar. 
-+ simpl. apply inj_Sub. apply functional_extensionality_dep => s'. 
-apply functional_extensionality => v. admit.  
-
-Qed. 
+Proof.
+  dependent induction ixs.
+   (* Nil *)
+   simpl. apply inj_Sub. ExtVar.
+   (* Cons *)
+   simpl. rewrite IHixs.
+   apply inj_Sub.
+   apply functional_extensionality_dep => s'.
+   apply functional_extensionality => v.
+   dependent destruction v; reflexivity.
+Qed.
 
 (*---------------------------------------------------------------------------
    Having formalized the syntax of index expressions, we now move on to types
