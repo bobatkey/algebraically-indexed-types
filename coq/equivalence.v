@@ -18,68 +18,62 @@ Variable Gops : @Ctxt sig [::].
 Variable eta_ops : interpCtxt interpPrim Gops.
 
 Fixpoint mkArrTy D (G : @Ctxt sig D) (t : Ty D) : Ty D :=
-  match G with
-    | nil    => t
-    | s :: G => mkArrTy G (TyArr s t)
-  end.
+  if G is s::G then mkArrTy G (TyArr s t) else t.
 
-Fixpoint mkLamTm D (G G' : @Ctxt sig D) (t : Ty D) : Tm A (G ++ G') t -> Tm A G' (mkArrTy G t) :=
-  match G return Tm A (G ++ G') t -> Tm A G' (mkArrTy G t) with
-    | nil     => fun M => M
-    | t' :: G => fun M => mkLamTm (ABS M)
-  end.
+Fixpoint mkLamTm D (G G': @Ctxt sig D) (t: Ty D) : Tm A (G ++ G') t -> Tm A G' (mkArrTy G t) :=
+  if G is t'::G 
+  then fun M => mkLamTm (ABS M) 
+  else fun M => M. 
 
 Fixpoint mkForallTy (D : IxCtxt sig) : Ty D -> Ty [::] :=
-  match D return Ty D -> Ty [::] with
-    | nil    => fun t => t
-    | s :: D => fun t => mkForallTy (TyAll t)
-  end.
+  if D is s::D 
+  then fun t => mkForallTy (TyAll t) 
+  else fun t => t.
 
 Fixpoint piAll (D : IxCtxt sig) : Sub [::] D :=
-  match D return Sub [::] D with
-    | nil    => idSub [::]
-    | s :: D => ScS (pi D s) (piAll D)
-  end.
+  if D is s::D
+  then ScS (pi D s) (piAll D)
+  else idSub [::]. 
 
 Lemma apSubTy_id D (t : @Ty sig D) : apSubTy (idSub D) t = t.
 Proof.
-  induction t.
-   reflexivity.
-   simpl. by rewrite IHt1 IHt2. 
-   simpl. by rewrite IHt1 IHt2. 
-   simpl. by rewrite IHt1 IHt2. 
-   simpl. by rewrite (proj2 (apSubId D)).
-   simpl. by rewrite liftSubId IHt. 
-   simpl. by rewrite liftSubId IHt. 
+  induction t => /=.
+  + by reflexivity.
+  + by rewrite IHt1 IHt2. 
+  + by rewrite IHt1 IHt2. 
+  + by rewrite IHt1 IHt2. 
+  + by rewrite (proj2 (apSubId D)).
+  + by rewrite liftSubId IHt. 
+  + by rewrite liftSubId IHt. 
 Qed.
 
 Lemma apSubCtxt_id D (G : @Ctxt sig D) : apSubCtxt (idSub D) G = G.
 Proof.
-  induction G.
-   reflexivity.
-   simpl. by rewrite IHG apSubTy_id.
+  induction G => /=.
+  + by reflexivity.
+  + by rewrite IHG apSubTy_id.
 Qed.
 
 Lemma ScS_apSubTy D (t : @Ty sig D) : 
   forall D' D'' (S : Sub D' D'') (S' : Sub D D'),
     apSubTy S (apSubTy S' t) = apSubTy (ScS S S') t.
 Proof.
- induction t => D' D'' S S'.
-  reflexivity.
-  simpl. by rewrite IHt1 IHt2.
-  simpl. by rewrite IHt1 IHt2.
-  simpl. by rewrite IHt1 IHt2.
-  simpl. by rewrite (proj2 (apScS S S')).
-  simpl. by rewrite IHt liftScS. 
-  simpl. by rewrite IHt liftScS. 
+ induction t => D' D'' S S' => /=.
+ + by reflexivity.
+ + by rewrite IHt1 IHt2.
+ + by rewrite IHt1 IHt2.
+ + by rewrite IHt1 IHt2.
+ + by rewrite (proj2 (apScS S S')).
+ + by rewrite IHt liftScS. 
+ + by rewrite IHt liftScS. 
 Qed.
 
 Lemma ScS_apSubCtxt D D' D'' (S : Sub D' D'') (S' : Sub D D') (G : @Ctxt sig D) :
   apSubCtxt S (apSubCtxt S' G) = apSubCtxt (ScS S S') G.
 Proof.
-  induction G. 
-   reflexivity.
-   simpl. by rewrite IHG ScS_apSubTy.
+  induction G => /=. 
+  + by reflexivity.
+  + by rewrite IHG ScS_apSubTy.
 Qed.
 (* 
 Definition mkForallTm (D : IxCtxt sig) (G : @Ctxt sig [::]) :
@@ -229,4 +223,22 @@ Proof.
    intuition. apply ES_rho_nil.
 Qed.
 
+(* Contextual equivalence is an equivalence relation *)
+Lemma ctxtEq_equivalence D (G: Ctxt D) (t: Ty D) : equivalence _ (@ctxtEq _ G t). 
+Proof. 
+apply Build_equivalence. 
+(* Reflexivity *)
+move => M. done. 
+(* Transitivity *)
+move => M1 M2 M3 H1 H2.
+move => T.  
+simpl. 
+specialize (H1 T). specialize (H2 T). 
+simpl in H1. simpl in H2. by rewrite H1 H2. 
+(* Symmetry *)
+move => M1 M2 H. 
+move => T. simpl. specialize (H T). simpl in H. done. 
+Qed. 
+
 End ContextualEquivalence.
+
