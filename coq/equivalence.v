@@ -114,7 +114,8 @@ Definition ctxtEq D (G : Ctxt D) (t : Ty D) (M1 M2 : Tm A (G ++ (apSubCtxt (piAl
 
 (* And now, semantic equivalence *)
 Variable ES : RelEnvSet interpPrim.
-Variable CLOSED : ClosedRelEnvSet A ES.
+Variable SUBST : Substitutive ES.
+Variable RESPECTFUL : Respectful A ES. 
 
 Fixpoint app_env D (G G' : Ctxt D) :
   interpCtxt interpPrim G -> interpCtxt interpPrim G' -> interpCtxt interpPrim (G ++ G') :=
@@ -214,7 +215,7 @@ Theorem semEq_implies_ctxtEq D (G : Ctxt D) (t : Ty D) (M1 M2 : Tm A (G ++ (apSu
 Proof.
   rewrite /semEq /ctxtEq.
   move => M1_semEq_M2 T.
-  assert (T_rel_T : semTy ES rho_nil (interpTm T eta_ops) (interpTm T eta_ops))by (apply Abstraction; by rewrite /semCtxt).
+  assert (T_rel_T : semTy ES rho_nil (interpTm T eta_ops) (interpTm T eta_ops)). apply Abstraction => //. 
   apply tyBool_rel with (rho:=rho_nil).
   apply T_rel_T.
   apply mkForallTy_rel.
@@ -239,6 +240,8 @@ simpl in H1. simpl in H2. by rewrite H1 H2.
 move => M1 M2 H. 
 move => T. simpl. specialize (H T). simpl in H. done. 
 Qed. 
+
+
 
 End ContextualEquivalence.
 

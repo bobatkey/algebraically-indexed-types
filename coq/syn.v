@@ -112,6 +112,11 @@ Program Definition consSub D D' s (ix: Exp D' s) (S: Sub D D') : Sub (s::D) D' :
 Definition tlSub D D' s (S: Sub (s::D) D') : Sub D D' := mkSub (fun s' v => S s' (VarS s v)).
 Definition hdSub D D' s (S: Sub (s::D) D') : Exp D' s := S s (VarZ _ _). 
 
+Fixpoint subAsExps D D' : Sub D' D -> Exps D D' :=
+  if D' is s::D' 
+  then fun S => Cons (hdSub S) (subAsExps (tlSub S))
+  else fun S => Nil. 
+
 Fixpoint expsAsSub_inner D D' (ixs : Exps D D') : Sub D' D :=
   match ixs as _ in (Exps _ D') return Sub D' D with
     | Nil => nilSub D
@@ -351,6 +356,14 @@ Scheme equiv_ind2 := Induction for equiv Sort Prop
 with equivSeq_ind2 := Induction for equivSeq Sort Prop.
 
 Combined Scheme equivBoth_ind from equiv_ind2, equivSeq_ind2. 
+
+Lemma equivIsEquivalence As D s : equivalence _ (@equiv D s As).
+Proof. 
+split. 
+move => x. apply EquivRefl. 
+move => x y z. apply EquivTrans. 
+move => x y. apply EquivSym. 
+Qed. 
 
 (* Equational theory lifted to types *)
 Inductive equivTy D A : relation (Ty D) :=
