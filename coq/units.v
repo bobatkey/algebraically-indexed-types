@@ -200,8 +200,11 @@ Definition ScalingModelRelSet := modelRelSet ScalingModelEnv.
 
 Definition scalingSemTy := semTy ScalingModelRelSet.
 
+Definition initialScalingEnv: RelEnv interpPrim [::] := 
+  modelRel (D:=[::]) (ME:=ScalingModelEnv) tt. 
+
 (* Interpretation of pervasives preserve scaling relations *)
-Lemma eta_ops_ok : semCtxt ScalingModelRelSet (fun X args x y => True) eta_ops eta_ops.
+Lemma eta_ops_ok : semCtxt ScalingModelRelSet initialScalingEnv eta_ops eta_ops.
 Proof.
 split. 
 (* 0 *)
@@ -211,7 +214,7 @@ destruct MEM as [[k u] ->]. simpl.
 by rewrite GRing.mulr0. 
 split.
 (* 1 *)
-done. 
+rewrite /initialScalingEnv/=. by rewrite GRing.mulr1. 
 split. 
 (* + *)
 move => rho' MEM EXT.
@@ -326,8 +329,11 @@ Definition ExpModelRelSet := modelRelSet ExpModelEnv.
 
 Definition expSemTy := semTy ExpModelRelSet.
 
+Definition initialExpEnv: RelEnv interpPrim [::] := 
+  modelRel (D:=[::]) (ME:=ExpModelEnv) tt. 
+
 (* Interpretation of pervasives preserve exponent relations *)
-Lemma eta_ops_okForExp : semCtxt ExpModelRelSet (fun X args x y => True) eta_ops eta_ops.
+Lemma eta_ops_okForExp : semCtxt ExpModelRelSet initialExpEnv eta_ops eta_ops.
 Proof.
 split. 
 (* 0 *)
@@ -337,7 +343,8 @@ destruct MEM as [[k u] ->]. simpl.
 intuition. 
 split.
 (* 1 *)
-done. 
+rewrite /initialExpEnv. simpl. 
+by right. 
 split. 
 (* + *)
 move => rho' MEM EXT.
@@ -416,3 +423,72 @@ move => x x'. elim.
 done. 
 Qed. 
 
+(*---------------------------------------------------------------------------
+   Now some applications.
+   First we prove that the type of square root contains only \x.0
+   ---------------------------------------------------------------------------*)
+
+Definition sqrtTy : Ty [::] := allUnits (real (#0 * #0)%Un --> real #0)%Ty.
+
+Open Scope ring_scope.
+Lemma sqrtTrivial (f:F->F) (x:F) : 
+  expSemTy (t:=sqrtTy) initialExpEnv f f -> 
+  f x = 0.
+Proof. move => /=H. 
+set rho: RelEnv interpPrim [::Unit] := 
+  modelRel (D:=[::Unit]) (ME:=ExpModelEnv) (1%:Q/2%:Q, tt). 
+specialize (H rho). 
+have ESrho: ExpModelRelSet rho by exists (1%:Q/2%:Q, tt).
+specialize (H ESrho). 
+have EXT: ext initialExpEnv rho.
+rewrite /ext.
+Require Import FunctionalExtensionality. 
+apply functional_extensionality_dep => X.  
+apply functional_extensionality => S.
+rewrite /EcS. rewrite /rho. destruct X.
+apply functional_extensionality => y. 
+apply functional_extensionality => y'.
+simpl. 
+rewrite (proj1 (interpExpApSub _ _)).
+done. 
+specialize (H EXT x x).
+rewrite /rho in H.  
+simpl in H.
+have H':   x == 0 /\ x == 0 \/ x == x /\ 1%:~R / 2%:~R + 1%:~R / 2%:~R \is a Qint by intuition. 
+specialize (H H'). clear H'. 
+destruct H. destruct H as [H1 H2]. by rewrite (eqP H1). 
+destruct H as [H1 H2]. 
+done. 
+Qed. 
+
+(*---------------------------------------------------------------------------
+   Next we prove that the type of squaring exhibits a scaling property
+   ---------------------------------------------------------------------------*)
+
+Definition sqrTy : Ty [::] := allUnits (real #0 --> real (#0 * #0)%Un)%Ty.
+
+Lemma sqrScaling (f:F->F) (k x:F) :   
+  k != 0 ->
+  scalingSemTy (t:=sqrTy) initialScalingEnv f f -> 
+  f (k * x) = k^2 * f x.
+Proof. move => neq /=H. 
+set rho: RelEnv interpPrim [::Unit] := 
+  modelRel (D:=[::Unit]) (ME:=ScalingModelEnv) (Scaling neq, tt). 
+specialize (H rho). 
+have ESrho: ScalingModelRelSet rho by exists (Scaling neq, tt).
+specialize (H ESrho). 
+have EXT: ext initialScalingEnv rho.
+rewrite /ext.
+Require Import FunctionalExtensionality. 
+apply functional_extensionality_dep => X.  
+apply functional_extensionality => S.
+rewrite /EcS. rewrite /rho. destruct X.
+apply functional_extensionality => y. 
+apply functional_extensionality => y'.
+simpl. 
+rewrite (proj1 (interpExpApSub _ _)).
+simpl. rewrite /initialScalingEnv. done.  
+specialize (H EXT x (k*x) (refl_equal _)).
+rewrite /rho in H.  
+done. 
+Qed. 
