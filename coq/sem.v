@@ -75,7 +75,7 @@ Lemma interpTyPack D s (t: Ty (s::D)) : |TyExists t| = |t|. Proof. done. Qed.
 
 Lemma interpSubCtxt D (G: Ctxt D) : forall D' (S: Sub D D'), interpCtxt G = interpCtxt (apSubCtxt S G). 
 Proof. 
-induction G. done. move => D' S. simpl. by rewrite (interpSubst t S) (IHG _ S). 
+induction G. done. move => D' S. simpl. by rewrite (interpSubst _ S) (IHG _ S). 
 Qed. 
 
 Fixpoint interpTmVar D (G: Ctxt D) (t: Ty D) (v: TmVar G t) : interpCtxt G -> (|t|) :=

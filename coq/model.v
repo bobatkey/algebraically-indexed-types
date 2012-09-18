@@ -1,7 +1,6 @@
 (*---------------------------------------------------------------------------
    Models of equational theory
    ---------------------------------------------------------------------------*)
-
 Require Import ssreflect ssrbool ssrfun seq.
 Require Import Relations Program.Equality.
 Require Import FunctionalExtensionality. 
@@ -114,7 +113,6 @@ induction D'' => //. specialize (IHD'' (tlSub es)).
 simpl. rewrite /hdSub.   
 rewrite -IHD''.
 replace (tlSub (ScS S es)) with (ScS S (tlSub es)) by done.
-generalize (es t (VarZ D'' t)) => e.
 by rewrite (proj1 (interpExpApSub _ _)).
 Qed.  
 
