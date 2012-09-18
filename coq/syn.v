@@ -167,6 +167,11 @@ Definition RcS D D' D'' (R: Ren D' D'') (S: Sub D D') : Sub D D'' :=
 Definition ScS D D' D'' (S: Sub D' D'') (S': Sub D D') : Sub D D'' :=
   mkSub (fun s v => apSub S (S' s v)).
 
+Lemma tlSub_ScS s D D' D'' (S: Sub D' D'') (S': Sub (s::D) D') : tlSub (ScS S S') = ScS S (tlSub S'). 
+Proof. done. Qed. 
+
+
+
 Ltac Rewrites E := 
   (intros; simpl; try rewrite E; 
    repeat (match goal with | [H:context[_=_] |- _] => rewrite H end); 

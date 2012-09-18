@@ -686,23 +686,24 @@ Definition modelRel (ME: ModelEnv) D d : RelEnv D :=
 Definition modelRelSet ME : RelEnvSet := fun D (rho: RelEnv D) => 
   exists d, rho = @modelRel ME D d.
 
-(*
 (* This is Theorem 3 in the paper *)
 Theorem modelRelSetSubstitutive ME : Substitutive (modelRelSet ME). 
 Proof. split. 
 (* Closed under composition *)
 rewrite /ClosedUnderComp/modelRelSet. 
 move => D D' S rho [d ->]. 
-eexists (apArgs _ d). 
-exists (ScS d S).
-admit.  
+exists (interpExps (subAsExps S) d).
+apply functional_extensionality_dep => p. 
+apply functional_extensionality => es. 
+rewrite /EcS/modelRel. 
+apply f_equal.
+apply composeInterps. 
 
 (* Beck-Chevalley *)
 rewrite /LiftClosed.
 move => D D' s S rho1 ESrho1 rho2 ESrho2 EXT. 
 admit. 
 Qed. 
-*)
 
 End Sem.
 

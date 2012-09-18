@@ -85,6 +85,40 @@ Fixpoint seqAsExps D D' : interpSeq (Exp (sig:=sig) D) D' -> Exps D D' :=
 Definition mkFreeInterpretation (A: seq (Ax sig)) D : Interpretation := 
   mkInterpretation (fun s => equivIsEquivalence A D s) (fun p ixs => AppCon p (seqAsExps ixs)).
 
+Lemma interpApSubVar M D :
+  (forall s (v : Var D s) D' (S: Sub (sig:=sig) D D') (d: interpSeq (interpSrt M) D'), 
+    interpExp (apSub S v) d = interpVar v (interpExps (subAsExps S) d)).
+Proof. dependent induction v => //.  
+move => D' S d. by rewrite/= -IHv. 
+Qed. 
+
+Lemma interpExpApSub M D :
+  (forall s (e : Exp D s) D' (S: Sub (sig:=sig) D D') (d: interpSeq (interpSrt M) D'), 
+    interpExp (apSub S e) d = interpExp e (interpExps (subAsExps S) d)) /\
+  (forall ss (es: Exps D ss) D' (S: Sub (sig:=sig) D D') (d: interpSeq (interpSrt M) D'),
+    interpExps (apSubSeq S es) d = interpExps es (interpExps (subAsExps S) d)).
+Proof. apply Exp_Exps_ind. 
++ move => s v D' S d. by rewrite interpApSubVar. 
++ move => op e IH D' S d. by rewrite apSubAppCon/= IH. 
++ done. 
++ move => s ss e IH es IH' D' S d. by rewrite apSubSeqCons/= IH IH'. 
+Qed. 
+
+Lemma composeInterps 
+  M D'' D D' (S: Sub (sig:=sig) D' D) (d : interpSeq (interpSrt M) D)
+  (es : Sub D'' D') :
+   interpExps (subAsExps (ScS S es)) d =
+   interpExps (subAsExps es) (interpExps (subAsExps S) d).
+Proof. 
+induction D'' => //. specialize (IHD'' (tlSub es)).
+simpl. rewrite /hdSub.   
+rewrite -IHD''.
+replace (tlSub (ScS S es)) with (ScS S (tlSub es)) by done.
+generalize (es t (VarZ D'' t)) => e.
+by rewrite (proj1 (interpExpApSub _ _)).
+Qed.  
+
+
 (*
 Definition mkFreeModel A (D:IxCtxt sig) : Model A.  
 Proof. apply (@mkModel A (mkFreeInterpretation A D)). 
