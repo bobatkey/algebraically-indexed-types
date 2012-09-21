@@ -3,7 +3,7 @@ Require Import ssrint rat ssrnum.
 
 Require Import Relations.
 
-Require Import syn model sem.
+Require Import syn model semalt.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
@@ -50,9 +50,9 @@ Arguments Scope real [Unit_scope].
 
 Definition allUnits D (t: tyExpr (Unit::D)) : tyExpr D := TyAll t. 
 
-Notation "#0" := (VarAsExp (VarZ _ _)).
-Notation "#1" := (VarAsExp (VarS _ (VarZ _ _))).
-Notation "#2" := (VarAsExp (VarS _ (VarS _ (VarZ _ _)))).
+Notation "#0" := (VarAsExp (ixZ _ _)).
+Notation "#1" := (VarAsExp (ixS _ (ixZ _ _))).
+Notation "#2" := (VarAsExp (ixS _ (ixS _ (ixZ _ _)))).
 
 Definition ExAxioms : seq (Ax ExSIG) :=
 [::
@@ -130,13 +130,15 @@ Implicit Type t : scaling.
 
 Lemma scaling_neq0 (x:scaling) : val x != 0%R. Proof. by elim x. Qed.
 
+(*
 Lemma eqEquivalence (T:eqType) : equivalence _ (fun x y:T => x==y).
 Proof. split. by move => x/=.   
 move => x y z/= E1 E2. by rewrite (eqP E1) (eqP E2).
 move => x y/= E1. by rewrite (eqP E1). 
 Qed. 
+*)
 
-Lemma scaling_inj (x y: scaling) : val x = val y -> x == y. 
+Lemma scaling_inj (x y: scaling) : val x = val y -> x = y. 
 Proof. by move /val_inj ->. Qed. 
 
 (* Used to be nonzero1r *)
@@ -153,7 +155,7 @@ Definition scaling_abs (x: scaling) : scaling :=
   Scaling (normr_neq0 (scaling_neq0 x)). 
 
 Definition ScalingInterpretation := mkInterpretation
-  (fun s => eqEquivalence scaling_eqType)
+  (interpSrt := (fun s => scaling))
   (fun p =>
    match p with
      UnitOne  => fun args => scaling_one
@@ -196,60 +198,45 @@ Definition ScalingModelEnv := mkModelEnv (interpPrim := interpPrim) (M:=ScalingM
     fun realArgs => 
     fun x y => y = (val realArgs.1 * x)%R end). 
 
-Definition ScalingModelRelSet := modelRelSet ScalingModelEnv.
+Definition scalingSemTy D := semTy (ME:=ScalingModelEnv) (D:=D).
 
-Definition scalingSemTy := semTy ScalingModelRelSet.
-
-Definition initialScalingEnv: RelEnv interpPrim [::] := 
-  modelRel (D:=[::]) (ME:=ScalingModelEnv) tt. 
+Definition initialScalingEnv: RelEnv ScalingModelEnv [::] := tt. 
 
 (* Interpretation of pervasives preserve scaling relations *)
-Lemma eta_ops_ok : semCtxt ScalingModelRelSet initialScalingEnv eta_ops eta_ops.
+Lemma eta_ops_ok : semCtxt initialScalingEnv eta_ops eta_ops.
 Proof.
 split. 
 (* 0 *)
-move => rho' MEM EXT.
-rewrite /ScalingModelRelSet/modelRelSet/= in MEM. 
-destruct MEM as [[k u] ->]. simpl. 
+move => k/=. 
 by rewrite GRing.mulr0. 
 split.
 (* 1 *)
-rewrite /initialScalingEnv/=. by rewrite GRing.mulr1. 
+rewrite/=. by rewrite GRing.mulr1. 
 split. 
 (* + *)
-move => rho' MEM EXT.
-rewrite /ScalingModelRelSet/modelRelSet/= in MEM. 
-destruct MEM as [[k u] ->]. simpl. 
+move => k/=.
 move => x x' ->. 
 move => y y' ->. 
 by rewrite GRing.mulrDr. 
 split. 
 (* - *)
-move => rho' MEM EXT.
-rewrite /ScalingModelRelSet/modelRelSet/= in MEM. 
-destruct MEM as [[k u] ->]. simpl. 
+move => k/=.
 move => x x' ->. 
 move => y y' ->. 
 by rewrite GRing.mulrBr.
 split. 
 (* * *)
-move => rho' MEM EXT.
-rewrite /ScalingModelRelSet/modelRelSet/= in MEM. 
-destruct MEM as [[k u] ->]. simpl. 
-move => rho'' MEM' EXT'.
-rewrite /ScalingModelRelSet/modelRelSet/= in MEM'. 
-destruct MEM' as [[k'' [k' u']] ->]. simpl. 
+move => k/=.
+move => k'/=. 
 move => x x' ->. 
 move => y y' ->. 
-elim k' => [k1 neq]/=. 
-elim k'' => [k2 neq']/=. 
+elim k => [k1 neq]/=. 
+elim k' => [k2 neq']/=. 
 rewrite -2!(GRing.mulrA k2). 
 by rewrite (GRing.mulrCA k1 x y). 
 split. 
 (* recip *)
-move => rho' MEM EXT.
-rewrite /ScalingModelRelSet/modelRelSet/= in MEM. 
-destruct MEM as [[k u] ->]. simpl. 
+move => k/=.
 move => x x' ->.
 elim k => [k1 neq]/=. 
 case E: (x == 0%R).
@@ -267,9 +254,7 @@ done. by rewrite GRing.unitfE E.
 by rewrite GRing.unitfE neq. 
 split. 
 (* abs *)
-move => rho' MEM EXT.
-rewrite /ScalingModelRelSet/modelRelSet/= in MEM. 
-destruct MEM as [[k u] ->]. simpl. 
+move => k/=.
 move => x x' ->. 
 by rewrite Num.Theory.normrM. 
 (* finish *)
@@ -283,7 +268,7 @@ Qed.
    ---------------------------------------------------------------------------*)
 
 Definition ExpInterpretation := mkInterpretation
-  (fun s => eqEquivalence rat_eqType)
+  (interpSrt := fun s => rat)
   (fun p =>
    match p with
      UnitOne  => fun args => 0%R
@@ -325,21 +310,16 @@ Definition ExpModelEnv := mkModelEnv (interpPrim := interpPrim) (M:=ExpModel)
     fun expArgs => 
     fun x y => (x==0%R /\ y==0%R \/ (x == y%R /\ expArgs.1 \is a Qint)) end). 
 
-Definition ExpModelRelSet := modelRelSet ExpModelEnv.
+Definition expSemTy D := semTy (ME:=ExpModelEnv) (D:=D).
 
-Definition expSemTy := semTy ExpModelRelSet.
-
-Definition initialExpEnv: RelEnv interpPrim [::] := 
-  modelRel (D:=[::]) (ME:=ExpModelEnv) tt. 
+Definition initialExpEnv: RelEnv ExpModelEnv [::] := tt. 
 
 (* Interpretation of pervasives preserve exponent relations *)
-Lemma eta_ops_okForExp : semCtxt ExpModelRelSet initialExpEnv eta_ops eta_ops.
+Lemma eta_ops_okForExp : semCtxt initialExpEnv eta_ops eta_ops.
 Proof.
 split. 
 (* 0 *)
-move => rho' MEM EXT.
-rewrite /ExpModelRelSet/modelRelSet/= in MEM. 
-destruct MEM as [[k u] ->]. simpl. 
+move => k/=.
 intuition. 
 split.
 (* 1 *)
@@ -347,9 +327,7 @@ rewrite /initialExpEnv. simpl.
 by right. 
 split. 
 (* + *)
-move => rho' MEM EXT.
-rewrite /ExpModelRelSet/modelRelSet/= in MEM. 
-destruct MEM as [[k u] ->]. simpl. 
+move => k/=.
 move => x x'. elim. 
 + move => [H1 H2]. rewrite (eqP H1) (eqP H2).
   move => y y'. elim. 
@@ -361,9 +339,7 @@ move => x x'. elim.
   - move => [H3 H4]. rewrite (eqP H3). by intuition. 
 split. 
 (* - *)
-move => rho' MEM EXT.
-rewrite /ExpModelRelSet/modelRelSet/= in MEM. 
-destruct MEM as [[k u] ->]. simpl. 
+move => k/=.
 move => x x'. elim. 
 + move => [H1 H2]. rewrite (eqP H1) (eqP H2).
   move => y y'. elim. 
@@ -375,12 +351,8 @@ move => x x'. elim.
   - move => [H3 H4]. rewrite (eqP H3). by intuition. 
 split. 
 (* * *)
-move => rho' MEM EXT.
-rewrite /ExpModelRelSet/modelRelSet/= in MEM. 
-destruct MEM as [[k u] ->]. simpl. 
-move => rho'' MEM' EXT'.
-rewrite /ExpModelRelSet/modelRelSet/= in MEM'. 
-destruct MEM' as [[k'' [k' u']] ->]. simpl. 
+move => k/=.
+move => k'/=.
 move => x x'. elim. 
 + move => [H1 H2]. rewrite (eqP H1) (eqP H2).
   move => y y'. elim. 
@@ -396,9 +368,7 @@ move => x x'. elim.
     move/QintP=>[x2 ->]. apply/QintP. exists (x1 + x2)%R. by rewrite -GRing.rmorphD.  
 split. 
 (* recip *)
-move => rho' MEM EXT.
-rewrite /ExpModelRelSet/modelRelSet/= in MEM. 
-destruct MEM as [[k u] ->]. simpl. 
+move => k/=.
 move => x x'. elim. 
 + move => [H1 H2]. by rewrite (eqP H1) (eqP H2) (eq_refl _). 
 + move => [H1 H2]. rewrite (eqP H1). 
@@ -412,9 +382,7 @@ move/QintP=>[x1 ->].
 apply/QintP. exists (-x1)%R. by rewrite -GRing.rmorphN.  
 split. 
 (* abs *)
-move => rho' MEM EXT.
-rewrite /ExpModelRelSet/modelRelSet/= in MEM. 
-destruct MEM as [[k u] ->]. simpl. 
+move => k/=.
 move => x x'. elim. 
 + move => [H1 H2]. rewrite (eqP H1) (eqP H2) (eq_refl _).
   rewrite !Num.Theory.normr_eq0.  intuition. 
@@ -431,34 +399,13 @@ Qed.
 Definition sqrtTy : Ty [::] := allUnits (real (#0 * #0)%Un --> real #0)%Ty.
 
 Open Scope ring_scope.
-Lemma sqrtTrivial (f:F->F) (x:F) : 
+Lemma sqrtTrivial (f:F->F) : 
   expSemTy (t:=sqrtTy) initialExpEnv f f -> 
-  f x = 0.
-Proof. move => /=H. 
-set rho: RelEnv interpPrim [::Unit] := 
-  modelRel (D:=[::Unit]) (ME:=ExpModelEnv) (1%:Q/2%:Q, tt). 
-specialize (H rho). 
-have ESrho: ExpModelRelSet rho by exists (1%:Q/2%:Q, tt).
-specialize (H ESrho). 
-have EXT: ext initialExpEnv rho.
-rewrite /ext.
-Require Import FunctionalExtensionality. 
-apply functional_extensionality_dep => X.  
-apply functional_extensionality => S.
-rewrite /EcS. rewrite /rho. destruct X.
-apply functional_extensionality => y. 
-apply functional_extensionality => y'.
-simpl. 
-rewrite (proj1 (interpExpApSub _ _)).
-done. 
-specialize (H EXT x x).
-rewrite /rho in H.  
-simpl in H.
-have H':   x == 0 /\ x == 0 \/ x == x /\ 1%:~R / 2%:~R + 1%:~R / 2%:~R \is a Qint by intuition. 
-specialize (H H'). clear H'. 
-destruct H. destruct H as [H1 H2]. by rewrite (eqP H1). 
-destruct H as [H1 H2]. 
-done. 
+  forall x, f x = 0.
+Proof. rewrite /expSemTy/=. move => H x. 
+specialize  (H (1%:Q/2%:Q) x x).
+destruct H; intuition.  
+by rewrite (eqP H0). 
 Qed. 
 
 (*---------------------------------------------------------------------------
@@ -467,28 +414,10 @@ Qed.
 
 Definition sqrTy : Ty [::] := allUnits (real #0 --> real (#0 * #0)%Un)%Ty.
 
-Lemma sqrScaling (f:F->F) (k x:F) :   
-  k != 0 ->
+Lemma sqrScaling (f:F->F) :   
   scalingSemTy (t:=sqrTy) initialScalingEnv f f -> 
-  f (k * x) = k^2 * f x.
-Proof. move => neq /=H. 
-set rho: RelEnv interpPrim [::Unit] := 
-  modelRel (D:=[::Unit]) (ME:=ScalingModelEnv) (Scaling neq, tt). 
-specialize (H rho). 
-have ESrho: ScalingModelRelSet rho by exists (Scaling neq, tt).
-specialize (H ESrho). 
-have EXT: ext initialScalingEnv rho.
-rewrite /ext.
-Require Import FunctionalExtensionality. 
-apply functional_extensionality_dep => X.  
-apply functional_extensionality => S.
-rewrite /EcS. rewrite /rho. destruct X.
-apply functional_extensionality => y. 
-apply functional_extensionality => y'.
-simpl. 
-rewrite (proj1 (interpExpApSub _ _)).
-simpl. rewrite /initialScalingEnv. done.  
-specialize (H EXT x (k*x) (refl_equal _)).
-rewrite /rho in H.  
-done. 
+  forall k, k != 0 ->
+  forall x, f (k * x) = k^2 * f x.
+Proof. rewrite /scalingSemTy/=. move => H k neq x. 
+apply (H (Scaling neq) x (k*x) (refl_equal _)). 
 Qed. 

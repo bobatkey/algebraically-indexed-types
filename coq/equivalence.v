@@ -5,7 +5,7 @@ Set Implicit Arguments.
 Unset Strict Implicit.
 Import Prenex Implicits.
 
-Require Import syn sem Casts.
+Require Import syn semalt Casts.
 
 Section ContextualEquivalence.
 
@@ -94,7 +94,7 @@ Qed.
 Lemma tmEq2 D (G : Ctxt [::]) s (t : Ty (s :: D)) :
   Tm A (apSubCtxt (piAll (s :: D)) G) t = Tm A (apSubCtxt (pi D s) (apSubCtxt (piAll D) G)) t.
 Proof.
-  simpl. rewrite -ScS_apSubCtxt. reflexivity.
+  simpl. rewrite -(ScS_apSubCtxt (pi D s) (piAll D)). reflexivity.
 Qed.
 
 Fixpoint mkForallTm (D : IxCtxt sig) (G : @Ctxt sig [::]) :
@@ -113,9 +113,7 @@ Definition ctxtEq D (G : Ctxt D) (t : Ty D) (M1 M2 : Tm A (G ++ (apSubCtxt (piAl
     interpTm (APP T M1') eta_ops = interpTm (APP T M2') eta_ops.
 
 (* And now, semantic equivalence *)
-Variable ES : RelEnvSet interpPrim.
-Variable SUBST : Substitutive ES.
-Variable RESPECTFUL : Respectful A ES. 
+Variable ME : ModelEnv interpPrim A.
 
 Fixpoint app_env D (G G' : Ctxt D) :
   interpCtxt interpPrim G -> interpCtxt interpPrim G' -> interpCtxt interpPrim (G ++ G') :=
@@ -126,19 +124,18 @@ Fixpoint app_env D (G G' : Ctxt D) :
 
 Definition semEq D (G : Ctxt D) (t : Ty D) (M1 M2 : Tm A (G ++ apSubCtxt (piAll D) Gops) t) :=
   forall rho eta1 eta2,
-    ES rho -> 
-    semCtxt ES rho eta1 eta2 ->
-    semTy ES rho (interpTm M1 (app_env eta1 (eta_ops :? interpSubCtxt interpPrim Gops (piAll D))))
+    semCtxt (ME:=ME) rho eta1 eta2 ->
+    semTy rho (interpTm M1 (app_env eta1 (eta_ops :? interpSubCtxt interpPrim Gops (piAll D))))
                  (interpTm M2 (app_env eta2 (eta_ops :? interpSubCtxt interpPrim Gops (piAll D)))).
 
-Lemma mkArrTy_rel D (rho : RelEnv interpPrim D) (_ : ES rho) G :
+Lemma mkArrTy_rel D (rho : RelEnv ME D) G :
   forall t (M1 M2 : Tm A (G ++ (apSubCtxt (piAll D) Gops)) t),
     (forall (eta1 eta2 : interpCtxt interpPrim G),
-       semCtxt ES rho eta1 eta2 ->
-       semTy ES rho
+       semCtxt rho eta1 eta2 ->
+       semTy rho
          (interpTm M1 (app_env eta1 (eta_ops :? interpSubCtxt interpPrim Gops (piAll D))))
          (interpTm M2 (app_env eta2 (eta_ops :? interpSubCtxt interpPrim Gops (piAll D))))) ->
-    semTy ES rho
+    semTy rho
          (interpTm (mkLamTm M1) (eta_ops :? interpSubCtxt interpPrim Gops (piAll D)))
          (interpTm (mkLamTm M2) (eta_ops :? interpSubCtxt interpPrim Gops (piAll D))).
 Proof.
@@ -156,18 +153,16 @@ Qed.
 Lemma mkForallTy_rel D :
   forall (t : Ty D) (M1 M2 : Tm A (apSubCtxt (piAll D) Gops) t),
   (forall rho,
-     ES rho ->
-     semTy ES rho (interpTm M1 (eta_ops :? interpSubCtxt interpPrim Gops (piAll D)))
+     semTy (ME:=ME) rho (interpTm M1 (eta_ops :? interpSubCtxt interpPrim Gops (piAll D)))
                   (interpTm M2 (eta_ops :? interpSubCtxt interpPrim Gops (piAll D)))) ->
   forall rho,
-    ES rho ->
-    semTy ES rho (interpTm (mkForallTm M1) eta_ops)
+    semTy (ME:=ME) rho (interpTm (mkForallTm M1) eta_ops)
                  (interpTm (mkForallTm M2) eta_ops).
 Proof.
-  induction D => t' M1 M2 H rho ES_rho.
+  induction D => t' M1 M2 H rho.
    (* nil *)
    simpl. 
-   specialize (H rho ES_rho).
+   specialize (H rho).
    revert M1 M2 H.
    rewrite cast_UIP. by rewrite apSubCtxt_id.
    move => H M1 M2.
@@ -179,8 +174,8 @@ Proof.
    (* cons *)
    apply IHD.
    simpl. 
-   move => rho' ES_rho' rho'' ES_rho'' rho'_rho''. 
-   specialize (H rho'' ES_rho'').
+   move => rho' k. 
+   specialize (H (k,rho')).
    rewrite cast_coalesce. 
    revert M1 M2 H.
    rewrite cast_UIP. apply interpSubCtxt. 
@@ -194,20 +189,17 @@ Proof.
    move => H1 H2 H3 M1 M2.
    rewrite (cast_UIP eta_ops H1 H2). 
    rewrite 2!cast_id. trivial.
-
-   assumption.
 Qed.
 
-Lemma tyBool_rel D (b1 b2 : interpTy interpPrim (tyBool D)) rho :
-  semTy ES rho b1 b2 ->
+Lemma tyBool_rel D (b1 b2 : interpTy interpPrim (tyBool D)) (rho: RelEnv ME D) :
+  semTy rho b1 b2 ->
   b1 = b2.
 Proof.
   simpl. destruct b1 as [[]|[]]; destruct b2 as [[]|[]]; intuition.
 Qed.
 
-Variable rho_nil : RelEnv interpPrim [::].
-Variable ES_rho_nil : ES rho_nil.
-Variable eta_ops_rel : semCtxt ES rho_nil eta_ops eta_ops.
+Variable rho_nil : RelEnv ME [::].
+Variable eta_ops_rel : semCtxt rho_nil eta_ops eta_ops.
 
 Theorem semEq_implies_ctxtEq D (G : Ctxt D) (t : Ty D) (M1 M2 : Tm A (G ++ (apSubCtxt (piAll D) Gops)) t):
   semEq M1 M2 ->
@@ -215,13 +207,12 @@ Theorem semEq_implies_ctxtEq D (G : Ctxt D) (t : Ty D) (M1 M2 : Tm A (G ++ (apSu
 Proof.
   rewrite /semEq /ctxtEq.
   move => M1_semEq_M2 T.
-  assert (T_rel_T : semTy ES rho_nil (interpTm T eta_ops) (interpTm T eta_ops)). apply Abstraction => //. 
+  assert (T_rel_T : semTy rho_nil (interpTm T eta_ops) (interpTm T eta_ops)). apply Abstraction => //. 
   apply tyBool_rel with (rho:=rho_nil).
   apply T_rel_T.
   apply mkForallTy_rel.
-  move => rho ES_rho. apply mkArrTy_rel.
-   assumption.
-   intuition. apply ES_rho_nil.
+  move => rho. apply mkArrTy_rel.
+   intuition. 
 Qed.
 
 (* Contextual equivalence is an equivalence relation *)
