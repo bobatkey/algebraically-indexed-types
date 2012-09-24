@@ -1,0 +1,44 @@
+Abstraction and Invariance for Algebraically Indexed Types
+----------------------------------------------------------
+Robert Atkey, Patricia Johann (University of Strathclyde), 
+Andrew Kennedy (Microsoft Research Cambridge)
+
+This directory contains Coq sources for the POPL submission named above.
+
+To compile, you will need Coq 8.3pl4 or Coq 8.4, together with ssreflect 1.4.
+
+The sources are as follows
+
+syn.v
+-----
+This defines the syntax of index expressions, notions of renaming and substitution,
+equational theories, and the syntax of types and terms. It corresponds to Sections 3.1,
+Figures 2 and 3, and contains a proof of lemma 1 from the paper.
+
+model.v
+-------
+This defines the notion of model from Section 3.4. 
+
+sem.v
+-----
+This defines the index-erasure semantics of types and terms as described in Section 3.2.1,
+the relational interpretation of types as described in Section 3.2.2, and contains a
+proof of lemma 2 and the Abstraction Theorem, based on the models defined in model.v.
+
+equivalence.v 
+------------- 
+This defines the notion of contextual equivalence and of semantic
+equivalence from Section 3.3, and contains a proof that semantic
+equivalence soundly models contextual equivalence (Theorem 2).
+
+units.v 
+------- 
+This contains an example theory, namely that of
+scalings as shown in Figure 1. It contains example proofs of
+non-inhabitation and scaling.
+
+geometry.v 
+---------- 
+This contains another example theory, namely
+that of 2-d translations as described in Sections 2.1 - 2.3.
+

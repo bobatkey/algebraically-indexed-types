@@ -3,7 +3,6 @@
    ---------------------------------------------------------------------------*)
 Require Import ssreflect ssrbool ssrfun seq.
 Require Import Relations Program.Equality.
-Require Import FunctionalExtensionality. 
 Set Implicit Arguments.
 Unset Strict Implicit.
 Import Prenex Implicits.
@@ -22,7 +21,7 @@ Structure Interpretation := mkInterpretation {
   interpSrt : Srt sig -> Type; 
 
   (* Function for each index operation *)
-  interpOp : forall p, Env interpSrt (opArity p).1 -> interpSrt (opArity p).2  
+  interpOp p : Env interpSrt (opArity p).1 -> interpSrt (opArity p).2  
 }.
 
 Implicit Arguments interpOp [].

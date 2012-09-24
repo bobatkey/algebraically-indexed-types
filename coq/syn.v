@@ -39,8 +39,26 @@ Proof. done. Qed.
 Lemma lookupS ts t t' (v: Ix ts t) (env: Env (t'::ts)) : lookup (ixS _ v) env = lookup v env.2.
 Proof. done. Qed.
 
+Lemma envExtensional ts (env env': Env ts) : 
+  (forall (t:T) (v: Ix ts t), lookup v env = lookup v env') -> env = env'.
+Proof. induction ts => //. by elim env; elim env'. 
+elim env => [v env1] {env}. 
+elim env' => [v' env1'] {env'}. move => H. 
+have:= H _ (ixZ _ _). simpl. move ->. 
+rewrite (IHts env1 env1') => //. 
+move => t' v''. by specialize (H t' (ixS _ v'')). 
+Qed. 
 
 End Env.
+
+Fixpoint mapEnv T (I J:T -> Type) ts (f: forall t, I t -> J t) : Env I ts -> Env J ts  := 
+  if ts is _::_ 
+  then fun env => (f _ env.1, mapEnv f env.2)
+  else fun env => tt.
+
+Lemma mapCompose T (I J K: T -> Type) ts (f: forall t, J t -> K t) (g: forall t, I t -> J t) 
+  (env: Env I ts) : mapEnv f (mapEnv g env) = mapEnv (fun s x => f _ (g _ x)) env.
+Proof. induction ts => //. by rewrite /= IHts. Qed. 
 
 Section Syntax.
 
@@ -112,10 +130,7 @@ Proof. apply lookupZ. Qed.
 Lemma apRenVarS D D' s s' (R: Ren (s::D) D') (v: Var D s') : apRenVar R (ixS _ v) = apRenVar R.2 v.  
 Proof. apply lookupS. Qed. 
 
-Fixpoint shiftRen {D D'} s : Ren D D' -> Ren D (s::D') := 
-  if D is _::_ 
-  then fun R => consRen (ixS _ R.1) (shiftRen _ R.2)
-  else fun R => nilRen _. 
+Definition shiftRen D D' s : Ren D D' -> Ren D (s::D') := mapEnv (fun s => ixS _). 
 
 Lemma apRenVarShift D D' s' (R: Ren D D') s (v: Var D s) : 
   apRenVar (shiftRen s' R) v = ixS _ (apRenVar R v). 
@@ -148,28 +163,18 @@ with apRenSeq D D' ss (r: Ren D D') (ixs: Exps D ss) : Exps D' ss  :=
 
 Lemma apRenExtensional E E' (R R': Ren E E') : 
   (forall s (v: Var E s), apRenVar R v = apRenVar R' v) -> R = R'. 
-Proof. induction E => //. by elim R; elim R'. 
-elim R => [v R1] {R}. 
-elim R' => [v' R1'] {R'}. move => H. 
-have:= H _ (ixZ _ _). rewrite apRenVarZ/=. move ->. 
-rewrite (IHE R1 R1') => //. 
-move => s v''. by specialize (H s (ixS _ v'')). 
-Qed. 
+Proof. apply envExtensional. Qed. 
 
 Definition shExp D s s' : Exp D s -> Exp (s'::D) s := apRen (shiftRen s' (idRen D)). 
-
-Fixpoint RcR D D' D'' (R: Ren D' D'') : Ren D D' -> Ren D D'' := 
-  if D is _::_
-  then fun R' => consRen (apRenVar R R'.1) (RcR R R'.2)
-  else fun R' => nilRen _.
+Definition shExpSeq D ss s' : Exps D ss -> Exps (s'::D) ss := apRenSeq (shiftRen s' (idRen D)). 
+Definition RcR D D' D'' (R: Ren D' D'') : Ren D D' -> Ren D D'' := mapEnv (apRenVar R).
 
 Lemma shiftRenRcR E : forall E' E'' s (R:Ren E' E'') (R':Ren E E'),
   shiftRen s (RcR R R') = RcR (shiftRen s R) R'. 
-Proof. induction E => //. 
+Proof. rewrite /shiftRen. rewrite /RcR. induction E => //. 
 move => E' E'' s R R'. 
-destruct R' as [v R']. 
-by rewrite /=IHE apRenVarShift.  
-Qed.
+destruct R' as [v R']. by rewrite /= IHE apRenVarShift. 
+Qed. 
 
 Lemma apVarRcR E E' E'' (r:Ren E' E'') (r':Ren E E') :
   (forall s (v:Var E s), apRenVar (RcR r r') v = apRenVar r (apRenVar r' v)).
@@ -195,15 +200,11 @@ Proof. apply lookupZ. Qed.
 Lemma apSubVarS D D' s s' (S: Sub (s::D) D') (v: Var D s') : apSubVar S (ixS _ v) = apSubVar S.2 v.  
 Proof. apply lookupS. Qed. 
 
-Fixpoint shiftSub {D D'} s : Sub D D' -> Sub D (s::D') := 
-  if D is _::_ 
-  then fun S => consSub (shExp s S.1) (shiftSub _ S.2)
-  else fun S => nilSub _. 
+Definition shiftSub D D' s : Sub D D' -> Sub D (s::D') := mapEnv (fun _ => shExp s).
 
 Lemma apSubVarShift D D' s s' (S: Sub D D') (v: Var D s) : 
   apSubVar (shiftSub s' S) v = shExp _ (apSubVar S v). 
 Proof. dependent induction v => //. by rewrite apSubVarS IHv. Qed. 
-
 
 Fixpoint subAsExps D D' : Sub D' D -> Exps D D' :=
   if D' is s::D' 
@@ -243,27 +244,28 @@ Lemma apSubVarLift D D' s s' (S: Sub D D') (v: Var D s) :
   apSubVar (liftSub s' S) (ixS _ v) = shExp _ (apSubVar S v). 
 Proof. by rewrite /liftSub/= apSubVarShift. Qed. 
 
-Fixpoint ScR D D' D'' (S: Sub D' D'') : Ren D D' -> Sub D D'' :=
-  if D is _::_
-  then fun R => consSub (apSubVar S R.1) (ScR S R.2)
-  else fun R => nilSub _. 
+Lemma apSubLiftAndSeq D D' s' (S: Sub D D') :
+  (forall s (e: Exp D s), apSub (liftSub s' S) (shExp s' e) = shExp s' (apSub S e)) /\
+  (forall ss (es: Exps D ss), apSubSeq (liftSub s' S) (shExpSeq s' es) = shExpSeq s' (apSubSeq S es)). 
+Proof. 
+apply Exp_Exps_ind => //. 
++ move => s v. by rewrite /= -apSubVarLift apRenVarShift apRenVarId. 
++ move => op es IH. by rewrite/= IH.  
++ move => s ss e IH1 es IH2. rewrite /shExp in IH1, IH2. simpl. by rewrite IH1 IH2. Qed.
 
-Fixpoint RcS D D' D'' (R: Ren D' D'') : Sub D D' -> Sub D D'' :=
-  if D is _::_
-  then fun S => consSub (apRen R S.1) (RcS R S.2)
-  else fun S => nilSub _.
+Corollary apSubLift E E' s s' (S: Sub E E') (e: Exp E s) : 
+  apSub (liftSub s' S) (shExp s' e) = shExp s' (apSub S e). 
+Proof. by apply apSubLiftAndSeq. Qed.
 
-Fixpoint ScS D D' D'' (S: Sub D' D'') : Sub D D' -> Sub D D'' :=
-  if D is _::_
-  then fun S' => consSub (apSub S S'.1) (ScS S S'.2)
-  else fun S' => nilSub _.
 
-Lemma tlSub_ScS s D D' D'' (S: Sub D' D'') (S': Sub (s::D) D') 
-  : tlSub (ScS S S') = ScS S (tlSub S'). 
-Proof. done. Qed. 
+Definition ScR D D' D'' (S: Sub D' D'') : Ren D D' -> Sub D D'' := 
+  mapEnv (apSubVar S).
 
-Lemma tlSub_consSub D D' s (e: Exp D' s) (S: Sub D D') : tlSub (consSub e S) = S.
-Proof. done. Qed.
+Definition RcS D D' D'' (R: Ren D' D'') : Sub D D' -> Sub D D'' :=
+  mapEnv (fun _ => apRen R). 
+
+Definition ScS D D' D'' (S: Sub D' D'') : Sub D D' -> Sub D D'' :=
+  mapEnv (fun _ => apSub S). 
 
 Fixpoint idSub (D: IxCtxt) : Sub D D := 
   if D is s::D' 
@@ -283,25 +285,9 @@ Lemma apSubId D :
   (forall ss (es: Exps D ss), apSubSeq (idSub _) es = es). 
 Proof. apply Exp_Exps_ind; Rewrites liftSubId. apply apSubVarId. Qed.
 
-(*
-Lemma apSubVarIsApRen D D' (f: forall t, Var D t -> Var D' t) :
-  (forall s (e: Exp D s), apSub (mkSub (fun t v => VarAsExp (f t v))) e = 
-                          apRen (mkRen f) e) /\
-  (forall ss (es: Exps D ss), apSubSeq (mkSub (fun t v => VarAsExp (f t v))) es =
-                          apRenSeq (mkRen f) es).
-Proof. apply Exp_Exps_ind; Rewrites done. Qed. 
-*)
-
 Lemma apSubExtensional E E' (S S': Sub E E') : 
   (forall s (v: Var E s), apSubVar S v = apSubVar S' v) -> S = S'. 
-Proof. induction E => //. by elim S; elim S'. 
-elim S => [e S1] {S}. 
-elim S' => [e' S1'] {S'}. move => H. 
-have:= H _ (ixZ _ _). rewrite apSubVarZ/=. move ->. 
-rewrite (IHE S1 S1') => //. 
-move => s v. by specialize (H s (ixS _ v)). 
-Qed. 
-
+Proof. apply envExtensional. Qed. 
 
 Lemma apVarScR E E' E'' (S:Sub E' E'') (R:Ren E E') : 
   (forall s (v:Var E s), apSubVar (ScR S R) v = apSubVar S (apRenVar R v)).
@@ -342,18 +328,34 @@ Proof. apply apSubExtensional => s v. rewrite apVarScS. by rewrite (proj1 (apSub
 Qed.
 
 Lemma shiftSubDef E E' s (S: Sub E E'): shiftSub s S = RcS (shiftRen s (idRen E')) S.
-Proof. apply apSubExtensional => s' v. by rewrite apSubVarShift apVarRcS. Qed. 
+Proof. apply apSubExtensional => s' v. rewrite /RcS/=. by  rewrite apSubVarShift. Qed. 
+
+Lemma shiftApSubAndSeq D D' s' (S : Sub D D'):
+  (forall s (e:Exp D s), shExp s' (apSub S e) = apSub (shiftSub s' S) e) /\
+  (forall ss (es:Exps D ss), shExpSeq s' (apSubSeq S es) = apSubSeq (shiftSub s' S) es). 
+Proof. apply Exp_Exps_ind => //. 
++ move => s v. dependent induction v => //. by rewrite IHv. 
++ move => op es IH. by rewrite /= -IH.
++ move => s ss e IH1 es IH2. by rewrite /= -IH1 -IH2. 
+Qed. 
+
+Corollary shiftApSub E E' s s' (S: Sub E E') (e: Exp E s) : 
+  shExp s' (apSub S e) = apSub (shiftSub s' S) e. Proof.  by apply shiftApSubAndSeq. Qed. 
 
 Lemma liftScS E : forall E' E'' s (S:Sub E' E'') (S':Sub E E'),
   liftSub s (ScS S S') = ScS (liftSub s S) (liftSub s S').
-Proof. induction E => //. 
-move => E' E'' s S [e S'].
-specialize (IHE E' E'' s S S').
-apply apSubExtensional => s' v. 
-dependent destruction v => //. 
-rewrite !apSubVarS/=/consSub. rewrite /liftSub/=. 
-rewrite /liftSub/= in IHE. inversion IHE. 
-admit. 
+Proof. rewrite /liftSub/ScS. 
+move => E' E'' s S S'.  
+rewrite /= /shiftSub !mapCompose. 
+set m1 := (fun (s0: Srt sig) (x: Exp E' s0) => _). 
+set m2 := (fun (s0: Srt sig) (x: Exp E' s0) => _). 
+have: m1 = m2. 
+rewrite /m1/m2.
+Require Import FunctionalExtensionality. 
+apply functional_extensionality_dep => p. 
+apply functional_extensionality => e.
+by rewrite apSubLift.  
+by move ->. 
 Qed. 
 
 Lemma ScExpsAsSub E' E'' (ixs: Exps E' E'') E (S: Sub E' E) :

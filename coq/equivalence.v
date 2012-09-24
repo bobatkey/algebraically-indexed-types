@@ -5,7 +5,7 @@ Set Implicit Arguments.
 Unset Strict Implicit.
 Import Prenex Implicits.
 
-Require Import syn semalt Casts.
+Require Import syn sem Casts.
 
 Section ContextualEquivalence.
 

@@ -3,7 +3,7 @@ Require Import ssrint rat ssrnum.
 
 Require Import Relations.
 
-Require Import syn model semalt.
+Require Import syn model sem.
 
 Set Implicit Arguments.
 Unset Strict Implicit.

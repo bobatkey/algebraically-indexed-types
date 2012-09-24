@@ -53,9 +53,10 @@ Fixpoint quantifierFree D (t: Ty (sig:=sig) D) :=
   | TyPrim   p _ => True
   end.
 
+Definition interpCtxt D : Ctxt D -> Type := Env (@interpTy _).  
 
-Fixpoint interpCtxt D (G: Ctxt D) : Type :=
-  if G is t::G then (interpTy t * interpCtxt G)%type else unit.
+Lemma interpCtxtCons D (g: Ty D) (G: Ctxt D) : interpCtxt (g::G) = (interpTy g * interpCtxt G)%type. 
+Proof. done. Qed. 
 
 (* This is lemma 3, part 1 *)
 Lemma interpEquiv D (t1 t2: Ty D) A : equivTy A t1 t2 -> |t1| = |t2|.
@@ -75,18 +76,13 @@ Lemma interpTyPack D s (t: Ty (s::D)) : |TyExists t| = |t|. Proof. done. Qed.
 
 Lemma interpSubCtxt D (G: Ctxt D) : forall D' (S: Sub D D'), interpCtxt G = interpCtxt (apSubCtxt S G). 
 Proof. 
-induction G. done. move => D' S. simpl. by rewrite (interpSubst _ S) (IHG _ S). 
+induction G. done. move => D' S. by rewrite interpCtxtCons (interpSubst _ S) (IHG _ S). 
 Qed. 
 
-Fixpoint interpTmVar D (G: Ctxt D) (t: Ty D) (v: TmVar G t) : interpCtxt G -> (|t|) :=
-  match v with
-  | TmVarZ _ _ => fun eta => eta.1
-  | TmVarS _ _ _ v => fun eta => interpTmVar v eta.2
-  end.
+Definition interpTmVar D (G: Ctxt D) (t: Ty D) (v: TmVar G t) : interpCtxt G -> (|t|) :=
+  lookup v. 
 
-Variable A: seq (Ax sig). 
-
-Fixpoint interpTm D (G: Ctxt D) (t: Ty D) (M: Tm A G t) : interpCtxt G -> (|t|) :=
+Fixpoint interpTm A D (G: Ctxt D) (t: Ty D) (M: Tm A G t) : interpCtxt G -> (|t|) :=
   match M in Tm _ _ t return interpCtxt G -> |t| with
   | VAR _ v       => fun eta => interpTmVar v eta
   | UNIT          => fun eta => tt
@@ -122,56 +118,21 @@ Fixpoint interpTm D (G: Ctxt D) (t: Ty D) (M: Tm A G t) : interpCtxt G -> (|t|) 
    * Or perhaps just take "difunctional closure"
    ---------------------------------------------------------------------------*)
 
+Structure ModelEnv A := mkModelEnv {
+  M:> Model A;
+  relInterp X : Env (interpSrt M) (tyArity X) -> relation (interpPrim X)
+}.
+
 (* Relation environments *)
-Definition RelEnv D := 
-  forall p, Sub (tyArity p) D -> relation (interpPrim p).
-
-Require Import Rel.
-Definition invEnv D (R: RelEnv D) : RelEnv D := fun p ixs => fun x y => R p ixs y x.
-Definition composeEnv D (R1 R2: RelEnv D) : RelEnv D := 
-  fun p ixs => RelComp (R1 p ixs) (R2 p ixs).
-
-
-(* Relation environments that respect equivalence for a set of axioms A *)
-Definition RespectfulRelEnv D A (rho: RelEnv D) :=
-  forall p ixs ixs', equivSeq A ixs ixs' -> rho p (expsAsSub ixs) = rho p (expsAsSub ixs'). 
+Definition RelEnv A (M:Model A) := Env (interpSrt (sig:=sig) M). 
 
 (* Compose environment with substitution *)
-Definition EcS D D' (rho: RelEnv D') (S: Sub D D') : RelEnv D
-:= fun p S' => rho p (ScS S S').
+Definition EcS D D' A (M:Model A) (rho: RelEnv M D'): Sub D D' -> RelEnv M D := 
+  mapEnv (fun _ e => interpExp e rho). 
 
-(* rho' extends rho on a variable of sort s *)
-Definition ext D (rho: RelEnv D) s (rho': RelEnv (s::D)) := EcS rho' (pi _ s) = rho.
-Notation "rho' >> rho" := (ext rho rho') (at level 70). 
+Require Import Rel.
 
-(* This is \cal E from Section 4.2.2 *)
-Definition RelEnvSet := forall D, RelEnv D -> Prop.
-
-Notation "'forall:' x 'in' S ',' P" := (forall x, S x -> P) 
-  (at level 200, x ident, right associativity) : type_scope.
-Notation "'exists:' x 'in' S ',' P" := (exists x, S x /\ P) 
-  (at level 200, x ident, right associativity) : type_scope.
-
-
-Definition Respectful A (E: RelEnvSet) := forall D rho, E D rho -> RespectfulRelEnv A rho. 
-
-Definition ClosedUnderComp (E:RelEnvSet) := 
-  forall D D' (S: Sub D' D) rho, E D rho -> E D' (EcS rho S).
-
-Definition LiftClosed (E:RelEnvSet) := 
-  forall D D' s (S: Sub D' D), 
-  forall: rho1 in E (s::D'),
-  forall: rho2 in E D,
-  rho1 >> EcS rho2 S ->
-  exists: rho in E (s::D), 
-  EcS rho (liftSub s S) = rho1 /\
-  rho >> rho2.
-
-Definition Substitutive (E:RelEnvSet) := ClosedUnderComp E /\ LiftClosed E. 
-
-Variable ES: RelEnvSet. 
-
-Fixpoint semTy D (rho: RelEnv D) (t:Ty D) : relation (|t|) :=
+Fixpoint semTy A (ME: ModelEnv A) D (rho: RelEnv ME D) (t:Ty D) : relation (|t|) :=
   match t return relation (|t|) with
   | TyUnit       => fun x y => True
   | TyProd t1 t2 => fun x y => semTy rho x.1 y.1 /\ semTy rho x.2 y.2
@@ -181,17 +142,17 @@ Fixpoint semTy D (rho: RelEnv D) (t:Ty D) : relation (|t|) :=
                   | _, _ => False 
     end
   | TyArr t1 t2  => fun x y => forall x' y', semTy rho x' y' -> semTy rho (x x') (y y')
-  | TyPrim p ixs => rho p (expsAsSub ixs)
-  | TyAll    s t => fun x y => forall rho', ES rho' -> rho' >> rho -> semTy rho' x y
-  | TyExists s t => fun x y => exists rho', ES rho' /\ rho' >> rho /\ semTy rho' x y
+  | TyPrim p ixs => fun x y => relInterp (interpExps ixs rho) x y
+  | TyAll    s t => fun x y => forall k, semTy (D:=s::D) (k,rho) x y
+  | TyExists s t => fun x y => exists k, semTy (D:=s::D) (k,rho) x y
   end.
 
-Implicit Arguments semTy [D].  
+Implicit Arguments semTy [D ME].  
 
 (*Notation "rho |= x == y :> t" := (semTy (t:=t) rho x y) (at level 67, x at level 67, y at level 67).*)
 
-Fixpoint semCtxt D (rho: RelEnv D) (G:Ctxt D) : relation (interpCtxt G) :=
-  if G is t::G then fun eta1 eta2 => semTy rho t eta1.1 eta2.1 /\ semCtxt rho eta1.2 eta2.2
+Fixpoint semCtxt A (ME: ModelEnv A) D (rho: RelEnv ME D) (G:Ctxt D) : relation (interpCtxt G) :=
+  if G is t::G then fun eta1 eta2 => semTy A rho t eta1.1 eta2.1 /\ semCtxt rho eta1.2 eta2.2
   else fun _ _ => True.
 
 (*---------------------------------------------------------------------------
@@ -205,6 +166,7 @@ Section UpDn.
   Variables D D' : IxCtxt sig.
   Variables S : Sub D D'.
   Variables t t1 t2 : Ty D.
+  Variable A: seq (Ax sig). 
   Variables E : equivTy A t1 t2.
 
   Definition up t x := x :? interpSubst t S.
@@ -252,77 +214,25 @@ Section UpDnProps.
 End UpDnProps.
 
 
-Lemma invEnvK D (R: RelEnv D) : invEnv (invEnv R) = R. 
-Proof. 
-apply functional_extensionality_dep => p.  
-apply functional_extensionality => z.
-apply functional_extensionality => z'. 
-by apply functional_extensionality. 
-Qed. 
-
-Lemma invExt s D (rho': RelEnv (s::D)) (rho: RelEnv D) :
-  rho' >> invEnv rho -> invEnv rho' >> rho. 
-Proof. rewrite /ext. move => H.  
-apply functional_extensionality_dep => p. 
-apply functional_extensionality => S. 
-apply functional_extensionality => z. 
-apply functional_extensionality => z'.
-have H': EcS rho' (pi D s) S z' z = invEnv rho S z' z. by rewrite H. 
-rewrite /invEnv in H'. by rewrite -H'. 
-Qed. 
-
-(* If ES is closed with respect to inverse, then the semantics commutes with inversion *)
-Lemma semInv (closedWrtInv : forall D rho, ES (D:=D) rho -> ES (invEnv rho)) :
-   forall D (t : Ty D) rho x x', semTy rho t x x' -> semTy (invEnv rho) t x' x. 
-Proof.
-  induction t => /= rho x x' xx'. 
-  (* TyUnit *)
-  done. 
-
-  (* TyProd *)
-  split; firstorder. 
-
-  (* TySum *)
-  destruct x'; destruct x; firstorder. 
-
-  (* TyArr *)
-  move => y y' yy'. specialize (IHt1 _ _ _ yy'). 
-  rewrite invEnvK in IHt1. specialize (xx' _ _ IHt1). 
-  by apply (IHt2 _ _ _ xx'). 
-
-  (* TyPrim *)
-  rewrite /invEnv. apply xx'. 
-  
-  (* TyAll *)  
-  move => rho' ESrho' EXT. 
-  specialize (IHt (invEnv rho') x x'). rewrite invEnvK in IHt. apply IHt.
-  apply xx'. by apply (closedWrtInv). by apply: invExt EXT. 
-
-  (* TyExists *)
-  destruct xx' as [rho' [ESrho' [EXT H]]]. 
-  exists (invEnv rho'). split. by apply (closedWrtInv).
-  split. apply invExt. rewrite invEnvK. apply EXT. apply IHt. apply H. 
-Qed. 
-
-Lemma semTyCast D1 D2 (t1: Ty D1) (t2: Ty D2) rho (v1 v2: |t1|) (p1 p2 p3 p4: (|t1|) = (|t2|) ) : 
-  semTy rho t2 (v1 :? p1) (v2 :? p2) ->
-  semTy rho t2 (v1 :? p3) (v2 :? p4).
+Lemma semTyCast A (ME:ModelEnv A) D1 D2 (t1: Ty D1) (t2: Ty D2) (rho: RelEnv ME _) (v1 v2: |t1|) (p1 p2 p3 p4: (|t1|) = (|t2|) ) : 
+  semTy A rho t2 (v1 :? p1) (v2 :? p2) ->
+  semTy A rho t2 (v1 :? p3) (v2 :? p4).
 Proof.   
 move => H.
 by rewrite (cast_UIP v1 _ p1) (cast_UIP v2 _ p2). 
 Qed. 
 
 (* This is lemma 2, part 1 *)
-Lemma semEquiv : Respectful A ES -> forall D (t1 t2: Ty D) (E: equivTy A t1 t2) (rho: RelEnv D) (v v':interpTy t1),
-  ES rho -> 
-  (semTy rho t1 v v' <->
-  semTy rho t2 (rt E v) (rt E v')). 
-Proof. 
-move => RESPECT D t1 t2 E. 
+Lemma semEquiv : forall A (ME: ModelEnv A) D (t1 t2: Ty D) (E: equivTy A t1 t2) 
+ (rho: RelEnv ME D) (v v':interpTy t1),
+  (semTy A rho t1 v v' <->
+  semTy A rho t2 (rt E v) (rt E v')). 
+Proof.
+move => A ME D t1 t2 E.
 (* Not sure why this needs generalizing. But the induction won't go through otherwise. *)
-rewrite /rt. 
-move: (interpEquiv E). 
-induction E => pf rho v v' ESrho. 
+rewrite /rt.
+move: (interpEquiv E).
+induction E => pf rho v v'. 
 (* EquivTyRefl *)
 by rewrite 2!cast_id. 
 (* EquivTySym *)
@@ -363,28 +273,24 @@ split => H x x' xx'.
   rewrite -IHE1 => //. 
 (* EquivTyPrim *)
 simpl.
-rewrite !cast_id. 
-rewrite /Respectful in RESPECT.
-specialize (RESPECT _ _ ESrho). 
-rewrite /RespectfulRelEnv in RESPECT. 
-by rewrite (RESPECT op es es' H). 
+rewrite !cast_id.
+by rewrite (proj2 (equivInterps _) _ _ es es'). 
 (* EquivTyAll *)
 simpl. split. 
-move => H rho' ESrho' EXTrho'. rewrite -IHE => //. apply H => //. 
-move => H rho' ESrho' EXTrho'. rewrite IHE => //. apply H => //. 
+move => H rho'. rewrite -IHE => //. 
+move => H rho'. rewrite IHE => //. 
 (* EquivTyExists *)
 simpl. 
 split. 
-move => [rho' [ESrho' [EXTrho' H]]]. exists rho'. rewrite -IHE => //. 
-move => [rho' [ESrho' [EXTrho' H]]]. exists rho'. rewrite IHE => //. 
-split => //. 
-split => //. 
+move => [rho' H]. exists rho'. rewrite -IHE => //. 
+move => [rho' H]. exists rho'. rewrite IHE => //. 
 apply H. 
 Qed. 
 
-Lemma sem_difunctional : 
-  (forall D (psi: RelEnv D) p exps, difunctional (psi p exps)) ->
-  forall D (t: Ty D) (psi: RelEnv D), existentialFree t -> difunctional (semTy psi t).
+(*
+Lemma sem_difunctional (ME:ModelEnv) : 
+  (forall D (psi: RelEnv ME D) p, difunctional (psi p)) ->
+  forall D (t: Ty D) (psi: RelEnv ME D), existentialFree t -> difunctional (semTy psi t).
 Proof.
   move => DIF. 
   induction t => /= rho EF. 
@@ -429,22 +335,78 @@ Proof.
 *)
 Qed. 
 
+*)
+
+
+Lemma EcS_consSub A (ME: ModelEnv A) D D' s (e: Exp D' s) (S: Sub D D') (rho: RelEnv ME D') :
+  EcS rho (consSub e S) = (interpExp e rho, EcS rho S). 
+Proof. done. Qed.
+
+Lemma RelEnv_extensional A (ME: ModelEnv A) D (rho rho': RelEnv ME D) :
+  (forall s (v: Var D s), lookup v rho = lookup v rho') -> rho = rho'.
+Proof. apply envExtensional. Qed. 
+
+Lemma interpShVar A (ME: ModelEnv A) D (rho: RelEnv ME D) s' k :
+  (forall s (v:Var D s), interpExp (shExp s' v) (k, rho) = interpExp v rho).
+Proof. dependent induction v => //. 
+by rewrite /= !apRenVarShift apRenVarId. 
+Qed. 
+
+Lemma interpShExpAndSeq A (ME: ModelEnv A) D (rho: RelEnv ME D) s' k :
+  (forall s (e:Exp D s), interpExp (shExp s' e) (k, rho) = interpExp e rho) /\
+  (forall ss (es:Exps D ss), interpExps (shExpSeq s' es) (k, rho) = interpExps es rho).
+Proof. apply Exp_Exps_ind => //. 
++ by apply interpShVar.  
++ move => op e IH. by rewrite /= IH.  
++ move => s ss e IH1 es IH2. by rewrite /= IH1 IH2. 
+Qed. 
+
+Lemma interpApSubExpAndSeq A (ME: ModelEnv A) D D' (rho: RelEnv ME D') (S: Sub D D') :
+  (forall s (e:Exp D s), interpExp (apSub S e) rho = interpExp e (EcS rho S)) /\
+  (forall ss (es:Exps D ss), interpExps (apSubSeq S es) rho = interpExps es (EcS rho S)).
+Proof. apply Exp_Exps_ind => //. 
++ dependent induction v => //. by rewrite /= IHv. 
++ move => op e IH. by rewrite /= IH.  
++ move => s ss e IH1 es IH2. by rewrite /= IH1 IH2. 
+Qed. 
+
+
+Lemma EcS_shift A (ME: ModelEnv A) D : forall D' s (k:interpSrt (sig:=sig) ME s) (S:Sub D D') (rho: RelEnv ME D'), EcS ((k,rho):RelEnv ME (s::D')) (shiftSub s S) = EcS rho S.
+Proof.
+induction D => //. 
+move => D' s k [e S] rho. rewrite /EcS.  rewrite /EcS in IHD. by rewrite /= IHD (proj1 (interpShExpAndSeq _ _)). 
+Qed. 
+
+Lemma EcS_lift A (ME:ModelEnv A) D D' s (k:interpSrt (sig:=sig) ME s) (S:Sub D D') (rho: RelEnv ME D') :
+  EcS ((k,rho):RelEnv ME (s::D')) (liftSub s S) = (k, EcS rho S). 
+Proof. by rewrite EcS_consSub/= EcS_shift. Qed.
+
+Lemma EcS_id A (ME: ModelEnv A) D (rho: RelEnv ME D) : EcS rho (idSub D) = rho. 
+Proof. induction D => //. by destruct rho. 
+destruct rho as [g rho]. rewrite EcS_consSub. by rewrite EcS_shift IHD. Qed. 
+
+
+Lemma EcS_pi A (ME: ModelEnv A) D s k rho :
+  EcS ((k, rho):RelEnv ME (s::D)) (pi D s) = rho. 
+Proof. by rewrite /pi EcS_shift EcS_id. Qed. 
+
+
 (* This is lemma 2, part 2 *)
-Lemma semSubst D (t: Ty D) : Substitutive ES -> 
-  forall D' (S:Sub D D') rho (ESrho: ES rho) v v',
-  semTy rho (apSubTy S t) (up S v) (up S v')
+Lemma semSubst A (ME:ModelEnv A) D (t: Ty D) : 
+  forall D' (S:Sub D D') (rho: RelEnv ME D') v v',
+  semTy A rho (apSubTy S t) (up S v) (up S v')
   <->
-  semTy (EcS rho S) t v v'.
-Proof. induction t => H /= D' S rho ESrho v v'.
+  semTy A (EcS rho S) t v v'.
+Proof. induction t => /= D' S rho v v'.
 
 (* TyUnit *)
 by reflexivity. 
 
 (* TyProd *)
-by rewrite -(IHt1 H _ S rho ESrho) -(IHt2 H _ S rho ESrho) 2!upFst 2!upSnd. 
+by rewrite -(IHt1 _ S rho) -(IHt2 _ S rho) 2!upFst 2!upSnd. 
 
 (* TySum *)
-specialize (IHt1 H D' S rho ESrho). specialize (IHt2 H D' S rho ESrho). 
+specialize (IHt1 D' S rho). specialize (IHt2 D' S rho). 
 set x := up S _. simpl in x.
 case E: x => [x1 | x2]. 
 * set x' := up S _. simpl in x'. 
@@ -454,7 +416,7 @@ case E: x => [x1 | x2].
       case E''': v' => [v1' | v2']. 
         rewrite -IHt1.
         rewrite /x' E''' upInl in E'. inversion E'. clear E'. 
-        by rewrite H1 H2.
+        by rewrite H0 H1.
         rewrite /x' E''' upInr in E'. inversion E'. 
     - rewrite /x E'' upInr in E. inversion E.
   + case E'': v => [v1 | v2].  
@@ -475,15 +437,15 @@ case E: x => [x1 | x2].
         rewrite /x' E''' upInr in E'. inversion E'. 
   + case E'': v => [v1 | v2]. 
     - rewrite /x E'' upInl in E. inversion E. 
-    - rewrite /x E'' upInr in E. inversion E. clear E. rewrite H1. 
+    - rewrite /x E'' upInr in E. inversion E. clear E. rewrite H0. 
       case E''': v' => [v1' | v2']. 
       rewrite /x' E''' upInl in E'. inversion E'. 
       rewrite /x' E''' upInr in E'. inversion E'. clear E'. 
-      rewrite -IHt2. by rewrite H1 H2. 
+      rewrite -IHt2. by rewrite H0 H1. 
 
 (* TyArr *)
-specialize (IHt1 H D' S rho ESrho). 
-specialize (IHt2 H D' S rho ESrho). 
+specialize (IHt1 D' S rho). 
+specialize (IHt2 D' S rho). 
 split. 
 + move => HH x x' xx'. destruct (IHt1 x x') as [_ IHb]. 
   specialize (IHb xx'). 
@@ -499,63 +461,39 @@ split.
   specialize (IHd HH). by rewrite !upApp!updn in IHd. 
 
 (* TyPrim *)
-rewrite /EcS/up/=.
-rewrite ScExpsAsSub. by rewrite cast_UIP cast_id cast_UIP cast_id. 
+rewrite/up/=.
+rewrite cast_UIP cast_id cast_UIP cast_id. 
+by rewrite (proj2 (interpApSubExpAndSeq _ _)). 
 
 (* TyAll *)
-specialize (IHt H _ (liftSub _ S)).
-rewrite /Substitutive in H. 
-destruct H as [PRESUBST SUBST]. 
-split => HH rho' ESrho' EXT. 
-  (* For this case we need second closure property of environments *)
-+ have CL2 := SUBST _ _ _ _ _ ESrho' _ ESrho EXT. 
-  destruct CL2 as [rho0 [H2 [H3 H4]]]. 
-  destruct (IHt rho0 H2 v v') as [IH1 _].
+specialize (IHt _ (liftSub _ S)).
+split => HH k.
++ destruct (IHt (k,rho) v v') as [IH1 _].
   rewrite -!upSpec in IH1. 
-  specialize (HH _ H2 H4). 
-  rewrite H3 in IH1. apply IH1. 
-  by apply HH. 
+  specialize (HH k). 
+  specialize (IH1 HH). by rewrite EcS_lift in IH1.  
 
   (* This time we need first closure property of environments,
      together with simple properties of pi and lifting *)
-+ specialize (IHt rho' ESrho' v v'). 
-  rewrite -!upSpec in IHt. apply IHt. apply HH. 
-  apply (PRESUBST _ _ (liftSub s S) _ ESrho').    
-  rewrite /ext in EXT. rewrite -EXT.  
-  apply functional_extensionality_dep => p. 
-  apply functional_extensionality => S'.
-  rewrite /EcS 2!ScS_assoc. 
-  by rewrite liftPi.  
++ specialize (IHt (k,rho) v v'). 
+  rewrite -!upSpec in IHt. apply IHt. rewrite EcS_lift. apply HH. 
 
 (* TyExists *)
-rewrite /Substitutive in H.
-specialize (IHt H). 
-destruct H as [PRESUBST SUBST]. 
-split => [[rho' [H1 [H2 H3]]] | [rho1 [H1 [H2 H3]]]]. 
-+ exists (EcS rho' (liftSub _ S)).
-  split. by apply: PRESUBST. 
-  split. rewrite /ext. rewrite -H2. 
-  apply functional_extensionality_dep => p. 
-  apply functional_extensionality => S'. 
-  rewrite /EcS 2!ScS_assoc.
-  by rewrite liftPi.
+split. 
++ move => [k H]. exists k. 
+  specialize (IHt _ (liftSub s S) (k,rho) v v'). rewrite EcS_lift in IHt. 
+  apply IHt. 
+  rewrite -2!upInst. apply H. 
 
-  specialize (IHt _ (liftSub s S) rho' H1 v v'). rewrite -IHt.
-  rewrite -2!upInst. apply H3. 
-
-+ specialize (SUBST _ _ s S rho1 H1 _ ESrho H2). 
-  destruct SUBST as [rho0 [H4 [H5 H6]]]. 
-  exists rho0.  
-  split => //. 
-  split => //. 
-  specialize (IHt _ (liftSub s S) _ H4 v v'). 
++ move => [k H]. exists k. 
+  specialize (IHt _ (liftSub s S) (k,rho) v v'). 
   rewrite 2!upInst. 
   rewrite IHt {IHt}.
-  rewrite H5. apply H3. 
+  by rewrite EcS_lift. 
 Qed.
 
-Lemma AbstractionVar D (G: Ctxt D) (t: Ty D) (v: TmVar G t) (rho: RelEnv D) eta1 eta2:
-  semCtxt rho eta1 eta2 -> semTy rho t (interpTmVar v eta1) (interpTmVar v eta2). 
+Lemma AbstractionVar A (ME: ModelEnv A) D (G: Ctxt D) (t: Ty D) (v: TmVar G t) (rho: RelEnv ME D) eta1 eta2:
+  semCtxt rho eta1 eta2 -> semTy A rho t (interpTmVar v eta1) (interpTmVar v eta2). 
 Proof. induction v => /= H. 
 + apply H. + apply IHv. apply H. 
 Qed. 
@@ -569,15 +507,15 @@ Qed.
 
 
 (* This is lemma 4 *)
-Lemma semSubstCtxt D (G: Ctxt D) : (Substitutive ES) -> 
-  forall D' (S:Sub D D') rho (ESrho: ES rho) eta eta',
-  semCtxt rho (eta :? interpSubCtxt G S) (eta' :? interpSubCtxt G S)
+Lemma semSubstCtxt A (ME: ModelEnv A) D (G: Ctxt D) : 
+  forall D' (S:Sub D D') rho eta eta',
+  semCtxt (rho: RelEnv ME D') (eta :? interpSubCtxt G S) (eta' :? interpSubCtxt G S)
   <->
   semCtxt (EcS rho S) eta eta'.  
 Proof. induction G => //.  
-move => SUBST D' S rho ESrho [v eta] [v' eta']. 
+move => D' S rho [v eta] [v' eta']. 
 fold interpCtxt in *.
-specialize (IHG SUBST _ S _ ESrho eta eta').
+specialize (IHG _ S rho eta eta').
 simpl semCtxt.  
 rewrite -IHG. 
 rewrite !castConsCtxt. simpl. split. 
@@ -588,14 +526,13 @@ apply semSubst => //.
 Qed.  
 
 (* Theorem 1 *)
-Theorem Abstraction (SUBST: Substitutive ES) (RESPECT: Respectful A ES) D (G: Ctxt D) (t: Ty D) (M: Tm A G t) (rho: RelEnv D) eta1 eta2:
-  ES rho -> 
-  semCtxt rho eta1 eta2 -> semTy rho t (interpTm M eta1) (interpTm M eta2). 
-Proof. induction M => /= ESrho H. 
+Theorem Abstraction A (ME: ModelEnv A) D (G: Ctxt D) (t: Ty D) (M: Tm A G t) (rho: RelEnv ME D) eta1 eta2:
+  semCtxt rho eta1 eta2 -> semTy A rho t (interpTm M eta1) (interpTm M eta2). 
+Proof. induction M => /= H. 
 (* VAR *)
 apply AbstractionVar => //. 
 (* TYEQ *)
-apply semEquiv => //. apply IHM => //. 
+apply semEquiv => //. apply IHM => //.  
 (* UNIT *)
 done. 
 (* PAIR *)
@@ -610,7 +547,7 @@ apply IHM => //.
 apply IHM => //. 
 (* CASE *)
 simpl in IHM1.
-specialize (IHM1 rho eta1 eta2 ESrho H). 
+specialize (IHM1 rho eta1 eta2 H). 
 case E1: (interpTm M1 eta1) => [a | a]. 
 case E2: (interpTm M1 eta2) => [b | b]. 
 + rewrite E1 E2 in IHM1. by apply IHM2 => //. 
@@ -623,87 +560,35 @@ move => x x' xx'. apply IHM => //.
 (* APP *)
 apply IHM1 => //. apply IHM2 => //. 
 (* UNIVABS *)
-move => rho' ESrho' EXT.
-apply IHM => //. rewrite /ext in EXT. rewrite -EXT in H.
-apply semSubstCtxt => //. 
+move => k.
+apply IHM => //. 
+apply semSubstCtxt => //. by rewrite EcS_pi. 
 (* UNIVAPP *)
-specialize (IHM rho _ _ ESrho H). simpl in IHM.
-have ESrho': ES (EcS rho (consSub e (idSub D))) by apply (proj1 SUBST) => //. 
-have EXTrho': EcS rho (consSub e (idSub D)) >> rho.
-rewrite /ext/EcS. apply functional_extensionality_dep => p.  
-apply functional_extensionality => ixs. rewrite ScS_assoc. by rewrite consPi idScS. 
-specialize (IHM _ ESrho' EXTrho'). have SS := proj2 (semSubst _ _ _ _ _) IHM. 
-specialize (SS SUBST ESrho).
-apply: semTyCast SS.  
+specialize (IHM rho _ _ H). simpl in IHM. specialize (IHM (interpExp e rho)).
+have SS := proj2 (semSubst (ME:=ME) (consSub e (idSub D)) rho _ _). 
+rewrite EcS_consSub EcS_id in SS. 
+apply: semTyCast (SS _ _ _ IHM). 
 (* EXPACK *)
-specialize (IHM rho eta1 eta2 ESrho H). exists (EcS rho (consSub e (idSub D))). 
-split. apply (proj1 SUBST) => //. 
-split. rewrite /ext/EcS. 
-apply functional_extensionality_dep => p.  
-apply functional_extensionality => ixs. rewrite ScS_assoc. by rewrite consPi idScS. 
-have SS := (semSubst SUBST (consSub e (idSub D)) _ (interpTm M eta1 :? _) (interpTm M eta2 :? _) (t:=t) (rho:=rho)).
-destruct (SS ESrho (sym_equal (interpSubst _ _)) (sym_equal (interpSubst _ _))) as [SS1 _].
-clear SS. rewrite /up !cast_coalesce !cast_id in SS1. specialize (SS1 IHM).
-apply: semTyCast SS1. 
+exists (interpExp e rho). 
+have SS := proj1 (semSubst (ME:=ME) (consSub e (idSub D)) rho _ _).  
+rewrite EcS_consSub EcS_id in SS.
+apply SS. rewrite /up !cast_coalesce !cast_id.
+apply IHM => //. 
 (* EXUNPACK *)
-specialize (IHM1 rho eta1 eta2 ESrho H). simpl in IHM1. 
-destruct IHM1 as [rho' [ESrho' [EXTrho' IHM1]]].
+specialize (IHM1 rho eta1 eta2 H). simpl in IHM1. 
+destruct IHM1 as [k IHM1]. 
 simpl in IHM2.  
-specialize (IHM2 rho' (interpTm M1 eta1, eta1 :? interpSubCtxt G (pi D s))
-                      (interpTm M1 eta2, eta2 :? interpSubCtxt G (pi D s)) ESrho'). 
+specialize (IHM2 (k,rho) (interpTm M1 eta1, eta1 :? interpSubCtxt G (pi D s))
+                      (interpTm M1 eta2, eta2 :? interpSubCtxt G (pi D s))). 
 simpl in IHM2. 
-rewrite /ext in EXTrho'. 
-rewrite -EXTrho'. rewrite -EXTrho' in H. 
-have H2: semCtxt rho' (eta1 :? interpSubCtxt G (pi D s)) (eta2 :? interpSubCtxt G (pi D s)).
-by apply semSubstCtxt => //. 
+have H2: semCtxt ((k,rho):RelEnv ME (s::D)) (eta1 :? interpSubCtxt G (pi D s)) (eta2 :? interpSubCtxt G (pi D s)).
+apply semSubstCtxt => //. 
+by rewrite EcS_pi. 
 rewrite !cast_id. specialize (IHM2 (conj IHM1 H2)). 
-have SS := (@semSubst _ _ SUBST _ (pi D s) rho' ESrho'). rewrite /up in SS. 
-apply SS. rewrite !cast_coalesce !cast_id. apply IHM2. 
+have SS := (semSubst (pi D s) (k,rho)). rewrite /up in SS. 
+rewrite EcS_pi in SS. apply SS. rewrite !cast_coalesce !cast_id. apply IHM2. 
 Qed. 
 
-
-Lemma EcS_assoc D D' D'' (S1: Sub D D') (S2: Sub D' D'') rho :
-  EcS (EcS rho S2) S1 = EcS rho (ScS S2 S1).
-Proof. apply functional_extensionality_dep => p. 
-apply functional_extensionality => u.
-rewrite /EcS. by rewrite ScS_assoc. 
-Qed. 
-
-Lemma EcS_id D rho : EcS rho (idSub D) = rho. 
-Proof. apply functional_extensionality_dep => p. 
-apply functional_extensionality => u.
-by rewrite /EcS idScS. 
-Qed. 
-
-Structure ModelEnv := mkModelEnv {
-  M: Model A;
-  relInterp X : interpSeq (interpSrt M) (tyArity X) -> relation (interpPrim X)
-}.
-
-Definition modelRel (ME: ModelEnv) D d : RelEnv D := 
-  fun X es => @relInterp ME X (interpExps (subAsExps es) d). 
-
-Definition modelRelSet ME : RelEnvSet := fun D (rho: RelEnv D) => 
-  exists d, rho = @modelRel ME D d.
-
-(* This is Theorem 3 in the paper *)
-Theorem modelRelSetSubstitutive ME : Substitutive (modelRelSet ME). 
-Proof. split. 
-(* Closed under composition *)
-rewrite /ClosedUnderComp/modelRelSet. 
-move => D D' S rho [d ->]. 
-exists (interpExps (subAsExps S) d).
-apply functional_extensionality_dep => p. 
-apply functional_extensionality => es. 
-rewrite /EcS/modelRel. 
-apply f_equal.
-apply composeInterps. 
-
-(* Beck-Chevalley *)
-rewrite /LiftClosed.
-move => D D' s S rho1 ESrho1 rho2 ESrho2 EXT. 
-admit. 
-Qed. 
 
 End Sem.
 
