@@ -3,7 +3,10 @@ Abstraction and Invariance for Algebraically Indexed Types
 Robert Atkey, Patricia Johann (University of Strathclyde), 
 Andrew Kennedy (Microsoft Research Cambridge)
 
-This directory contains Coq sources for the POPL submission named above.
+This directory contains Coq sources for the POPL submission named above. Note that the
+framework is quite a bit simpler than the original paper, as we can prove non-inhabitation
+results using "model-based" environments, and so we have no need for "pre-substitutive" or
+"quantifier-free" qualification. See units.v for an example of a non-inhabitation proof. 
 
 To compile, you will need Coq 8.3pl4 or Coq 8.4, together with ssreflect 1.4.
 
@@ -41,4 +44,8 @@ geometry.v
 ---------- 
 This contains another example theory, namely
 that of 2-d translations as described in Sections 2.1 - 2.3.
+
+geometryext.v
+-------------
+Extended geometry example, formalizing Example 7. No applications of invariance yet.
 
