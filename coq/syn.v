@@ -4,6 +4,11 @@ Set Implicit Arguments.
 Unset Strict Implicit.
 Import Prenex Implicits.
 
+Reserved Notation "c '<' x , .. , y '>'" (at level 20, x, y at level 10).
+Reserved Notation "c '<>'" (at level 2). 
+Reserved Notation "c '_<' x , .. , y '>'" (at level 20, x, y at level 10).
+Reserved Notation "c '_<>' " (at level 2). 
+
 (*---------------------------------------------------------------------------
    Generally useful stuff for indexed products.
    We have a type T of "sorts", "kinds", "types", or whatever.
@@ -345,12 +350,11 @@ Corollary shiftApSub E E' s s' (S: Sub E E') (e: Exp E s) :
 Lemma liftScS E : forall E' E'' s (S:Sub E' E'') (S':Sub E E'),
   liftSub s (ScS S S') = ScS (liftSub s S) (liftSub s S').
 Proof. rewrite /liftSub/ScS. 
-move => E' E'' s S S'.  
-rewrite /= /shiftSub !mapCompose. 
+move => E' E'' s S S'.
+rewrite/= /shiftSub!mapCompose. 
 set m1 := (fun (s0: Srt sig) (x: Exp E' s0) => _). 
 set m2 := (fun (s0: Srt sig) (x: Exp E' s0) => _). 
-have: m1 = m2. 
-rewrite /m1/m2.
+have: m1=m2. rewrite /m1/m2.
 Require Import FunctionalExtensionality. 
 apply functional_extensionality_dep => p. 
 apply functional_extensionality => e.
@@ -535,14 +539,33 @@ Inductive Tm D (G: Ctxt D) : Ty D -> Type :=
 
 End Syntax.
 
+Implicit Arguments AppCon [sig D].
+Implicit Arguments TyPrim [sig D].
+
+(* Some handy notation for applying expression constructors *)
+Notation "c '<' x , .. , y '>'" := (AppCon c (Cons x .. (Cons y (Nil _)) .. )) : Exp_scope.
+Notation "c '<>'" := (AppCon c (Nil _)) : Exp_scope.
+
+Bind Scope Exp_scope with Exp. 
+Delimit Scope Exp_scope with Exp. 
+
+(* Some handy notation for applying type constructors *)
+Notation "c '_<' x , .. , y '>'" := (TyPrim c (Cons x .. (Cons y (Nil _)) .. )) :Ty_scope.
+Notation "c '_<>'" := (TyPrim c (Nil _)) : Ty_scope. 
 Notation "D '|-' e '===' f" := (@mkAx _ D _ e f) (at level 80, e, f at next level).
 Notation "t '-->' s" := (TyArr t s) (at level 55, right associativity) : Ty_scope.
 Notation "t * s" := (TyProd t s) (at level 40, left associativity) : Ty_scope.
 Notation "t + s" := (TySum t s) (at level 50, left associativity) : Ty_scope.
-Delimit Scope Ty_scope with Ty.
 
-Implicit Arguments AppCon [sig D].
-Implicit Arguments TyPrim [sig D].
+Notation "#0" := (VarAsExp (ixZ _ _)) : Ty_scope.
+Notation "#1" := (VarAsExp (ixS _ (ixZ _ _))) : Ty_scope.
+Notation "#2" := (VarAsExp (ixS _ (ixS _ (ixZ _ _)))) : Ty_scope.
+
+Definition all sig D s (t:Ty (sig:=sig) (s::D)) := TyAll (s:=s) t.
+Implicit Arguments all [sig D].
+
+Delimit Scope Ty_scope with Ty.
+Bind Scope Ty_scope with Ty.
 
 (* This is lemma 2, part 1 *)
 Lemma equivSubst sig D D' (S: Sub D D') : 

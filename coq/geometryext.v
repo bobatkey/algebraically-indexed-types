@@ -1,5 +1,6 @@
+Add LoadPath "/ssreflect-1.4/theories".
 Require Import ssreflect ssrbool ssrfun seq eqtype ssralg fintype finfun zmodp.
-Require Import ssrint rat ssrnum ssrnat. 
+Require Import ssrint rat ssrnum ssrnat matrix. 
 Require Import Relations.
 
 Require Import syn model sem.
@@ -8,21 +9,32 @@ Set Implicit Arguments.
 Unset Strict Implicit.
 Import Prenex Implicits.
 
+
 (*---------------------------------------------------------------------------
    Example: translations and change of basis
    This is currently Example 7 in the paper.
    ---------------------------------------------------------------------------*)
-Inductive ExSrt := T2 | GL2 | GL1 | O2.
-Inductive ExPrimType := TyVec | TyReal.
+Inductive ExSrt := 
+(* 2-d translations *)
+|  T2 
+(* 2-d linear transformations  *)
+| GL2 
+(* 1-d linear transformations, i.e. scalings and change of sign *)
+| GL1 
+(* 2-d orthogonal transformations, i.e. rotations and reflections *)
+| O2.
+
+Inductive ExPrimType := Vec | Scalar.
 
 (* Index operations *)
 Inductive ExIndexOp := 
-| T2Add | T2Neg | T2Zero 
+| T2Add | T2Neg | T2Zero  
 | GL2One | GL2Mul | GL2Inv
 | GL1One | GL1Mul | GL1Inv
 | O2One | O2Mul | O2Inv
 | O2Inj | GL1Det | GL1Inj | GL1Abs.
 
+(* Signature *)
 Canonical ExSIG := mkSIG
   (fun i => match i with 
   | T2Add => ([:: T2; T2], T2)
@@ -48,128 +60,129 @@ Canonical ExSIG := mkSIG
 
   end)
   (fun t => match t with 
-  | TyVec => [::GL2;T2] 
-  | TyReal => [::GL1] 
+  | Vec => [::GL2;T2] 
+  | Scalar => [::GL1] 
   end).
 
-Definition tyExpr D := Ty (sig:=ExSIG) D.
+Open Scope Exp_scope. 
+Notation "u '+' v" := (T2Add<u,v>) (at level 50, left associativity) : Tr_scope. 
+Notation "'-' u" := (T2Neg<u>) : Tr_scope.
+Notation "'zero'" := (T2Zero<>).
 
-Definition gl1One D: Exp D GL1  := 
-  AppCon GL1One (Nil _). 
-
-Definition gl1Mul D (u1 u2: Exp D GL1) : Exp D GL1 := 
-  AppCon GL1Mul (Cons u1 (Cons u2 (Nil _))).
-
-Definition gl1Inv D (u: Exp D GL1) : Exp D GL1 :=
-  AppCon GL1Inv (Cons u (Nil _)). 
-
-Definition gl1Inj D (u: Exp D GL1) : Exp D GL2 :=
-  AppCon GL1Inj (Cons u (Nil _)).
-
-Notation "u '+' v" := (AppCon T2Add (Cons u (Cons v (Nil _)))) (at level 50, left associativity) : Tr_scope. 
-Notation "'-' u" := (AppCon T2Neg (Cons u (Nil _))) : Tr_scope.
-Notation "'zero'" := (AppCon T2Zero (Nil _)).
-
-Notation "u '*' v" := (AppCon GL2Mul (Cons u (Cons v (Nil _)))) (at level 40, left associativity) : Gl_scope. 
-Notation "u '^-1'" := (AppCon GL2Inv (Cons u (Nil _))) : Gl_scope.
-Notation "'one'" := (AppCon GL2One (Nil _ )).
-Notation "'det' u" := (AppCon GL1Det (Cons u (Nil _))) (at level 10) : Gl_scope.
+Notation "u '*' v" := (GL2Mul<u,v>) (at level 40, left associativity) : Gl_scope. 
+Notation "u '^-1'" := (GL2Inv<u>) : Gl_scope.
+Notation "'one'" := (GL2One<>).
+Notation "'det' u" := (GL1Det<u>) (at level 10) : Gl_scope.
+Notation "'abs' u" := (GL1Abs<u>) (at level 10) : Gl_scope.
 Delimit Scope Tr_scope with Tr.
 Delimit Scope Gl_scope with Gl.
+Close Scope Exp_scope.
 
-Definition vec D (b: Exp D GL2) (t: Exp D T2) : tyExpr D :=
-  TyPrim TyVec (Cons b (Cons t (Nil _))).
-Definition real D (s: Exp D GL1) : tyExpr D :=
-  TyPrim TyReal (Cons s (Nil _)). 
+Open Scope Ty_scope.
 
-Arguments Scope vec [Tr_scope Gl_scope].
-Arguments Scope real [Gl_scope].
-
-Notation "#0" := (VarAsExp (ixZ _ _)).
-Notation "#1" := (VarAsExp (ixS _ (ixZ _ _))).
-Notation "#2" := (VarAsExp (ixS _ (ixS _ (ixZ _ _)))).
-Definition all D s (t:Ty (sig:=ExSIG) (s::D)) := TyAll (s:=s) t.
-Implicit Arguments all [D].
-
-Definition ExAxioms : seq (Ax ExSIG) :=
+(* We have so many theories here that it's easiest to parameterize a bit *)
+Definition AGAxioms (s: Srt ExSIG) 
+  (unit: forall D, Exp D s)
+  (op: forall D, Exp D s -> Exp D s -> Exp D s) 
+  (inv: forall D, Exp D s -> Exp D s) : seq (Ax ExSIG) :=
 [::
-(* additive AG for translations *)
   (* right identity *)
-  [::T2] |- #0 + zero === #0;
+  [::s] |- op _ #0 (unit _) === #0;
 
   (* commutativity *)
-  [::T2;T2] |- #0 + #1 === #1 + #0;
+  [::s;s] |- op _ #0 #1 === op _ #1 #0;
 
   (* associativity *)
-  [::T2;T2;T2] |- #0 + (#1 + #2) === (#0 + #1) + #2;
+  [::s;s;s] |- op _ #0 (op _ #1 #2) === op _ (op _ #0 #1) #2;
 
   (* right inverse *)
-  [::T2] |- #0 + - #0 === zero;
+  [::s] |- op _ #0 (inv _ #0) === unit _ 
+].
 
-(* multiplicative group for GL2 *)
+Definition GroupAxioms (s: Srt ExSIG) 
+  (unit: forall D, Exp D s) 
+  (op: forall D, Exp D s -> Exp D s -> Exp D s) 
+  (inv: forall D, Exp D s -> Exp D s) : seq (Ax ExSIG) :=
+[::
   (* right identity *)
-  [::GL2] |- #0 * one === #0;
+  [::s] |- op _ #0 (unit _) === #0;
 
   (* left identity *)
-  [::GL2] |- one * #0 === #0;
+  [::s] |- op _ (unit _) #0 === #0;
 
   (* associativity *)
-  [::GL2;GL2;GL2] |- #0 * (#1 * #2) === (#0 * #1) * #2;
+  [::s;s;s] |- op _ #0 (op _ #1 #2) === op _ (op _ #0 #1) #2;
 
   (* right inverse *)
-  [::GL2] |- #0 * #0 ^-1 === one;
+  [::s] |- op _ #0 (inv _ #0) === unit _;
 
   (* left inverse *)
-  [::GL2] |- #0 ^-1 * #0 === one;
+  [::s] |- op _ (inv _ #0) #0 === unit _ 
+].
+  
+Definition HomAxioms (s s': Srt ExSIG) 
+  (h: forall D, Exp D s -> Exp D s') 
+  (op: forall D, Exp D s -> Exp D s -> Exp D s)
+  (op': forall D, Exp D s' -> Exp D s' -> Exp D s') :=
+[::
+  [::s;s] |- h _ (op _ #0 #1) === op' _ (h _ #0) (h _ #1)
+].
+
+Open Scope Exp_scope.
+Definition ExAxioms : seq (Ax ExSIG) :=
+
+(* additive AG for translations *)
+  AGAxioms (fun D => T2Zero<>) (fun D u v => T2Add<u,v>) (fun D u => T2Neg<u>) ++
+
+(* multiplicative group for GL2 *)
+  GroupAxioms (fun D => GL2One<>) (fun D u v => GL2Mul<u,v>) (fun D u => GL2Inv<u>) ++ 
+
+(* multiplicative group for O2 *)
+  GroupAxioms (fun D => O2One<>) (fun D u v => O2Mul<u,v>) (fun D u => O2Inv<u>) ++ 
 
 (* multiplicative AG for GL1 *)
-  (* right identity *)
-  [::GL1] |- gl1Mul #0 (gl1One _) === #0;
+  AGAxioms (fun D => GL1One<>) (fun D u v => GL1Mul<u,v>) (fun D u => GL1Inv<u>) ++
 
-  (* commutativity *)
-  [::GL1;GL1] |- gl1Mul #0 #1 === gl1Mul #1 #0;
+(* det is homomorphism *)
+  HomAxioms (fun D u => GL1Det<u>) (fun D u v => GL2Mul<u,v>) (fun D u v => GL1Mul<u,v>) ++
 
-  (* associativity *)
-  [::GL1;GL1;GL1] |- gl1Mul #0 (gl1Mul #1 #2) === gl1Mul (gl1Mul #0 #1) #2;
+(* abs is homomorphism *)
+  HomAxioms (fun D u => GL1Abs<u>) (fun D u v => GL1Mul<u,v>) (fun D u v => GL1Mul<u,v>) ++
 
-  (* right inverse *)
-  [::GL1] |- gl1Mul #0 (gl1Inv #0) === (gl1One _);
+(* inj: GL1 -> GL2 is homomorphism *)
+  HomAxioms (fun D u => GL1Inj<u>) (fun D u v => GL1Mul<u,v>) (fun D u v => GL2Mul<u,v>) ++
 
-  (* det is homomorphism *)
-  [::GL2; GL2] |- det (#0 * #1) === gl1Mul (det #0) (det #1)
+(* inj: O2 -> GL2 is homomorphism *)
+  HomAxioms (fun D u => O2Inj<u>) (fun D u v => O2Mul<u,v>) (fun D u v => GL2Mul<u,v>).
 
-
-]%Tr%Gl.
-
-Definition trEquiv D : relation (Exp D T2) := equiv (sig:=ExSIG) ExAxioms.
-Definition glEquiv D : relation (Exp D GL2) := equiv (sig:=ExSIG) ExAxioms.
+Definition trEquiv D : relation (Exp D T2) := equiv ExAxioms.
+Definition glEquiv D : relation (Exp D GL2) := equiv ExAxioms.
 
 Definition Gops : Ctxt [::] :=
 [::
   (* 0 *)
-  all GL2 (vec #0 zero);
+  all GL2 (Vec _<#0, zero>);
 
   (* + *)
-  all T2 (all T2 (all GL2 (vec #0 #1 --> vec #0 #2 --> vec #0 (#1 + #2)%Tr)));
+  all T2 (all T2 (all GL2 (Vec _<#0, #1> --> Vec _<#0, #2> --> Vec _<#0, (#1 + #2)%Tr>)));
 
   (* negate *)
-  all T2 (all GL2 (vec #0 #1 --> vec #0 (- #1)))%Tr;
+  all T2 (all GL2 (Vec _<#0,#1> --> Vec _<#0, (- #1)>))%Tr;
 
   (* * *)
-  all GL2 (real (gl1One _) --> vec #0 zero --> vec #0 zero);
+  all GL2 (Scalar _<GL1One<>> --> Vec _<#0,zero> --> Vec _<#0, zero>);
 
   (* cross *)
-  all GL2 (vec #0 zero --> vec #0 zero --> real (det #0))%Gl
-]%Ty.
+  all GL2 (Vec _<#0,zero> --> Vec _<#0,zero> --> Scalar _<det #0>)%Gl
+].
 
-Require Import matrix.
 Variable F: numFieldType.
 
 (* n-vector of F *)
 Notation "''vec_' n" := ('cV[F]_n) (at level 8, n at level 2, format "''vec_' n").
 
 Definition interpPrim: PrimType ExSIG -> Type := 
-  fun p => match p with TyVec => 'vec_2 | TyReal => F end.
+  fun p => match p with Vec => 'vec_2 | Scalar => F end.
 
 Open Scope ring_scope.
 
@@ -333,7 +346,8 @@ Definition TransformModel : Model ExAxioms.
 Proof. 
 apply (@mkModel _ ExAxioms TransformInterpretation). 
 split. 
-(* additive right identity *)
+(*------------------------ additive AG for translations -----------------------*)
+(* right identity *)
 move => /= [x u] /=. by rewrite /= GRing.addr0. 
 split. 
 (* commutativity *)
@@ -345,12 +359,13 @@ split.
 (* right inverse *)
 move => /= [x u] /=. by rewrite GRing.addrN. 
 split.
-(* multiplicative right identity *)
+(*------------------------  multiplicative group for GL2 ---------------------*)
+(* right identity *)
 move => /= [x u] /=.
 apply GL_inj. 
 by rewrite /= mulmx1.
 split. 
-(* multiplicative left identity *)
+(* left identity *)
 move => /= [x u] /=.
 apply GL_inj.
 by rewrite /= mul1mx.
@@ -370,7 +385,35 @@ move => /= [x u] /=.
 apply GL_inj. 
 rewrite /= mulVmx => //. by destruct x. 
 split.
-(* multiplicative right identity for GL1 *)
+(*-------------------------- multiplicative group for O2 ---------------------- *)
+(* right identity *)
+move => /= [x u] /=.
+apply O_inj; apply GL_inj. 
+by rewrite /= mulmx1.
+split. 
+(* left identity *)
+move => /= [x u] /=.
+apply O_inj; apply GL_inj.
+by rewrite /= mul1mx.
+split. 
+(* associativity *)
+move => /= [x [y [z u]]] /=. 
+apply O_inj; apply GL_inj.
+by rewrite /= mulmxA. 
+split. 
+(* right inverse *)
+move => [x u] /=. 
+apply O_inj; apply GL_inj. 
+rewrite /= mulmxV => //. destruct x as [xval xH]. by destruct xval.  
+split.
+(* left inverse *)
+move => /= [x u] /=. 
+apply O_inj; apply GL_inj.
+rewrite /= mulVmx => //. destruct x as [xval xH]. by destruct xval. 
+split.
+
+(*---------------------------- multiplicative AG for GL1 ------------------------*)
+(* right identity for GL1 *)
 move => /= [x u] /=.
 apply GL_inj. 
 by rewrite /= mulmx1.
@@ -398,12 +441,40 @@ move => [x u] /=.
 apply GL_inj. 
 rewrite /= mulmxV => //. by destruct x.  
 split.
+
 (* det is homomorphism *)
 move => [x [y u]] /=. 
 apply GL_inj. 
 simpl. rewrite det_mulmx/=. 
 by rewrite scalar_mx_is_multiplicative. 
 split. 
+(* abs is homomorphism *)
+move =>/= [x [y u]].
+apply GL_inj. simpl. 
+unfold toScalar. (* Weirdly, rewrite /toScalar doesn't unfold *)
+destruct x as [xval xH]. destruct y as [yval yH]. simpl in xval, yval. 
+simpl. 
+rewrite -scalar_mxM -Num.Theory.normrM. 
+apply f_equal. 
+(* Here we unfold the definition of matrix multiplication. This shouldn't be necessary *)
+rewrite mxE. by rewrite big_ord1. 
+
+split. 
+(* inj: GL1 -> GL2 is homomorphism *)
+move =>/= [x [y u]].
+apply GL_inj. simpl. 
+unfold toScalar. (* Weirdly, rewrite /toScalar doesn't unfold *)
+destruct x as [xval xH]. destruct y as [yval yH]. simpl in xval, yval. 
+simpl. 
+rewrite -scalar_mxM.  
+apply f_equal. 
+(* Here we unfold the definition of matrix multiplication. This shouldn't be necessary *)
+rewrite mxE. by rewrite big_ord1. 
+split.
+(* inj: O2 -> GL2 is homomorphism *)
+move =>/= [x [y u]].
+by apply GL_inj. 
+split.
 Defined. 
 
 Definition transformBy (B: 'GL_2) (t v: 'vec_2) := val B *m v + t. 
@@ -411,8 +482,8 @@ Definition transformBy (B: 'GL_2) (t v: 'vec_2) := val B *m v + t.
 Definition TransformModelEnv := mkModelEnv (interpPrim := interpPrim) (M:=TransformModel)
   (fun X => 
     match X with 
-    | TyReal => fun realargs => fun x y => y = x * determinant (val realargs.1)
-    | TyVec  => fun vecArgs =>  fun v w => w = transformBy vecArgs.1 vecArgs.2.1 v 
+    | Scalar => fun realargs => fun x y => y = x * determinant (val realargs.1)
+    | Vec  => fun vecArgs =>  fun v w => w = transformBy vecArgs.1 vecArgs.2.1 v 
     end). 
 
 Definition transformSemTy D := semTy (ME:=TransformModelEnv) (D:=D).
@@ -463,4 +534,3 @@ rewrite det_scalar1.
 rewrite -!mul_mx_row. rewrite !det_mulmx. by rewrite GRing.mulrC. 
 split. 
 Qed. 
-

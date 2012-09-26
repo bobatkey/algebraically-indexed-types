@@ -3,6 +3,8 @@ TARGETS = Rel.vo \
           Casts.vo \
           syn.vo \
           units.vo \
+          geometry.vo \
+          geometryext.vo \
           sem.vo \
           equivalence.vo \
-          iso.vo
+          model.vo \

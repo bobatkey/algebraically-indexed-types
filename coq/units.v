@@ -1,3 +1,4 @@
+Add LoadPath "/ssreflect-1.4/theories".
 Require Import ssreflect ssrbool ssrfun seq eqtype ssralg.
 Require Import ssrint rat ssrnum. 
 
@@ -13,7 +14,7 @@ Import Prenex Implicits.
    Syntactic theory of scalings
    ---------------------------------------------------------------------------*)
 Inductive ExSrt := Unit.
-Inductive ExPrimType := TyReal.
+Inductive ExPrimType := Scalar.
 Inductive ExIndexOp := UnitProd | UnitInv | UnitOne | UnitAbs.
 
 Canonical ExSIG := mkSIG
@@ -21,39 +22,24 @@ Canonical ExSIG := mkSIG
                        | UnitInv => ([:: Unit], Unit)
                        | UnitOne => ([::], Unit) 
                        | UnitAbs => ([:: Unit], Unit) end)
-  (fun t => match t with TyReal => [::Unit] end).
+  (fun t => match t with Scalar => [::Unit] end).
 
 
 Definition unitExpr D := Exp D Unit.
 Definition tyExpr D := Ty (sig:=ExSIG) D.
 
-Definition unitOne D: unitExpr D  := 
-  AppCon UnitOne (Nil _). 
-
-Definition unitProd D (u1 u2: unitExpr D) : unitExpr D := 
-  AppCon UnitProd (Cons u1 (Cons u2 (Nil _))).
-
-Definition unitInv D (u: unitExpr D) : unitExpr D :=
-  AppCon UnitInv (Cons u (Nil _)). 
-
-Definition abs D (u: unitExpr D) : unitExpr D :=
-  AppCon UnitAbs (Cons u (Nil _)). 
-
-Notation "u '*' v" := (unitProd u v) (at level 40, left associativity) : Unit_scope. 
-Notation "u ^-1" := (unitInv u) (at level 3, left associativity, format "u ^-1") : Unit_scope.
-Notation "'one'" := (unitOne _). 
+Open Scope Exp_scope.
+Notation "u '*' v" := (UnitProd<u,v>) (at level 40, left associativity) : Unit_scope. 
+Notation "u ^-1" := (UnitInv<u>) (at level 3, left associativity, format "u ^-1") : Unit_scope.
+Notation "'abs' u" := (UnitAbs<u>) (at level 5, left associativity) : Unit_scope.
+Notation "'one'" := (UnitOne<>). 
 Delimit Scope Unit_scope with Un.
 
-Definition real D (u: unitExpr D) : tyExpr D :=
-  TyPrim TyReal (Cons u (Nil _)).  
-Arguments Scope real [Unit_scope].
+Definition scalar D (u: unitExpr D) : tyExpr D :=
+  TyPrim Scalar (Cons u (Nil _)).  
+Arguments Scope scalar [Unit_scope].
 
-Definition allUnits D (t: tyExpr (Unit::D)) : tyExpr D := TyAll t. 
-
-Notation "#0" := (VarAsExp (ixZ _ _)).
-Notation "#1" := (VarAsExp (ixS _ (ixZ _ _))).
-Notation "#2" := (VarAsExp (ixS _ (ixS _ (ixZ _ _)))).
-
+Open Scope Ty_scope.
 Definition ExAxioms : seq (Ax ExSIG) :=
 [::
   (* right identity *)
@@ -77,26 +63,26 @@ Definition uequiv D : relation (unitExpr D) := equiv (sig:=ExSIG) ExAxioms.
 Definition Gops : Ctxt [::] := 
 [::
   (* 0 *)
-  allUnits (real #0);
+  all Unit (scalar #0);
 
   (* 1 *)
-  real one;
+  scalar one;
 
   (* + *)
-  allUnits (real #0 --> real #0 --> real #0);
+  all Unit (scalar #0 --> scalar #0 --> scalar #0);
 
   (* - *)
-  allUnits (real #0 --> real #0 --> real #0);
+  all Unit (scalar #0 --> scalar #0 --> scalar #0);
 
   (* * *)
-  allUnits (allUnits (real #0 --> real #1 --> real (#0 * #1)%Un));
+  all Unit (all Unit (scalar #0 --> scalar #1 --> scalar (#0 * #1)%Un));
 
   (* reciprocal *)
-  allUnits (real #0 --> real #0^-1 + TyUnit _)%Un;
+  all Unit (scalar #0 --> scalar #0^-1 + TyUnit _)%Un;
 
   (* abs *)
-  allUnits (real #0 --> real (abs #0))
-]%Ty.
+  all Unit (scalar #0 --> scalar (abs #0))
+]%Ty%Un.
 
 (*---------------------------------------------------------------------------
    Underlying semantics
@@ -194,7 +180,7 @@ Defined.
 
 Definition ScalingModelEnv := mkModelEnv (interpPrim := interpPrim) (M:=ScalingModel)
   (fun X => 
-    match X with TyReal => 
+    match X with Scalar => 
     fun realArgs => 
     fun x y => y = (val realArgs.1 * x)%R end). 
 
@@ -306,7 +292,7 @@ Defined.
 
 Definition ExpModelEnv := mkModelEnv (interpPrim := interpPrim) (M:=ExpModel)
   (fun X => 
-    match X with TyReal => 
+    match X with Scalar => 
     fun expArgs => 
     fun x y => (x==0%R /\ y==0%R \/ (x == y%R /\ expArgs.1 \is a Qint)) end). 
 
@@ -396,7 +382,7 @@ Qed.
    First we prove that the type of square root contains only \x.0
    ---------------------------------------------------------------------------*)
 
-Definition sqrtTy : Ty [::] := allUnits (real (#0 * #0)%Un --> real #0)%Ty.
+Definition sqrtTy : Ty [::] := all Unit (scalar (#0 * #0)%Un --> scalar #0)%Ty.
 
 Open Scope ring_scope.
 Lemma sqrtTrivial (f:F->F) : 
@@ -412,7 +398,7 @@ Qed.
    Next we prove that the type of squaring exhibits a scaling property
    ---------------------------------------------------------------------------*)
 
-Definition sqrTy : Ty [::] := allUnits (real #0 --> real (#0 * #0)%Un)%Ty.
+Definition sqrTy : Ty [::] := all Unit (scalar #0 --> scalar (#0 * #0)%Un)%Ty.
 
 Lemma sqrScaling (f:F->F) :   
   scalingSemTy (t:=sqrTy) initialScalingEnv f f -> 

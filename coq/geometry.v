@@ -1,5 +1,6 @@
+Add LoadPath "/ssreflect-1.4/theories".
 Require Import ssreflect ssrbool ssrfun seq eqtype ssralg.
-Require Import ssrint rat ssrnum. 
+Require Import ssrint rat ssrnum matrix. 
 Require Import Relations.
 
 Require Import syn model sem.
@@ -12,7 +13,7 @@ Import Prenex Implicits.
    Example: translations
    ---------------------------------------------------------------------------*)
 Inductive ExSrt := T2.
-Inductive ExPrimType := TyVec | TyReal.
+Inductive ExPrimType := Vec | Scalar.
 
 Inductive ExIndexOp := TAdd | TNeg | TZero.
 
@@ -20,40 +21,25 @@ Canonical ExSIG := mkSIG
   (fun i => match i with TAdd => ([:: T2; T2], T2)
                        | TNeg => ([:: T2], T2)
                        | TZero => ([::], T2) end)
-  (fun t => match t with TyVec => [::T2] 
-                       | TyReal => [::] end).
+  (fun t => match t with Vec => [::T2] 
+                       | Scalar => [::] end).
 
 
 Definition trExpr D := Exp D T2.
 Definition tyExpr D := Ty (sig:=ExSIG) D.
 
-Definition trZero D: trExpr D  := 
-  AppCon TZero (Nil _). 
-
-Definition trAdd D (u1 u2: trExpr D) : trExpr D := 
-  AppCon TAdd (Cons u1 (Cons u2 (Nil _))).
-
-Definition trNeg D (u: trExpr D) : trExpr D :=
-  AppCon TNeg (Cons u (Nil _)). 
-
-
-Notation "u '+' v" := (trAdd u v) (at level 50, left associativity) : Tr_scope. 
-Notation "'-' u" := (trNeg u) : Tr_scope.
-Notation "'zero'" := (trZero _). 
+Open Scope Exp_scope. 
+Notation "u '+' v" := (TAdd<u,v>) (at level 50, left associativity) : Tr_scope. 
+Notation "'-' u" := (TNeg<u>) : Tr_scope.
+Notation "'zero'" := (TZero<>). 
 Delimit Scope Tr_scope with Tr.
 
 Definition vec D (u: trExpr D) : tyExpr D :=
-  TyPrim TyVec (Cons u (Nil _)).
-Definition real D : tyExpr D :=
-  TyPrim TyReal (Nil _). 
+  TyPrim Vec (Cons u (Nil _)).
+Definition scalar D : tyExpr D :=
+  TyPrim Scalar (Nil _). 
 
 Arguments Scope vec [Tr_scope].
-
-Definition allTr D (t: tyExpr (T2::D)) : tyExpr D := TyAll t. 
-
-Notation "#0" := (VarAsExp (ixZ _ _)).
-Notation "#1" := (VarAsExp (ixS _ (ixZ _ _))).
-Notation "#2" := (VarAsExp (ixS _ (ixS _ (ixZ _ _)))).
 
 Definition ExAxioms : seq (Ax ExSIG) :=
 [::
@@ -68,7 +54,7 @@ Definition ExAxioms : seq (Ax ExSIG) :=
 
   (* right inverse *)
   [::T2] |- #0 + - #0 === zero
-]%Tr.
+]%Tr%Ty.
 
 Definition trEquiv D : relation (trExpr D) := equiv (sig:=ExSIG) ExAxioms.
 
@@ -78,10 +64,10 @@ Definition Gops : Ctxt [::] :=
   (vec zero);
 
   (* + *)
-  allTr (allTr (vec #0 --> vec #1 --> vec (#0 + #1)%Tr));
+  all T2 (all T2 (vec #0 --> vec #1 --> vec (#0 + #1)%Tr));
 
   (* - *)
-  allTr (vec #0 --> vec ( - #0))%Tr
+  all T2 (vec #0 --> vec ( - #0))%Tr
 ]%Ty.
 
 (*
@@ -101,14 +87,13 @@ Fixpoint tr D A (G: Ctxt D) (v:bool) : Tm ExAxioms G A -> Tm ExAxioms G A :=
   end.
 *)
 
-Require Import matrix.
 Variable F: numFieldType.
 
 (* 2-d column vector of F *)
 Definition myvec := 'cV[F]_2. 
 
 Definition interpPrim: PrimType ExSIG -> Type := 
-  fun p => match p with TyVec => myvec | TyReal => F end.
+  fun p => match p with Vec => myvec | Scalar => F end.
 
 Definition myzero : myvec := 0%R .
 Definition myadd (v w: myvec): myvec := (v+w)%R.
@@ -154,8 +139,8 @@ Defined.
 
 Definition TransModelEnv := mkModelEnv (interpPrim := interpPrim) (M:=TransModel)
   (fun X => 
-    match X with TyReal => fun realargs => fun x y => x=y 
-               | TyVec => fun vecArgs =>fun x y => y = (vecArgs.1 + x)%R end). 
+    match X with Scalar => fun realargs => fun x y => x=y 
+               | Vec => fun vecArgs =>fun x y => y = (vecArgs.1 + x)%R end). 
 
 Definition transSemTy D := semTy (ME:=TransModelEnv) (D:=D).
 
@@ -224,8 +209,8 @@ Defined.
 
 Definition ExpModelEnv := mkModelEnv (interpPrim := interpPrim) (M:=ExpModel)
   (fun X => 
-    match X with TyReal => fun realArgs x y => x=y
-               | TyVec => fun vecArgs x y => (x == y%R /\ vecArgs.1 \is a Qint) end). 
+    match X with Scalar => fun realArgs x y => x=y
+               | Vec => fun vecArgs x y => (x == y%R /\ vecArgs.1 \is a Qint) end). 
 
 Definition expSemTy D := semTy (ME:=ExpModelEnv) (D:=D).
 
@@ -267,7 +252,7 @@ Qed.
    First we prove that there are no terms with the type forall t, vec(t+t) -> vec t
    ---------------------------------------------------------------------------*)
 
-Definition badTy : Ty [::] := allTr (vec (#0 + #0)%Tr --> vec #0)%Ty.
+Definition badTy : Ty [::] := all T2 (vec (#0 + #0)%Tr --> vec #0)%Ty.
 
 Open Scope ring_scope.
 Lemma badTyUninhabited (f:myvec->myvec) : 
@@ -283,7 +268,7 @@ Qed.
    Next we prove that the type of areaTri exhibits a translation property
    ---------------------------------------------------------------------------*)
 
-Definition triTy : Ty [::] := allTr (vec #0 --> vec #0 --> vec #0 --> real _)%Tr%Ty.
+Definition triTy : Ty [::] := all T2 (vec #0 --> vec #0 --> vec #0 --> scalar _)%Tr%Ty.
 
 Lemma triTrans (f:myvec->myvec->myvec->F) :   
   transSemTy (t:=triTy) initialTransEnv f f -> 
