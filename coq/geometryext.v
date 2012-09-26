@@ -1,4 +1,3 @@
-Add LoadPath "/ssreflect-1.4/theories".
 Require Import ssreflect ssrbool ssrfun seq eqtype ssralg fintype finfun zmodp.
 Require Import ssrint rat ssrnum ssrnat matrix. 
 Require Import Relations.
@@ -164,33 +163,38 @@ Definition Gops : Ctxt [::] :=
   all GL2 (Vec _<#0, zero>);
 
   (* + *)
-  all T2 (all T2 (all GL2 (Vec _<#0, #1> --> Vec _<#0, #2> --> Vec _<#0, (#1 + #2)%Tr>)));
+  all T2 (all T2 (all GL2 (Vec _<#0, #1> --> Vec _<#0, #2> --> Vec _<#0, (#1 + #2)>)));
 
   (* negate *)
-  all T2 (all GL2 (Vec _<#0,#1> --> Vec _<#0, (- #1)>))%Tr;
+  all T2 (all GL2 (Vec _<#0,#1> --> Vec _<#0, (- #1)>));
 
   (* * *)
   all GL2 (Scalar _<GL1One<>> --> Vec _<#0,zero> --> Vec _<#0, zero>);
 
   (* cross *)
-  all GL2 (Vec _<#0,zero> --> Vec _<#0,zero> --> Scalar _<det #0>)%Gl
-].
+  all GL2 (Vec _<#0,zero> --> Vec _<#0,zero> --> Scalar _<det #0>);
+
+  (* dot *)
+  all O2 (Vec _<O2Inj<#0>, zero> --> Vec _<O2Inj<#0>, zero> --> Scalar _<GL1One<>>)
+]%Tr%Gl.
 
 Variable F: numFieldType.
 
 (* n-vector of F *)
 Notation "''vec_' n" := ('cV[F]_n) (at level 8, n at level 2, format "''vec_' n").
 
-Definition interpPrim: PrimType ExSIG -> Type := 
-  fun p => match p with Vec => 'vec_2 | Scalar => F end.
+Definition interpPrim p := match p with Vec => 'vec_2 | Scalar => F end.
 
 Open Scope ring_scope.
 
 (* Cross product for 2-d vectors is just the determinant of the vectors pasted together *)
 Definition cross (v w: 'vec_2) := \det (row_mx v w). 
 
+(* Dot product *)
+Definition dot (v w: 'vec_2) := (v^T *m w) 0 0. 
+
 Definition eta_ops : interpCtxt interpPrim Gops :=
-  (0%R, (+%R, (-%R, ( *:%R, (cross, tt))))). 
+  (0%R, (+%R, (-%R, ( *:%R, (cross, (dot, tt)))))). 
 
 (*---------------------------------------------------------------------------
    Our first relational interpretation: translations and change of basis
@@ -532,5 +536,16 @@ rewrite /cross/transformBy.
 rewrite !GRing.addr0 /=. 
 rewrite det_scalar1.
 rewrite -!mul_mx_row. rewrite !det_mulmx. by rewrite GRing.mulrC. 
+split.
+(* dot *)
+move => /=B. 
+move => x x' ->.
+move => y y' ->.
+rewrite /dot/transformBy/=. 
+rewrite det1 !GRing.addr0 GRing.mulr1. 
+rewrite trmx_mul. 
+rewrite mulmxA -(mulmxA x^T). destruct B as [B BH]. simpl. 
+rewrite /orthogonal/= in BH. rewrite (eqP BH). 
+rewrite mulVmx. by rewrite mulmx1. destruct B as [B BH']. apply BH'. 
 split. 
 Qed. 
