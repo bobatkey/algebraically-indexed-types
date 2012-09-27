@@ -1,6 +1,5 @@
 Require Import ssreflect ssrbool ssrfun seq.
 Require Import Relations Program.Equality.
-Require Import FunctionalExtensionality. 
 Set Implicit Arguments.
 Unset Strict Implicit.
 Import Prenex Implicits.
@@ -287,10 +286,10 @@ move => [rho' H]. exists rho'. rewrite IHE => //.
 apply H. 
 Qed. 
 
-(*
-Lemma sem_difunctional (ME:ModelEnv) : 
-  (forall D (psi: RelEnv ME D) p, difunctional (psi p)) ->
-  forall D (t: Ty D) (psi: RelEnv ME D), existentialFree t -> difunctional (semTy psi t).
+(* If the base relations are difunctional, so is the semantics of types *)
+Lemma sem_difunctional A (ME: ModelEnv A) : 
+  (forall p (rho: RelEnv ME (tyArity p)), difunctional (relInterp rho)) ->
+  forall D (t: Ty D) (psi: RelEnv ME D), existentialFree t -> difunctional (semTy A psi t).
 Proof.
   move => DIF. 
   induction t => /= rho EF. 
@@ -299,44 +298,31 @@ Proof.
   by intuition. 
 
   (* TyProd *) 
-  destruct EF as [EF1 EF2].
+  elim: EF => [EF1 EF2].
   specialize (IHt1 rho EF1). specialize (IHt2 rho EF2). by apply: prod_difunctional.  
 
   (* TySum *)
-  destruct EF as [EF1 EF2].
+  elim: EF => [EF1 EF2].
   specialize (IHt1 rho EF1). specialize (IHt2 rho EF2). by apply: sum_difunctional.
 
   (* TyArrow *)
-  destruct EF as [EF1 EF2].
+  elim: EF => [EF1 EF2].
   specialize (IHt1 rho EF1). specialize (IHt2 rho EF2). by apply: arrow_difunctional. 
 
   (* TyBase *)
   apply DIF.     
 
   (* For all *)
-  intros x x' y y' xy x'y' xy'.
-  intros psi' ESpsi' ext.
-  assert (xy0 := xy psi' ESpsi' ext).
-  assert (x'y'0 := x'y' psi' ESpsi' ext).
-  assert (xy'0 := xy' psi' ESpsi' ext).
-  by apply (IHt psi' EF x x' y y' xy0 x'y'0 xy'0). 
+  intros x x' y y' xy x'y' xy' k.
+  assert (xy0 := xy k).
+  assert (x'y'0 := x'y' k).
+  assert (xy'0 := xy' k).
+  by apply (IHt (k,rho) EF x x' y y' xy0 x'y'0 xy'0). 
 
   (* Exists *)
   (* We don't have a nice property regarding composition, can't do existentials *)
   done.   
-  (*rewrite /difunctional. 
-  intros x x' y y' xy x'y' xy'.
-  destruct xy as [rho0 [ESrho0 [EXTrho0 H0]]].
-  destruct x'y' as [rho1 [ESrho1 [EXTrho1 H1]]].  
-  destruct xy' as [rho2 [ESrho2 [EXTrho2 H2]]].  
-  (* Could we do this? *)
-  set rho' := composeEnv rho1 (composeEnv (invEnv rho2) rho0).
-  exists rho'.   
-*)
 Qed. 
-
-*)
-
 
 Lemma EcS_consSub A (ME: ModelEnv A) D D' s (e: Exp D' s) (S: Sub D D') (rho: RelEnv ME D') :
   EcS rho (consSub e S) = (interpExp e rho, EcS rho S). 

@@ -4,10 +4,10 @@ Set Implicit Arguments.
 Unset Strict Implicit.
 Import Prenex Implicits.
 
-Reserved Notation "c '<' x , .. , y '>'" (at level 20, x, y at level 10).
+Reserved Notation "c '<' x , .. , y '>'" (at level 30, x, y at next level).
 Reserved Notation "c '<>'" (at level 2). 
-Reserved Notation "c '_<' x , .. , y '>'" (at level 20, x, y at level 10).
-Reserved Notation "c '_<>' " (at level 2). 
+Reserved Notation "c '.<' x , .. , y '>'" (at level 30, x, y at next level).
+Reserved Notation "c '.<>' " (at level 2). 
 
 (*---------------------------------------------------------------------------
    Generally useful stuff for indexed products.
@@ -550,8 +550,8 @@ Bind Scope Exp_scope with Exp.
 Delimit Scope Exp_scope with Exp. 
 
 (* Some handy notation for applying type constructors *)
-Notation "c '_<' x , .. , y '>'" := (TyPrim c (Cons x .. (Cons y (Nil _)) .. )) :Ty_scope.
-Notation "c '_<>'" := (TyPrim c (Nil _)) : Ty_scope. 
+Notation "c '.<' x , .. , y '>'" := (TyPrim c (Cons x .. (Cons y (Nil _)) .. )) :Ty_scope.
+Notation "c '.<>'" := (TyPrim c (Nil _)) : Ty_scope. 
 Notation "D '|-' e '===' f" := (@mkAx _ D _ e f) (at level 80, e, f at next level).
 Notation "t '-->' s" := (TyArr t s) (at level 55, right associativity) : Ty_scope.
 Notation "t * s" := (TyProd t s) (at level 40, left associativity) : Ty_scope.

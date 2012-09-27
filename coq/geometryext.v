@@ -31,7 +31,7 @@ Inductive ExIndexOp :=
 | GL2One | GL2Mul | GL2Inv
 | GL1One | GL1Mul | GL1Inv
 | O2One | O2Mul | O2Inv
-| O2Inj | GL1Det | GL1Inj | GL1Abs.
+| O2Inj | GL2Det | GL1Inj | GL1Abs.
 
 (* Signature *)
 Canonical ExSIG := mkSIG
@@ -49,7 +49,7 @@ Canonical ExSIG := mkSIG
   | GL1Inv => ([:: GL1], GL1)
   | GL1Inj => ([::GL1], GL2)
 
-  | GL1Det => ([::GL2], GL1)
+  | GL2Det => ([::GL2], GL1)
   | GL1Abs => ([::GL1], GL1)
 
   | O2One => ([::], O2)
@@ -62,20 +62,6 @@ Canonical ExSIG := mkSIG
   | Vec => [::GL2;T2] 
   | Scalar => [::GL1] 
   end).
-
-Open Scope Exp_scope. 
-Notation "u '+' v" := (T2Add<u,v>) (at level 50, left associativity) : Tr_scope. 
-Notation "'-' u" := (T2Neg<u>) : Tr_scope.
-Notation "'zero'" := (T2Zero<>).
-
-Notation "u '*' v" := (GL2Mul<u,v>) (at level 40, left associativity) : Gl_scope. 
-Notation "u '^-1'" := (GL2Inv<u>) : Gl_scope.
-Notation "'one'" := (GL2One<>).
-Notation "'det' u" := (GL1Det<u>) (at level 10) : Gl_scope.
-Notation "'abs' u" := (GL1Abs<u>) (at level 10) : Gl_scope.
-Delimit Scope Tr_scope with Tr.
-Delimit Scope Gl_scope with Gl.
-Close Scope Exp_scope.
 
 Open Scope Ty_scope.
 
@@ -143,7 +129,7 @@ Definition ExAxioms : seq (Ax ExSIG) :=
   AGAxioms (fun D => GL1One<>) (fun D u v => GL1Mul<u,v>) (fun D u => GL1Inv<u>) ++
 
 (* det is homomorphism *)
-  HomAxioms (fun D u => GL1Det<u>) (fun D u v => GL2Mul<u,v>) (fun D u v => GL1Mul<u,v>) ++
+  HomAxioms (fun D u => GL2Det<u>) (fun D u v => GL2Mul<u,v>) (fun D u v => GL1Mul<u,v>) ++
 
 (* abs is homomorphism *)
   HomAxioms (fun D u => GL1Abs<u>) (fun D u v => GL1Mul<u,v>) (fun D u v => GL1Mul<u,v>) ++
@@ -157,26 +143,28 @@ Definition ExAxioms : seq (Ax ExSIG) :=
 Definition trEquiv D : relation (Exp D T2) := equiv ExAxioms.
 Definition glEquiv D : relation (Exp D GL2) := equiv ExAxioms.
 
+Definition Point D (B:Exp D GL2) := Vec.<B,T2Zero<>>.
+
 Definition Gops : Ctxt [::] :=
 [::
   (* 0 *)
-  all GL2 (Vec _<#0, zero>);
+  all GL2 (Point #0);
 
   (* + *)
-  all T2 (all T2 (all GL2 (Vec _<#0, #1> --> Vec _<#0, #2> --> Vec _<#0, (#1 + #2)>)));
+  all T2 (all T2 (all GL2 (Vec.<#0, #1> --> Vec.<#0, #2> --> Vec.<#0, (T2Add<#1,#2>)>)));
 
   (* negate *)
-  all T2 (all GL2 (Vec _<#0,#1> --> Vec _<#0, (- #1)>));
+  all T2 (all GL2 (Vec.<#0,#1> --> Vec.<#0, (T2Neg<#1>)>));
 
   (* * *)
-  all GL2 (Scalar _<GL1One<>> --> Vec _<#0,zero> --> Vec _<#0, zero>);
+  all GL2 (Scalar.<GL1One<>> --> Vec.<#0,T2Zero<>> --> Vec.<#0, T2Zero<>>);
 
   (* cross *)
-  all GL2 (Vec _<#0,zero> --> Vec _<#0,zero> --> Scalar _<det #0>);
+  all GL2 (Vec.<#0,T2Zero<>> --> Vec.<#0,T2Zero<>> --> Scalar.<(GL2Det<#0>)>);
 
   (* dot *)
-  all O2 (Vec _<O2Inj<#0>, zero> --> Vec _<O2Inj<#0>, zero> --> Scalar _<GL1One<>>)
-]%Tr%Gl.
+  all O2 (Vec.<O2Inj<#0>, T2Zero<>> --> Vec.<O2Inj<#0>, T2Zero<>> --> Scalar.<GL1One<>>)
+].
 
 Variable F: numFieldType.
 
@@ -328,23 +316,26 @@ Definition TransformInterpretation := mkInterpretation
    | T2Add   => fun args => args.1 + args.2.1
    | T2Neg   => fun args => -args.1
 
-   | GL2Mul   => fun args => GL_mul args.1 args.2.1
-   | GL2Inv   => fun args => GL_inv args.1
-   | GL2One   => fun args => GL_one _
+   | GL2Mul  => fun args => GL_mul args.1 args.2.1
+   | GL2Inv  => fun args => GL_inv args.1
+   | GL2One  => fun args => GL_one _
 
-   | GL1Mul   => fun args => GL_mul args.1 args.2.1
-   | GL1Inv   => fun args => GL_inv args.1
-   | GL1One   => fun args => GL_one _
+   | GL1Mul  => fun args => GL_mul args.1 args.2.1
+   | GL1Inv  => fun args => GL_inv args.1
+   | GL1One  => fun args => GL_one _
 
    | O2Mul   => fun args => O_mul args.1 args.2.1
    | O2Inv   => fun args => O_inv args.1
    | O2One   => fun args => O_one _
    | O2Inj   => fun args => O_injGL args.1
 
-   | GL1Det   => fun args => GL_det args.1
-   | GL1Inj   => fun args => GL1_inj 2 args.1
-   | GL1Abs   => fun args => GL1_abs args.1
+   | GL2Det  => fun args => GL_det args.1
+   | GL1Inj  => fun args => GL1_inj 2 args.1
+   | GL1Abs  => fun args => GL1_abs args.1
    end ).
+
+
+Hint Resolve GL_inj. 
 
 Definition TransformModel : Model ExAxioms. 
 Proof. 
@@ -352,131 +343,126 @@ apply (@mkModel _ ExAxioms TransformInterpretation).
 split. 
 (*------------------------ additive AG for translations -----------------------*)
 (* right identity *)
-move => /= [x u] /=. by rewrite /= GRing.addr0. 
+move => /= [x _] /=. by rewrite GRing.addr0. 
 split. 
 (* commutativity *)
-move => /= [x [y u]] /=. by rewrite GRing.addrC. 
+move => /= [x [y _]] /=. by rewrite GRing.addrC. 
 split. 
 (* associativity *)
-move => /= [x [y [z u]]] /=. by rewrite GRing.addrA. 
+move => /= [x [y [z _]]] /=. by rewrite GRing.addrA. 
 split. 
 (* right inverse *)
-move => /= [x u] /=. by rewrite GRing.addrN. 
+move => /= [x _] /=. by rewrite GRing.addrN. 
 split.
 (*------------------------  multiplicative group for GL2 ---------------------*)
 (* right identity *)
-move => /= [x u] /=.
+move => /= [x _] /=.
 apply GL_inj. 
 by rewrite /= mulmx1.
 split. 
 (* left identity *)
-move => /= [x u] /=.
+move => /= [x _] /=.
 apply GL_inj.
 by rewrite /= mul1mx.
 split. 
 (* associativity *)
-move => /= [x [y [z u]]] /=. 
+move => /= [x [y [z _]]] /=. 
 apply GL_inj.
 by rewrite /= mulmxA. 
 split. 
 (* right inverse *)
-move => [x u] /=. 
+move => /= [x _] /=. 
 apply GL_inj. 
-rewrite /= mulmxV => //. by destruct x.  
+rewrite /= mulmxV => //. by elim x. 
 split.
 (* left inverse *)
-move => /= [x u] /=. 
+move => /= [x _] /=. 
 apply GL_inj. 
-rewrite /= mulVmx => //. by destruct x. 
+rewrite /= mulVmx => //. by elim x. 
 split.
 (*-------------------------- multiplicative group for O2 ---------------------- *)
 (* right identity *)
-move => /= [x u] /=.
+move => /= [x _] /=.
 apply O_inj; apply GL_inj. 
 by rewrite /= mulmx1.
 split. 
 (* left identity *)
-move => /= [x u] /=.
+move => /= [x _] /=.
 apply O_inj; apply GL_inj.
 by rewrite /= mul1mx.
 split. 
 (* associativity *)
-move => /= [x [y [z u]]] /=. 
+move => /= [x [y [z _]]] /=. 
 apply O_inj; apply GL_inj.
 by rewrite /= mulmxA. 
 split. 
 (* right inverse *)
-move => [x u] /=. 
+move => [x _] /=. 
 apply O_inj; apply GL_inj. 
-rewrite /= mulmxV => //. destruct x as [xval xH]. by destruct xval.  
+rewrite /= mulmxV => //. by elim x; elim.  
 split.
 (* left inverse *)
-move => /= [x u] /=. 
+move => /= [x _] /=. 
 apply O_inj; apply GL_inj.
-rewrite /= mulVmx => //. destruct x as [xval xH]. by destruct xval. 
+rewrite /= mulVmx => //. by elim x; elim. 
 split.
 
 (*---------------------------- multiplicative AG for GL1 ------------------------*)
 (* right identity for GL1 *)
-move => /= [x u] /=.
+move => /= [x _] /=.
 apply GL_inj. 
 by rewrite /= mulmx1.
 split. 
 (* commutativity *)
-move => /= [x [y u]] /=.
-destruct x as [xval xH]. 
-destruct y as [yval yH].
+move => /= [x [y _]] /=. 
 apply GL_inj. 
-simpl. simpl in xval. simpl in yval. 
+elim: x => /= [x xinv] /=. 
+elim: y => /= [y yinv] /=. 
 (* This seems very long-winded! *)
-rewrite (mx11_scalar xval). 
-rewrite (mx11_scalar yval).
-set X := (xval _ _). 
-set Y := (yval _ _).
-rewrite -!scalar_mxM. by rewrite GRing.mulrC. 
+rewrite (mx11_scalar x) (mx11_scalar y).
+by rewrite -!scalar_mxM GRing.mulrC. 
 split.
 (* associativity *)
-move => /= [x [y [z u]]] /=. 
+move => /= [x [y [z _]]] /=. 
 apply GL_inj.
 by rewrite /= mulmxA. 
 split. 
 (* right inverse *)
-move => [x u] /=. 
+move => [x _] /=. 
 apply GL_inj. 
-rewrite /= mulmxV => //. by destruct x.  
+rewrite /= mulmxV => //. by elim x. 
 split.
 
 (* det is homomorphism *)
-move => [x [y u]] /=. 
+move => /= [x [y _]] /=. 
 apply GL_inj. 
-simpl. rewrite det_mulmx/=. 
+rewrite /= det_mulmx/=. 
 by rewrite scalar_mx_is_multiplicative. 
 split. 
 (* abs is homomorphism *)
-move =>/= [x [y u]].
+move => /= [x [y _]] /=.
 apply GL_inj. simpl. 
 unfold toScalar. (* Weirdly, rewrite /toScalar doesn't unfold *)
-destruct x as [xval xH]. destruct y as [yval yH]. simpl in xval, yval. 
-simpl. 
+elim: x => /= [x xinv]. 
+elim: y => /= [y yinv]. 
 rewrite -scalar_mxM -Num.Theory.normrM. 
 apply f_equal. 
 (* Here we unfold the definition of matrix multiplication. This shouldn't be necessary *)
 rewrite mxE. by rewrite big_ord1. 
-
 split. 
 (* inj: GL1 -> GL2 is homomorphism *)
-move =>/= [x [y u]].
+move => /= [x [y _]] /=.
 apply GL_inj. simpl. 
 unfold toScalar. (* Weirdly, rewrite /toScalar doesn't unfold *)
-destruct x as [xval xH]. destruct y as [yval yH]. simpl in xval, yval. 
-simpl. 
+elim: x => /= [x xinv]. 
+elim: y => /= [y yinv]. 
 rewrite -scalar_mxM.  
 apply f_equal. 
 (* Here we unfold the definition of matrix multiplication. This shouldn't be necessary *)
 rewrite mxE. by rewrite big_ord1. 
 split.
 (* inj: O2 -> GL2 is homomorphism *)
-move =>/= [x [y u]].
+move => /= [x [y _]] /=.
 by apply GL_inj. 
 split.
 Defined. 
@@ -486,8 +472,8 @@ Definition transformBy (B: 'GL_2) (t v: 'vec_2) := val B *m v + t.
 Definition TransformModelEnv := mkModelEnv (interpPrim := interpPrim) (M:=TransformModel)
   (fun X => 
     match X with 
-    | Scalar => fun realargs => fun x y => y = x * determinant (val realargs.1)
-    | Vec  => fun vecArgs =>  fun v w => w = transformBy vecArgs.1 vecArgs.2.1 v 
+    | Scalar => fun args => fun x y => y = x * determinant (val args.1)
+    | Vec    => fun args => fun v w => w = transformBy args.1 args.2.1 v 
     end). 
 
 Definition transformSemTy D := semTy (ME:=TransformModelEnv) (D:=D).
@@ -504,48 +490,39 @@ rewrite /=/transformBy.
 by rewrite GRing.addr0 mulmx0. 
 split.
 (* + *)
-move => /=t t' B.
-move => x x' ->. 
-move => y y' ->. 
+move => /= t t' B x x' -> y y' ->.
 rewrite /transformBy.
 rewrite mulmxDr. 
 rewrite -!GRing.addrA. 
 by rewrite (GRing.addrCA t'). 
 split. 
 (* negate *)
-move => /= t B.
-move => x x' ->.
+move => /= t B x x' ->.
 rewrite /transformBy. 
 rewrite GRing.opprD. 
 by rewrite -mulmxN. 
 split. 
 (* mul *)
-move => /=B. 
-move => x x' ->.
-move => y y' ->.
+move => /= B x x' -> y y' ->.
 rewrite /transformBy.
 rewrite 2!GRing.addr0. 
 rewrite det1 GRing.mulr1. 
 by rewrite -scalemxAr. 
 split. 
 (* cross *)
-move => /=B. 
-move => x x' ->. 
-move => y y' ->.
+move => /= B x x' -> y y' ->.
 rewrite /cross/transformBy.  
 rewrite !GRing.addr0 /=. 
 rewrite det_scalar1.
 rewrite -!mul_mx_row. rewrite !det_mulmx. by rewrite GRing.mulrC. 
 split.
 (* dot *)
-move => /=B. 
-move => x x' ->.
-move => y y' ->.
+move => /= B x x' -> y y' ->.
 rewrite /dot/transformBy/=. 
 rewrite det1 !GRing.addr0 GRing.mulr1. 
 rewrite trmx_mul. 
-rewrite mulmxA -(mulmxA x^T). destruct B as [B BH]. simpl. 
-rewrite /orthogonal/= in BH. rewrite (eqP BH). 
-rewrite mulVmx. by rewrite mulmx1. destruct B as [B BH']. apply BH'. 
+rewrite mulmxA -(mulmxA x^T). elim: B => [B orthB] /=. 
+rewrite /orthogonal/= in orthB. rewrite (eqP orthB). 
+rewrite mulVmx. by rewrite mulmx1. by elim B. 
 split. 
 Qed. 

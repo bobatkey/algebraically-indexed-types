@@ -1,4 +1,3 @@
-Add LoadPath "/ssreflect-1.4/theories".
 Require Import ssreflect ssrbool ssrfun seq eqtype ssralg.
 Require Import ssrint rat ssrnum. 
 
