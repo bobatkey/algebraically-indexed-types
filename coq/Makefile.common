@@ -10,3 +10,4 @@ TARGETS = Rel.vo \
           model.vo \
           cuberoot.vo \
           unitsext.vo \
+          semiso.vo \
