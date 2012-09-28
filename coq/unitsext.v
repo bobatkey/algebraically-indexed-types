@@ -257,10 +257,10 @@ Definition ExpInterpretation := mkInterpretation
   (interpSrt := fun s => rat)
   (fun p =>
    match p with
-     UnitOne  => fun args => 0%R
-   | UnitProd => fun args => (args.1 + args.2.1)%R
+     UnitOne  => fun args => 0
+   | UnitProd => fun args => args.1 + args.2.1
    | UnitAbs  => fun args => args.1
-   | UnitInv  => fun args => (-args.1)%R
+   | UnitInv  => fun args => -args.1
    end ).
 
 Definition ExpModel : Model ExAxioms. 
@@ -268,85 +268,66 @@ Proof.
 apply (@mkModel _ ExAxioms ExpInterpretation). 
 split. 
 (* right identity *)
-move => /= [x u] /=.
-by rewrite /= GRing.addr0. 
+move => /= [x _] /=. by rewrite /= GRing.addr0. 
 split. 
 (* commutativity *)
-move => /= [x [y u]] /=.
-by rewrite /= GRing.addrC. 
+move => /= [x [y _]] /=. by rewrite /= GRing.addrC. 
 split. 
 (* associativity *)
-move => /= [x [y [z u]]] /=. 
-by rewrite /= GRing.addrA.
+move => /= [x [y [z _]]] /=. by rewrite /= GRing.addrA.
 split. 
 (* right inverse *)
-move => /= [x u] /=. 
-by rewrite GRing.addrN. 
+move => /= [x _] /=. by rewrite GRing.addrN. 
 split.
 (* homomorphism of abs *)
-move => /= [x [y u]] /=.
-done.
+move => /= [x [y _]] /=. done.
 (* end *)
 done. 
 Defined. 
 
 (* A dyadic rational is one with a finite binary expansion *)
 (* They are closed under addition, negation, and halving *)
-Definition isDyadic r := exists m:nat, (2^m)%:R * r \is a Qint.
-
-Lemma isDyadic0 : isDyadic 0. 
-Proof. by exists 0%N. Qed. 
+Definition isDyadic r := exists m, (2^m)%:R * r \is a Qint.
 
 Lemma add_isQInt r1 r2 : r1 \is a Qint -> r2 \is a Qint -> (r1+r2) \is a Qint.
 Proof. 
-  move/QintP=>[x1 ->]. 
-  move/QintP=>[x2 ->]. 
-apply/QintP. exists (x1 + x2)%R. by rewrite -GRing.rmorphD.  
+move /QintP => [x1 ->]. move /QintP=>[x2 ->]. 
+apply /QintP. exists (x1 + x2). by rewrite -GRing.rmorphD.  
 Qed. 
 
 Lemma mul_isQInt r1 r2 : r1 \is a Qint -> r2 \is a Qint -> (r1*r2) \is a Qint.
 Proof. 
-  move/QintP=>[x1 ->]. 
-  move/QintP=>[x2 ->]. 
-apply/QintP. exists (x1 * x2)%R. by rewrite -GRing.rmorphM.  
+move /QintP => [x1 ->]. move /QintP => [x2 ->]. 
+apply /QintP. exists (x1 * x2). by rewrite -GRing.rmorphM.  
 Qed. 
 
-Lemma neg_isQInt r : r \is a Qint -> (-r) \is a Qint.
+Lemma neg_isQInt r : r \is a Qint -> -r \is a Qint.
 Proof. 
-  move/QintP=>[x1 ->]. 
-apply/QintP. exists (-x1)%R. by rewrite -GRing.rmorphN.  
+move /QintP => [x1 ->]. apply /QintP. exists (-x1). by rewrite -GRing.rmorphN.  
 Qed. 
 
-(* Surely there must be a better way of doing this! *)
-Lemma nat_is_Qint (n:nat) : (n%:R) \is a Qint.
-Proof. induction n => //. rewrite -addn1. rewrite GRing.natrD. 
-apply add_isQInt => //. 
-Qed. 
+Lemma nat_is_Qint n : n%:R \is a Qint.
+Proof. induction n => //. rewrite -addn1 GRing.natrD. apply add_isQInt => //. Qed. 
+
+Lemma isDyadic0 : isDyadic 0. 
+Proof. by exists 0%N. Qed. 
 
 Lemma add_isDyadic r1 r2 : isDyadic r1 -> isDyadic r2 -> isDyadic (r1+r2).
+Proof.
 move => [n1 R1] [n2 R2].
 exists (n1+n2)%N.
-rewrite expnD. 
-rewrite GRing.natrM. 
-rewrite GRing.mulrDr.
-rewrite GRing.mulrAC. 
+rewrite expnD GRing.natrM GRing.mulrDr GRing.mulrAC. 
 rewrite -(GRing.mulrA (2^n1)%:R). 
 apply add_isQInt; apply mul_isQInt => //; apply nat_is_Qint.  
 Qed. 
 
 Lemma neg_isDyadic r : isDyadic r -> isDyadic (-r). 
-move => [n R]. 
-exists n. 
-rewrite GRing.mulrN.
-move: R. 
-move/QintP=>[x1 ->]. 
-apply/ QintP. exists (-x1)%R. by rewrite -GRing.rmorphN.  
-Qed. 
+Proof. move => [n R]. exists n. rewrite GRing.mulrN. by apply neg_isQInt. Qed. 
 
 Lemma half_isDyadic r : isDyadic (r+r) -> isDyadic r. 
 move => [n R]. 
 exists (n.+1). rewrite expnS.
-rewrite mul2n. rewrite -addnn. 
+rewrite mul2n -addnn. 
 rewrite GRing.natrD. 
 rewrite GRing.mulrDr in R. 
 by rewrite GRing.mulrDl. 
@@ -356,7 +337,8 @@ Definition ExpModelEnv := mkModelEnv (interpPrim := interpPrim) (M:=ExpModel)
   (fun X => 
     match X with Scalar => 
     fun expArgs => 
-    fun x y => (x==0%R /\ y==0%R \/ (x == y%R /\ isDyadic  expArgs.1)) end). 
+    fun x y => (x == 0 /\ y == 0 \/ 
+               (x == y /\ isDyadic expArgs.1)) end). 
 
 Definition expSemTy D := semTy (ME:=ExpModelEnv) (D:=D).
 
@@ -444,10 +426,23 @@ Qed.
 
 Definition cuberootTy : Ty [::] := all Unit (scalar (#0 * #0 * #0)%Un --> scalar #0)%Ty.
 
-Require Import ssrnat. 
-Open Scope ring_scope.
-Lemma exp2third n : ~ (2 ^ n)%:R * (1%:~R / 3%:~R) \is a Qint.
-Admitted.
+
+Require Import div.
+Lemma gcd_2n_3_is_1 n: gcdn (2 ^ n) 3 == 1%N.
+Proof.
+rewrite gcdnC. induction n => //.
+by rewrite expnS Gauss_gcdl. 
+Qed.
+
+Lemma exp2third n : ~ (2 ^ n)%:R * (1%:R / 3%:R) \is a Qint.
+Proof.
+ rewrite -{1}(GRing.divr1 (2 ^ n)%:R) GRing.mulf_div !GRing.mul1r.
+ rewrite Qint_def.
+ have: denq ((2 ^ n)%:R%:~R / 3%:R) = 3%Q.
+ apply (@coprimeq_den (2 ^ n)%:R 3). by rewrite natz /coprime gcd_2n_3_is_1.
+ rewrite natz GRing.mulr1. move ->. 
+ done. 
+Qed. 
 
 Lemma cuberootTrivial (f:F->F) : 
   expSemTy (t:=cuberootTy) initialExpEnv f f -> 
