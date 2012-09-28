@@ -9,3 +9,4 @@ TARGETS = Rel.vo \
           equivalence.vo \
           model.vo \
           cuberoot.vo \
+          unitsext.vo \

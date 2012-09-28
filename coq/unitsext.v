@@ -426,20 +426,17 @@ Qed.
 
 Definition cuberootTy : Ty [::] := all Unit (scalar (#0 * #0 * #0)%Un --> scalar #0)%Ty.
 
-
 Require Import div.
-Lemma gcd_2n_3_is_1 n: gcdn (2 ^ n) 3 == 1%N.
-Proof.
-rewrite gcdnC. induction n => //.
-by rewrite expnS Gauss_gcdl. 
-Qed.
 
-Lemma exp2third n : ~ (2 ^ n)%:R * (1%:R / 3%:R) \is a Qint.
+Lemma gcd_2n_3_is_1 n: gcdn (2 ^ n) 3 == 1%N.
+Proof. rewrite gcdnC. induction n => //. by rewrite expnS Gauss_gcdl. Qed.
+
+Lemma exp2third n : ~ (2 ^ n)%:R * (1 / 3%:R) \is a Qint.
 Proof.
  rewrite -{1}(GRing.divr1 (2 ^ n)%:R) GRing.mulf_div !GRing.mul1r.
  rewrite Qint_def.
  have: denq ((2 ^ n)%:R%:~R / 3%:R) = 3%Q.
- apply (@coprimeq_den (2 ^ n)%:R 3). by rewrite natz /coprime gcd_2n_3_is_1.
+   apply (@coprimeq_den (2 ^ n)%:R 3). by rewrite natz /coprime gcd_2n_3_is_1.
  rewrite natz GRing.mulr1. move ->. 
  done. 
 Qed. 
