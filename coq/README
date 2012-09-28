@@ -49,3 +49,10 @@ geometryext.v
 -------------
 Extended geometry example, formalizing Example 7. No applications of invariance yet.
 
+cuberoot.v
+----------
+Proof that, with types indexed by an abelian group, the cube root
+functions is not definable, even if we have a square root
+function. The names in this file still mention 'vectors' and
+'translations', but the result holds for any type indexed by an
+abelian group, with the group operations.
