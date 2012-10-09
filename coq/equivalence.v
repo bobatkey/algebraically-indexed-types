@@ -5,7 +5,7 @@ Set Implicit Arguments.
 Unset Strict Implicit.
 Import Prenex Implicits.
 
-Require Import syn sem Casts.
+Require Import exp ty sem Casts.
 
 Section ContextualEquivalence.
 
@@ -35,46 +35,6 @@ Fixpoint piAll (D : IxCtxt sig) : Sub [::] D :=
   then ScS (pi D s) (piAll D)
   else idSub [::]. 
 
-Lemma apSubTy_id D (t : @Ty sig D) : apSubTy (idSub D) t = t.
-Proof.
-  induction t => /=.
-  + by reflexivity.
-  + by rewrite IHt1 IHt2. 
-  + by rewrite IHt1 IHt2. 
-  + by rewrite IHt1 IHt2. 
-  + by rewrite (proj2 (apSubId D)).
-  + by rewrite liftSubId IHt. 
-  + by rewrite liftSubId IHt. 
-Qed.
-
-Lemma apSubCtxt_id D (G : @Ctxt sig D) : apSubCtxt (idSub D) G = G.
-Proof.
-  induction G => /=.
-  + by reflexivity.
-  + by rewrite IHG apSubTy_id.
-Qed.
-
-Lemma ScS_apSubTy D (t : @Ty sig D) : 
-  forall D' D'' (S : Sub D' D'') (S' : Sub D D'),
-    apSubTy S (apSubTy S' t) = apSubTy (ScS S S') t.
-Proof.
- induction t => D' D'' S S' => /=.
- + by reflexivity.
- + by rewrite IHt1 IHt2.
- + by rewrite IHt1 IHt2.
- + by rewrite IHt1 IHt2.
- + by rewrite (proj2 (apScS S S')).
- + by rewrite IHt liftScS. 
- + by rewrite IHt liftScS. 
-Qed.
-
-Lemma ScS_apSubCtxt D D' D'' (S : Sub D' D'') (S' : Sub D D') (G : @Ctxt sig D) :
-  apSubCtxt S (apSubCtxt S' G) = apSubCtxt (ScS S S') G.
-Proof.
-  induction G => /=. 
-  + by reflexivity.
-  + by rewrite IHG ScS_apSubTy.
-Qed.
 (* 
 Definition mkForallTm (D : IxCtxt sig) (G : @Ctxt sig [::]) :
   forall t : Ty D, Tm A (apSubCtxt (piAll D) G) t -> Tm A G (mkForallTy t).
@@ -88,13 +48,13 @@ Defined.
 Lemma tmEqCtxt (G : Ctxt [::]) (t : Ty [::]) :
       Tm A (apSubCtxt (piAll [::]) G) t = Tm A G t.
 Proof. 
-  by rewrite apSubCtxt_id.
+  by rewrite apSubCtxtId.
 Qed.
 
 Lemma tmEq2 D (G : Ctxt [::]) s (t : Ty (s :: D)) :
   Tm A (apSubCtxt (piAll (s :: D)) G) t = Tm A (apSubCtxt (pi D s) (apSubCtxt (piAll D) G)) t.
 Proof.
-  simpl. rewrite -(ScS_apSubCtxt (pi D s) (piAll D)). reflexivity.
+  simpl. rewrite -(apSubCtxtScS (pi D s) (piAll D)). reflexivity.
 Qed.
 
 Fixpoint mkForallTm (D : IxCtxt sig) (G : @Ctxt sig [::]) :
@@ -124,9 +84,9 @@ Fixpoint app_env D (G G' : Ctxt D) :
 
 Definition semEq D (G : Ctxt D) (t : Ty D) (M1 M2 : Tm A (G ++ apSubCtxt (piAll D) Gops) t) :=
   forall rho eta1 eta2,
-    semCtxt (ME:=ME) rho eta1 eta2 ->
-    semTy rho (interpTm M1 (app_env eta1 (eta_ops :? interpSubCtxt interpPrim Gops (piAll D))))
-                 (interpTm M2 (app_env eta2 (eta_ops :? interpSubCtxt interpPrim Gops (piAll D)))).
+   semCtxt (ME:=ME) rho eta1 eta2 ->
+   semTy rho (interpTm M1 (app_env eta1 (eta_ops :? interpSubCtxt interpPrim Gops (piAll D))))
+             (interpTm M2 (app_env eta2 (eta_ops :? interpSubCtxt interpPrim Gops (piAll D)))).
 
 Lemma mkArrTy_rel D (rho : RelEnv ME D) G :
   forall t (M1 M2 : Tm A (G ++ (apSubCtxt (piAll D) Gops)) t),
@@ -164,13 +124,13 @@ Proof.
    simpl. 
    specialize (H rho).
    revert M1 M2 H.
-   rewrite cast_UIP. by rewrite apSubCtxt_id.
+   rewrite cast_UIP. by rewrite apSubCtxtId.
    move => H M1 M2.
-   rewrite (cast_UIP M1). by rewrite apSubCtxt_id.
+   rewrite (cast_UIP M1). by rewrite apSubCtxtId.
    move => H1.
    rewrite (cast_UIP M2). 
-   revert H M1 M2 H1. rewrite apSubCtxt_id.
-   move => H M1 M2 H1. rewrite 3!cast_id. trivial.
+   revert H M1 M2 H1. rewrite apSubCtxtId.
+   move => H M1 M2 H1. by rewrite 3!cast_id. 
    (* cons *)
    apply IHD.
    simpl. 
@@ -179,24 +139,22 @@ Proof.
    rewrite cast_coalesce. 
    revert M1 M2 H.
    rewrite cast_UIP. apply interpSubCtxt. 
-   rewrite cast_UIP. rewrite ScS_apSubCtxt. apply interpSubCtxt. 
+   rewrite cast_UIP. rewrite apSubCtxtScS. apply interpSubCtxt. 
    move => H1 H2 M1 M2.
-   rewrite (cast_UIP M1). rewrite ScS_apSubCtxt. reflexivity.
+   rewrite (cast_UIP M1). rewrite apSubCtxtScS. reflexivity.
    move => H3.
    rewrite (cast_UIP M2).
    revert H1 H2 H3 M1 M2.
-   rewrite ScS_apSubCtxt.
+   rewrite apSubCtxtScS.
    move => H1 H2 H3 M1 M2.
    rewrite (cast_UIP eta_ops H1 H2). 
-   rewrite 2!cast_id. trivial.
+   by rewrite 2!cast_id. 
 Qed.
 
 Lemma tyBool_rel D (b1 b2 : interpTy interpPrim (tyBool D)) (rho: RelEnv ME D) :
   semTy rho b1 b2 ->
   b1 = b2.
-Proof.
-  simpl. destruct b1 as [[]|[]]; destruct b2 as [[]|[]]; intuition.
-Qed.
+Proof. destruct b1 as [[]|[]]; destruct b2 as [[]|[]]; intuition. Qed.
 
 Variable rho_nil : RelEnv ME [::].
 Variable eta_ops_rel : semCtxt rho_nil eta_ops eta_ops.
@@ -212,7 +170,7 @@ Proof.
   apply T_rel_T.
   apply mkForallTy_rel.
   move => rho. apply mkArrTy_rel.
-   intuition. 
+  intuition. 
 Qed.
 
 (* Contextual equivalence is an equivalence relation *)

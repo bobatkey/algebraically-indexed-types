@@ -11,13 +11,13 @@ clean:
 .SUFFIXES: .v .vo .dep
 
 .v.vo:
-	$(COQC) -dont-load-proofs $*
+	$(COQC) -dont-load-proofs -I .  $*
 
 Makefile.deps: $(TARGETS:.vo=.dep)
 	type $** > $@ 2>NUL
 
 .v.dep:
-	coqdep -I . $< > $@
+	coqdep -I .  $< > $@
 
 !IF EXIST (Makefile.deps)
 !INCLUDE Makefile.deps

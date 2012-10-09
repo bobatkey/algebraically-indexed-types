@@ -4,7 +4,7 @@
 
 Require Import ssreflect ssrbool ssrfun seq.
 Require Import Relations Program.Equality.
-Require Import Rel syn Casts sem equivalence.
+Require Import Rel exp ty Casts sem equivalence.
 Require Import FunctionalExtensionality.
 
 Set Implicit Arguments.
@@ -25,9 +25,6 @@ Import Prenex Implicits.
    We then show ~= is
      (a) an equivalence relation
      (b) a congruence, wrt all type constructors
-   and then prove
-     (a) units-independent isomorphisms, such as commutative of product, currying, etc
-     (b) units-dependent isomorphisms, as used in the proof of the Pi theorem in POPL'97.
   ==============================================================================================*)
 
 Section Iso.
@@ -51,8 +48,8 @@ Definition iso D (X Y: Ty (sig:=sig) D) :=
   exists i, exists j, 
   |= i :> X --> Y /\
   |= j :> Y --> X /\
-  |= (fun y: |Y| => i (j (y))) == Id _ :> Y --> Y /\
-  |= (fun x: |X| => j (i (x))) == Id _ :> X --> X.
+  |= (fun x: |X| => j (i (x))) == Id _ :> X --> X /\
+  |= (fun y: |Y| => i (j (y))) == Id _ :> Y --> Y.
  
 Notation "X ~= Y" := (iso X Y) (at level 70).
 
@@ -80,84 +77,49 @@ Proof. exists (Id _), (Id _). split => /=//. Qed.
 Lemma iso_sym : X ~= Y -> Y ~= X.
 Proof. intros [i [j [ij ji] ] ]. exists j, i. intuition. Qed.
 
-Lemma iso_tran : X ~= Y -> Y ~= Z -> X ~= Z.
-Proof. move => [i1 [j1 [H1 [H2 [H3 H4]]]]] [i2 [j2 [H5 [H6 [H7 H8]]]]].
+Lemma iso_tran : 
+  (forall p (rho: RelEnv ME (tyArity p)), difunctional (relInterp rho)) ->
+  existentialFree X -> existentialFree Z ->
+  X ~= Y -> Y ~= Z -> X ~= Z.
+Proof. move => DIF EFX EFZ.
+move => [i1 [j1 [H1a [H1b [H1c H1d]]]]] [i2 [j2 [H2a [H2b [H2c H2d]]]]].
 exists (fun x:|X| => i2 (i1 (x))). exists (fun z:|Z| => j1 (j2 (z))).
 split.
 move => r /= x x' xx'. simpl in *. 
-apply: H5. apply: H1. apply: xx'. 
+apply: H2a. apply: H1a. apply: xx'. 
 split. 
 move => r /= z z' zz'. simpl in *. 
-apply: H2. apply: H6. apply: zz'. 
+apply: H1b. apply: H2b. apply: zz'. 
 split.
 
-move => r /= z z' zz'. simpl in *. 
+move => r /= x x' xx'. simpl in *.
+assert (SDIF := sem_difunctional DIF EFX (psi:=r)).
+rewrite /Id. rewrite /Id in H1c,H1d,H2c,H2d. rewrite /difunctional in SDIF.
 
-Admitted.
-(*
 (* By logical interpretation of functions, we know i1 x ~ i1 x' *)  
-assert (H3 : sem psi Y (i1 x) (i1 x')); auto.
+have H3 : semTy r (i1 x) (i1 x'); auto.
 
 (* We now use difunctionality of the semantics *)
-assert (H4 := H2c psi (i1 x) (i1 x') H3). 
-assert (H5 := H1b psi (j2 (i2 (i1 x))) (i1 x') H4).
-assert (H6 := H1c psi x x' xx').
-assert (H7 := H1b psi (i1 x) (i1 x') H3).
-assert (DIF:= sem_difunctional X psi).
-unfold difunctional in DIF.
-apply (DIF (j1(i1 x)) (j1(j2(i2(i1(x))))) x' (j1(i1 x')) H6 H5 H7).
+assert (H4 := H2c r (i1 x) (i1 x') H3).  
+assert (H5 := H1b r (j2 (i2 (i1 x))) (i1 x') H4).
+assert (H6 := H1c r x x' xx').
+assert (H7 := H1b r (i1 x) (i1 x') H3).
+apply (SDIF _ _ _ _ H6 H5 H7).  
+
+move => r /= z z' zz'. simpl in *.
+assert (SDIF := sem_difunctional DIF EFZ (psi:=r)).
+rewrite /Id. rewrite /Id in H1c,H1d,H2c,H2d. rewrite /difunctional in SDIF.
 
 (* By logical interpretation of functions, we know j1 z ~ y1 z' *)
-intros psi z z' zz'.
-assert (H3 : sem psi Y (j2 z) (j2 z')); auto.
+assert (H3 : semTy r (j2 z) (j2 z')); auto.
 
 (* We now use difunctionality of the semantics *)
-assert (H4 := H1d psi (j2 z) (j2 z') H3).
-assert (H5 := H2a psi (i1 (j1 (j2 z))) (j2 z') H4).
-assert (H6 := H2d psi z z' zz').
-assert (H7 := H2a psi (j2 z) (j2 z') H3).
-assert (DIF := sem_difunctional Z psi).
-unfold difunctional in DIF.
-apply (DIF (i2(j2 z)) (i2(i1(j1(j2 z)))) z' (i2(j2 z')) H6 H5 H7).
-
-exists (fun x => (
-firstorder. done. rewrite /iso. 
-eexists (ABS (APP (apSubTyTm  (APP _ (VAR A (ixZ _ _))))). 
-
-_)). i2 (APP i1 _))).
-exists (ABS (APP i2 (APP i1 (VAR A (ixZ _ _))))), (fun x => j1 (j2 (x))). 
-
-simpl. 
-split. intuition.  
-split. intuition.
-split. 
-
-intros psi x x' xx'.
-(* By logical interpretation of functions, we know i1 x ~ i1 x' *)  
-have H3 : semTy ES psi (i1 x) (i1 x'); auto.
-
-(* We now use difunctionality of the semantics *)
-assert (H4 := H2c psi (i1 x) (i1 x') H3). 
-assert (H5 := H1b psi (j2 (i2 (i1 x))) (i1 x') H4).
-assert (H6 := H1c psi x x' xx').
-assert (H7 := H1b psi (i1 x) (i1 x') H3).
-assert (DIF:= @sem_difunctional sig interpPrim ES A CLOSED ENVDIF D X psi).
-apply (DIF (j1(i1 x)) (j1(j2(i2(i1(x))))) x' (j1(i1 x')) H6 H5 H7).
-
-(* By logical interpretation of functions, we know j1 z ~ y1 z' *)
-intros psi z z' zz'.
-assert (H3 : semTy ES psi (j2 z) (j2 z')); auto.
-
-(* We now use difunctionality of the semantics *)
-assert (H4 := H1d psi (j2 z) (j2 z') H3).
-assert (H5 := H2a psi (i1 (j1 (j2 z))) (j2 z') H4).
-assert (H6 := H2d psi z z' zz').
-assert (H7 := H2a psi (j2 z) (j2 z') H3).
-assert (DIF := @sem_difunctional sig interpPrim ES A CLOSED ENVDIF D Z psi).
-unfold difunctional in DIF.
-apply (DIF (i2(j2 z)) (i2(i1(j1(j2 z)))) z' (i2(j2 z')) H6 H5 H7).
-Qed.
-*)
+assert (H4 := H1d r (j2 z) (j2 z') H3).
+assert (H5 := H2a r (i1 (j1 (j2 z))) (j2 z') H4).
+assert (H6 := H2d r z z' zz').
+assert (H7 := H2a r (j2 z) (j2 z') H3).
+apply (SDIF _ _ _ _ H6 H5 H7).
+Qed. 
 
 (*---------------------------------------------------------------------------
    Type isomorphism is a congruence
@@ -238,18 +200,18 @@ Proof.
   split. 
   move => psi f f' ff' k x x' xx'.  
   apply ff'.   
-  admit. 
+  have S:= semSubst (pi D s) (k,psi). rewrite EcS_pi in S.
+  rewrite -S. rewrite !updn.
+  apply xx'.   
 
   split. 
-  move => psi f f' ff' x x' xx' k. 
-  rewrite dnup. 
-  apply ff'. 
-  apply xx'. 
+  move => psi f f' ff' k x x' xx'. 
+  rewrite updn.
+  apply: ff' xx'. 
 
-
-  move => psi f f' ff' k x x' xx'.   
+  move => psi f f' ff' x x' xx' k.
   apply ff'.
-  rewrite updn.   
+  rewrite dnup.
   apply xx'. 
 Qed.
 
@@ -285,8 +247,11 @@ Proof.
   split.
   
   move => psi x x' xx'. 
-(* Need value of k that acts as identity *)
-  admit. 
+(* Need non-trivial model! *)
+  have k: model.interpSrt (model.I ME) s. admit. 
+  specialize (xx' k).     
+  have S:= semSubst (pi D s) (k,psi). rewrite EcS_pi in S. rewrite -S.  
+  rewrite !updn. apply xx'. 
 
   split. 
   move => psi x x' xx' k.  
@@ -294,10 +259,10 @@ Proof.
 
   split. 
   move => psi x x' xx'. 
-  rewrite dnup. apply xx'. 
+  rewrite updn. apply xx'. 
 
-  move => psi x x' H k. 
-  rewrite updn. apply H. 
+  move => psi x x' H. 
+  rewrite dnup. apply H. 
 Qed. 
 
 (*---------------------------------------------------------------------------
@@ -467,3 +432,4 @@ Qed.
 End StandardIsos.
 
 
+End Iso.

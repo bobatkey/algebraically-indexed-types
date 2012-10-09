@@ -7,7 +7,7 @@ Set Implicit Arguments.
 Unset Strict Implicit.
 Import Prenex Implicits.
 
-Require Import syn.
+Require Import exp.
 
 
 Section Models.

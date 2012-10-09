@@ -475,20 +475,22 @@ These are given in terms of sets
 of \emph{relational environments}.
 
 The definition of relational environments is the most subtle part of
-our framework. The straightforward approach is to assume an
-interpretation of indexing expressions in which sorts are
+our framework. 
+
+%The straightforward approach is to assume an
+%interpretation of indexing expressions in which sorts are
 %interpreted as 
-sets and index operations are functions, and then define the
-relational interpretation of a primtive type $\tyPrim{X}{e_1,...,e_n}$
-in terms of the interpretations of $e_1,...,e_n$. This approach
-suffices to prove free theorems and type isomorphisms. However, to
-prove non-definability results, like the one in
-\exref{ex:uninhabited-type}, we need a more refined interpretation
-that accounts for the definable programs permitted by the algebraic
-indexing. Here, we identify the properties we require of relational
-environments for the abstraction theorem to hold. In
-\autoref{sec:constr-rel-env}, we give two generic constructions of
-relational environments.
+%sets and index operations are functions, and then define the
+%relational interpretation of a primtive type $\tyPrim{X}{e_1,...,e_n}$
+%in terms of the interpretations of $e_1,...,e_n$. This approach
+%suffices to prove free theorems and type isomorphisms. However, to
+%prove non-definability results, like the one in
+%\exref{ex:uninhabited-type}, we need a more refined interpretation
+%that accounts for the definable programs permitted by the algebraic
+%indexing. Here, we identify the properties we require of relational
+%environments for the abstraction theorem to hold. In
+%\autoref{sec:constr-rel-env}, we give two generic constructions of
+%relational environments.
 
 A relational environment for a context $\Delta$ is a %(dependently typed)
 function $\rho$ that, for each primitive type $\tyPrimNm{X}$ and
@@ -580,8 +582,6 @@ of relational environments that enforce different invariants.
     % two triangles in the bottom right of the diagram commute.
     % FIXME: mention that we already know that the square commutes
   \end{enumerate}
-  A family $\relEnv{E}$ is \emph{pre-substitutive} if only the first
-  point holds.
 \end{definition}
 %
 % For the general
@@ -653,9 +653,8 @@ $\{ (\mathrm{inl}\ x, \mathrm{inl}\ x') \sepbar (x,x') \in R \} \cup
   \item If $\Delta \vdash A \equiv B \isType$, then for all $\rho \in
     \relEnv{E}(\Delta)$, $\rsem{A}{\relEnv{E}}{\rho} =
     \rsem{B}{\relEnv{E}}{\rho}$;
-  \item If $\Delta' \vdash A \isType$ and either $\relEnv{E}$ is
-    substitutive or $\relEnv{E}$ is pre-substitutive and $A$ is
-    quantifier-free, then for all $\Delta \vdash \sigma \Rightarrow
+  \item If $\Delta' \vdash A \isType$ and $\relEnv{E}$ is
+    substitutive, then for all $\Delta \vdash \sigma \Rightarrow
     \Delta'$ and $\rho \in \relEnv{E}(\Delta)$,
     $\rsem{\sigma^*A}{\relEnv{E}}\rho = \rsem{A}{\relEnv{E}}(\rho
     \circ \sigma)$.
@@ -868,13 +867,6 @@ interpretation of contexts is defined by: % the following clauses: %, where
   \in \ctxtSem{\Gamma}$ such that $(\eta_1, \eta_2) \in
   \rsem{\Gamma}{\relEnv{E}}\rho$, we have $(\tmSem{M}\eta_1,
   \tmSem{M}\eta_2) \in \rsem{A}{\relEnv{E}}\rho$.
-
-  If $\relEnv{E}$ is pre-substitutive, then the above restricts to the
-  case when $\Gamma$ only contains types of the form $\forall
-  \vec{i}\mathord:\vec{s}. B$, where $B$ is quantifier-free, $A$ is
-  quantifier-free and $M$ contains no uses of \TirName{UnivAbs},
-  \TirName{ExPack} or \TirName{ExUnpack} and all uses of
-  \TirName{UnivApp} are fully applied.
 \end{theorem}
 
 We refer to programs satisfying the conditions in the second part of
@@ -922,9 +914,10 @@ equivalence is a sound approximation of contextual equivalence.
 \newcommand{\semSort}[1]{\llbracket #1 \rrbracket^{\mathcal{S}}}
 \newcommand{\semIndexExp}[1]{\llbracket #1 \rrbracket^{\mathcal{I}}}
 
-We give two constructions of families $\relEnv{E}$ of sets of
+We give construction of families $\relEnv{E}$ of sets of
 relational environments that allow us to derive useful consequences of
-\thmref{thm:abstraction}. To satisfy the hypothesis of
+\thmref{thm:abstraction}. 
+To satisfy the hypothesis of
 \thmref{thm:abstraction} we still need to prove, for each
 instantiation of our general framework, that the program-level
 primitive operations preserve all the relations in our
@@ -933,8 +926,8 @@ constructions. This is the content of Lemmas
 \ref{lem:monoid-ops-related}, \ref{lem:environments-information-flow}
 and \ref{lem:metric-environments}.
 
-\paragraph{Model-based Relational Environments}
-Our model-based relational environments are defined in terms of
+%\paragraph{Model-based Relational Environments}
+Our relational environments are defined in terms of
 models. To each sort $s \in \SortSet$ we assign a carrier set
 $\semSort{s}$. We extend this assignment to index contexts and other
 sequences of sorts (e.g., type arities) using the cartesian product of
@@ -966,66 +959,6 @@ R_{\tyPrimNm{X}}(\semIndexExp{e_1}_{\mathcal{M}}\delta, ...,
   The families $\relEnv{E}_{\mathcal{M},R}$ are substitutive.
 \end{theorem}
 
-\paragraph{Definability Relational Environments}
-We now construct relational environments that can be used for
-non-definability results. To this end, consider the typing
-$t\mathord:\SynTransl{2}; \Gamma \vdash M : \tyPrim{vec}{t + t} \to
-\tyPrim{vec}{t}$, where $\Gamma$ contains the primitive operations on
-vectors indexed by translations from \autoref{sec:affine-vector-ops}.
-In \exref{ex:uninhabited-type} we claimed that this type is
-uninhabited. Intuitively, it is clear why: with the operations on
-vectors in \autoref{sec:affine-vector-ops}, there is no way of
-cancelling the additional $t$ in the argument type to get the result
-type. More generally, the vector operations only allow us to combine
-indices according to the group operations, so if the index of the
-result type of a function lies outside the free abelian group
-generated by the indices of the input types, then we cannot write a
-program of this type.  The key idea is to assign different relational
-interpretations to types with indices not in some generated
-collection of index expressions.
-
-Given a set $S$ of index expressions that are all well-indexed in some
-index context $\Delta$, define $\Gen(S)$ to be the set of terms that
-are generated by the elements of $S$ and the primitive index
-operations. We close under index expression equivalence to get the
-sets $\Gen^\equiv(S) = \{ e \sepbar \exists s.\ \exists e' \in
-\Gen(S).\ \Delta \vdash e \equiv e' : s \}$.
-
-Relational environments are parameterised by sets of terms $S$:
-\begin{displaymath}
-  \rho^S\ \tyPrimNm{X}\ (e_1,...,e_n) = \left\{
-    \begin{array}{ll}
-      \mathrm{Eq}_{\tyPrimSem{\tyPrimNm{X}}} & \textrm{if all}\ e_i \in \Gen^\equiv(S) \\
-      R^\bullet_{\tyPrimNm{X}} & \textrm{otherwise}
-    \end{array}
-  \right.
-\end{displaymath}
-Thus we assign the equality relation to primitive types whose index
-arguments are generated up to equivalence by $S$. For types whose
-indices are not in $\Gen^\equiv(S)$, we require a binary relation
-$R^\bullet_{\tyPrimNm{X}} \in \Rel(\tyPrimSem{\tyPrimNm{X}})$. We set
-$\relEnv{E}_{R^\bullet}(\Delta) = \{ \rho^S \sepbar \forall e \in S.\
-\exists s. \Delta \vdash e : s \}$.
-
-We have not been able to prove that this family of sets of relational
-interpretations is substitutive. Therefore our non-definability
-results are subject to the quantifier-free conditions in
-\thmref{thm:abstraction}.
-
-% Hence we must make do with the
-% following theorem:
-
-% These relational environments are non-compositional: elements of
-% $\relEnv{E}(\Delta,\Delta')$ are not purely constructed from elements
-% of $\relEnv{E}(\Delta)$ and $\relEnv{E}(\Delta')$. As a consequence,
-% these relational environments will only be
-% \emph{pre-substitutive}. 
-
-\begin{theorem}
-  The families $\relEnv{E}_{R^\bullet}$ are pre-substitutive.
-\end{theorem}
-
-% FIXME: look forward to the applications
 
 %%% Local Variables:
 %%% TeX-master: "paper"

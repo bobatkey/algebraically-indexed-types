@@ -3,7 +3,7 @@ Require Import ssrint rat ssrnum.
 
 Require Import Relations.
 
-Require Import syn model sem.
+Require Import exp ty model sem.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
@@ -406,3 +406,4 @@ Lemma sqrScaling (f:F->F) :
 Proof. rewrite /scalingSemTy/=. move => H k neq x. 
 apply (H (Scaling neq) x (k*x) (refl_equal _)). 
 Qed. 
+

@@ -8,7 +8,7 @@
 Require Import ssreflect ssrbool ssrfun seq eqtype ssralg fintype finfun zmodp.
 Require Import ssrint rat ssrnum ssrnat matrix. 
 
-Require Import Relations syn model sem.
+Require Import Relations exp ty model sem.
 
 Set Implicit Arguments.
 Unset Strict Implicit.

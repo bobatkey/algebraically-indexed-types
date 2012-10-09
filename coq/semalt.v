@@ -1,3 +1,4 @@
+Add LoadPath "/ssreflect-1.4/theories".
 Require Import ssreflect ssrbool ssrfun seq.
 Require Import Relations Program.Equality.
 Require Import FunctionalExtensionality. 
@@ -127,8 +128,8 @@ Structure ModelEnv A := mkModelEnv {
 Definition RelEnv A (M:Model A) := Env (interpSrt (sig:=sig) M). 
 
 (* Compose environment with substitution *)
-Definition EcS D D' A (M:Model A) (rho: RelEnv M D') (S: Sub D D') : RelEnv M D := 
-  interpExps (subAsExps S) rho. 
+Definition EcS D D' A (M:Model A) (rho: RelEnv M D'): Sub D D' -> RelEnv M D := 
+  mapEnv (fun _ e => interpExp e rho). 
 
 Require Import Rel.
 
@@ -337,9 +338,6 @@ Qed.
 
 *)
 
-Lemma EcS_assoc A (ME: ModelEnv A) D D' D'' (S1: Sub D D') (S2: Sub D' D'') (rho: RelEnv ME _)  :
-  EcS (EcS rho S2) S1 = EcS rho (ScS S2 S1).
-Proof. rewrite /EcS. by rewrite composeInterps. Qed. 
 
 Lemma EcS_consSub A (ME: ModelEnv A) D D' s (e: Exp D' s) (S: Sub D D') (rho: RelEnv ME D') :
   EcS rho (consSub e S) = (interpExp e rho, EcS rho S). 
@@ -347,34 +345,51 @@ Proof. done. Qed.
 
 Lemma RelEnv_extensional A (ME: ModelEnv A) D (rho rho': RelEnv ME D) :
   (forall s (v: Var D s), lookup v rho = lookup v rho') -> rho = rho'.
-Proof. induction D => //. by elim rho; elim rho'. 
-elim rho => [v rho1] {rho}. 
-elim rho' => [v' rho1'] {rho'}. move => H. 
-have:= H _ (ixZ _ _). rewrite lookupZ/=. move ->. 
-rewrite (IHD rho1 rho1') => //. 
-move => s v''. by specialize (H s (ixS _ v'')). 
+Proof. apply envExtensional. Qed. 
+
+Lemma interpShVar A (ME: ModelEnv A) D (rho: RelEnv ME D) s' k :
+  (forall s (v:Var D s), interpExp (shExp s' v) (k, rho) = interpExp v rho).
+Proof. dependent induction v => //. 
+by rewrite /= !apRenVarShift apRenVarId. 
 Qed. 
 
+Lemma interpShExpAndSeq A (ME: ModelEnv A) D (rho: RelEnv ME D) s' k :
+  (forall s (e:Exp D s), interpExp (shExp s' e) (k, rho) = interpExp e rho) /\
+  (forall ss (es:Exps D ss), interpExps (shExpSeq s' es) (k, rho) = interpExps es rho).
+Proof. apply Exp_Exps_ind => //. 
++ by apply interpShVar.  
++ move => op e IH. by rewrite /= IH.  
++ move => s ss e IH1 es IH2. by rewrite /= IH1 IH2. 
+Qed. 
+
+Lemma interpApSubExpAndSeq A (ME: ModelEnv A) D D' (rho: RelEnv ME D') (S: Sub D D') :
+  (forall s (e:Exp D s), interpExp (apSub S e) rho = interpExp e (EcS rho S)) /\
+  (forall ss (es:Exps D ss), interpExps (apSubSeq S es) rho = interpExps es (EcS rho S)).
+Proof. apply Exp_Exps_ind => //. 
++ dependent induction v => //. by rewrite /= IHv. 
++ move => op e IH. by rewrite /= IH.  
++ move => s ss e IH1 es IH2. by rewrite /= IH1 IH2. 
+Qed. 
+
+
 Lemma EcS_shift A (ME: ModelEnv A) D : forall D' s (k:interpSrt (sig:=sig) ME s) (S:Sub D D') (rho: RelEnv ME D'), EcS ((k,rho):RelEnv ME (s::D')) (shiftSub s S) = EcS rho S.
-Proof. 
-induction D => //. move => D' s k [e S] rho.
-rewrite /EcS. rewrite /EcS in IHD. simpl.
-rewrite /shExp. 
-rewrite -(proj1 (apSubPiExpAndExps _ _)).
-rewrite IHD. 
-Admitted. 
+Proof.
+induction D => //. 
+move => D' s k [e S] rho. rewrite /EcS.  rewrite /EcS in IHD. by rewrite /= IHD (proj1 (interpShExpAndSeq _ _)). 
+Qed. 
 
 Lemma EcS_lift A (ME:ModelEnv A) D D' s (k:interpSrt (sig:=sig) ME s) (S:Sub D D') (rho: RelEnv ME D') :
   EcS ((k,rho):RelEnv ME (s::D')) (liftSub s S) = (k, EcS rho S). 
 Proof. by rewrite EcS_consSub/= EcS_shift. Qed.
 
+Lemma EcS_id A (ME: ModelEnv A) D (rho: RelEnv ME D) : EcS rho (idSub D) = rho. 
+Proof. induction D => //. by destruct rho. 
+destruct rho as [g rho]. rewrite EcS_consSub. by rewrite EcS_shift IHD. Qed. 
+
+
 Lemma EcS_pi A (ME: ModelEnv A) D s k rho :
   EcS ((k, rho):RelEnv ME (s::D)) (pi D s) = rho. 
-Proof. simpl. rewrite /pi. rewrite EcS_shift. 
-rewrite /EcS. Admitted.  
-
-Lemma EcS_id A (ME: ModelEnv A) D (rho: RelEnv ME D) : EcS rho (idSub D) = rho. 
-Proof. Admitted. 
+Proof. by rewrite /pi EcS_shift EcS_id. Qed. 
 
 
 (* This is lemma 2, part 2 *)
@@ -447,9 +462,9 @@ split.
   specialize (IHd HH). by rewrite !upApp!updn in IHd. 
 
 (* TyPrim *)
-rewrite /EcS/up/=.
+rewrite/up/=.
 rewrite cast_UIP cast_id cast_UIP cast_id. 
-by rewrite (proj2 (interpExpApSub _ _)). 
+by rewrite (proj2 (interpApSubExpAndSeq _ _)). 
 
 (* TyAll *)
 specialize (IHt _ (liftSub _ S)).

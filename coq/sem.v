@@ -4,7 +4,7 @@ Set Implicit Arguments.
 Unset Strict Implicit.
 Import Prenex Implicits.
 
-Require Import syn Casts model.
+Require Import exp ty Casts model.
 
 Reserved Notation "| t |" (at level 60).
 
