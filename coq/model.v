@@ -135,4 +135,91 @@ replace (tlSub (ScS S es)) with (ScS S (tlSub es)) by done.
 by rewrite (proj1 (interpExpApSub _ _)).
 Qed.  
 
+
+(* Pointwise product of models is itself a model *)
+Definition interpSrtProd (I1 I2: Interpretation) :=
+  fun s => (interpSrt I1 s * interpSrt I2 s)%type. 
+
+Definition fstEnv (I1 I2: Interpretation) arity 
+  (env: Env (interpSrtProd I1 I2) arity) := 
+  mapEnv (fun s => @fst _ (interpSrt I2 s)) env.
+
+Definition sndEnv (I1 I2: Interpretation) arity 
+  (env: Env (interpSrtProd I1 I2) arity) := 
+  mapEnv (fun s => @snd (interpSrt I1 s) _) env.
+
+(*
+Fixpoint pairEnv (I1 I2: Interpretation) arity (env1: Env (interpSrt I1) arity) (env2: Env (interpSrt I2) arity) : Env (interpSrtProd I1 I2) arity. 
+*)
+Definition prodInterp (I1 I2: Interpretation) : Interpretation :=
+  mkInterpretation
+  (fun p env => (interpOp I1 p (fstEnv env),
+                 interpOp I2 p (sndEnv env))).
+
+Lemma interpExpFst D (I1 I2: Interpretation) env :
+  (forall (s:Srt sig) (e : Exp D s), 
+    interpExp e (fstEnv env) = fst (interpExp (I:=prodInterp I1 I2) e env)) /\ 
+  (forall ss (es: Exps D ss), 
+    interpExps es (fstEnv env) = fstEnv (interpExps (I:=prodInterp I1 I2) es env)).
+Proof. 
+apply Exp_Exps_ind.
+(* Variable *)
+move => s v. by rewrite /= /interpVar lookupMapEnv. 
+(* AppCon *)
+move => op es IH. by rewrite /= IH. 
+(* nil *)
+done. 
+(* cons *)
+move => s ss e IH1 es IH2. by rewrite /= IH1 IH2. 
+Qed. 
+
+Lemma interpExpSnd D (I1 I2: Interpretation) env :
+  (forall (s:Srt sig) (e : Exp D s), 
+    interpExp e (sndEnv env) = snd (interpExp (I:=prodInterp I1 I2) e env)) /\ 
+  (forall ss (es: Exps D ss), 
+    interpExps es (sndEnv env) = sndEnv (interpExps (I:=prodInterp I1 I2) es env)).
+Proof. 
+apply Exp_Exps_ind.
+(* Variable *)
+move => s v. by rewrite /= /interpVar lookupMapEnv. 
+(* AppCon *)
+move => op es IH. by rewrite /= IH. 
+(* nil *)
+done. 
+(* cons *)
+move => s ss e IH1 es IH2. by rewrite /= IH1 IH2. 
+Qed. 
+
+
+Lemma interpExpPair D (I1 I2: Interpretation) env s (e: Exp D s):
+  interpExp (I:=prodInterp I1 I2) e env = 
+  (interpExp e (fstEnv env), interpExp e (sndEnv env)).
+Proof. 
+induction e. 
+(* Variable *)
+rewrite /= /interpVar !lookupMapEnv. by elim E: (lookup v env). 
+(* AppCon *)
+by rewrite /= (proj2 (interpExpFst _)) (proj2 (interpExpSnd _)). 
+Qed. 
+
+Program Definition prodModel A (M1 M2: Model A) : Model A := 
+  mkModel (I:= prodInterp M1 M2) _.
+Next Obligation.
+induction A => //.
+split.
+destruct M1 as [I1 [s1 s1']]. destruct M2 as [I2 [s2 s2']]. 
+simpl.
+destruct a. move => env. 
+simpl in env.  
+specialize (s1 (fstEnv env)). specialize (s2 (sndEnv env)). 
+clear s1' s2'. move: s1 s2. 
+rewrite !(proj1 (interpExpFst _)). 
+rewrite !(proj1 (interpExpSnd _)).
+rewrite !interpExpPair /=. move ->. move ->. done.
+
+destruct M1 as [I1 [a1 A1]].  
+destruct M2 as [I2 [a2 A2]].
+apply (IHA (mkModel A1) (mkModel A2)). 
+Qed. 
+
 End Models.

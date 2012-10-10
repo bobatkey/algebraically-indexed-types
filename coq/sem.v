@@ -1,5 +1,5 @@
 Require Import ssreflect ssrbool ssrfun seq.
-Require Import Relations Program.Equality.
+Require Import Relations Program.Equality Rel.
 Set Implicit Arguments.
 Unset Strict Implicit.
 Import Prenex Implicits.
@@ -122,14 +122,17 @@ Structure ModelEnv A := mkModelEnv {
   relInterp X : Env (interpSrt M) (tyArity X) -> relation (interpPrim X)
 }.
 
+Definition prodModelEnv A (ME1 ME2: ModelEnv A) : ModelEnv A :=
+  mkModelEnv (M:=prodModel ME1 ME2)
+  (fun X env => fun x y => @relInterp _ ME1 X (fstEnv env) x y /\
+                           @relInterp _ ME2 X (sndEnv env) x y).
+
 (* Relation environments *)
 Definition RelEnv A (M:Model A) := Env (interpSrt (sig:=sig) M). 
 
 (* Compose environment with substitution *)
 Definition EcS D D' A (M:Model A) (rho: RelEnv M D'): Sub D D' -> RelEnv M D := 
   mapEnv (fun _ e => interpExp e rho). 
-
-Require Import Rel.
 
 Fixpoint semTy A (ME: ModelEnv A) D (rho: RelEnv ME D) (t:Ty D) : relation (|t|) :=
   match t return relation (|t|) with

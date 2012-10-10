@@ -62,6 +62,11 @@ Fixpoint mapEnv T (I J:T -> Type) ts (f: forall t, I t -> J t) : Env I ts -> Env
   then fun env => (f _ env.1, mapEnv f env.2)
   else fun env => tt.
 
+Lemma lookupMapEnv T (I J:T -> Type) ts (f: forall t, I t -> J t) t 
+  (v: Ix ts t) (env: Env I ts):
+  lookup v (mapEnv f env) = f _ (lookup v env). 
+Proof. dependent induction v => //. by rewrite /= IHv.  Qed. 
+
 Lemma mapCompose T (I J K: T -> Type) ts (f: forall t, J t -> K t) (g: forall t, I t -> J t) 
   (env: Env I ts) : mapEnv f (mapEnv g env) = mapEnv (fun s x => f _ (g _ x)) env.
 Proof. induction ts => //. by rewrite /= IHts. Qed. 
