@@ -313,7 +313,7 @@ Proof.
   specialize (IHt1 rho EF1). specialize (IHt2 rho EF2). by apply: arrow_difunctional. 
 
   (* TyBase *)
-  apply DIF.     
+  apply: DIF. 
 
   (* For all *)
   intros x x' y y' xy x'y' xy' k.

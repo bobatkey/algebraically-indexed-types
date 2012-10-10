@@ -242,7 +242,7 @@ split.
 move => /= k x x' ->.
 rewrite Num.Theory.sqrtrM. 
 rewrite Num.Theory.sqrtr_sqr => //.
-apply Num.Theory.sqr_ge0. 
+apply: Num.Theory.sqr_ge0. 
 (* finish *)
 done. 
 Qed. 
