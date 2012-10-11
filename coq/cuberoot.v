@@ -147,12 +147,8 @@ Definition ExpModelEnv := mkModelEnv (interpPrim := interpPrim) (M:=ExpModel)
     match X with TyReal => fun realArgs x y => x=y
                | TyVec => fun vecArgs x y => (x == y%R /\ exists n : nat, (vecArgs.1 * ((2 ^ n)%:R))%Q \is a Qint) end). 
 
-Definition expSemTy D := semTy (ME:=ExpModelEnv) (D:=D).
-
-Definition initialExpEnv: RelEnv ExpModelEnv [::] := tt. 
-
 (* Interpretation of pervasives preserve rational relations *)
-Lemma eta_ops_okForExp : semCtxt initialExpEnv eta_ops eta_ops.
+Lemma eta_ops_okForExp : semCtxt (emptyRelEnv ExpModelEnv) eta_ops eta_ops.
 Proof.
 split. 
 (* 0 *)
@@ -214,9 +210,8 @@ Qed.
 
 Open Scope ring_scope.
 Lemma badTyUninhabited (f:myvec->myvec) : 
-  expSemTy (t:=badTy) initialExpEnv f f -> 
-  False.
-Proof. rewrite /expSemTy/=. move => H.  
+  ~semClosedTy ExpModelEnv badTy f f.
+Proof. rewrite /semClosedTy/=. move => H.  
 specialize  (H (1%:Q/3%:Q) 0 0).
 destruct H; intuition.  
  (* 1/3 + 1/3 + 1/3 is an integer *) exists 1%N. done.

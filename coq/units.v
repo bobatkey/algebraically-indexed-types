@@ -183,12 +183,8 @@ Definition ScalingModelEnv := mkModelEnv (interpPrim := interpPrim) (M:=ScalingM
     fun realArgs => 
     fun x y => y = (val realArgs.1 * x)%R end). 
 
-Definition scalingSemTy D := semTy (ME:=ScalingModelEnv) (D:=D).
-
-Definition initialScalingEnv: RelEnv ScalingModelEnv [::] := tt. 
-
 (* Interpretation of pervasives preserve scaling relations *)
-Lemma eta_ops_ok : semCtxt initialScalingEnv eta_ops eta_ops.
+Lemma eta_ops_ok : semCtxt (emptyRelEnv ScalingModelEnv) eta_ops eta_ops.
 Proof.
 split. 
 (* 0 *)
@@ -295,12 +291,8 @@ Definition ExpModelEnv := mkModelEnv (interpPrim := interpPrim) (M:=ExpModel)
     fun expArgs => 
     fun x y => (x==0%R /\ y==0%R \/ (x == y%R /\ expArgs.1 \is a Qint)) end). 
 
-Definition expSemTy D := semTy (ME:=ExpModelEnv) (D:=D).
-
-Definition initialExpEnv: RelEnv ExpModelEnv [::] := tt. 
-
 (* Interpretation of pervasives preserve exponent relations *)
-Lemma eta_ops_okForExp : semCtxt initialExpEnv eta_ops eta_ops.
+Lemma eta_ops_okForExp : semCtxt (emptyRelEnv ExpModelEnv) eta_ops eta_ops.
 Proof.
 split. 
 (* 0 *)
@@ -308,7 +300,6 @@ move => k/=.
 intuition. 
 split.
 (* 1 *)
-rewrite /initialExpEnv. simpl. 
 by right. 
 split. 
 (* + *)
@@ -385,9 +376,9 @@ Definition sqrtTy : Ty [::] := all Unit (scalar (#0 * #0)%Un --> scalar #0)%Ty.
 
 Open Scope ring_scope.
 Lemma sqrtTrivial (f:F->F) : 
-  expSemTy (t:=sqrtTy) initialExpEnv f f -> 
+  semClosedTy ExpModelEnv sqrtTy f f -> 
   forall x, f x = 0.
-Proof. rewrite /expSemTy/=. move => H x. 
+Proof. rewrite /semClosedTy/=. move => H x. 
 specialize  (H (1%:Q/2%:Q) x x).
 destruct H; intuition.  
 by rewrite (eqP H0). 
@@ -400,10 +391,10 @@ Qed.
 Definition sqrTy : Ty [::] := all Unit (scalar #0 --> scalar (#0 * #0)%Un)%Ty.
 
 Lemma sqrScaling (f:F->F) :   
-  scalingSemTy (t:=sqrTy) initialScalingEnv f f -> 
+  semClosedTy ScalingModelEnv sqrTy f f -> 
   forall k, k != 0 ->
   forall x, f (k * x) = k^2 * f x.
-Proof. rewrite /scalingSemTy/=. move => H k neq x. 
+Proof. rewrite /semClosedTy/=. move => H k neq x. 
 apply (H (Scaling neq) x (k*x) (refl_equal _)). 
 Qed. 
 

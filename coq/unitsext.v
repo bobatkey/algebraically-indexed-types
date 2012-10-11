@@ -189,10 +189,8 @@ Definition ScalingModelEnv := mkModelEnv (interpPrim := interpPrim) (M:=ScalingM
 
 Definition scalingSemTy D := semTy (ME:=ScalingModelEnv) (D:=D).
 
-Definition initialScalingEnv: RelEnv ScalingModelEnv [::] := tt. 
-
 (* Interpretation of pervasives preserve scaling relations *)
-Lemma eta_ops_ok : semCtxt initialScalingEnv eta_ops eta_ops.
+Lemma eta_ops_ok : semCtxt (emptyRelEnv ScalingModelEnv) eta_ops eta_ops.
 Proof.
 split. 
 (* 0 *)
@@ -340,12 +338,8 @@ Definition ExpModelEnv := mkModelEnv (interpPrim := interpPrim) (M:=ExpModel)
     fun x y => (x == 0 /\ y == 0 \/ 
                (x == y /\ isDyadic expArgs.1)) end). 
 
-Definition expSemTy D := semTy (ME:=ExpModelEnv) (D:=D).
-
-Definition initialExpEnv: RelEnv ExpModelEnv [::] := tt. 
-
 (* Interpretation of pervasives preserve exponent relations *)
-Lemma eta_ops_okForExp : semCtxt initialExpEnv eta_ops eta_ops.
+Lemma eta_ops_okForExp : semCtxt (emptyRelEnv ExpModelEnv) eta_ops eta_ops.
 Proof.
 split. 
 (* 0 *)
@@ -353,7 +347,7 @@ move => k/=.
 intuition. 
 split.
 (* 1 *)
-rewrite /initialExpEnv/=. right. split => //. apply isDyadic0. 
+right. split => //. apply isDyadic0. 
 split. 
 (* + *)
 move => k/= x x'.
@@ -442,9 +436,9 @@ Proof.
 Qed. 
 
 Lemma cuberootTrivial (f:F->F) : 
-  expSemTy (t:=cuberootTy) initialExpEnv f f -> 
+  semClosedTy ExpModelEnv cuberootTy f f -> 
   forall x, f x = 0.
-Proof. rewrite /expSemTy/=. move => H x. 
+Proof. rewrite /semClosedTy/=. move => H x. 
 specialize  (H (1%:Q/3%:Q) x x).
 destruct H => //. 
 right. split => //. by exists 0%N. 

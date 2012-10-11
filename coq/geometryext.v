@@ -469,12 +469,8 @@ Definition TransformModelEnv := mkModelEnv (interpPrim := interpPrim) (M:=Transf
     | Vec    => fun args => fun v w => w = transformBy args.1 args.2.1 v 
     end). 
 
-Definition transformSemTy D := semTy (ME:=TransformModelEnv) (D:=D).
-
-Definition initialTransformEnv: RelEnv TransformModelEnv [::] := tt. 
-
 (* Interpretation of pervasives preserve translation relations *)
-Lemma eta_ops_ok : semCtxt initialTransformEnv eta_ops eta_ops.
+Lemma eta_ops_ok : semCtxt (emptyRelEnv TransformModelEnv) eta_ops eta_ops.
 Proof.
 split. 
 (* 0 *)
@@ -642,12 +638,8 @@ Definition ExpModelEnv := mkModelEnv (interpPrim := interpPrim) (M:=ExpModel)
     | Scalar => fun args => fun x y => y = x
     end). 
 
-Definition expSemTy D := semTy (ME:=ExpModelEnv) (D:=D).
-
-Definition initialExpEnv: RelEnv ExpModelEnv [::] := tt. 
-
 (* Interpretation of pervasives preserve rational relations *)
-Lemma eta_ops_okForExp : semCtxt initialExpEnv eta_ops eta_ops.
+Lemma eta_ops_okForExp : semCtxt (emptyRelEnv ExpModelEnv) eta_ops eta_ops.
 Proof.
 split. 
 (* 0 *)
@@ -689,10 +681,9 @@ Definition badTy : Ty [::] :=
   all GL2 (all T2 (Vec.<#1,(T2Add<#0,#0>)> --> Vec.<#1,#0>)).
 
 Lemma badTyUninhabited (f:'vec_2 -> 'vec_2) : 
-  ~ expSemTy (t:=badTy) initialExpEnv f f.
-Proof. rewrite /expSemTy/=. move => H.  
-specialize  (H tt (1%:Q/2%:Q) 0 0).
-by elim H. 
+  ~ semClosedTy ExpModelEnv badTy f f.
+Proof. rewrite /semClosedTy/=. move => H.  
+by elim  (H tt (1%:Q/2%:Q) 0 0).
 Qed. 
 
 (*---------------------------------------------------------------------------
@@ -703,12 +694,12 @@ Definition areaTy : Ty [::] :=
                     --> Scalar.<(GL1Abs<(GL2Det<#1>)>)>)).
 
 Lemma areaTrans (f:'vec_2->'vec_2->'vec_2->F) :   
-  transformSemTy (t:=areaTy) initialTransformEnv f f -> 
+  semClosedTy TransformModelEnv areaTy f f -> 
   forall B:'GL_2,
   forall t:'vec_2, 
   forall u v w:'vec_2, 
     f (val B *m u + t) (val B *m v + t) (val B *m w + t) = `|\det (val B)| * f u v w.
-Proof. rewrite /transformSemTy/=. move => H B t u v w.
+Proof. rewrite /semClosedTy/=. move => H B t u v w.
 symmetry. 
 rewrite /transformBy in H.
 specialize (H B t u _ (refl_equal _)   

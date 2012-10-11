@@ -130,6 +130,8 @@ Definition prodModelEnv A (ME1 ME2: ModelEnv A) : ModelEnv A :=
 (* Relation environments *)
 Definition RelEnv A (M:Model A) := Env (interpSrt (sig:=sig) M). 
 
+Definition emptyRelEnv A (ME: ModelEnv A) : RelEnv ME [::] := tt. 
+
 (* Compose environment with substitution *)
 Definition EcS D D' A (M:Model A) (rho: RelEnv M D'): Sub D D' -> RelEnv M D := 
   mapEnv (fun _ e => interpExp e rho). 
@@ -150,6 +152,8 @@ Fixpoint semTy A (ME: ModelEnv A) D (rho: RelEnv ME D) (t:Ty D) : relation (|t|)
   end.
 
 Implicit Arguments semTy [D ME].  
+
+Definition semClosedTy A (ME: ModelEnv A) := @semTy A ME _ (emptyRelEnv _). 
 
 (*Notation "rho |= x == y :> t" := (semTy (t:=t) rho x y) (at level 67, x at level 67, y at level 67).*)
 
@@ -581,5 +585,6 @@ Qed.
 
 End Sem.
 
+Implicit Arguments semClosedTy [sig interpPrim A]. 
 
 

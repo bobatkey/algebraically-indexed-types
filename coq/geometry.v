@@ -141,12 +141,8 @@ Definition TransModelEnv := mkModelEnv (interpPrim := interpPrim) (M:=TransModel
     match X with Scalar => fun realargs => fun x y => x=y 
                | Vec => fun vecArgs =>fun x y => y = (vecArgs.1 + x)%R end). 
 
-Definition transSemTy D := semTy (ME:=TransModelEnv) (D:=D).
-
-Definition initialTransEnv: RelEnv TransModelEnv [::] := tt. 
-
 (* Interpretation of pervasives preserve translation relations *)
-Lemma eta_ops_ok : semCtxt initialTransEnv eta_ops eta_ops.
+Lemma eta_ops_ok : semCtxt (emptyRelEnv TransModelEnv) eta_ops eta_ops.
 Proof.
 split. 
 (* 0 *)
@@ -211,12 +207,8 @@ Definition ExpModelEnv := mkModelEnv (interpPrim := interpPrim) (M:=ExpModel)
     match X with Scalar => fun realArgs x y => x=y
                | Vec => fun vecArgs x y => (x == y%R /\ vecArgs.1 \is a Qint) end). 
 
-Definition expSemTy D := semTy (ME:=ExpModelEnv) (D:=D).
-
-Definition initialExpEnv: RelEnv ExpModelEnv [::] := tt. 
-
 (* Interpretation of pervasives preserve rational relations *)
-Lemma eta_ops_okForExp : semCtxt initialExpEnv eta_ops eta_ops.
+Lemma eta_ops_okForExp : semCtxt (emptyRelEnv ExpModelEnv) eta_ops eta_ops.
 Proof.
 split. 
 (* 0 *)
@@ -255,9 +247,8 @@ Definition badTy : Ty [::] := all T2 (vec (#0 + #0)%Tr --> vec #0)%Ty.
 
 Open Scope ring_scope.
 Lemma badTyUninhabited (f:myvec->myvec) : 
-  expSemTy (t:=badTy) initialExpEnv f f -> 
-  False.
-Proof. rewrite /expSemTy/=. move => H.  
+  ~semClosedTy ExpModelEnv badTy f f.
+Proof. rewrite /semClosedTy/=. move => H.  
 specialize  (H (1%:Q/2%:Q) 0 0).
 destruct H; intuition.  
 Qed. 
@@ -270,10 +261,10 @@ Qed.
 Definition triTy : Ty [::] := all T2 (vec #0 --> vec #0 --> vec #0 --> scalar _)%Tr%Ty.
 
 Lemma triTrans (f:myvec->myvec->myvec->F) :   
-  transSemTy (t:=triTy) initialTransEnv f f -> 
+  semClosedTy TransModelEnv triTy f f -> 
   forall t, 
   forall u v w, f (t+u) (t+v) (t+w) = f u v w.
-Proof. rewrite /transSemTy/=. move => H t u v w.
+Proof. rewrite /semClosedTy/=. move => H t u v w.
 symmetry. 
 apply (H t u (t+u) (refl_equal _)
            v (t+v) (refl_equal _)
