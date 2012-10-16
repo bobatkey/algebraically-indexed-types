@@ -89,11 +89,15 @@
 \newcommand{\tmFF}{\texttt{ff}}
 
 \newcommand{\relEnv}[1]{\mathcal{#1}}
-\newcommand{\tySem}[1]{\llbracket #1 \rrbracket^{\mathcal{T}}}
-\newcommand{\ctxtSem}[1]{\llbracket #1 \rrbracket^{\mathcal{C}}}
-\newcommand{\tmSem}[1]{\llbracket #1 \rrbracket^{\mathit{tm}}}
-\newcommand{\tyPrimSem}[1]{\llbracket #1 \rrbracket^{\mathcal{T}_0}}
-\newcommand{\rsem}[3]{\llbracket #1 \rrbracket^{\mathcal{R}}_{#2}{#3}}
+%\newcommand{\tySem}[1]{\llbracket #1 \rrbracket^{\mathcal{T}}}
+%\newcommand{\ctxtSem}[1]{\llbracket #1 \rrbracket^{\mathcal{C}}}
+%\newcommand{\tmSem}[1]{\llbracket #1 \rrbracket^{\mathit{tm}}}
+%\newcommand{\tyPrimSem}[1]{\llbracket #1 \rrbracket^{\mathcal{T}_0}}
+\newcommand{\tySem}[1]{\left| #1\right|}
+\newcommand{\ctxtSem}[1]{\left| #1\right|}
+\newcommand{\tmSem}[1]{\left| #1\right|}
+\newcommand{\tyPrimSem}[1]{\left| #1\right|}
+\newcommand{\rsem}[3]{\llbracket #1 \rrbracket^{\mathcal{#2}}_{\mathcal{#3}}}
 \newcommand{\extends}[2]{\mathsf{ext}(#1,#2)}
 
 \newtheorem{lemma}{Lemma}
@@ -124,6 +128,7 @@
   {}% Manually specify head
 \theoremstyle{examplestyle}
 \newtheorem{example}{Example}
+\newtheorem*{example*}{Example}
 
 \newtheoremstyle{restatementstyle}
   {\topsep}  % space above

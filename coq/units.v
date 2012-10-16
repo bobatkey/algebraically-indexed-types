@@ -103,6 +103,7 @@ Definition eta_ops : interpCtxt interpPrim Gops :=
 
 (*---------------------------------------------------------------------------
    Our first relational interpretation: scaling factors
+   Need field to be non-trivial (more than one element!) 
    ---------------------------------------------------------------------------*)
 
 (* Non-zero scale factor type *)
@@ -112,6 +113,9 @@ Canonical scaling_subType := Eval hnf in [subType for tval by scaling_rect].
 Definition scaling_eqMixin := Eval hnf in [eqMixin of scaling by <:]. 
 Canonical scaling_eqType := Eval hnf in EqType scaling scaling_eqMixin.  
 Implicit Type t : scaling.
+
+Variable NonTrivial: exists s:scaling, val s != 1%R.
+
 
 Lemma scaling_neq0 (x:scaling) : val x != 0%R. Proof. by elim x. Qed.
 
@@ -285,11 +289,13 @@ done.
 done. 
 Defined. 
 
+(* Essentially unary *)
 Definition ExpModelEnv := mkModelEnv (interpPrim := interpPrim) (M:=ExpModel)
   (fun X => 
     match X with Scalar => 
     fun expArgs => 
-    fun x y => (x==0%R /\ y==0%R \/ (x == y%R /\ expArgs.1 \is a Qint)) end). 
+    fun x y => (x==0%R /\ y==0%R) \/ 
+               (x == y /\ expArgs.1 \is a Qint) end). 
 
 (* Interpretation of pervasives preserve exponent relations *)
 Lemma eta_ops_okForExp : semCtxt (emptyRelEnv ExpModelEnv) eta_ops eta_ops.
@@ -300,8 +306,7 @@ move => k/=.
 intuition. 
 split.
 (* 1 *)
-by right. 
-split. 
+right. split. done. intuition.  split. 
 (* + *)
 move => k/=.
 move => x x'. elim. 
@@ -398,3 +403,44 @@ Proof. rewrite /semClosedTy/=. move => H k neq x.
 apply (H (Scaling neq) x (k*x) (refl_equal _)). 
 Qed. 
 
+(*---------------------------------------------------------------------------
+   Now a really trivial isomorphism. Zero is the only polymorphic scalar!
+
+     (forall s, real<s>)   ~   unit
+   ---------------------------------------------------------------------------*)
+Require Import equivalence Casts.
+Lemma polyZeroIso : 
+  iso ExAxioms eta_ops (all Unit (scalar #0)) (TyUnit [::]).
+Proof.
+  pose I:= ABS (A:=ExAxioms) (G:=apSubCtxt (piAll [::]) Gops) (t1:= all Unit (scalar #0)) (UNIT _ _). 
+  pose J:= ABS (A:=ExAxioms) (G:=apSubCtxt (piAll [::]) Gops) (t1:= TyUnit [::]) (VAR _ (ixS _ (ixZ _ _))).
+
+  exists I, J. 
+
+split. 
+
+move => M. 
+apply: (semEq_implies_ctxtEq eta_ops_ok) => rho /=eta1 eta2 eta12/=. 
+move => k/=. 
+(* Abstraction theorem *)
+have A:= Abstraction _ eta_ops_ok.  
+specialize (A _ M). simpl in A. 
+rewrite cast_UIP/=. rewrite GRing.mulr0.
+
+(* From forall k:scaling, x = k*x we want to derive that x=0.
+   There must be an easier way to do this! *)
+destruct NonTrivial as [k' Hk']. 
+have A1 := A k'. 
+case E: (interpTm M eta_ops == 0). by rewrite (eqP E). 
+have NEQ: interpTm M eta_ops != 0 by by rewrite E. 
+symmetry in A1. rewrite GRing.mulrC in A1. 
+rewrite -{2}(GRing.mulr1 (interpTm M eta_ops)) in A1. 
+have M1 := GRing.mulfI NEQ A1. 
+simpl in Hk'. rewrite M1 eq_refl in Hk'.
+done. 
+
+
+move => M. 
+apply: (semEq_implies_ctxtEq eta_ops_ok).  
+done. 
+Qed. 

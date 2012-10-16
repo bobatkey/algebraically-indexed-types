@@ -8,11 +8,11 @@ isomorphisms, and non-definability results.
 
 %\begin{example}[Two-dimensional Geometry] 
 
-We define the model of the indexing theory for the two-dimensional
+We define the model $\mathcal{M}$ of the indexing theory for the two-dimensional
 geometry instantiation as follows. Each of the sorts is interpreted just as
-its semantic counterpart: $\semSort{\SynTransl{2}} = \Transl{2}$, $
-\semSort{\SynGL{2}} = \GL{2}$, $ \semSort{\SynOrth{2}} = \Orth{2}$,
-and $ \semSort{\SynGL{1}} = \GL{1}$.
+its semantic counterpart: $\semSort{\SynTransl{2}}M = \Transl{2}$, $
+\semSort{\SynGL{2}}M = \GL{2}$, $ \semSort{\SynOrth{2}}M = \Orth{2}$,
+and $ \semSort{\SynGL{1}}M = \GL{1}$.
 %  \begin{displaymath}
 %    \begin{array}{@{}llll}
 %      \semSort{\SynTransl{2}} = \Transl{2}
@@ -27,11 +27,10 @@ and $ \semSort{\SynGL{1}} = \GL{1}$.
 Each of the index operations (e.g.,~the group structure and
 determinant) is interpreted by the intended semantic operation, and
 clearly satisfy the axioms in \exref{ex:two-dim-geo-axioms}. For the
-relational interpretations of $\tyPrim{vec}{B,t}$ and
-$\tyPrim{real}{s}$, we use the model-based construction from
-\autoref{sec:constr-rel-env}, with $R_{\tyPrimNm{vec}}(B,\vec{t}) = \{
+relational interpretations $\mathcal{R}$ of $\tyPrim{vec}{B,t}$ and
+$\tyPrim{real}{s}$, we use $\mathcal{R}_{\tyPrimNm{vec}}(B,\vec{t}) = \{
 (\vec{v}, B\vec{v} + \vec{t}) \sepbar \vec{v} \in \mathbb{R}^2 \}$ and
-$R_{\tyPrimNm{real}}(k) = \{ (x, kx) \sepbar x \in \mathbb{R} \}$. The
+$\mathcal{R}_{\tyPrimNm{real}}(k) = \{ (x, kx) \sepbar x \in \mathbb{R} \}$. The
 types of the primitive vector operations presented in
 \autoref{sec:motivating-examples} are collected into a context
 $\Gamma_\Geom$ with a straightforward interpretation $\eta_\Geom \in
@@ -53,7 +52,7 @@ $\Gamma_\Geom$ with a straightforward interpretation $\eta_\Geom \in
 %\end{example}
 
 \begin{lemma}\label{lem:geom-environments-1}
-  For all $\Delta$ and $\rho \in \relEnv{E}_\Geom(\Delta)$, $(\eta_\Geom,\eta_\Geom) \in \rsem{\Gamma_\Geom}{\relEnv{E}_\Geom}\rho$.
+  For all $\Delta$ and $\rho \in \semSort{\Delta}M$, $(\eta_\Geom,\eta_\Geom) \in \rsem{\Gamma_\Geom}{\relEnv{E}_\Geom}\rho$.
 \end{lemma}
 
 \subsection{Free Theorems}
@@ -92,9 +91,8 @@ determinant of $B$.
 We say that two types $A$ and $B$ are isomorphic, and write $A \cong
 B$, if there exist maps between them that are mutually inverse with
 respect to contextual equivalence, i.e., if there are terms $\vdash I
-: A \to B$ and $\vdash J : B\to A$ such that $x:A\vdash
-J(I(x))\stackrel{ctx}\approx x : A$ and $y:B\vdash
-I(J(y))\stackrel{ctx}\approx y : B$.
+: A \to B$ and $\vdash J : B\to A$ such that $\ctxteq{\cdot}{x:A}{J(I(x))}{x}{A}$ 
+and $\ctxteq{\cdot}{y:B}{I(J(y))} y B$.
 %\[
 %x:A\vdash J(I(x))\stackrel{ctx}\approx x : A
 %\text{ and }y:B\vdash I(J(y))\stackrel{ctx}\approx y : B.
