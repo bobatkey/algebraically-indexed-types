@@ -1,59 +1,14 @@
 \section{Geometric Consequences of Abstraction}
 \label{sec:instantiations}
-We now instantiate our general framework %of the previous section 
-with
+We now instantiate our general framework %of the previous section with
 the indexing theory of \autoref{sec:motivating-examples}, and present
-more general and formally-justified free theorems, type
-isomorphisms, and non-definability results.
+more general and formally-justified free theorems, type isomorphisms,
+and non-definability results.  For the free theorems and isomorphisms,
+we use the model and relational interpretation of primitive types
+described in \autoref{sec:relational-semantics}, namely that of
+affine transformations for vectors and scaling for scalars.
 
 %\begin{example}[Two-dimensional Geometry] 
-
-We define the model $\mathcal{M}$ of the indexing theory for the two-dimensional
-geometry instantiation as follows. Each of the sorts is interpreted just as
-its semantic counterpart: $\semSort{\SynTransl{2}}M = \Transl{2}$, $
-\semSort{\SynGL{2}}M = \GL{2}$, $ \semSort{\SynOrth{2}}M = \Orth{2}$,
-and $ \semSort{\SynGL{1}}M = \GL{1}$.
-%  \begin{displaymath}
-%    \begin{array}{@{}llll}
-%      \semSort{\SynTransl{2}} = \Transl{2}
-%      &
-%      \semSort{\SynGL{2}} = \GL{2}
-%      &
-%      \semSort{\SynOrth{2}} = \Orth{2}
-%      &
-%      \semSort{\SynGL{1}} = \GL{1}
-%    \end{array}
-%  \end{displaymath}
-Each of the index operations (e.g.,~the group structure and
-determinant) is interpreted by the intended semantic operation, and
-clearly satisfy the axioms in \exref{ex:two-dim-geo-axioms}. For the
-relational interpretations $\mathcal{R}$ of $\tyPrim{vec}{B,t}$ and
-$\tyPrim{real}{s}$, we use $\mathcal{R}_{\tyPrimNm{vec}}(B,\vec{t}) = \{
-(\vec{v}, B\vec{v} + \vec{t}) \sepbar \vec{v} \in \mathbb{R}^2 \}$ and
-$\mathcal{R}_{\tyPrimNm{real}}(k) = \{ (x, kx) \sepbar x \in \mathbb{R} \}$. The
-types of the primitive vector operations presented in
-\autoref{sec:motivating-examples} are collected into a context
-$\Gamma_\Geom$ with a straightforward interpretation $\eta_\Geom \in
-\ctxtSem{\Gamma_\Geom}$.
-  % \begin{displaymath}
-  %   \begin{array}{l}
-  %     R_{\tyPrimNm{vec}}(B,\vec{t}) = \{ (\vec{v}, B\vec{v} + \vec{t}) \sepbar \vec{v} \in \mathbb{R}^2 \} \\
-  %     R_{\tyPrimNm{real}}(k) = \{ (x, kx) \sepbar x \in \mathbb{R} \}
-  %   \end{array}
-  % \end{displaymath}
-%   The definitions of $R_{\tyPrimNm{vec}}$ and $R_{\tyPrimNm{real}}$
-%   %are as expected. % given the informal definitions we gave in
-% formalise the informal ones from~\autoref{sec:motivating-examples}, and 
-%   the definitions of %We have set
-%   $R^\bullet_{\tyPrimNm{vec}}$ and $R^\bullet_{\tyPrimNm{real}}$ 
-%   %to relate $\vec{0}$ and $0$ to themselves to 
-%   account for the
-%   polymorphic zero constants we have assumed.
-%\end{example}
-
-\begin{lemma}\label{lem:geom-environments-1}
-  For all $\Delta$ and $\rho \in \semSort{\Delta}M$, $(\eta_\Geom,\eta_\Geom) \in \rsem{\Gamma_\Geom}{\relEnv{E}_\Geom}\rho$.
-\end{lemma}
 
 \subsection{Free Theorems}
 \label{sec:theorems-for-free}
@@ -88,21 +43,6 @@ determinant of $B$.
 
 \subsection{Type Isomorphisms}
 \label{sec:types-indexed-abelian-groups}
-We say that two types $A$ and $B$ are isomorphic, and write $\Delta\vdash A \cong
-B$, if there exist maps between them that are mutually inverse with
-respect to contextual equivalence, i.e., if there are terms $\Delta\vdash I
-: A \to B$ and $\Delta\vdash J : B\to A$ such that $\ctxteq{\Delta}{x:A}{J(I(x))}{x}{A}$ 
-and $\ctxteq{\Delta}{y:B}{I(J(y))} y B$.
-%\[
-%x:A\vdash J(I(x))\stackrel{ctx}\approx x : A
-%\text{ and }y:B\vdash I(J(y))\stackrel{ctx}\approx y : B.
-%\]
-That $\cong$ is a congruence relation on types is straightforward. We
-can also derive isomorphisms that are independent of the indexing
-theory, such as $A\times B \cong B \times A$, and $\forall
-i\mathord:s.A\to B\cong A\to\forall i\mathord:s.B$ for $i$ not free in
-$A$.
-
 Types indexed by abelian groups induce a particularly rich theory of
 type isomorphisms; previous work on
 units-of-measure~\cite{kennedy97relational} relates these to
@@ -186,14 +126,13 @@ A[1/s]\times \forall s\mathord:\SynGL{1}.A
 \end{eqnarray*}
 The type of $\mathrm{areaCircle}$ from the introduction is one instance:
 \begin{eqnarray*}
-\forall s\mathord:\SynGL{1}.\tyPrim{real}{s}\to\tyPrim{real}{s\cdot
-  s}\\ \quad\cong\quad \tyPrim{real}{1}\times(\forall
-s\mathord:\SynGL{1}.\tyPrim{real}{s\cdot s})\\ \quad\cong\quad
+\forall s\mathord:\SynGL{1}.\tyPrim{real}{s}\to\tyPrim{real}{s^2}\\ \quad\cong\quad \tyPrim{real}{1}\times(\forall
+s\mathord:\SynGL{1}.\tyPrim{real}{s^2})\\ \quad\cong\quad
 \tyPrim{real}{1}\times 1\quad\cong\quad \tyPrim{real}{1}
 \end{eqnarray*}
 %where %the isomorphism 
 The abstraction theorem is used to prove
-$\forall s\mathord:\SynGL{1}.\tyPrim{real}{s\cdot s}\cong 1$.
+$\forall s\mathord:\SynGL{1}.\tyPrim{real}{s^2}\cong 1$.
 % is proved using
 %the abstraction theorem.
 
@@ -213,6 +152,121 @@ $\forall s\mathord:\SynGL{1}.\tyPrim{real}{s\cdot s}\cong 1$.
 \label{sec:types-indexed-abelian-groups-indef}
 
 \newcommand{\Grp}{\mathit{Gr}}
+To prove non-definability results, the model and relational interpretation
+used in the previous two sections are not sufficient.
+This is true even for simple scalars with invariance under scaling.
+Consider the type 
+$\forall s \mathord: \SynGL{1}.\tyPrim{real}{s^2} \to \tyPrim{real}{s}$. 
+There are many functions $f$ in $\mathbb R \to \mathbb R$
+that satisfy its relational interpretation, i.e. for which $f(k^2\cdot x) = k\cdot f(x)$ for 
+any $k\neq 0$.
+Consider 
+\[
+f(x) = \begin{cases}\sqrt x & \text{if }x > 0\\0&\text{otherwise}\end{cases}
+\]
+for instance. Yet this type contains only the constant zero function, a fact that
+we can prove using a surprisingly simple model!
+
+\begin{example}
+If  $\opsCtxt \vdash f : \forall s \mathord: \SynGL{1}.\
+\tyPrim{real}{s^2} \to \tyPrim{real}{s}$ 
+then $\tmSem f = \lambda x.0$.
+To show this, take the model
+\[
+\begin{array}{l}
+\semSort{\SynGL{1}} \isDefinedAs \{0,1\}\qquad
+\semIndexExp{1} \isDefinedAs 0 \qquad
+\semIndexExp{{}^{-1}}  \isDefinedAs \mathrm{id}\\
+\semIndexExp{\cdot} \isDefinedAs \lambda(x,y).(x+y)\mathrel{\mathrm{mod}} 2
+\qquad
+\semIndexExp{|-|} \isDefinedAs \mathrm{id},
+
+\end{array}
+\]
+in other words, the additive abelian group $(\mathbb Z_2, +)$. 
+Now set
+\[
+\semPrimType{\tyPrimNm{real}}(z) = 
+  \begin{cases} \Delta_{\mathbb R} & \text{if }z=0\\
+                      {(0,0)} & \text{if }z=1
+\end{cases}
+\]
+It's easy to check that $(\opsEnv,\opsEnv)\in\rsem{\opsCtxt}*$.
+
+You can think of $z$ as tracking whether or not exponents on scale
+parameters are divisible by 2: all the primitive operations in
+\autoref{fig:real-ops} produce results with even exponents if their
+inputs have even exponents. But the type under consideration here does
+not.
+
+By \autoref{thm:abstraction} we have that $(f,f)\in\rsem{\forall s
+  \mathord: \SynGL{1}.\ \tyPrim{real}{s^2} \to \tyPrim{real}{s}} *$.
+Expanding the definitions, this means that for any
+$z\in\semSort{\SynGL{1}}$ and any
+$(x,y)\in\semPrimType{\tyPrimNm{real}}((z+z)\mathrel\textrm{mod}2)$, it is the case that
+$(f(x),f(y))\in\semPrimType{\tyPrimNm{real}}(z)$. Set $z = 1$.  
+Then we have that if $x=y$ then $f(x)=f(y)=0$.
+\qed
+\end{example}
+
+The particular model and relational interpretation used here is devised only to
+rule out the `square root type' (it does not rule out a `cube root type', for instance); 
+nevertheless, it is possible to devise craftier interpretations that serve up both invariance
+and more general non-definability results. For example, we can set
+\begin{align*}
+\semSort{\SynGL{1}} & \isDefinedAs \mathbb \mathbb \GL{1} \times \mathbb Q &
+\semIndexExp{\cdot} & \isDefinedAs (\cdot,+) & 
+\semIndexExp{1} & \isDefinedAs (1,0) \\
+\semIndexExp{{}^{-1}} & \isDefinedAs \mathrm{({}^{-1},-)} &
+\semIndexExp{|\cdot|} & \isDefinedAs \mathrm{(|\cdot|,\mathrm{id})}
+\end{align*}
+and
+\[
+\semPrimType{\tyPrimNm{real}}(k,q) = 
+  {\begin{cases} \{(x,k x) \sepbar x \in \mathbb R \} & \text{if }q \in \mathbb Z\\
+                      {(0,0)} & \text{otherwise}
+  \end{cases}}
+\]
+
+\begin{example}
+Suppose we extend the operations $\opsCtxt$ of \autoref{fig:real-ops}
+and corresponding $\opsEnv$ with a square root operation typed by
+\[
+\mathrm{sqrt} : \forall s\mathord: \SynGL{1}.\tyPrim{real}{s^2} \to \tyPrim{real}{s}.
+\]
+If  $\opsCtxt \vdash f : \forall s \mathord: \SynGL{1}.\
+\tyPrim{real}{s^3} \to \tyPrim{real}{s}$ 
+then $\tmSem f = \lambda x.0$.
+To show this, take the model
+\begin{align*}
+\semSort{\SynGL{1}} & \isDefinedAs \mathbb Q &
+\semIndexExp{\cdot} & \isDefinedAs + & 
+\semIndexExp{1} & \isDefinedAs 0 &
+\semIndexExp{{}^{-1}} & \isDefinedAs \mathrm{-} &
+\semIndexExp{|\cdot|} & \isDefinedAs \mathrm{id},
+\end{align*}
+in other words, the additive abelian group $(\mathbb Q, +)$. 
+Now set
+\[
+\semPrimType{\tyPrimNm{real}}(q) =
+\begin{cases} \Delta_{\mathbb R} & \text{if }\exists n, 2^n q \in\mathbb Z\\
+\{(0,0)\} & \text{otherwise}
+\end{cases}
+\]
+It's easy to check that $(\opsEnv,\opsEnv)\in\rsem{\opsCtxt}*$.
+
+Here $q$ is tracking the exponents on scale parameters, with
+$\semPrimType{\tyPrimNm{real}}(q)$ accepting only the zero value
+unless the denominator of $q$ is a power of two (a so-called
+\emph{dyadic} number).  
+Applying the abstraction theorem and expanding, we have that for
+any
+$q\in\mathbb Q$ and any
+$(x,y)\in\semPrimType{\tyPrimNm{real}}(3q)$, it is the case that
+$(f(x),f(y))\in\semPrimType{\tyPrimNm{real}}(q)$. Set $q = \frac 1 3$.  
+Then we have that if $x=y$ then $f(x)=f(y)=0$.
+\qed
+\end{example}
 
 For proving non-definability results, we consider the general case of
 a sort $\mathsf{G}$ with the equational theory of abelian groups. We
@@ -273,21 +327,7 @@ Writing $i^n$ for $n$-fold iteration of the group operation, we have:
 \end{theorem}
 The uninhabited type $\forall t \mathord: \SynTransl{2}.\
 \tyPrim{vec}{t + t} \to \tyPrim{vec}{t}$ from
-\exref{ex:uninhabited-type} is an instance of this theorem.  For types
-indexed by the scaling group $\SynGL{1}$ the situation is more subtle,
-as we have assumed that the type $\tyPrim{real}{s}$ has a polymorphic zero
-(see \autoref{fig:real-ops}). We can show, nonetheless, that $\forall
-s \mathord: \SynGL{1}.\ \tyPrim{real}{s^2} \to \tyPrim{real}{s}$ is
-only inhabited by the constantly zero function by setting
-$R^\bullet_{\tyPrimNm{real}} = \{(0,0)\}$. If we augment our sort
-$\SynGL{1}$ with a square root operation $s^{1/2}$, then it is
-possible to add a primitive square root function and still be able to
-prove that the cube root type $\forall s \mathord: \SynGL{1}.\
-\tyPrim{real}{s^3} \to \tyPrim{real}{s}$ is only inhabited by the
-constantly zero function. This is a consequence of the impossibility
-of generating $s$ from $s^3$ with only the abelian group operations
-and square root.
-
+\exref{ex:uninhabited-type} is an instance of this theorem.  
 %\begin{proof}
 %  (If) The program $\Lambda i_1\dots i_m.\ \lambda g_1\dots g_n.\
 %  g_1^{x_1}\dots g_n^{x_n}$ satisfies the typing judgment

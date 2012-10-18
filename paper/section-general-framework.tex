@@ -17,7 +17,8 @@ indexed types (\autoref{sec:algebraically-indexed-types}) and a syntax
 for terms in a general programming language for algebraically indexed
 types (\autoref{sec:well-typed-programs}). We give an index-erasure
 semantics to types and terms (\autoref{sec:erasure-semantics}), and
-based on this semantics define a notion of contextual equivalence. We
+based on this semantics define notions of contextual equivalence and
+type isomorphism. We
 then introduce a relational semantics for types parameterised by an appropriate
 `model' of the algebraic theory (\autoref{sec:relational-semantics}),
 prove the central Abstraction theorem
@@ -658,6 +659,22 @@ are \emph{contextually equivalent}, written $\ctxteq\Delta\Gamma{M_1}{M_2}A$, if
 \end{definition}
 
 
+\paragraph{Type Isomorphism.}
+We say that well-indexed types $\Delta \vdash A \isType$ and $\Delta\vdash B \isType$
+are isomorphic, and write $\Delta\vdash A \cong
+B$, if there exist maps between them that are mutually inverse with
+respect to contextual equivalence, i.e., if there are terms $\Delta\vdash I
+: A \to B$ and $\Delta\vdash J : B\to A$ such that $\ctxteq{\Delta}{x:A}{J(I(x))}{x}{A}$ 
+and $\ctxteq{\Delta}{y:B}{I(J(y))} y B$.
+%\[
+%x:A\vdash J(I(x))\stackrel{ctx}\approx x : A
+%\text{ and }y:B\vdash I(J(y))\stackrel{ctx}\approx y : B.
+%\]
+That $\cong$ is a congruence with respect to the type formation rules
+of \autoref{fig:indexes-and-types} is straightforward. We can also
+derive isomorphisms that are independent of the indexing theory, such
+as $\Delta\vdash A\times B \cong B \times A$, and $\Delta\vdash\forall
+i\mathord:s.(A\to B)\cong A\to\forall i\mathord:s.B$ for $i$ not free in $A$.
 
 \subsection{The Relational Interpretation of Types}
 \label{sec:relational-semantics}
