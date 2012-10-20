@@ -1,5 +1,6 @@
 (*---------------------------------------------------------------------------
    Multi-sorted index expressions and equational theories thereon.
+   (Section 3.1 from POPL'13)
    ---------------------------------------------------------------------------*)
 Require Import ssreflect ssrbool ssrfun seq.
 Require Import Relations Program.Equality.
@@ -179,6 +180,13 @@ Proof. apply envExtensional. Qed.
 Definition shExp D s s' : Exp D s -> Exp (s'::D) s := apRen (shiftRen s' (idRen D)). 
 Definition shExpSeq D ss s' : Exps D ss -> Exps (s'::D) ss := apRenSeq (shiftRen s' (idRen D)). 
 Definition RcR D D' D'' (R: Ren D' D'') : Ren D D' -> Ren D D'' := mapEnv (apRenVar R).
+
+Lemma shAppCon D (s: Srt sig) op (es: Exps D _) : shExp s (AppCon op es) = 
+  AppCon op (shExpSeq s es). 
+Proof. done. Qed. 
+
+Lemma shCons D (s: Srt sig) s' ss (e: Exp D s') (es: Exps D ss) : shExpSeq s (Cons e es) = Cons (shExp s e) (shExpSeq s es). 
+Proof. done. Qed. 
 
 Lemma shiftRenRcR E : forall E' E'' s (R:Ren E' E'') (R':Ren E E'),
   shiftRen s (RcR R R') = RcR (shiftRen s R) R'. 
@@ -482,6 +490,21 @@ Implicit Arguments AppCon [sig D].
 (* Some handy notation for applying expression constructors *)
 Notation "c '<' x , .. , y '>'" := (AppCon c (Cons x .. (Cons y (Nil _)) .. )) : Exp_scope.
 Notation "c '<>'" := (AppCon c (Nil _)) : Exp_scope.
+
+(* Singleton substitution *)
+Notation "<< e >>" := (consSub e (idSub _)). 
+
+Lemma apSubSingleShift sig D (s:Srt sig) (e: Exp D s) 
+: (forall s' (e': Exp D s'), apSub <<e>> (shExp s e') = e') /\
+  (forall ss (es: Exps D ss), apSubSeq <<e>> (shExpSeq s es) = es). 
+Proof. 
+apply Exp_Exps_ind => //. 
++ move => s' v. dependent induction v => //.
+  admit.   
++ move => op es IH. by rewrite shAppCon apSubAppCon IH. 
++ move => s' ss e' IH es IH'. by rewrite shCons apSubSeqCons IH IH'. 
+Qed. 
+
 
 Bind Scope Exp_scope with Exp. 
 Delimit Scope Exp_scope with Exp. 

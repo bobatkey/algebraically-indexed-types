@@ -10,7 +10,7 @@ Require Import ssrnat ssrint rat ssrnum.
 
 Require Import Relations.
 
-Require Import exp ty model sem.
+Require Import exp ty tm model esem sem.
 
 Set Implicit Arguments.
 Unset Strict Implicit.

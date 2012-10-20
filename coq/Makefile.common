@@ -3,12 +3,13 @@ TARGETS = Rel.vo \
           Casts.vo \
           exp.vo \
           ty.vo \
+          tm.vo \
           units.vo \
           geometry.vo \
           geometryext.vo \
+          esem.vo \
           sem.vo \
           equivalence.vo \
           model.vo \
           cuberoot.vo \
           unitsext.vo \
-          semiso.vo \

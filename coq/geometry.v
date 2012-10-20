@@ -2,7 +2,7 @@ Require Import ssreflect ssrbool ssrfun seq eqtype ssralg.
 Require Import ssrint rat ssrnum matrix. 
 Require Import Relations.
 
-Require Import exp ty model sem.
+Require Import exp ty tm model esem sem.
 
 Set Implicit Arguments.
 Unset Strict Implicit.

@@ -1,110 +1,19 @@
+(*---------------------------------------------------------------------------
+   Relational semantics, abstraction theorem and semantic equivalence
+   (Section 3.4 from POPL'13)
+   ---------------------------------------------------------------------------*)
 Require Import ssreflect ssrbool ssrfun seq.
 Require Import Relations Program.Equality Rel.
 Set Implicit Arguments.
 Unset Strict Implicit.
 Import Prenex Implicits.
 
-Require Import exp ty Casts model.
+Require Import exp ty tm esem equivalence Casts model.
 
-Reserved Notation "| t |" (at level 60).
-
-(*---------------------------------------------------------------------------
-   Underlying semantics
-   ---------------------------------------------------------------------------*)
 Section Sem.
 
 Variable sig: SIG.
 Variable interpPrim: PrimType sig -> Type.
-
-(* Index-erasure interpretation of types, parameterized
-   on the interpretation of primitive types *)
-Fixpoint interpTy D (t: Ty D) : Type :=
-  match t with
-  | TyUnit       => unit
-  | TyProd t1 t2 => |t1| * |t2|
-  | TySum  t1 t2 => |t1| + |t2|
-  | TyArr  t1 t2 => |t1| -> |t2|
-  | TyAll    _ t => |t| 
-  | TyExists _ t => |t|
-  | TyPrim   p _ => interpPrim p
-  end%type
-where "| t |" := (interpTy t).
-
-Fixpoint existentialFree D (t: Ty (sig:=sig) D) :=
-  match t with
-  | TyUnit       => True
-  | TyProd t1 t2 => existentialFree t1 /\ existentialFree t2
-  | TySum  t1 t2 => existentialFree t1 /\ existentialFree t2
-  | TyArr  t1 t2 => existentialFree t1 /\ existentialFree t2
-  | TyAll    _ t => existentialFree t
-  | TyExists _ t => False
-  | TyPrim   p _ => True
-  end.
-
-Fixpoint quantifierFree D (t: Ty (sig:=sig) D) :=
-  match t with
-  | TyUnit       => True
-  | TyProd t1 t2 => quantifierFree t1 /\ quantifierFree t2
-  | TySum  t1 t2 => quantifierFree t1 /\ quantifierFree t2
-  | TyArr  t1 t2 => quantifierFree t1 /\ quantifierFree t2
-  | TyAll    _ t => False
-  | TyExists _ t => False
-  | TyPrim   p _ => True
-  end.
-
-Definition interpCtxt D : Ctxt D -> Type := Env (@interpTy _).  
-
-Lemma interpCtxtCons D (g: Ty D) (G: Ctxt D) : interpCtxt (g::G) = (interpTy g * interpCtxt G)%type. 
-Proof. done. Qed. 
-
-(* This is lemma 3, part 1 *)
-Lemma interpEquiv D (t1 t2: Ty D) A : equivTy A t1 t2 -> |t1| = |t2|.
-Proof. move => E. induction E => /=//; congruence. Qed. 
-
-(* This is lemma 3, part 2 *)
-Lemma interpSubst D (t: Ty D) : forall D' (S: Sub D D'), |t| = |apSubTy S t|.
-Proof. induction t => /=//; congruence. Qed.
-
-Lemma interpTyAll D s (t: Ty (s::D)) e : |TyAll t| = |apSubTy (consSub e (idSub D)) t|.
-Proof. by rewrite -interpSubst. Qed.
-
-Lemma interpTyExists D s (t: Ty (s::D)) e : |apSubTy (consSub e (idSub D)) t| = |TyExists t|.
-Proof. by rewrite -interpSubst. Qed.
-
-Lemma interpTyPack D s (t: Ty (s::D)) : |TyExists t| = |t|. Proof. done. Qed.
-
-Lemma interpSubCtxt D (G: Ctxt D) : forall D' (S: Sub D D'), interpCtxt G = interpCtxt (apSubCtxt S G). 
-Proof. 
-induction G. done. move => D' S. by rewrite interpCtxtCons (interpSubst _ S) (IHG _ S). 
-Qed. 
-
-Definition interpTmVar D (G: Ctxt D) (t: Ty D) (v: TmVar G t) : interpCtxt G -> (|t|) :=
-  lookup v. 
-
-Fixpoint interpTm A D (G: Ctxt D) (t: Ty D) (M: Tm A G t) : interpCtxt G -> (|t|) :=
-  match M in Tm _ _ t return interpCtxt G -> |t| with
-  | VAR _ v       => fun eta => interpTmVar v eta
-  | UNIT          => fun eta => tt
-  | TYEQ _ _ pf M => fun eta => interpTm M eta :? interpEquiv pf 
-  | PAIR _ _ M N  => fun eta => (interpTm M eta, interpTm N eta)
-  | PROJ1 _ _ M   => fun eta => (interpTm M eta).1
-  | PROJ2 _ _ M   => fun eta => (interpTm M eta).2
-  | INL _ _ M     => fun eta => inl _ (interpTm M eta)
-  | INR _ _ M     => fun eta => inr _ (interpTm M eta)
-  | CASE _ _ _ M M1 M2 => fun eta => 
-    match interpTm M eta with 
-    | inl x => interpTm M1 (x,eta) 
-    | inr y => interpTm M2 (y,eta) 
-    end
-  | ABS _ _ M     => fun eta => fun x => interpTm M (x,eta)
-  | APP _ _ M N   => fun eta => (interpTm M eta) (interpTm N eta)
-  | UNIVABS s t M  => fun eta => interpTm M (eta :? interpSubCtxt G (pi D s))
-  | UNIVAPP s t e M => fun eta => interpTm M eta :? interpTyAll t e
-  | EXPACK _ e t M => fun eta => interpTm M eta :? interpTyExists t e
-  | EXUNPACK s t t' M N => fun eta => 
-    interpTm N (interpTm M eta :? interpTyPack t, eta :? interpSubCtxt G (pi D s)) 
-      :? sym_equal (interpSubst t' (pi D s))
-  end.
 
 (*---------------------------------------------------------------------------
    Relational semantics
@@ -136,6 +45,8 @@ Definition emptyRelEnv A (ME: ModelEnv A) : RelEnv ME [::] := tt.
 Definition EcS D D' A (M:Model A) (rho: RelEnv M D'): Sub D D' -> RelEnv M D := 
   mapEnv (fun _ e => interpExp e rho). 
 
+Notation "| t |" := (interpTy interpPrim t).
+
 Fixpoint semTy A (ME: ModelEnv A) D (rho: RelEnv ME D) (t:Ty D) : relation (|t|) :=
   match t return relation (|t|) with
   | TyUnit       => fun x y => True
@@ -157,7 +68,7 @@ Definition semClosedTy A (ME: ModelEnv A) := @semTy A ME _ (emptyRelEnv _).
 
 (*Notation "rho |= x == y :> t" := (semTy (t:=t) rho x y) (at level 67, x at level 67, y at level 67).*)
 
-Fixpoint semCtxt A (ME: ModelEnv A) D (rho: RelEnv ME D) (G:Ctxt D) : relation (interpCtxt G) :=
+Fixpoint semCtxt A (ME: ModelEnv A) D (rho: RelEnv ME D) (G:Ctxt D) : relation (interpCtxt _ G) :=
   if G is t::G then fun eta1 eta2 => semTy A rho t eta1.1 eta2.1 /\ semCtxt rho eta1.2 eta2.2
   else fun _ _ => True.
 
@@ -175,9 +86,9 @@ Section UpDn.
   Variable A: seq (Ax sig). 
   Variables E : equivTy A t1 t2.
 
-  Definition up t x := x :? interpSubst t S.
-  Definition dn t x := x :? sym_equal (interpSubst t S).
-  Definition rt x := x :? interpEquiv E.
+  Definition up t x := x :? interpSubst interpPrim t S.
+  Definition dn t x := x :? sym_equal (interpSubst interpPrim t S).
+  Definition rt x := x :? interpEquiv interpPrim E.
 
   Lemma dnup (x: |t|) : dn (up x) = x.
   Proof. by rewrite /up/dn cast_coalesce cast_id. Qed. 
@@ -196,19 +107,19 @@ Section UpDnProps.
   Proof. rewrite /up. apply cast_app. Qed. 
 
   Lemma upFst (p: |TyProd t1 t2|) : (up _ p).1 = (up S p.1).
-  Proof. rewrite /up. apply (cast_fst (interpSubst t1 S) (interpSubst t2 S)). Qed. 
+  Proof. rewrite /up. apply (cast_fst (interpSubst interpPrim t1 S) (interpSubst interpPrim t2 S)). Qed. 
 
   Lemma upSnd (p: |TyProd t1 t2|) : (up _ p).2 = (up S p.2).
-  Proof. rewrite /up. apply (cast_snd (interpSubst t1 S) (interpSubst t2 S)). Qed. 
+  Proof. rewrite /up. apply (cast_snd (interpSubst interpPrim t1 S) (interpSubst interpPrim t2 S)). Qed. 
 
   Lemma upInl (x: |t1|) : up (t:=TySum t1 t2) S (inl _ x) = inl _ (up (t:=t1) S x).
   Proof.  
-  rewrite /up. apply (cast_inl (interpSubst t1 S) (interpSubst t2 S)). 
+  rewrite /up. apply (cast_inl (interpSubst interpPrim t1 S) (interpSubst interpPrim t2 S)). 
   Qed. 
 
   Lemma upInr (x: |t2|) : up (t:=TySum t1 t2) S (inr _ x) = inr _ (up (t:=t2) S x).
   Proof.  
-  rewrite /up. apply (cast_inr (interpSubst t1 S) (interpSubst t2 S)). 
+  rewrite /up. apply (cast_inr (interpSubst interpPrim t1 S) (interpSubst interpPrim t2 S)). 
   Qed. 
 
   Lemma upSpec s (ty: Ty (s::D)) (x: | TyAll ty|): up S x = up (liftSub _ S) x.
@@ -220,7 +131,7 @@ Section UpDnProps.
 End UpDnProps.
 
 
-Lemma semTyCast A (ME:ModelEnv A) D1 D2 (t1: Ty D1) (t2: Ty D2) (rho: RelEnv ME _) (v1 v2: |t1|) (p1 p2 p3 p4: (|t1|) = (|t2|) ) : 
+Lemma semTyCast A (ME:ModelEnv A) D1 D2 (t1: Ty (sig:=sig) D1) (t2: Ty (sig:=sig) D2) (rho: RelEnv ME _) (v1 v2: |t1|) (p1 p2 p3 p4: (|t1|) = (|t2|) ) : 
   semTy A rho t2 (v1 :? p1) (v2 :? p2) ->
   semTy A rho t2 (v1 :? p3) (v2 :? p4).
 Proof.   
@@ -230,14 +141,14 @@ Qed.
 
 (* This is lemma 2, part 1 *)
 Lemma semEquiv : forall A (ME: ModelEnv A) D (t1 t2: Ty D) (E: equivTy A t1 t2) 
- (rho: RelEnv ME D) (v v':interpTy t1),
+ (rho: RelEnv ME D) (v v':|t1|),
   (semTy A rho t1 v v' <->
   semTy A rho t2 (rt E v) (rt E v')). 
 Proof.
 move => A ME D t1 t2 E.
 (* Not sure why this needs generalizing. But the induction won't go through otherwise. *)
 rewrite /rt.
-move: (interpEquiv E).
+move: (interpEquiv _ E).
 induction E => pf rho v v'. 
 (* EquivTyRefl *)
 by rewrite 2!cast_id. 
@@ -245,27 +156,27 @@ by rewrite 2!cast_id.
 rewrite (IHE _ (sym_equal pf)) => //. rewrite cast_coalesce => //. 
 by rewrite cast_id cast_coalesce cast_id. 
 (* EquivTyTrans *)
-rewrite (IHE1 _ (interpEquiv E1)) => //.
-rewrite (IHE2 _ (interpEquiv E2)) => //. 
+rewrite (IHE1 _ (interpEquiv _ E1)) => //.
+rewrite (IHE2 _ (interpEquiv _ E2)) => //. 
 rewrite 2!cast_coalesce.  
 split => H. apply (semTyCast _ _ H). apply (semTyCast _ _ H). 
 (* EquivTyProd *)
-simpl. rewrite !(cast_fst (interpEquiv E1) _). 
-rewrite !(cast_snd _ (interpEquiv E2)). 
-rewrite -(IHE1 _ (interpEquiv E1)) => //. rewrite -(IHE2 _ (interpEquiv E2)) => //. 
-apply (interpEquiv E1). apply (interpEquiv E1). apply (interpEquiv E2). apply (interpEquiv E2). 
+simpl. rewrite !(cast_fst (interpEquiv _ E1) _). 
+rewrite !(cast_snd _ (interpEquiv _ E2)). 
+rewrite -(IHE1 _ (interpEquiv _ E1)) => //. rewrite -(IHE2 _ (interpEquiv _ E2)) => //. 
+apply: interpEquiv E1. apply: interpEquiv E1. apply: interpEquiv E2. apply: interpEquiv E2. 
 (* EquivTySum *)
 destruct v. 
 destruct v'.
-+ simpl. by rewrite !(cast_inl (interpEquiv E1) (interpEquiv E2)) -IHE1. 
-+ simpl. by rewrite !(cast_inr (interpEquiv E1) (interpEquiv E2))
-        !(cast_inl (interpEquiv E1) (interpEquiv E2)). 
++ simpl. by rewrite !(cast_inl (interpEquiv _ E1) (interpEquiv _ E2)) -IHE1. 
++ simpl. by rewrite !(cast_inr (interpEquiv _ E1) (interpEquiv _ E2))
+        !(cast_inl (interpEquiv _ E1) (interpEquiv _ E2)). 
 destruct v'. 
-+ simpl. by rewrite !(cast_inr (interpEquiv E1) (interpEquiv E2))
-        !(cast_inl (interpEquiv E1) (interpEquiv E2)). 
-+ simpl. by rewrite !(cast_inr (interpEquiv E1) (interpEquiv E2)) -IHE2. 
++ simpl. by rewrite !(cast_inr (interpEquiv _ E1) (interpEquiv _ E2))
+        !(cast_inl (interpEquiv _ E1) (interpEquiv _ E2)). 
++ simpl. by rewrite !(cast_inr (interpEquiv _ E1) (interpEquiv _ E2)) -IHE2. 
 (* EquivTyArr *)
-have eq1:=interpEquiv E1. have eq2:=interpEquiv E2.
+have eq1:=interpEquiv interpPrim E1. have eq2:=interpEquiv interpPrim E2.
 simpl. 
 split => H x x' xx'.
 + rewrite 2!cast_appFun. 
@@ -491,18 +402,18 @@ Proof. induction v => /= H.
 + apply H. + apply IHv. apply H. 
 Qed. 
 
-Lemma castConsCtxt D D' (t: Ty D) (G: Ctxt D) (S: Sub D D') (v:|t|) (eta: interpCtxt G) : 
-  ((v, eta) :? (interpSubCtxt (t :: G) S)) = 
-  (v :? interpSubst t S, eta :? interpSubCtxt G S). 
+Lemma castConsCtxt D D' (t: Ty D) (G: Ctxt D) (S: Sub D D') (v:|t|) (eta: interpCtxt interpPrim G) : 
+  ((v, eta) :? (interpSubCtxt interpPrim (t :: G) S)) = 
+  (v :? interpSubst interpPrim t S, eta :? interpSubCtxt interpPrim G S). 
 Proof.
-apply (cast_pair (interpSubst t S) (interpSubCtxt G S)).
+apply (cast_pair (interpSubst interpPrim t S) (interpSubCtxt interpPrim G S)).
 Qed.
 
 
 (* This is lemma 4 *)
 Lemma semSubstCtxt A (ME: ModelEnv A) D (G: Ctxt D) : 
   forall D' (S:Sub D D') rho eta eta',
-  semCtxt (rho: RelEnv ME D') (eta :? interpSubCtxt G S) (eta' :? interpSubCtxt G S)
+  semCtxt (rho: RelEnv ME D') (eta :? interpSubCtxt _ G S) (eta' :? interpSubCtxt _ G S)
   <->
   semCtxt (EcS rho S) eta eta'.  
 Proof. induction G => //.  
@@ -571,10 +482,10 @@ apply IHM => //.
 specialize (IHM1 rho eta1 eta2 H). simpl in IHM1. 
 destruct IHM1 as [k IHM1]. 
 simpl in IHM2.  
-specialize (IHM2 (k,rho) (interpTm M1 eta1, eta1 :? interpSubCtxt G (pi D s))
-                      (interpTm M1 eta2, eta2 :? interpSubCtxt G (pi D s))). 
+specialize (IHM2 (k,rho) (interpTm M1 eta1, eta1 :? interpSubCtxt _ G (pi D s))
+                      (interpTm M1 eta2, eta2 :? interpSubCtxt _ G (pi D s))). 
 simpl in IHM2. 
-have H2: semCtxt ((k,rho):RelEnv ME (s::D)) (eta1 :? interpSubCtxt G (pi D s)) (eta2 :? interpSubCtxt G (pi D s)).
+have H2: semCtxt ((k,rho):RelEnv ME (s::D)) (eta1 :? interpSubCtxt _ G (pi D s)) (eta2 :? interpSubCtxt _ G (pi D s)).
 apply semSubstCtxt => //. 
 by rewrite EcS_pi. 
 rewrite !cast_id. specialize (IHM2 (conj IHM1 H2)). 
@@ -583,7 +494,108 @@ rewrite EcS_pi in SS. apply SS. rewrite !cast_coalesce !cast_id. apply IHM2.
 Qed. 
 
 
+(* And now, semantic equivalence *)
+
+Variable A: seq (Ax sig). 
+Variable ME: ModelEnv A.
+Variable Gops : Ctxt (sig:=sig) [::].
+Variable eta_ops : interpCtxt interpPrim Gops.
+
+Definition semEq D (G : Ctxt D) (t : Ty D) (M1 M2 : Tm A (G ++ apSubCtxt (piAll D) Gops) t) :=
+  forall rho eta1 eta2,
+   semCtxt (ME:=ME) rho eta1 eta2 ->
+   semTy A rho t (interpTm M1 (app_env eta1 (eta_ops :? interpSubCtxt interpPrim Gops (piAll D))))
+                 (interpTm M2 (app_env eta2 (eta_ops :? interpSubCtxt interpPrim Gops (piAll D)))).
+
+Lemma mkArrTy_rel D (rho : RelEnv ME D) G :
+  forall t (M1 M2 : Tm A (G ++ (apSubCtxt (piAll D) Gops)) t),
+    (forall (eta1 eta2 : interpCtxt interpPrim G),
+       semCtxt rho eta1 eta2 ->
+       semTy A rho t
+         (interpTm M1 (app_env eta1 (eta_ops :? interpSubCtxt interpPrim Gops (piAll D))))
+         (interpTm M2 (app_env eta2 (eta_ops :? interpSubCtxt interpPrim Gops (piAll D))))) ->
+       semTy A rho _
+         (interpTm (mkLamTm M1) (eta_ops :? interpSubCtxt interpPrim Gops (piAll D)))
+         (interpTm (mkLamTm M2) (eta_ops :? interpSubCtxt interpPrim Gops (piAll D))).
+Proof.
+  induction G => t' M1 M2 M1_M2.
+   (* nil *)
+   apply (M1_M2 tt tt).
+   exact Logic.I. 
+   (* cons *)
+   simpl. apply IHG. 
+   simpl. move => eta1 eta2 eta1_eta2 x x' x_x'.
+   apply (M1_M2 (x,eta1) (x',eta2)).
+   split. apply x_x'. apply eta1_eta2.
+Qed.
+
+Lemma mkForallTy_rel D :
+  forall (t : Ty D) (M1 M2 : Tm A (apSubCtxt (piAll D) Gops) t),
+  (forall rho,
+     semTy(ME:=ME) A rho t (interpTm M1 (eta_ops :? interpSubCtxt interpPrim Gops (piAll D)))
+                   (interpTm M2 (eta_ops :? interpSubCtxt interpPrim Gops (piAll D)))) ->
+  forall rho,
+     semTy (ME:=ME) A rho _ (interpTm (mkForallTm M1) eta_ops)
+                   (interpTm (mkForallTm M2) eta_ops).
+Proof.
+  induction D => t' M1 M2 H rho.
+   (* nil *)
+   simpl. 
+   specialize (H rho).
+   revert M1 M2 H.
+   rewrite cast_UIP. by rewrite apSubCtxtId.
+   move => H M1 M2.
+   rewrite (cast_UIP M1). by rewrite apSubCtxtId.
+   move => H1.
+   rewrite (cast_UIP M2). 
+   revert H M1 M2 H1. rewrite apSubCtxtId.
+   move => H M1 M2 H1. by rewrite 3!cast_id. 
+   (* cons *)
+   apply IHD.
+   simpl. 
+   move => rho' k. 
+   specialize (H (k,rho')).
+   rewrite cast_coalesce. 
+   revert M1 M2 H.
+   rewrite cast_UIP. apply interpSubCtxt. 
+   rewrite cast_UIP. rewrite apSubCtxtScS. apply interpSubCtxt. 
+   move => H1 H2 M1 M2.
+   rewrite (cast_UIP M1). rewrite apSubCtxtScS. reflexivity.
+   move => H3.
+   rewrite (cast_UIP M2).
+   revert H1 H2 H3 M1 M2.
+   rewrite apSubCtxtScS.
+   move => H1 H2 H3 M1 M2.
+   rewrite (cast_UIP eta_ops H1 H2). 
+   by rewrite 2!cast_id. 
+Qed.
+
+Lemma tyBool_rel D (b1 b2 : interpTy interpPrim (tyBool D)) (rho: RelEnv ME D) :
+  semTy A rho _ b1 b2 ->
+  b1 = b2.
+Proof. destruct b1 as [[]|[]]; destruct b2 as [[]|[]]; intuition. Qed.
+
+Variable rho_nil : RelEnv ME [::].
+Variable eta_ops_rel : semCtxt rho_nil eta_ops eta_ops.
+
+
+Theorem semEq_implies_ctxtEq D (G : Ctxt D) (t : Ty D) (M1 M2 : Tm A (G ++ (apSubCtxt (piAll D) Gops)) t):
+  semEq M1 M2 ->
+  ctxtEq eta_ops M1 M2.
+Proof.
+  rewrite /semEq /ctxtEq.
+  move => M1_semEq_M2 T.
+  assert (T_rel_T : semTy _ rho_nil _  (interpTm T eta_ops) (interpTm T eta_ops)). apply Abstraction => //. 
+  apply tyBool_rel with (rho:=rho_nil).
+  simpl in T_rel_T.  
+  apply: T_rel_T.
+  apply mkForallTy_rel.
+  move => rho. apply mkArrTy_rel. 
+  intuition. 
+Qed.
+
 End Sem.
+
 
 Implicit Arguments semClosedTy [sig interpPrim A]. 
 
