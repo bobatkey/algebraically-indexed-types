@@ -70,11 +70,12 @@ We have a single primitive type $\tyPrimNm{T}$, with
 $\primTyArity(\tyPrimNm{T}) = [\mathsf{prop}]$ and index-erasure
 semantics $\tyPrimSem{\tyPrimNm{X}} = \{ * \}$. Thus values of type
 $\tyPrim{T}{\phi}$ have no run-time content; their only meaning is
-given by the relational semantics. For the relational environments
-$\relEnv{E}_\infoflow$, we use the model-based construction in
-\autoref{sec:constr-rel-env}, with an arbitrary boolean algebra $L$
-and $R_{\tyPrimNm{T}}(x) = \{ (*,*) \sepbar x = \top \}$.  The
-primitive operations $\Gamma_\infoflow$ reflect logical consequence:
+given by the relational semantics. For the model of the indexing
+theory, we take an arbitrary boolean algebra $L$. The relational
+interpretation of the truth representation type is
+$\rsem{\tyPrimNm{T}}(x) = \{ (*,*) \sepbar x = \top \}$, where $\top$
+is the top element of the boolean algebra $L$. The primitive
+operations $\Gamma_\infoflow$ reflect logical consequence:
 \begin{displaymath}
   \begin{array}{l}
   \begin{array}{@{}c@{\hspace{2em}}c}
@@ -93,7 +94,7 @@ interpretation of $\tyPrim{T}{\phi}$ as a one-element set, giving an
 environment $\eta_\infoflow \in \ctxtSem{\Gamma}$. Less trivially, we
 have this lemma:
 \begin{lemma}\label{lem:environments-information-flow}
-  For all $\Delta$ and $\rho \in \relEnv{E}_\infoflow$, $(\eta_\infoflow, \eta_\infoflow) \in \rsem{\Gamma_\infoflow}{\relEnv{E}_\infoflow}{\rho}$.
+  For all $\Delta$ and $\rho \in \rsem{\Delta}$, $(\eta_\infoflow, \eta_\infoflow) \in \rsem{\Gamma_\infoflow}\rho$.
 \end{lemma}
 
 \paragraph{Information Flow} We think of logical expressions as
@@ -120,11 +121,11 @@ As a consequence of the relational interpretation given above, it
 follows that if we have an index expression $\phi$ that is interpreted
 as some value other than $\top$ in a relational environment $\rho$,
 then for all $x,x' \in \tySem{T_\phi\tyPrimNm{bool}}$, we have $(x,x')
-\in \rsem{T_\phi\tyPrimNm{bool}}{\relEnv{E}_\infoflow}{\rho}$. Thus if
-a principal is dissatisfied (i.e.,~$\phi \not= \top$), then data
-protected by this principal is indistinguishable from any other
-data, and a program cannot get access to the exact value. From this
-and \thmref{thm:abstraction}, we obtain the following information flow
+\in \rsem{T_\phi\tyPrimNm{bool}}{\rho}$. Thus if a principal is
+dissatisfied (i.e.,~$\phi \not= \top$), then data protected by this
+principal is indistinguishable from any other data, and a program
+cannot get access to the exact value. From this and
+\thmref{thm:abstraction}, we obtain the following information flow
 result:
 
 \begin{theorem}
