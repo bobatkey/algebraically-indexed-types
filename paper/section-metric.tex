@@ -22,8 +22,8 @@ must satisfy the property that for all $\epsilon_1, \epsilon_2 > 0$
 and $x, x', y, y' \in \mathbb{R}$:
 \begin{displaymath}
   \begin{array}{l}
-    \textrm{if }|x - x'| < \epsilon_1 \textrm{ and } |y - y'| < \epsilon_2 \textrm{ then}\\
-    \hspace{2em}|\tmSem{M}\ \eta_\Metric\ x\ y - \tmSem{M}\ \eta_\Metric\ x'\ y'| < \epsilon_1 + \epsilon_2
+    \textrm{if }\abs{x - x'} < \epsilon_1 \textrm{ and } \abs{y - y'} < \epsilon_2 \textrm{ then}\\
+    \hspace{2em}\abs{\tmSem{M}\ \eta_\Metric\ x\ y - \tmSem{M}\ \eta_\Metric\ x'\ y'} < \epsilon_1 + \epsilon_2
   \end{array}
 \end{displaymath}
 
@@ -51,21 +51,13 @@ interpreted just as the identity function. The index-erasure
 interpretations of the primitive operations are collected together
 into an environment $\eta_\Metric \in \ctxtSem{\Gamma_\Mon}$.
 
-For the families of sets of relational environments
-$\relEnv{E}_\Metric$, we use the model-based construction in
-\autoref{sec:constr-rel-env}, interpreting the primitive type
-$\tyPrimNm{real}$ with $R_{\tyPrimNm{real}}(\epsilon) = \{ (x,x')
-\sepbar |x - x'| < \epsilon\}$.
-%\begin{displaymath} %FIXME: define \Eq earlier on
-%  \begin{array}{l@{\hspace{2em}}l}
-%    R^\bullet_{\tyPrimNm{real}} = \Eq_\mathbb{R} &
-%    R_{\tyPrimNm{real}}(\epsilon) = \{ (x,x') \sepbar |x - x'| < \epsilon \}
-%  \end{array}
-%\end{displaymath}
+For the relational intepretation we construct a model of the indexing
+theory by interpreting $\metricSort$ with strictly positive real
+numbers. We set $\rsem{\tyPrimNm{real}}(\epsilon) = \{ (x,x') \sepbar
+\abs{x - x'} < \epsilon \}$.
 \begin{lemma}\label{lem:metric-environments}
-  For all $\Delta$ and $\rho \in \relEnv{E}_\Metric(\Delta)$,
-  $(\eta_\Metric, \eta_\Metric) \in
-  \rsem{\Gamma}{\relEnv{E}_\Metric}{\rho}$.
+  For all $\Delta$ and $\rho \in \rsem{\Delta}$, $(\eta_\Metric,
+  \eta_\Metric) \in \rsem{\Gamma}{\rho}$.
 \end{lemma}
 
 \paragraph{Uniform continuity}
@@ -83,7 +75,7 @@ For any program $M$ of this type, %we obtain from
 %the definition of 
 uniform continuity:
 \begin{displaymath}
-  \forall \epsilon \mathord> 0. \exists \delta \mathord> 0. \forall x,x'. |x - x'| < \delta \Rightarrow |\tmSem{M}\ x - \tmSem{M}\ x'| < \epsilon
+  \forall \epsilon \mathord> 0. \exists \delta \mathord> 0. \forall x,x'. abs{x - x'} < \delta \Rightarrow \abs{\tmSem{M}\ x - \tmSem{M}\ x'} < \epsilon
 \end{displaymath}
 This definition differs from the $\epsilon$-$\delta$ definition of
 (regular) continuity by the order of quantification:
