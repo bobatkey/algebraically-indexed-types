@@ -53,13 +53,50 @@ group of scalings.
 \paragraph{Translations} 
 Consider first the group $\Transl{2}$ of translations from
 \autoref{sec:type-system-geom-intro} and 
-\autoref{sec:affine-vector-ops}. For any quantifier-free type $A$
-we have: % the isomorphism:
-\begin{eqnarray*}
-\forall t\mathord:\SynTransl{2}.\tyPrim{vec}{t}\to A
-& \cong &
-A[0/t]
-\end{eqnarray*}
+\autoref{sec:affine-vector-ops}. 
+
+\begin{example}[Geometry: change of origin]\label{ex:simpletrans}
+We prove the isomorphism
+$\Delta\vdash(\forall t\mathord:\SynTransl{2}.\tyPrim{vec}{e,t}\to\tyPrim{vec}{e,t}) \cong
+\tyPrim{vec}{e,0}$ where $e$ is an expression of sort $\SynGL{2}$ not containing $t$.
+Let 
+\begin{align*}
+X & \isDefinedAs\forall t\mathord:\SynTransl{2}.\tyPrim{vec}{e,t}\to\tyPrim{vec}{e,t}\\
+Y & \isDefinedAs\tyPrim{vec}{e,0}\\
+I & \isDefinedAs\lambda f\mathord:X.f_0\,0_0\\
+J & \isDefinedAs\lambda v\mathord:Y.\Lambda t\mathord:\SynTransl{2}.\lambda w\mathord:\tyPrim{vec}{e,t}.w +_{e,t,0} v
+\end{align*}
+Unfolding definitions gives that $\tmSem{I(J(v))}(v,\opsEnv)$ = $0+v$
+for any $v\in\mathbb R ^ 2$.  Because $0$ is the identity for vector
+addition it follows that $\ctxteq{\Delta}{v\mathord:Y}{I(J(v))}{v}Y$.
+To show $\ctxteq{\Delta}{f\mathord:X}{J(I(f))}{f}{X}$ we appeal to
+\autoref{thm:soundness} and reason using the relational semantics.  It
+suffices to show $\semeq{\Delta}{f\mathord:X}{J(I(f))}{f}{X}$; that
+is, given $\rho\in\semSort\Delta$, for any $f$ and $f'$ with
+$(f,f')\in\rsem X\rho$, it is the case that 
+$(\tmSem{I(J(f))}(f,\opsEnv), f')\in\rsem X\rho$.
+Expanding the premise, and setting $B = \semIndexExp{e}\rho$, we have
+\begin{eqnarray}\label{eqn:transpremise}
+\forall t\in \mathbb R ^ 2,
+\forall v\in \mathbb R ^ 2,
+f'(Bv + t) = B(f(v)) + t
+\end{eqnarray}
+Expanding the conclusion, we have to show that for any
+$t'\in\mathbb R^2$ and $v'\in\mathbb R^2$, it is the case that
+$f'(Bv' + t') = B(v' + f(0)) + t'$.
+By instantiating \autoref{eqn:transpremise} thrice, with~$v=t=0$, with~$v=v'$ and~$t=t'$,
+and with (crucially)~$v=v'$ and~$t=-Bv'$, and applying a little algebra, we obtain
+the desired result.
+\qed
+\end{example}
+
+We can generalise this isomorphism to any quantifier-free (but possibly open) type
+of the form $\forall t\mathord:\SynTransl{2}.\tyPrim{vec}{e,t}\to A$. 
+To be precise, we have the following isomorphism:
+\[
+\Delta\vdash(\forall t\mathord:\SynTransl{2}.\tyPrim{vec}{e,t}\to A)
+\cong A[0/t]
+\]
 where $A[0/t]$ denotes substitution of the identity translation $0$
 for index variable $t$ in type $A$. This isomorphism formalises the
 equivalence between \emph{coordinate-free} geometry, expressed by a
@@ -70,32 +107,35 @@ which the origin is fixed at $(0,0)$. It is sometimes said that an
 affine space is a vector space that has forgotten its origin; we have
 captured this in a type isomorphism.
 
-\exref{ex:type-iso} is a special case of this isomorphism; another instance is the
+\exref{ex:type-iso} and \exref{ex:simpletrans} are special cases of this isomorphism; another instance is the
 type of vector addition:
-\begin{eqnarray*}
-\forall t_1\mathord:\SynTransl{2}.\forall t_2\mathord:\SynTransl{2}.\tyPrim{vec}{t_1}\to\tyPrim{vec}{t_2}\to\tyPrim{vec}{t_1+t_2}\\
+\[
+\begin{array}{l}
+\forall B\mathord:\SynGL{2}, t_1\mathord:\SynTransl{2}, t_2\mathord:\SynTransl{2}.\tyPrim{vec}{B,t_1}\to\tyPrim{vec}{B,t_2}\to\tyPrim{vec}{B,t_1+t_2}\\
 \cong\quad
-\forall t_1\mathord:\SynTransl{2}.\tyPrim{vec}{t_1}\to\tyPrim{vec}{t_1}\quad\cong\quad
-\tyPrim{vec}{0}
-\end{eqnarray*}
+\forall B\mathord:\SynGL{2}, t_1\mathord:\SynTransl{2}.\tyPrim{vec}{B,t_1}\to\tyPrim{vec}{B,t_1}\\
+\cong\quad
+\forall B\mathord:\SynGL{2}.\tyPrim{vec}{B,0}
+\end{array}
+\]
 \noindent
-\newcommand{\transup}[1]{\mathord\uparrow_{#1}}
-\newcommand{\transdn}[1]{\mathord\downarrow_{#1}}
+\newcommand{\transup}[3]{\mathord\uparrow_{#1}^{#2\mathord:#3}}
+\newcommand{\transdn}[3]{\mathord\downarrow_{#1}^{#2\mathord:#3}}
 The maps associated with the isomorphism are 
-$I = \lambda x. x\ [0]\ 0$ and $J = \lambda y. \Lambda t.\lambda v. \transup A (y)$,
+$I = \lambda f. f_0\ 0_0$ and $J = \lambda y. \Lambda t.\lambda v. \transup A t v (y)$,
 %\begin{eqnarray*}
 %I = \lambda x. x\ [0]\ 0 & \text{ and } &
 %J = \lambda y. \Lambda t.\ \lambda v. \trans A v t(y)
 %\end{eqnarray*}
-where terms $\transdn A : A\to A[0/t]$ and $\transup A : A[0/t] \to A$ are defined by induction over the syntax of $A$ (cases omitted for $\transup A$ have definition symmetric to $\transdn A$):
+where terms $\transdn A t v : A\to A[0/t]$ and $\transup A t v : A[0/t] \to A$ are defined by induction over the syntax of $A$ (cases omitted for $\transup A t v$ have definition symmetric to $\transdn A t v$):
 \begin{align*}
-\transdn{\tyPrimNm{unit}} &= \lambda x. x \qquad
-\transdn{A_1\times A_2} = \lambda p. (\transdn{A_1}(\pi_1 p),\transdn{A_2}(\pi_2 p))\\ 
-\transdn{A_1 + A_2} &= \lambda x.
-\textrm{case}\ x\ \textrm{of}\ \textrm{inl}\ y.\textrm{inl}(\transdn{A_1}y); \textrm{inr}\ y.\textrm{inr}(\transdn{A_2}y)\\ 
-\transdn{A_1\to A_2} &= \lambda f. \lambda x. \transdn{A_2} (f(\transup{A_1}x))\\ 
-\transdn{\tyPrim{vec}{e}} &= \lambda x. x - kv \qquad
-\transup{\tyPrim{vec}{e}} = \lambda x. x + kv\\ 
+\transdn{\tyPrimNm{unit}} t v &= \lambda x. x \qquad
+\transdn{A_1\times A_2} t v = \lambda p. (\transdn{A_1} t v(\pi_1 p),\transdn{A_2}t v(\pi_2 p))\\ 
+\transdn{A_1 + A_2} t v &= \lambda x.
+\textrm{case}\ x\ \textrm{of}\ \textrm{inl}\ y.\textrm{inl}(\transdn {A_1}t v y); \textrm{inr}\ y.\textrm{inr}(\transdn {A_2} t v y)\\ 
+\transdn{A_1\to A_2} t v &= \lambda f. \lambda x. \transdn{A_2} t v (f(\transup {A_1} t v x))\\ 
+\transdn{\tyPrim{vec}{e}} t v &= \lambda x. x - kv \qquad
+\transup{\tyPrim{vec}{e}} t v = \lambda x. x + kv\\ 
 \text{ if }e & \equiv k t + e' \text{ for
   some }k\in\setOfIntegers \text{ and }e'\text{ with }t\notin e'
 \end{align*}
@@ -103,7 +143,7 @@ To show $I(J(y))$ is contextually equivalent to $y$ is an easy
 induction on $A$ using the fact that the vector $0$
 is an identity for vector addition. To show $J(I(x))$ is contextually
 equivalent to $x$ we must apply the abstraction theorem and use
-the fact that $\tmSem{\transup A}$ and $\tmSem{\transdn A}$ 
+the fact that $\tmSem{\transup A t v}$ and $\tmSem{\transdn A t v}$ 
 considered as relations are simply instances of $\rsem A{}{}$.
 %\[
 %$\rsem A {t \mapsto v} {} = \{ (x, \tmSem{\transup A (x)}) \mid x \in
@@ -317,7 +357,7 @@ gives us the following lemma and theorem.
 Writing $i^n$ for $n$-fold iteration of the group operation, we have:
 \begin{theorem}
   Let $m$ and $n$ be natural numbers. For all $n$-by-$m$-matrices of
-  natural numbers $A$ and $m$-by-$1$ matricies of integers $\vec{b}$,
+  natural numbers $A$ and $m$-by-$1$ matrices of integers $\vec{b}$,
   there exists a quantifier-free program $M$ such that:
   \begin{displaymath}
     i_1,\dots,i_m\mathord:\mathsf{G}; \Gamma_\Grp \vdash M : \tyPrim{G}{e_1} \to \dots \to \tyPrim{G}{e_n} \to \tyPrim{G}{e}
