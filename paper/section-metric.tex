@@ -4,9 +4,10 @@
 \newcommand{\Metric}{\mathit{Met}}
 \newcommand{\metricSort}{\mathsf{R}^{>0}}
 
-\autoref{sec:instantiations} and \autoref{sec:monoid-indexed-types}
-presented examples where the relational interpretations of primitive
-types relate pairs of elements by some transformation if applying the
+The type system for geometry we discussed in
+\autoref{sec:motivating-examples} and \autoref{sec:instantiations}
+made use of a relational interpretation of primitive types that
+relates pairs of elements by some transformation if applying the
 transformation to the first element of a pair yields the second. Thus,
 the free theorems that we derived directly take the form of
 ``invariance'' properties, where some equation holds between two
@@ -75,7 +76,7 @@ For any program $M$ of this type, %we obtain from
 %the definition of 
 uniform continuity:
 \begin{displaymath}
-  \forall \epsilon \mathord> 0. \exists \delta \mathord> 0. \forall x,x'. \abs{x - x'} < \delta \Rightarrow \abs{\tmSem{M}\ x - \tmSem{M}\ x'} < \epsilon
+  \forall \epsilon \mathord> 0. \exists \delta \mathord> 0. \forall x,x'. \abs{x - x'} \mathord< \delta \Rightarrow \abs{\tmSem{M}\eta_\Metric~x - \tmSem{M}\eta_\Metric~x'} \mathord< \epsilon
 \end{displaymath}
 This definition differs from the $\epsilon$-$\delta$ definition of
 (regular) continuity by the order of quantification:
