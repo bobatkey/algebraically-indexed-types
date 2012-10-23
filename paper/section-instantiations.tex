@@ -61,12 +61,13 @@ $\Delta\vdash(\forall t\mathord:\SynTransl{2}.\tyPrim{vec}{e,t}\to\tyPrim{vec}{e
 \tyPrim{vec}{e,0}$ where $e$ is an expression of sort $\SynGL{2}$ not containing $t$.
 Let 
 \begin{align*}
-X & \isDefinedAs\forall t\mathord:\SynTransl{2}.\tyPrim{vec}{e,t}\to\tyPrim{vec}{e,t}\\
+X & \isDefinedAs\forall t\mathord:\SynTransl{2}.\tyPrim{vec}{e,t}\to\tyPrim{vec}{e,t}
+&
 Y & \isDefinedAs\tyPrim{vec}{e,0}\\
-I & \isDefinedAs\lambda f\mathord:X.f_0\,0_0\\
-J & \isDefinedAs\lambda v\mathord:Y.\Lambda t\mathord:\SynTransl{2}.\lambda w\mathord:\tyPrim{vec}{e,t}.w +_{e,t,0} v
+I & \isDefinedAs\lambda f\mathord:X.f\,[0]\,(0\,[e])\\
+J & \isDefinedAs\lambda v\mathord:Y.\Lambda t\mathord:\SynTransl{2}.\lambda w\mathord:\tyPrim{vec}{e,t}.v +[e,0,t] w
 \end{align*}
-Unfolding definitions gives that $\tmSem{I(J(v))}(v,\opsEnv)$ = $0+v$
+Unfolding definitions gives that $\tmSem{I(J(v))}(v,\opsEnv)$ = $v+0$
 for any $v\in\mathbb R ^ 2$.  Because $0$ is the identity for vector
 addition it follows that $\ctxteq{\Delta}{v\mathord:Y}{I(J(v))}{v}Y$.
 To show $\ctxteq{\Delta}{f\mathord:X}{J(I(f))}{f}{X}$ we appeal to
@@ -74,7 +75,7 @@ To show $\ctxteq{\Delta}{f\mathord:X}{J(I(f))}{f}{X}$ we appeal to
 suffices to show $\semeq{\Delta}{f\mathord:X}{J(I(f))}{f}{X}$; that
 is, given $\rho\in\semSort\Delta$, for any $f$ and $f'$ with
 $(f,f')\in\rsem X\rho$, it is the case that 
-$(\tmSem{I(J(f))}(f,\opsEnv), f')\in\rsem X\rho$.
+$(\tmSem{J(I(f))}(f,\opsEnv), f')\in\rsem X\rho$.
 Expanding the premise, and setting $B = \semIndexExp{e}\rho$, we have
 \begin{eqnarray}\label{eqn:transpremise}
 \forall t\in \mathbb R ^ 2,
@@ -111,7 +112,9 @@ captured this in a type isomorphism.
 type of vector addition:
 \[
 \begin{array}{l}
-\forall B\mathord:\SynGL{2}, t_1\mathord:\SynTransl{2}, t_2\mathord:\SynTransl{2}.\tyPrim{vec}{B,t_1}\to\tyPrim{vec}{B,t_2}\to\tyPrim{vec}{B,t_1+t_2}\\
+\forall B\mathord:\SynGL{2}, t_1
+%\mathord:\SynTransl{2}
+, t_2\mathord:\SynTransl{2}.\tyPrim{vec}{B,t_1}\to\tyPrim{vec}{B,t_2}\to\tyPrim{vec}{B,t_1\mathord+t_2}\\
 \cong\quad
 \forall B\mathord:\SynGL{2}, t_1\mathord:\SynTransl{2}.\tyPrim{vec}{B,t_1}\to\tyPrim{vec}{B,t_1}\\
 \cong\quad
@@ -121,23 +124,63 @@ type of vector addition:
 \noindent
 \newcommand{\transup}[3]{\mathord\uparrow_{#1}^{#2\mathord:#3}}
 \newcommand{\transdn}[3]{\mathord\downarrow_{#1}^{#2\mathord:#3}}
-The maps associated with the isomorphism are 
-$I = \lambda f. f_0\ 0_0$ and $J = \lambda y. \Lambda t.\lambda v. \transup A t v (y)$,
-%\begin{eqnarray*}
-%I = \lambda x. x\ [0]\ 0 & \text{ and } &
-%J = \lambda y. \Lambda t.\ \lambda v. \trans A v t(y)
-%\end{eqnarray*}
-where terms $\transdn A t v : A\to A[0/t]$ and $\transup A t v : A[0/t] \to A$ are defined by induction over the syntax of $A$ (cases omitted for $\transup A t v$ have definition symmetric to $\transdn A t v$):
+
+\begin{example}
+Let 
 \begin{align*}
-\transdn{\tyPrimNm{unit}} t v &= \lambda x. x \qquad
-\transdn{A_1\times A_2} t v = \lambda p. (\transdn{A_1} t v(\pi_1 p),\transdn{A_2}t v(\pi_2 p))\\ 
+X & \isDefinedAs \forall t\mathord:\SynTransl{2}.\tyPrim{vec}{e,t}\to A
+& 
+Y & \isDefinedAs A[0/t]\\
+I & \isDefinedAs \lambda f\mathord: X. f\ [0]\ (0\ [e])
+& 
+J & \isDefinedAs \lambda y\mathord: Y. \Lambda t.\lambda v\mathord:\tyPrim{vec}{e,t}. \transup A t v (y)
+\end{align*}
+where terms 
+\begin{align*}
+&
+\Delta,t\mathord:\SynTransl{2};v\mathord:\tyPrim{vec}{e,t}\vdash \transup A t v : A[0/t] \to A
+\\\text{and } &
+\Delta,t\mathord:\SynTransl{2};v\mathord:\tyPrim{vec}{e,t}\vdash \transdn A t v : A\to A[0/t]
+\end{align*}
+are defined by induction over the syntax of $A$. For brevity we omit types on binders
+and note that the omitted cases for $\transup A t v$ 
+have definition symmetric to $\transdn A t v$:
+\begin{align*}
+\transdn{\tyPrimNm{unit}} t v &= \lambda x. x
+\qquad 
+\transdn{\tyPrim{real}{e}} t v = \lambda x. x
+\\
+\transdn{A_1\times A_2}t v &= \lambda p. (\transdn{A_1}t v(\pi_1 p),\transdn{A_2}t v(\pi_2 p))
+\\
 \transdn{A_1 + A_2} t v &= \lambda x.
-\textrm{case}\ x\ \textrm{of}\ \textrm{inl}\ y.\textrm{inl}(\transdn {A_1}t v y); \textrm{inr}\ y.\textrm{inr}(\transdn {A_2} t v y)\\ 
-\transdn{A_1\to A_2} t v &= \lambda f. \lambda x. \transdn{A_2} t v (f(\transup {A_1} t v x))\\ 
-\transdn{\tyPrim{vec}{e}} t v &= \lambda x. x - kv \qquad
-\transup{\tyPrim{vec}{e}} t v = \lambda x. x + kv\\ 
-\text{ if }e & \equiv k t + e' \text{ for
-  some }k\in\setOfIntegers \text{ and }e'\text{ with }t\notin e'
+\textrm{case}\ x\ \textrm{of}\ \textrm{inl}\ y.\textrm{inl}(\transdn {A_1}t v y); \textrm{inr}\ y.\textrm{inr}(\transdn {A_2} t v y)
+\\ 
+\transdn{A_1\to A_2} t v &= \lambda f. \lambda x. \transdn{A_2} t v (f(\transup {A_1} t v x))
+\end{align*}
+\begin{align*}
+\transdn{\tyPrim{vec}{B,e}} t v &= \lambda x. \transdn{e}  t v (x) 
+&
+\transup{\tyPrim{vec}{B,e}} t v &= \lambda x. \transup{e} t v (x)
+\\
+\transdn{0} t v &= \lambda w.w
+&
+\transup{0} t v &= \lambda w.w
+\\ 
+\transdn{e_1+e_2} t v &= \lambda w.\transdn{e_1} t v(\transdn{e_2} t v(w))
+&
+\transup{e_1+e_2} t v &= \lambda w.\transup{e_1} t v(\transup{e_2} t v(w))
+\\
+\transdn{-e} t v &= \lambda w.\transup{e} t v (w)
+&
+\transup{-e} t v &= \lambda w.\transdn{e} t v (w)
+\\
+\transdn{t} t v &= \lambda w.w + v 
+&
+\transup{t} t v &= \lambda w.w - v
+\\
+\transdn{t'} t v &= \lambda w.w\quad(t'\neq t)
+&
+\transup{t'} t v &= \lambda w.w\quad(t'\neq t)
 \end{align*}
 To show $I(J(y))$ is contextually equivalent to $y$ is an easy
 induction on $A$ using the fact that the vector $0$
@@ -145,6 +188,7 @@ is an identity for vector addition. To show $J(I(x))$ is contextually
 equivalent to $x$ we must apply the abstraction theorem and use
 the fact that $\tmSem{\transup A t v}$ and $\tmSem{\transdn A t v}$ 
 considered as relations are simply instances of $\rsem A{}{}$.
+\qed
 %\[
 %$\rsem A {t \mapsto v} {} = \{ (x, \tmSem{\transup A (x)}) \mid x \in
 %\tySem A\}$.
@@ -175,7 +219,7 @@ The abstraction theorem is used to prove
 $\forall s\mathord:\SynGL{1}.\tyPrim{real}{s^2}\cong 1$.
 % is proved using
 %the abstraction theorem.
-
+\end{example}
 %\begin{enumerate}
 %\item Two cases: when we have a total ``division'' operation, and when
 %  we don't.
