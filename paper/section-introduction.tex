@@ -52,7 +52,7 @@ the Euclidean plane form an abelian group.
 %blah blah (initial algebras, term reps, non-inhabitation, etc.).
 
 In previous work the third author studied relational parametricity for
-the types parameterized by units-of-measure, whose invariance 
+types parameterized by units-of-measure, whose invariance 
 properties relate to changes of units, or \emph{scaling}~\cite{kennedy97relational}. 
 In this paper we investigate the general case of types indexed by attributes
 with algebraic structure. For example, in computational geometry, points in
@@ -70,36 +70,36 @@ $\tyPrimNm{vec}\times\tyPrimNm{vec}\times\tyPrimNm{vec}\tyArr\tyReal$.
 But we can also assign it the following more expressive polymorphic
 type:
 \[
-\mathrm{areaTri} : \forall\alpha\mathord:\SynTransl{2}.
-  \tyPrim{vec}{\alpha} \times \tyPrim{vec}{\alpha} \times \tyPrim{vec}{\alpha} \to \tyReal \\
+\mathrm{areaTri} : \forall t\mathord:\SynTransl{2}.
+  \tyPrim{vec}{t} \times \tyPrim{vec}{t} \times \tyPrim{vec}{t} \to \tyReal \\
 \]
-in which the index $\alpha$ is thought of as a ``translation frame''
-that is preserved by the vector arguments. From this we can deduce
-that
+This type expresses the fact that if each of the arguments to $\mathrm{areaTri}$
+is translated by the same vector, then the result remains the same,
+that is, it is \emph{invariant} under translation. Formally, for any 
+vector $\vec t$,
 \[
-\mathrm{areaTri}\;(t + v_1, t + v_2, t + v_3) = 
-\mathrm{areaTri}\;(v_1, v_2, v_3)
+\mathrm{areaTri}\;(\vec{t} + \vec{v_1}, \vec{t} + \vec{v_2}, \vec{t} + \vec{v_3}) = 
+\mathrm{areaTri}\;(\vec{v_1}, \vec{v_2}, \vec{v_3})
 \]
-for any translation $t$ in the group $\Transl{2}$ of translations.
 
 Transformations typically \emph{compose} in various
 ways, and the compositions satisfy algebraic laws. For example, 
 we can assign a function that computes the area of a circle given its
 radius the following polymorphic type:
 \[
-\mathrm{areaCircle} : \forall\alpha\mathord:\SynGL{1}.\tyPrim{real}{\alpha}\to
-\tyPrim{real}{\alpha\cdot\alpha}
+\mathrm{areaCircle} : \forall s\mathord:\SynGL{1}.\tyPrim{real}{s}\to
+\tyPrim{real}{s\cdot s}
 \]
 This captures the fact that the area of a circle varies as the square
-of its radius, i.e., $\mathrm{areaCircle}\;(s\cdot r) = s^2\cdot
-\mathrm{areaCircle}\;r$ for any $s\neq 0$ (i.e., any $s$ in the
-one-dimensional general linear group $\GL{1}$).  Here, $\alpha$ is
-interpreted as the \emph{units of measure} of the argument to
+of its radius, i.e., $\mathrm{areaCircle}(k r) = k^2\cdot
+\mathrm{areaCircle}(r)$ for any $k\neq 0$ (i.e., any $k$ in the
+one-dimensional general linear group $\GL{1}$).  Here, $s$ 
+can be interpreted as the \emph{units of measure} of the argument to
 $\mathrm{areaCircle}$, and `$\cdot$' composes units using the
 product. We can also add an inverse operation and identity unit of
 measure $1$, and then impose the algebraic laws of abelian
 groups. This permits identification of, for example,
-$\tyPrim{real}{\alpha\cdot\alpha^{-1}}$ with the type
+$\tyPrim{real}{s\cdot s^{-1}}$ with the type
 $\tyPrim{real}{1}$ of dimensionless constants.
 
 \paragraph{Abstraction}
@@ -210,8 +210,7 @@ This paper makes the following specific contributions:
 \begin{itemize}
 \item 
 We present a collection of compelling examples of algebraically
-indexed types, including a novel type system for geometry, a type
-system for tracking taint marking (or provenance) of strings, a
+indexed types, including a novel type system for geometry, a
 refined type system for information flow based on logic, and a simple
 type system with distance-indexed types.
 \item 
