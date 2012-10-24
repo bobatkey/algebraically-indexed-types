@@ -5,13 +5,16 @@ We motivate our investigation of algebraically indexed types and their
 relational interpretations by developing a novel type system for
 programs that manipulate two-dimensional geometric data. Geometry is
 rich with operations that are invariant under transformation: affine
-operations are invariant under change of origin, vector space
-operations are invariant under change of basis, and dot product is
-invariant under orthogonal changes of basis. On the other hand, some
+operations are invariant under change of origin
+(\autoref{sec:affine-vector-ops}), vector space operations are
+invariant under change of basis, and dot product is invariant under
+orthogonal changes of basis
+(\autoref{sec:motivation-generalising}). On the other hand, some
 geometric operations are interestingly variant under transformation.
-For example, cross products vary with scalings of the plane. We
-incorporate (in)variance information about geometric primitives
-into type systems via algebraically indexed types.
+For example, cross products vary with scalings of the plane
+(\autoref{sec:scale-invariance}). We incorporate (in)variance
+information about geometric primitives into type systems via
+algebraically indexed types.
 
 \subsection{Origin Invariance and Representation Independence}\label{sec:oiri}
 
@@ -222,12 +225,12 @@ As is standard for parametricity, every type has two interpretations:
 an index-erasure interpretation that ignores the indexing expression,
 and a relational interpretation as a binary relation on the
 index-erasure interpretation. To give such interpretations for the
-types $\tyPrim{vec}{e}$ and $\forall t\mathord:\SynTransl{2}.A$,
-we assume for now that we can map each expression $e$ of sort
+types $\tyPrim{vec}{e}$ and $\forall t\mathord:\SynTransl{2}.A$, we
+assume for now that we can map each expression $e$ of sort
 $\SynTransl{2}$ to an element $\sem{e}\rho$ of the group $\Transl{2}$
 using some environment $\rho$ that interprets $e$'s free
-variables. The (simplified) index-erasure and relation interpretations
-of $\tyPrim{vec}{e}$ are:
+variables. The index-erasure and relational interpretations of
+$\tyPrim{vec}{e}$ are:
 \begin{displaymath}
   \begin{array}{l@{\hspace{0.5em}=\hspace{0.5em}}l}
     \tySem{\tyPrim{vec}{e}} & \mathbb{R}^2
@@ -245,21 +248,15 @@ $\forall t\mathord:\SynTransl{2}.A$ are:
   \begin{array}{l@{\hspace{0.5em}=\hspace{0.5em}}l}
     \tySem{\forall t\mathord:\SynTransl{2}.A} & \tySem{A}
     \\ \rsem{\forall t\mathord:\SynTransl{2}.A}{}\rho & \bigcap\{
-    \rsem{A}{}{\rho'} \sepbar \rho' \in
-    \extends{\rho}{t\mathord:\SynTransl{2}} \}
+    \rsem{A}{}{(\rho,\vec{t})} \sepbar \vec{t} \in \Transl{2} \}
   \end{array}
 \end{displaymath}
-The exact definition of $\extends{\rho}{t\mathord:\SynTransl{2}}$
-depends on which (possibly non-compositional) interpretation of
-relational environments we use. For now we can think of environments
-as mappings from free variables of sort $\SynTransl{2}$ to the group
-$\Transl{2}$, and of extension as adding extra components to
-mappings. The index-erasure and relational interpretations are given
-formally in \autoref{sec:erasure-semantics}
+The index-erasure and relational interpretations are given
+formally in Sections~\ref{sec:erasure-semantics}
 %the relational interpretation is in general more complex, due to the
 %possibility of non-compositional interpretations of free index
 %variables. The relational interpretation will be presented in
-and~\autoref{sec:relational-semantics}. %, respectively.
+and~\ref{sec:relational-semantics}. %, respectively.
 
 At the end of \autoref{sec:oiri} we considered functions $f :
 \mathbb{R}^2 \times \mathbb{R}^2 \to \mathbb{R}^2$ that preserve all
@@ -280,9 +277,10 @@ tuple and function types, we recover
 Invariance under change of origin is the key feature of affine
 geometry, whose central operation is the affine combination of points:
 $\lambda_1\vec{v_1} + \lambda_2\vec{v_2}$, where $\lambda_1 +
-\lambda_2 = 1$.  Geometrically, this can be interpreted as
-interpolation between the points represented by $\vec{v_1}$ and
-$\vec{v_2}$.  We add affine combination of points to our calculus as
+\lambda_2 = 1$.  Geometrically, this can be interpreted as describing
+all the points on the unique line through the points represented by
+$\vec{v_1}$ and $\vec{v_2}$ (assuming $\vec{v_1} \not= \vec{v_2}$).
+We add affine combination of points to our calculus as
 follows: % typing and intended denotation:for
 \begin{displaymath}
   \begin{array}{l}
@@ -457,14 +455,10 @@ interesting effects on translations.
   relational interpretations of types we can also show that certain
   types are uninhabited. For example, the type $\forall t \mathord:
   \SynTransl{2}.\ \tyPrim{vec}{t + t} \to \tyPrim{vec}{t}$ has no
-  quantifier-free inhabitants\footnote{We define quantifier-free
-    programs in the statement of
-    \thmref{thm:abstraction}.}. Intuitively, this is because we cannot
-  remove the extra $t$ in $\tyPrim{vec}{t+t}$ using the
-  vector operations. We formalise this indefinability result in
-  \autoref{sec:types-indexed-abelian-groups-indef} using a more
-  sophisticated relational interpretation of free translation
-  variables than the one sketched above.
+  inhabitants. Intuitively, this is because we cannot remove the extra
+  $t$ in $\tyPrim{vec}{t+t}$ using the vector operations. We formalise
+  this non-definability result in \autoref{sec:general-nondef} using a
+  specialised relational interpretation.
 \end{example}
 
 \subsection{Change of Basis Invariance}
@@ -474,15 +468,15 @@ Although vector addition, negation, and scaling are not invariant
 under change of origin, they are invariant under change of basis. As
 with origin invariance, we can express basis invariance as
 preservation of relations indexed by changes of basis. Change of basis
-is achieved by applying an invertible linear map, and the collection of
-all such maps on $\mathbb{R}^2$ forms the \emph{General Linear} group
-$\GL{2}$ which we represent in our language by a new indexing sort
-$\SynGL{2}$ with (non-abelian) group structure that we will write
+is achieved by applying an invertible linear map, and the collection
+of all such maps on $\mathbb{R}^2$ forms the \emph{General Linear}
+group $\GL{2}$ which we represent in our language by a new indexing
+sort $\SynGL{2}$ with (non-abelian) group structure that we will write
 multiplicatively. We then extend $\tyPrimNm{vec}$ to allow indices of
 sort $\SynGL{2}$, as well as $\SynTransl{2}$, so that
 $\tyPrim{vec}{B,t}$ is a vector that varies with change of basis $B$
-and change of origin $t$. Formally, the index-erasure and (simplified)
-relational semantics of $\tyPrim{vec}{B,t}$ are given by:
+and change of origin $t$. Formally, the index-erasure and relational
+semantics of $\tyPrim{vec}{B,t}$ are given by:
 \begin{displaymath}
   \begin{array}{l@{\hspace{0.5em}=\hspace{0.5em}}l}
     \tySem{\tyPrim{vec}{e_B,e_t}} & \mathbb{R}^2
@@ -491,7 +485,7 @@ relational semantics of $\tyPrim{vec}{B,t}$ are given by:
   \end{array}
 \end{displaymath}
 
-\paragraph{Affine Geometry} An \emph{affine transformation} 
+\paragraph{Affine Geometry} An \emph{affine transformation} is
 an invertible linear map together with a translation. We can assign
 types to all the primitive affine and vector space operations
 indicating how they they behave with respect to affine
@@ -530,7 +524,7 @@ $  (x_1,y_1) \cdot (x_2,y_2) = x_1x_2 + y_1y_2$.
 % orthogonality: two vectors $\vec{v_1}$ and $\vec{v_2}$ are orthogonal
 % if $\vec{v_1}\cdot\vec{v_2} = 0$.
 To %incorporate the operation of dot product into our calculus, we
-must assign it a type we note that, although dot product is not
+assign it a type we note that, although dot product is not
 invariant under $\GL{2}$ or $\Transl{2}$, it
 % that we have considered so far. However,e  the dot product 
 is invariant under the subgroup $\Orth{2}$ of $\GL{2}$ of
@@ -538,8 +532,8 @@ is invariant under the subgroup $\Orth{2}$ of $\GL{2}$ of
 invertible linear maps whose matrix representations' transposes are
 equal to their inverses. We thus introduce a new sort $\SynOrth{2}$ of
 orthogonal transformations, and overload the multiplicative group
-operations for inhabitants of $\SynOrth{2}$. Further assuming a
-function $\iota_O$ that takes $e : \SynOrth{2}$ to $\iota_O(e) :
+operations for inhabitants of $\SynOrth{2}$. Further assuming an
+injection $\iota_O$ that takes $e : \SynOrth{2}$ to $\iota_O(e) :
 \SynGL{2}$ we assign dot product this type:
 %a type to the dot product, using quantification over $\SynOrth{2}$:
 \begin{displaymath}
@@ -592,8 +586,8 @@ real numbers indexed by scaling factors is shown in
   \tyPrim{vec}{B,0} \to \tyPrim{real}{\det B} 
 \end{displaymath}
 Since the absolute value of the determinant of an orthogonal
-transformation is always $1$, we assume $\abs{\det (\iota_O O)} = 1$ to
-hold.
+transformation is always $1$, we assume $\abs{\det (\iota_O O)} = 1$
+to hold for any $O \in \SynOrth{2}$.
 
 \begin{example}\label{ex:area-of-triangle-1}
   We can use the operations of this subsection to
@@ -696,7 +690,7 @@ The scaling maps $\left(
 are precisely the elements of $\GL{2}$ that commute with all others;
 these form the \emph{centre} of $\GL{2}$. If we keep track of
 scalings, then we can assign the following more precise types to
-scalar multiplcation and dot product:
+scalar multiplication and dot product:
 \begin{displaymath}
 \begin{array}{@{}l@{}l}
   (*) : \forall s \mathord: \SynGL{1}, B \mathord:
@@ -713,21 +707,20 @@ scalar multiplcation and dot product:
 
 \begin{example}
   With the operations in \autoref{fig:real-ops}, it is not possible to
-  write a quantifier-free program with the following type that is not
-  constantly zero:
+  write a term with the following type that is not constantly zero:
   \begin{displaymath}
     \forall s \mathord: \SynGL{2}.\ \tyPrim{real}{s^2} \to \tyPrim{real}{s}
   \end{displaymath}
   This was shown by Kennedy for his units of measure system
   \cite{kennedy97relational}.  In particular, it is not possible to
   write a square root function with the above type.  The
-  indefinability of square root is similar to the uninhabitation of the
+  non-definability of square root is similar to the uninhabitation of the
   type in \exref{ex:uninhabited-type}.
 
   In \autoref{sec:types-indexed-abelian-groups-indef} we revisit
   Kennedy's result and show that even if we add square root as a
   primitive operation---with the type above---then it is still not
-  possible to construct the cube root function. The indefinability of
+  possible to construct the cube root function. The non-definability of
   cube root is related to the impossibility of trisecting an arbitrary
   angle by ruler and compass constructions.
 %  is of interest due to its relevance to the classical problem of

@@ -103,14 +103,14 @@
 \newtheorem{lemma}{Lemma}
 \newtheorem{theorem}{Theorem}
 \newtheorem{definition}{Definition}
-\newcommand{\lemref}[1]{\hyperref[#1]{Lemma \ref*{#1}}}
-\newcommand{\thmref}[1]{\hyperref[#1]{Theorem \ref*{#1}}}
-\newcommand{\defref}[1]{\hyperref[#1]{Definition \ref*{#1}}}
-\newcommand{\propref}[1]{\hyperref[#1]{Proposition \ref*{#1}}}
-\newcommand{\corref}[1]{\hyperref[#1]{Corollary \ref*{#1}}}
-\newcommand{\conref}[1]{\hyperref[#1]{Conjecture \ref*{#1}}}
-\newcommand{\exref}[1]{\hyperref[#1]{Example \ref*{#1}}}
-\newcommand{\statementref}[1]{\hyperref[#1]{Statement \ref*{#1}}}
+\newcommand{\lemref}[1]{\hyperref[#1]{Lemma~\ref*{#1}}}
+\newcommand{\thmref}[1]{\hyperref[#1]{Theorem~\ref*{#1}}}
+\newcommand{\defref}[1]{\hyperref[#1]{Definition~\ref*{#1}}}
+\newcommand{\propref}[1]{\hyperref[#1]{Proposition~\ref*{#1}}}
+\newcommand{\corref}[1]{\hyperref[#1]{Corollary~\ref*{#1}}}
+\newcommand{\conref}[1]{\hyperref[#1]{Conjecture~\ref*{#1}}}
+\newcommand{\exref}[1]{\hyperref[#1]{Example~\ref*{#1}}}
+\newcommand{\statementref}[1]{\hyperref[#1]{Statement~\ref*{#1}}}
 
 \newcommand{\sem}[1]{\llbracket #1 \rrbracket}
 \newcommand{\isDefinedAs}{\stackrel{\mathit{def}}=}
@@ -158,7 +158,7 @@
   about programs in terms of invariance under changes of data
   representation. A dazzling array of applications of Reynolds' theory
   exists, exploiting invariance to yield ``free theorems'',
-  uninhabitation results, and encodings of algebraic datatypes.
+  non-inhabitation results, and encodings of algebraic datatypes.
   Outside computer science, invariance is a common theme running
   through many areas of mathematics and physics. For example, the area of
   a triangle is unaltered by rotation or flipping. If we scale a
@@ -199,7 +199,7 @@ invariance, computational geometry, information flow, metric types, uniform cont
 \input{geometry-twocolumn.tex}
 \input{section-general-framework.tex}
 \input{section-instantiations.tex}
-\input{section-monoid.tex}
+\input{section-general-nondef.tex}
 \input{section-info-flow.tex}
 %\input{section-singleton.tex}
 \input{section-metric.tex}
@@ -209,8 +209,9 @@ invariance, computational geometry, information flow, metric types, uniform cont
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section*{Acknowledgements}
-The authors would like to thank Nick Benton, John Reppy and Martin Will for 
-illuminating discussions on geometry and types.
+The authors would like to thank Nick Benton, Kenneth MacKenzie, John
+Reppy and Martin Will for illuminating discussions on geometry and
+types. Atkey and Johann were supported by EPSRC grant EP/G068917/1.
 
 \begin{thebibliography}{12}
 \softraggedright
@@ -298,6 +299,11 @@ J.~C.~Reynolds. Types, Abstraction and Parametric Polymorphism.
 A.~Sabelfeld and D.~Sands.  A PER Model of Secure Information Flow in
 Sequential Programs.  {\em Higher-Order and Symbolic Computation} 14
 (1), pp. 59-91, 2001.
+
+\bibitem{shikuma08proving}
+N.~Shikuma and A.Igarahsi.  Proving Noninterference by a Fully
+Complete Translation to the Simply Typed lambda-calculus.  {\em
+    Logical Methods in Computer Science} 4(3), 2008.
 
 \bibitem{tse04translating}
 S.~Tse and S.~Zdancewic.  Translating Dependency into Parametricity.

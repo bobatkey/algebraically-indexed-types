@@ -67,32 +67,33 @@ Y & \isDefinedAs\tyPrim{vec}{e,0}\\
 I & \isDefinedAs\lambda f\mathord:X.f\,[0]\,(0\,[e])\\
 J & \isDefinedAs\lambda v\mathord:Y.\Lambda t\mathord:\SynTransl{2}.\lambda w\mathord:\tyPrim{vec}{e,t}.v +[e,0,t] w
 \end{align*}
-Unfolding definitions gives that $\tmSem{I(J(v))}(v,\opsEnv)$ = $v+0$
-for any $v\in\mathbb R ^ 2$.  Because $0$ is the identity for vector
+Unfolding definitions gives that $\tmSem{I(J(v))}(\opsEnv,\vec{v})$ = $\vec{v}+(0,0)$
+for any $\vec{v}\in\mathbb R ^ 2$.  Because $(0,0)$ is the identity for vector
 addition it follows that $\ctxteq{\Delta}{v\mathord:Y}{I(J(v))}{v}Y$.
 To show $\ctxteq{\Delta}{f\mathord:X}{J(I(f))}{f}{X}$ we appeal to
 \autoref{thm:soundness} and reason using the relational semantics.  It
 suffices to show $\semeq{\Delta}{f\mathord:X}{J(I(f))}{f}{X}$; that
 is, given $\rho\in\semSort\Delta$, for any $f$ and $f'$ with
 $(f,f')\in\rsem X\rho$, it is the case that 
-$(\tmSem{J(I(f))}(f,\opsEnv), f')\in\rsem X\rho$.
+$(\tmSem{J(I(f))}(\opsEnv,f), f')\in\rsem X\rho$.
 Expanding the premise, and setting $B = \semIndexExp{e}\rho$, we have
 \begin{eqnarray}\label{eqn:transpremise}
-\forall t\in \mathbb R ^ 2,
-\forall v\in \mathbb R ^ 2,
-f'(Bv + t) = B(f(v)) + t
+\forall \vec{t}\in \mathbb R ^ 2,
+\forall \vec{v}\in \mathbb R ^ 2,
+f'(B\vec{v} + \vec{t}) = B(f(\vec{v})) + \vec{t}
 \end{eqnarray}
 Expanding the conclusion, we have to show that for any
-$t'\in\mathbb R^2$ and $v'\in\mathbb R^2$, it is the case that
-$f'(Bv' + t') = B(v' + f(0)) + t'$.
-By instantiating \autoref{eqn:transpremise} thrice, with~$v=t=0$, with~$v=v'$ and~$t=t'$,
-and with (crucially)~$v=v'$ and~$t=-Bv'$, and applying a little algebra, we obtain
+$\vec{t_0}\in\mathbb R^2$ and $\vec{v_0}\in\mathbb R^2$, it is the case that
+$f'(B\vec{v_0} + \vec{t_0}) = B(\vec{v_0} + f(0)) + \vec{t_0}$.
+By instantiating \autoref{eqn:transpremise} thrice, with~$\vec{v}=\vec{t}=(0,0)$, with~$\vec{v}=\vec{v_0}$ and~$\vec{t}=\vec{t_0}$,
+and with (crucially)~$\vec{v}=\vec{v_0}$ and~$\vec{t}=-B\vec{v_0}$, and applying a little algebra, we obtain
 the desired result.
 \qed
 \end{example}
 
-We can generalise this isomorphism to any quantifier-free (but possibly open) type
-of the form $\forall t\mathord:\SynTransl{2}.\tyPrim{vec}{e,t}\to A$. 
+We can generalise this isomorphism to type
+of the form $\forall t\mathord:\SynTransl{2}.\tyPrim{vec}{e,t}\to A$
+in which $A$ contains no quantifiers. 
 To be precise, we have the following isomorphism:
 \[
 \Delta\vdash(\forall t\mathord:\SynTransl{2}.\tyPrim{vec}{e,t}\to A)
@@ -108,24 +109,17 @@ which the origin is fixed at $(0,0)$. It is sometimes said that an
 affine space is a vector space that has forgotten its origin; we have
 captured this in a type isomorphism.
 
-\exref{ex:type-iso} and \exref{ex:simpletrans} are special cases of this isomorphism; another instance is the
-type of vector addition:
-\[
-\begin{array}{l}
-\forall B\mathord:\SynGL{2}, t_1
-%\mathord:\SynTransl{2}
-, t_2\mathord:\SynTransl{2}.\tyPrim{vec}{B,t_1}\to\tyPrim{vec}{B,t_2}\to\tyPrim{vec}{B,t_1\mathord+t_2}\\
-\cong\quad
-\forall B\mathord:\SynGL{2}, t_1\mathord:\SynTransl{2}.\tyPrim{vec}{B,t_1}\to\tyPrim{vec}{B,t_1}\\
-\cong\quad
-\forall B\mathord:\SynGL{2}.\tyPrim{vec}{B,0}
-\end{array}
-\]
-\noindent
 \newcommand{\transup}[3]{\mathord\uparrow_{#1}^{#2\mathord:#3}}
 \newcommand{\transdn}[3]{\mathord\downarrow_{#1}^{#2\mathord:#3}}
 
-\begin{example}
+\begin{lemma}\label{lem:transiso}
+Let $A$ be a quantifier-free type. Then
+\[
+\Delta\vdash(\forall t\mathord:\SynTransl{2}.\tyPrim{vec}{e,t}\to A)
+\cong A[0/t]
+\]
+\end{lemma}
+\begin{proof}
 Let 
 \begin{align*}
 X & \isDefinedAs \forall t\mathord:\SynTransl{2}.\tyPrim{vec}{e,t}\to A
@@ -188,12 +182,22 @@ is an identity for vector addition. To show $J(I(x))$ is contextually
 equivalent to $x$ we must apply the abstraction theorem and use
 the fact that $\tmSem{\transup A t v}$ and $\tmSem{\transdn A t v}$ 
 considered as relations are simply instances of $\rsem A{}{}$.
-\qed
+\end{proof}
 %\[
 %$\rsem A {t \mapsto v} {} = \{ (x, \tmSem{\transup A (x)}) \mid x \in
 %\tySem A\}$.
 %\]
 
+\exref{ex:type-iso} and \exref{ex:simpletrans} are special cases of
+this isomorphism; another instance is the type of vector addition:
+\begin{align*}
+\forall B\mathord:\SynGL{2}, t_1, t_2\mathord:\SynTransl{2}.\tyPrim{vec}{B,t_1}\to\tyPrim{vec}{B,t_2}\to\tyPrim{vec}{B,t_1\mathord+t_2}\\
+\cong\quad\forall B\mathord:\SynGL{2}, t_1\mathord:\SynTransl{2}.\tyPrim{vec}{B,t_1}\to\tyPrim{vec}{B,t_1}
+\quad (\text{by~\lemref{lem:transiso}})\\
+\cong\quad\forall B\mathord:\SynGL{2}.\tyPrim{vec}{B,0} \quad (\text{by~\lemref{lem:transiso}})\\
+\cong\quad\tyUnit\quad(\text{by abstraction theorem})
+\end{align*}
+In other words, the vector addition operation is the only inhabitant of its type!
 \paragraph{Scalings}
 For the group $\GL{1}$ of scalings we can treat
 a real-valued argument to a function as a unit-of-measure with
@@ -203,23 +207,23 @@ Although the argument might be zero, and this cannot be used for scaling,
 %Nevertheless, 
 we still can obtain the following slightly more complicated
 isomorphism:
-\begin{eqnarray*}
-\forall s\mathord:\SynGL{1}.\tyPrim{real}{s}\to A
-& \cong &
-A[1/s]\times \forall s\mathord:\SynGL{1}.A
-\end{eqnarray*}
+\begin{eqnarray}
+\forall s\mathord:\SynGL{1}.\tyPrim{real}{s}\to A &
+\cong & [1/s]\times \forall s\mathord:\SynGL{1}.A\label{eqn:scaleiso}
+\end{eqnarray}
 The type of $\mathrm{areaCircle}$ from the introduction is one instance:
-\begin{eqnarray*}
-\forall s\mathord:\SynGL{1}.\tyPrim{real}{s}\to\tyPrim{real}{s^2}\\ \quad\cong\quad \tyPrim{real}{1}\times(\forall
-s\mathord:\SynGL{1}.\tyPrim{real}{s^2})\\ \quad\cong\quad
-\tyPrim{real}{1}\times 1\quad\cong\quad \tyPrim{real}{1}
-\end{eqnarray*}
+\begin{align*}
+\forall s\mathord:\SynGL{1}.\tyPrim{real}{s}\to\tyPrim{real}{s^2}\\ 
+\cong\quad\tyPrim{real}{1}\times(\forall
+s\mathord:\SynGL{1}.\tyPrim{real}{s^2}) \quad(\text{by }\ref{eqn:scaleiso})\\ 
+\cong\quad\tyPrim{real}{1}\times \tyUnit \quad (\text{by abstraction theorem})\\
+\cong\quad\tyPrim{real}{1}\quad (\text{trivially})
+\end{align*}
 %where %the isomorphism 
-The abstraction theorem is used to prove
-$\forall s\mathord:\SynGL{1}.\tyPrim{real}{s^2}\cong 1$.
+%The abstraction theorem is used to prove
+%$\forall s\mathord:\SynGL{1}.\tyPrim{real}{s^2}\cong \tyUnit$.
 % is proved using
 %the abstraction theorem.
-\end{example}
 %\begin{enumerate}
 %\item Two cases: when we have a total ``division'' operation, and when
 %  we don't.
@@ -251,7 +255,7 @@ f(x) = \begin{cases}\sqrt x & \text{if }x > 0\\0&\text{otherwise}\end{cases}
 for instance. Yet this type contains only the constant zero function, a fact that
 we can prove using a surprisingly simple model!
 
-\begin{example}
+\begin{example}\label{ex:sqrt-root-nondef}
 If  $\opsCtxt \vdash f : \forall s \mathord: \SynGL{1}.\
 \tyPrim{real}{s^2} \to \tyPrim{real}{s}$ 
 then $\tmSem f = \lambda x.0$.
@@ -308,11 +312,11 @@ and
 \[
 \semPrimType{\tyPrimNm{real}}(k,q) = 
   {\begin{cases} \{(x,k x) \sepbar x \in \mathbb R \} & \text{if }q \in \mathbb Z\\
-                      {(0,0)} & \text{otherwise}
+                      \{(0,0)\} & \text{otherwise}
   \end{cases}}
 \]
 
-\begin{example}
+\begin{example}\label{ex:cube-root-nondef}
 Suppose we extend the operations $\opsCtxt$ of \autoref{fig:real-ops}
 and corresponding $\opsEnv$ with a square root operation typed by
 \[
@@ -340,7 +344,7 @@ Now set
 It's easy to check that $(\opsEnv,\opsEnv)\in\rsem{\opsCtxt}*$.
 
 Here $q$ is tracking the exponents on scale parameters, with
-$\semPrimType{\tyPrimNm{real}}(q)$ accepting only the zero value
+$\semPrimType{\tyPrimNm{real}}(q)$ relating only zero to itself
 unless the denominator of $q$ is a power of two (a so-called
 \emph{dyadic} number).  
 Applying the abstraction theorem and expanding, we have that for
@@ -352,32 +356,32 @@ Then we have that if $x=y$ then $f(x)=f(y)=0$.
 \qed
 \end{example}
 
-For proving non-definability results, we consider the general case of
-a sort $\mathsf{G}$ with the equational theory of abelian groups. We
-assume a group-indexed primitive type $\tyPrimNm{G}$ and set of
-primitive operations typed by $\Gamma_\Grp$ that include the group
-identity $1:\tyPrim{G}{1}$, operation $(\cdot): \forall
-a,b\mathord:\mathsf{G}.\ \tyPrim{G}{a} \to \tyPrim{G}{b} \to
-\tyPrim{G}{a\cdot b}$ and inverse $\ ^{-1}: \forall
-a\mathord:\mathsf{G}.\ \tyPrim{G}{a} \to \tyPrim{G}{a^{-1}}$. The
-context $\Gamma_\Grp$ may also include members with types of the form
-$\forall \vec{a}\mathord:\mathsf{G}.\ \tyPrim{G}{e_1} \to ...
-\tyPrim{G}{e_n} \to \tyPrim{G}{e}$ as long as the result index $e$ is
-generated by the set $\{e_1,...,e_n\}$. One instance is the
-sort~$\SynTransl{2}$ with $0$, $(+)$ and $\mathrm{negate}$ on
-$\tyPrim{vec}{t}$. For the purposes of non-definability results, we
-may choose an arbitrary index-erasure semantics with $\eta_\Grp \in
-\ctxtSem{\Gamma_\Grp}$.
+% For proving non-definability results, we consider the general case of
+% a sort $\mathsf{G}$ with the equational theory of abelian groups. We
+% assume a group-indexed primitive type $\tyPrimNm{G}$ and set of
+% primitive operations typed by $\Gamma_\Grp$ that include the group
+% identity $1:\tyPrim{G}{1}$, operation $(\cdot): \forall
+% a,b\mathord:\mathsf{G}.\ \tyPrim{G}{a} \to \tyPrim{G}{b} \to
+% \tyPrim{G}{a\cdot b}$ and inverse $\ ^{-1}: \forall
+% a\mathord:\mathsf{G}.\ \tyPrim{G}{a} \to \tyPrim{G}{a^{-1}}$. The
+% context $\Gamma_\Grp$ may also include members with types of the form
+% $\forall \vec{a}\mathord:\mathsf{G}.\ \tyPrim{G}{e_1} \to ...
+% \tyPrim{G}{e_n} \to \tyPrim{G}{e}$ as long as the result index $e$ is
+% generated by the set $\{e_1,...,e_n\}$. One instance is the
+% sort~$\SynTransl{2}$ with $0$, $(+)$ and $\mathrm{negate}$ on
+% $\tyPrim{vec}{t}$. For the purposes of non-definability results, we
+% may choose an arbitrary index-erasure semantics with $\eta_\Grp \in
+% \ctxtSem{\Gamma_\Grp}$.
 
-We use the construction of definability relational environments
-from \autoref{sec:constr-rel-env}, with $R^\bullet_{\tyPrimNm{G}} =
-\emptyset$, to give a pre-substitutive family $\relEnv{E}_\Grp$. This
-gives us the following lemma and theorem.
+% We use the construction of definability relational environments
+% from \autoref{sec:constr-rel-env}, with $R^\bullet_{\tyPrimNm{G}} =
+% \emptyset$, to give a pre-substitutive family $\relEnv{E}_\Grp$. This
+% gives us the following lemma and theorem.
 
-\begin{lemma}\label{lem:geom-environments-2}
-  For all $\Delta$ and $\rho \in \relEnv{E}_\Grp(\Delta)$,
-  $(\eta_\Grp,\eta_\Grp) \in \rsem{\Gamma_\Grp}{\relEnv{E}_\Grp}\rho$.
-\end{lemma}
+% \begin{lemma}\label{lem:geom-environments-2}
+%   For all $\Delta$ and $\rho \in \relEnv{E}_\Grp(\Delta)$,
+%   $(\eta_\Grp,\eta_\Grp) \in \rsem{\Gamma_\Grp}{\relEnv{E}_\Grp}\rho$.
+% \end{lemma}
 
 % For index-erasure interpretation, we assume a (not necessarily
 % abelian) group $(G, 1, \cdot, \ ^{-1})$. Let $Z(G)$ be the centre of
@@ -398,20 +402,20 @@ gives us the following lemma and theorem.
 % \end{displaymath}
 
 
-Writing $i^n$ for $n$-fold iteration of the group operation, we have:
-\begin{theorem}
-  Let $m$ and $n$ be natural numbers. For all $n$-by-$m$-matrices of
-  natural numbers $A$ and $m$-by-$1$ matrices of integers $\vec{b}$,
-  there exists a quantifier-free program $M$ such that:
-  \begin{displaymath}
-    i_1,\dots,i_m\mathord:\mathsf{G}; \Gamma_\Grp \vdash M : \tyPrim{G}{e_1} \to \dots \to \tyPrim{G}{e_n} \to \tyPrim{G}{e}
-  \end{displaymath}
-  where $e_j = i_1^{A_{j1}}\cdots i_m^{A_{jm}}$ and $e = i_1^{b_1}\cdots i_m^{b_m}$, iff there is a solution $\vec{x}$
-  in the integers to the equation $A \vec x = \vec{b}$.
-\end{theorem}
-The uninhabited type $\forall t \mathord: \SynTransl{2}.\
-\tyPrim{vec}{t + t} \to \tyPrim{vec}{t}$ from
-\exref{ex:uninhabited-type} is an instance of this theorem.  
+% Writing $i^n$ for $n$-fold iteration of the group operation, we have:
+% \begin{theorem}
+%   Let $m$ and $n$ be natural numbers. For all $n$-by-$m$-matrices of
+%   natural numbers $A$ and $m$-by-$1$ matrices of integers $\vec{b}$,
+%   there exists a quantifier-free program $M$ such that:
+%   \begin{displaymath}
+%     i_1,\dots,i_m\mathord:\mathsf{G}; \Gamma_\Grp \vdash M : \tyPrim{G}{e_1} \to \dots \to \tyPrim{G}{e_n} \to \tyPrim{G}{e}
+%   \end{displaymath}
+%   where $e_j = i_1^{A_{j1}}\cdots i_m^{A_{jm}}$ and $e = i_1^{b_1}\cdots i_m^{b_m}$, iff there is a solution $\vec{x}$
+%   in the integers to the equation $A \vec x = \vec{b}$.
+% \end{theorem}
+% The uninhabited type $\forall t \mathord: \SynTransl{2}.\
+% \tyPrim{vec}{t + t} \to \tyPrim{vec}{t}$ from
+% \exref{ex:uninhabited-type} is an instance of this theorem.  
 %\begin{proof}
 %  (If) The program $\Lambda i_1\dots i_m.\ \lambda g_1\dots g_n.\
 %  g_1^{x_1}\dots g_n^{x_n}$ satisfies the typing judgment

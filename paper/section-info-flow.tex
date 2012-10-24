@@ -28,18 +28,21 @@ flow can be captured semantically by partial equivalence relations
 \emph{Core Calculus for Dependency}, using a type system based around
 a security level indexed monad $T_lA$, using PERs to prove the
 information flow properties. Tse and Zdancewic \cite{tse04translating}
-translated Abadi \emph{et al.}'s calculus into System F, translating the
-monadic type $T_lA$ to $\alpha_l \to A$ for some free type variable
-$\alpha_l$, and using Reynolds' abstraction theorem to prove
-information flow properties. For example, if the type variable
-$\alpha_H$ represents high-level information, then the
-non-interference property of the function $f$ could be expressed by
-the System F type $A \to (\alpha_H \to B) \to C$. If a program cannot
-generate a value of type $\alpha_H$, then it cannot access the value
-of $B$, and hence is insensitive to the actual value. Relationships
-between security levels are captured by postulating functions
-$\alpha_{l_1} \to \alpha_{l_2}$ whenever $l_1$ is a lower security
-level than $l_2$.
+translated Abadi \emph{et al.}'s calculus into System F\footnote{Tse
+  and Zdancewic's translation did not satisfy all the properties that
+  they claimed, as pointed out by Shikuma and Igarashi
+  \cite{shikuma08proving}. However, this problem is not relevant to
+  our discussion here.} translating the monadic type $T_lA$ to
+$\alpha_l \to A$ for some free type variable $\alpha_l$, and using
+Reynolds' abstraction theorem to prove information flow
+properties. For example, if the type variable $\alpha_H$ represents
+high-level information, then the non-interference property of the
+function $f$ could be expressed by the System F type $A \to (\alpha_H
+\to B) \to C$. If a program cannot generate a value of type
+$\alpha_H$, then it cannot access the value of $B$, and hence is
+insensitive to the actual value. Relationships between security levels
+are captured by postulating functions $\alpha_{l_1} \to \alpha_{l_2}$
+whenever $l_1$ is a lower security level than $l_2$.
 
 Using algebraic indexing, we refine Tse and Zdancewic's translation by
 replacing each type variable $\alpha_l$ with a primitive type
@@ -124,14 +127,14 @@ then for all $x,x' \in \tySem{T_\phi\tyPrimNm{bool}}$, we have $(x,x')
 \in \rsem{T_\phi\tyPrimNm{bool}}{\rho}$. Thus if a principal is
 dissatisfied (i.e.,~$\phi \not= \top$), then data protected by this
 principal is indistinguishable from any other data, and a program
-cannot get access to the exact value. From this and
+cannot get access to the exact value. From this observation, and
 \thmref{thm:abstraction}, we obtain the following information flow
 result:
 
 \begin{theorem}
   Let $\phi$ and $\psi$ be index expressions of sort $\mathsf{prop}$
   in some indexing context $\Delta$, such that $\psi \not\leq
-  \phi$. Then for all programs
+  \phi$. Then for all terms:
   \begin{displaymath}
     \Delta; \Gamma_\infoflow,\Gamma \vdash M : T_\phi\tyPrimNm{bool} \to T_\psi\tyPrimNm{bool}
   \end{displaymath}
