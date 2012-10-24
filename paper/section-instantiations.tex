@@ -68,8 +68,8 @@ X & \isDefinedAs\forall t\mathord:\SynTransl{2}.\tyPrim{vec}{B,t}\to\tyPrim{vec}
 I & \isDefinedAs\lambda f\mathord:X.f\,[0]\,(0\,[B])\\
 J & \isDefinedAs\lambda v\mathord:Y.\Lambda t\mathord:\SynTransl{2}.\lambda w\mathord:\tyPrim{vec}{B,t}.v +[B,0,t] w
 \end{align*}
-Unfolding definitions gives that $\tmSem{I(J(v))}(\opsEnv,\vec{v})$ = $\vec{v}+(0,0)$
-for any $\vec{v}\in\mathbb R ^ 2$.  Because $(0,0)$ is the identity for vector
+Unfolding definitions gives that $\tmSem{I(J(v))}(\opsEnv,\vec{v})$ = $\vec{v}+\vec{0}$
+for any $\vec{v}\in\mathbb R ^ 2$.  Because $\vec{0}$ is the identity for vector
 addition it follows that $\ctxteq{\DeltaWithB}{v\mathord:Y}{I(J(v))}{v}Y$.
 To show $\ctxteq{\DeltaWithB}{f\mathord:X}{J(I(f))}{f}{X}$ we appeal to
 \autoref{thm:soundness} and reason using the relational semantics.  It
@@ -86,7 +86,7 @@ f'(\rho(B)\vec{v} + \vec{t}) = \rho(B)(f(\vec{v})) + \vec{t}
 Expanding the conclusion, we have to show that for any
 $\vec{t_0}\in\mathbb R^2$ and $\vec{v_0}\in\mathbb R^2$, it is the case that
 $f'(\rho(B)\vec{v_0} + \vec{t_0}) = \rho(B)(\vec{v_0} + f(0)) + \vec{t_0}$.
-By instantiating \autoref{eqn:transpremise} thrice, with~$\vec{v}=\vec{t}=(0,0)$, with~$\vec{v}=\vec{v_0}$ and~$\vec{t}=\vec{t_0}$,
+By instantiating \autoref{eqn:transpremise} thrice, with~$\vec{v}=\vec{t}=\vec{0}$, with~$\vec{v}=\vec{v_0}$ and~$\vec{t}=\vec{t_0}$,
 and with (crucially)~$\vec{v}=\vec{v_0}$ and~$\vec{t}=-\rho(B)\vec{v_0}$, and applying a little algebra, we obtain
 the desired result.
 \qed
@@ -108,10 +108,11 @@ captured this in a type isomorphism.
 
 \newcommand{\transup}[3]{\mathord\uparrow_{#1}^{#2\mathord:#3}}
 \newcommand{\transdn}[3]{\mathord\downarrow_{#1}^{#2\mathord:#3}}
+\newcommand{\transtrans}[3]{\mathrm{tr}_{#1}^{#2\mathord:#3}}
 
 \begin{lemma}\label{lem:transiso}
-Let $A$ be a quantifier-free type in which every
-occurrence of $\tyPrimNm{vec}$ is of the form $\tyPrim{vec}{B,e}$ for some $e$. Then
+Suppose that $\DeltaWithB,t\mathord:\SynTransl{2}\vdash A \isType$, 
+$A$ contains no quantifiers and every occurrence of $\tyPrimNm{vec}$ is of the form $\tyPrim{vec}{B,?}$. Then
 \[
 \DeltaWithB\vdash(\forall t\mathord:\SynTransl{2}.\tyPrim{vec}{B,t}\to A)
 \cong A[0/t]
@@ -121,67 +122,102 @@ occurrence of $\tyPrimNm{vec}$ is of the form $\tyPrim{vec}{B,e}$ for some $e$. 
 Let 
 \begin{align*}
 X & \isDefinedAs \forall t\mathord:\SynTransl{2}.\tyPrim{vec}{B,t}\to A
-& 
-Y & \isDefinedAs A[0/t]\\
-I & \isDefinedAs \lambda f\mathord: X. f\ [0]\ (0\ [B])
-& 
+\quad\text{and}\quad Y \isDefinedAs A[0/t]\\
+I & \isDefinedAs \lambda f\mathord: X. f\ [0]\ (0\ [B])\\
 J & \isDefinedAs \lambda y\mathord: Y. \Lambda t.\lambda v\mathord:\tyPrim{vec}{B,t}. \transup A t v (y)
 \end{align*}
 where terms 
 \begin{align*}
-&
-\DeltaWithB,t\mathord:\SynTransl{2};v\mathord:\tyPrim{vec}{B,t}\vdash \transup A t v : A[0/t] \to A
-\\\text{and } &
-\DeltaWithB,t\mathord:\SynTransl{2};v\mathord:\tyPrim{vec}{B,t}\vdash \transdn A t v : A\to A[0/t]
+&\DeltaWithB,t\mathord:\SynTransl{2};v\mathord:\tyPrim{vec}{B,t}\vdash \transup A t v : A[0/t] \to A\\
+&\DeltaWithB,t\mathord:\SynTransl{2};v\mathord:\tyPrim{vec}{B,t}\vdash \transdn A t v : A\to A[0/t]\\
+&\DeltaWithB,t\mathord:\SynTransl{2};v\mathord:\tyPrim{vec}{B,t}\vdash \transup e t v : \tyPrim{vec}{B,e[0/t]}\to\tyPrim{vec}{B,e}\\
+&\DeltaWithB,t\mathord:\SynTransl{2};v\mathord:\tyPrim{vec}{B,t}\vdash \transdn e t v : \tyPrim{vec}{B,e}\to\tyPrim{vec}{B,e[0/t]}
 \end{align*}
-are defined by induction over the syntax of $A$. For brevity we omit types on binders
-and indices on primitives; also note that the omitted cases for $\transup A t v$ 
-have definition symmetric to $\transdn A t v$:
+are defined by induction over the structure of $A$ and $e$. For brevity we omit types on binders;
+also note that the omitted cases for $\transdn A t v$ 
+have definition symmetric to $\transup A t v$:
 \begin{align*}
-\transdn{\tyPrimNm{unit}} t v &= \lambda x. x
+\transup{\tyPrimNm{unit}} t v &= \lambda x. x
 \qquad 
-\transdn{\tyPrim{real}{e}} t v = \lambda x. x
+\transup{\tyPrim{real}{e}} t v = \lambda x. x
 \\
-\transdn{A_1\times A_2}t v &= \lambda p. (\transdn{A_1}t v(\pi_1 p),\transdn{A_2}t v(\pi_2 p))
+\transup{A_1\times A_2}t v &= \lambda p. (\transup{A_1}t v(\pi_1 p),\transup{A_2}t v(\pi_2 p))
 \\
-\transdn{A_1 + A_2} t v &= \lambda x.
-\textrm{case}\ x\ \textrm{of}\ \textrm{inl}\ y.\textrm{inl}(\transdn {A_1}t v y); \textrm{inr}\ y.\textrm{inr}(\transdn {A_2} t v y)
+\transup{A_1 + A_2} t v &= \lambda x.
+\textrm{case}\ x\ \textrm{of}\ \textrm{inl}\ y.\textrm{inl}(\transup {A_1}t v y); \textrm{inr}\ y.\textrm{inr}(\transup {A_2} t v y)
 \\ 
-\transdn{A_1\to A_2} t v &= \lambda f. \lambda x. \transdn{A_2} t v (f(\transup {A_1} t v x))
+\transup{A_1\to A_2} t v &= \lambda f. \lambda x. \transup{A_2} t v (f(\transdn {A_1} t v x))
 \end{align*}
 \begin{align*}
-\transdn{\tyPrim{vec}{B,e}} t v &= \lambda x. \transdn{e}  t v (x) 
+\transup{\tyPrim{vec}{B,e}} t v &= \lambda x. \transdn{e}  t v (x) 
 &
-\transup{\tyPrim{vec}{B,e}} t v &= \lambda x. \transup{e} t v (x)
+\transdn{\tyPrim{vec}{B,e}} t v &= \lambda x. \transup{e} t v (x)
 \\
-\transdn{0} t v &= \lambda w.w
-&
 \transup{0} t v &= \lambda w.w
+&
+\transdn{0} t v &= \lambda w.w
 \\ 
-\transdn{e_1+e_2} t v &= \lambda w.\transdn{e_1} t v(\transdn{e_2} t v(w))
-&
 \transup{e_1+e_2} t v &= \lambda w.\transup{e_1} t v(\transup{e_2} t v(w))
-\\
-\transdn{-e} t v &= \lambda w.\transup{e} t v (w)
 &
+\transdn{e_1+e_2} t v &= \lambda w.\transdn{e_1} t v(\transdn{e_2} t v(w))
+\\
 \transup{-e} t v &= \lambda w.\transdn{e} t v (w)
-\\
-\transdn{t} t v &= \lambda w.w + v 
 &
-\transup{t} t v &= \lambda w.w + (\mathrm{negate}\, v)
+\transdn{-e} t v &= \lambda w.\transup{e} t v (w)
 \\
-\transdn{t'} t v &= \lambda w.w\quad(t'\neq t)
+\transup{t} t v &= \lambda w.w + v 
 &
+\transdn{t} t v &= \lambda w.w + (\mathrm{negate}\, v)
+\\
 \transup{t'} t v &= \lambda w.w\quad(t'\neq t)
+&
+\transdn{t'} t v &= \lambda w.w\quad(t'\neq t)
 \end{align*}
-To show $I(J(y))$ is contextually equivalent to $y$ is an easy
-induction on $A$ using the fact that the vector $(0,0)$
-is an identity for vector addition. To show $J(I(x))$ is contextually
-equivalent to $x$ we first prove (by induction on $A$) 
-that for any $\rho\in\semSort{\DeltaWithB}$, and any $\vec v\in\mathbb R^2$, 
-the graph of the function given by $\tmSem{\transdn A t v}(\opsEnv,\vec v)$
-is just  $\rsem A (\rho,\vec v)$, and conversely, the graph of $\tmSem{\transup A t v}(\opsEnv,\vec v)$
-is ${\rsem A (\rho,\vec v)}^{\mathrm{op}}$.
+
+
+Unfolding definitions, we deduce that
+\[
+\tmSem{I(J(y))}(\opsEnv,y) = \tmSem{\transup A t v}(\opsEnv,\vec 0)(y)
+\]
+for any $y \in \tmSem{A[0/t]}$. It's easy to prove by induction on $A$
+that $\tmSem{\transup A t v}(\opsEnv,\vec 0)(y) = y$, and so
+$\ctxteq\DeltaWithB{y\mathord:Y}{J(I(y))}y Y$ follows.
+
+For the opposite direction of the isomorphism, we appeal to 
+\autoref{thm:soundness} and so it suffices to show
+$\semeq{\DeltaWithB}{f\mathord:X}{J(I(f))}{f}{X}$; that
+is, given $\rho\in\semSort\DeltaWithB$, for any $f$ and $f'$ with
+$(f,f')\in\rsem X\rho$, it is the case that 
+$(\tmSem{J(I(f))}(\opsEnv,f), f')\in\rsem X\rho$.
+Expanding the premise, we have
+\begin{eqnarray}\label{eqn:isopremise}
+\forall \vec{t}\in \mathbb R ^ 2,
+\forall \vec{v}\in \mathbb R ^ 2,
+(f(\vec{v}),f'(\rho(B)\vec{v} + \vec{t}))\in\rsem A (\rho,\vec{t})
+\end{eqnarray}
+Expanding the conclusion, we have to show for any
+$\vec{t_0}\in\mathbb R^2$ and $\vec{v_0}\in\mathbb R^2$, it is the case that
+$(\tmSem{J(I(f))}(\opsEnv,f)(\vec{v_0}),f'(\rho(B)\vec{v_0} + \vec{t_0}))\in\rsem A (\rho,\vec{t_0})$.
+Unfolding the definitions of $J$ and $I$ and expanding the erasure semantics, 
+this amounts to showing that
+\[
+\forall \vec{t_0},\vec{v_0}\in \mathbb R ^ 2,
+(\tmSem{\transup A t v}(\opsEnv,\vec{v_0})(f\ \vec 0),f'(\rho(B)\vec{v_0} + \vec{t_0}))\in\rsem A (\rho,\vec{t_0}).
+\]
+In order to make progress we prove first by induction on $A$ that for any $\vec v$ and $\vec w$, 
+the meaning of $\transup A t v$ can be characterized by
+\begin{align*}
+(\tmSem{\transup A t v}(\opsEnv,\vec{v})(x),y)&\in\rsem A (\rho,\vec{w})
+\\\Leftrightarrow 
+(x,y)&\in\rsem A (\rho,\rho(B)\vec{v} + \vec{w})
+\end{align*}
+Thus our goal becomes
+\[
+\forall \vec{t_0},\vec{v_0}\in \mathbb R ^ 2,
+(f\ \vec 0,f'(\rho(B)\vec{v_0} + \vec{t_0}))\in\rsem A (\rho,\rho(B)\vec{v_0} + \vec{t_0}).
+\]
+This is obtained immediately by instantiating \autoref{eqn:isopremise}
+with $\vec{v}=\vec 0$ and $\vec{t}=\rho(B)\vec{v_0} + \vec{t_0}$.
 \end{proof}
 
 \exref{ex:type-iso} and \exref{ex:simpletrans} are special cases of
@@ -191,7 +227,7 @@ this isomorphism. Another instance is the type of vector addition:
 \cong\quad\forall B\mathord:\SynGL{2}, t_1\mathord:\SynTransl{2}.\tyPrim{vec}{B,t_1}\to\tyPrim{vec}{B,t_1}
 \quad (\text{by~\lemref{lem:transiso}})\\
 \cong\quad\forall B\mathord:\SynGL{2}.\tyPrim{vec}{B,0} \quad (\text{by~\lemref{lem:transiso}})\\
-\cong\quad\tyUnit\quad(\text{by abstraction theorem})
+\cong\quad\tyUnit\quad(\text{by \autoref{thm:abstraction}})
 \end{align*}
 In other words, the vector addition operation is the only inhabitant of its type!
 \paragraph{Scalings}
@@ -211,8 +247,8 @@ The type of $\mathrm{areaCircle}$ from the introduction is one instance:
 \begin{align*}
 \forall s\mathord:\SynGL{1}.\tyPrim{real}{s}\to\tyPrim{real}{s^2}\\ 
 \cong\quad\tyPrim{real}{1}\times(\forall
-s\mathord:\SynGL{1}.\tyPrim{real}{s^2}) \quad(\text{by }\ref{eqn:scaleiso})\\ 
-\cong\quad\tyPrim{real}{1}\times \tyUnit \quad (\text{by abstraction theorem})\\
+s\mathord:\SynGL{1}.\tyPrim{real}{s^2}) \quad(\text{by \autoref{eqn:scaleiso}})\\ 
+\cong\quad\tyPrim{real}{1}\times \tyUnit \quad (\text{by \autoref{thm:abstraction}})\\
 \cong\quad\tyPrim{real}{1}\quad (\text{trivially})
 \end{align*}
 %where %the isomorphism 
