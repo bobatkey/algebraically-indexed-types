@@ -689,21 +689,10 @@ The scaling maps $\left(
   \begin{smallmatrix}s & 0 \\ 0 & s\end{smallmatrix}\right)$
 are precisely the elements of $\GL{2}$ that commute with all others;
 these form the \emph{centre} of $\GL{2}$. If we keep track of
-scalings, then we can assign the following more precise types to
-scalar multiplication and dot product:
-\begin{displaymath}
-\begin{array}{@{}l@{}l}
-  (*) : \forall s \mathord: \SynGL{1}, B \mathord:
-  \SynGL{2}.\ & \tyPrim{real}{s} \to \tyPrim{vec}{B,0} \to
-  \tyPrim{vec}{\iota_1(s)B,0}\\
-%\end{displaymath}
-%and dot product:
-%\begin{displaymath}
-%  \begin{array}{l@{}l}
-    (\cdot) : \forall s \mathord: \SynGL{1}, O \mathord: \SynOrth{2}.\ & \tyPrim{vec}{\iota_1(s)\iota_O(O),0} \to\\
-    &\tyPrim{vec}{\iota_1(s)\iota_O(O),0} \to \tyPrim{real}{s^2}
-  \end{array}
-\end{displaymath}
+scalings, then we can assign the more precise types to
+scalar multiplication and dot product. These
+ are shown in Figure~\ref{fig:vec-ops}, which summarises the most general types 
+of all the vector operations that we have described.
 
 \begin{example}
   With the operations in \autoref{fig:real-ops}, it is not possible to
@@ -745,6 +734,13 @@ scalar multiplication and dot product:
     \forall s \mathord: \SynGL{1}, B \mathord:\SynGL{2}.\ \\
     \tyPrim{real}{s} \to \tyPrim{vec}{B,0} \to \tyPrim{vec}{\iota_1(s)B,0}
   \end{array}\\
+    \mathrm{affComb} &:
+    \begin{array}[t]{@{}l}\forall t \mathord:
+    \SynTransl{2}.\ \tyPrim{vec}{t} \to \tyPrimNm{real} \to
+    \tyPrim{vec}{t} \to \tyPrim{vec}{t} \\ 
+    \sem{\mathrm{affComb}}\ \vec{v_1}\ r\ \vec{v_2} = (1-r)\vec{v_1} +
+    r\vec{v_2} 
+    \end{array}
     (\cdot) & :
 \begin{array}[t]{@{}l}
     \forall s \mathord: \SynGL{1}, O \mathord: \SynOrth{2}.\ \\
