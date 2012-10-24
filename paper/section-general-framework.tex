@@ -520,8 +520,8 @@ equal type $B$ as well.
 For any particular theory we assume that there is a closed
 typing context $\opsCtxt$ that describes the types of the primitive operations.
 \begin{example*}[Geometry: operations]
-We assume $\opsCtxt$ collects together the types of primitive operations as described in \autoref{sec:motivation-generalising}.
-\todo{Write these down}.
+For geometry $\opsCtxt$ would collect together the types of primitive operations as 
+listed in \autoref{fig:real-ops} and \autoref{fig:vec-ops}.
 \qed
 \end{example*}
 
@@ -575,7 +575,7 @@ well-indexed types by induction on the type structure:
   \end{array}
 \end{displaymath}
 (We will overload the
-notation $\left|\cdot\right|$ for all index-erasure interpretations, 
+notation $\tmSem\cdot$ for all index-erasure interpretations, 
 and reserve notation $\llbracket\cdot\rrbracket$ for the
 index-observing relational semantics defined later.)
 % The interpretation of the unit type is a chosen one element set, and
@@ -636,8 +636,9 @@ interpretation of the primitive operations $\opsEnv \in \ctxtSem{\opsCtxt}$.
   The two-dimensional geometry instantiation of the general framework
   uses the assignment $\tyPrimSem{\tyPrimNm{vec}} = \mathbb{R}^2$ and
   $\tyPrimSem{\tyPrimNm{real}} = \mathbb{R}$.
-  We assume that $\opsEnv$ interprets the operations described in \autoref{sec:motivation-generalising}
-  in the standard way. \todo{Expand}. 
+  We assume that $\opsEnv$ gives the usual interpretation to scalar
+  and vector operations from
+  \autoref{fig:real-ops} and \autoref{fig:vec-ops}.
 \qed
 \end{example*}
 
