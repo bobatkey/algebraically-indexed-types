@@ -54,46 +54,47 @@ group of scalings.
 Consider first the group $\Transl{2}$ of translations from
 \autoref{sec:type-system-geom-intro} and 
 \autoref{sec:affine-vector-ops}. 
+\newcommand{\DeltaWithB}{\Delta,B\mathord:\SynGL{2}}
 
-\begin{example}[Geometry: change of origin]\label{ex:simpletrans}
-We prove the isomorphism
-$\Delta\vdash(\forall t\mathord:\SynTransl{2}.\tyPrim{vec}{e,t}\to\tyPrim{vec}{e,t}) \cong
-\tyPrim{vec}{e,0}$ where $e$ is an expression of sort $\SynGL{2}$ not containing $t$.
+\begin{example}[Geometry: wlog]\label{ex:simpletrans}
+We prove that
+\[\DeltaWithB\vdash(\forall t\mathord:\SynTransl{2}.\tyPrim{vec}{B,t}\to\tyPrim{vec}{B,t}) \cong
+\tyPrim{vec}{B,0}.
+\]
 Let 
 \begin{align*}
-X & \isDefinedAs\forall t\mathord:\SynTransl{2}.\tyPrim{vec}{e,t}\to\tyPrim{vec}{e,t}
-&
-Y & \isDefinedAs\tyPrim{vec}{e,0}\\
-I & \isDefinedAs\lambda f\mathord:X.f\,[0]\,(0\,[e])\\
-J & \isDefinedAs\lambda v\mathord:Y.\Lambda t\mathord:\SynTransl{2}.\lambda w\mathord:\tyPrim{vec}{e,t}.v +[e,0,t] w
+X & \isDefinedAs\forall t\mathord:\SynTransl{2}.\tyPrim{vec}{B,t}\to\tyPrim{vec}{B,t}
+\quad\text{and}\quad Y \isDefinedAs\tyPrim{vec}{B,0}\\
+I & \isDefinedAs\lambda f\mathord:X.f\,[0]\,(0\,[B])\\
+J & \isDefinedAs\lambda v\mathord:Y.\Lambda t\mathord:\SynTransl{2}.\lambda w\mathord:\tyPrim{vec}{B,t}.v +[B,0,t] w
 \end{align*}
 Unfolding definitions gives that $\tmSem{I(J(v))}(\opsEnv,\vec{v})$ = $\vec{v}+(0,0)$
 for any $\vec{v}\in\mathbb R ^ 2$.  Because $(0,0)$ is the identity for vector
-addition it follows that $\ctxteq{\Delta}{v\mathord:Y}{I(J(v))}{v}Y$.
-To show $\ctxteq{\Delta}{f\mathord:X}{J(I(f))}{f}{X}$ we appeal to
+addition it follows that $\ctxteq{\DeltaWithB}{v\mathord:Y}{I(J(v))}{v}Y$.
+To show $\ctxteq{\DeltaWithB}{f\mathord:X}{J(I(f))}{f}{X}$ we appeal to
 \autoref{thm:soundness} and reason using the relational semantics.  It
-suffices to show $\semeq{\Delta}{f\mathord:X}{J(I(f))}{f}{X}$; that
-is, given $\rho\in\semSort\Delta$, for any $f$ and $f'$ with
+suffices to show $\semeq{\DeltaWithB}{f\mathord:X}{J(I(f))}{f}{X}$; that
+is, given $\rho\in\semSort\DeltaWithB$, for any $f$ and $f'$ with
 $(f,f')\in\rsem X\rho$, it is the case that 
 $(\tmSem{J(I(f))}(\opsEnv,f), f')\in\rsem X\rho$.
-Expanding the premise, and setting $B = \semIndexExp{e}\rho$, we have
+Expanding the premise, we have
 \begin{eqnarray}\label{eqn:transpremise}
 \forall \vec{t}\in \mathbb R ^ 2,
 \forall \vec{v}\in \mathbb R ^ 2,
-f'(B\vec{v} + \vec{t}) = B(f(\vec{v})) + \vec{t}
+f'(\rho(B)\vec{v} + \vec{t}) = \rho(B)(f(\vec{v})) + \vec{t}
 \end{eqnarray}
 Expanding the conclusion, we have to show that for any
 $\vec{t_0}\in\mathbb R^2$ and $\vec{v_0}\in\mathbb R^2$, it is the case that
-$f'(B\vec{v_0} + \vec{t_0}) = B(\vec{v_0} + f(0)) + \vec{t_0}$.
+$f'(\rho(B)\vec{v_0} + \vec{t_0}) = \rho(B)(\vec{v_0} + f(0)) + \vec{t_0}$.
 By instantiating \autoref{eqn:transpremise} thrice, with~$\vec{v}=\vec{t}=(0,0)$, with~$\vec{v}=\vec{v_0}$ and~$\vec{t}=\vec{t_0}$,
-and with (crucially)~$\vec{v}=\vec{v_0}$ and~$\vec{t}=-B\vec{v_0}$, and applying a little algebra, we obtain
+and with (crucially)~$\vec{v}=\vec{v_0}$ and~$\vec{t}=-\rho(B)\vec{v_0}$, and applying a little algebra, we obtain
 the desired result.
 \qed
 \end{example}
 
 We can generalise this isomorphism substantially, proving
 that for any quantifier-free type $A$, 
-the type $\forall t\mathord:\SynTransl{2}.\tyPrim{vec}{e,t}\to A$
+the type $\forall t\mathord:\SynTransl{2}.\tyPrim{vec}{B,t}\to A$
 is isomorphic to $A[0/t]$, where $A[0/t]$ 
 denotes substitution of the identity translation $0$
 for index variable $t$ in type $A$. This isomorphism formalises the
@@ -109,31 +110,32 @@ captured this in a type isomorphism.
 \newcommand{\transdn}[3]{\mathord\downarrow_{#1}^{#2\mathord:#3}}
 
 \begin{lemma}\label{lem:transiso}
-Let $A$ be a quantifier-free type. Then
+Let $A$ be a quantifier-free type in which every
+occurrence of $\tyPrimNm{vec}$ is of the form $\tyPrim{vec}{B,e}$ for some $e$. Then
 \[
-\Delta\vdash(\forall t\mathord:\SynTransl{2}.\tyPrim{vec}{e,t}\to A)
+\DeltaWithB\vdash(\forall t\mathord:\SynTransl{2}.\tyPrim{vec}{B,t}\to A)
 \cong A[0/t]
 \]
 \end{lemma}
 \begin{proof}
 Let 
 \begin{align*}
-X & \isDefinedAs \forall t\mathord:\SynTransl{2}.\tyPrim{vec}{e,t}\to A
+X & \isDefinedAs \forall t\mathord:\SynTransl{2}.\tyPrim{vec}{B,t}\to A
 & 
 Y & \isDefinedAs A[0/t]\\
-I & \isDefinedAs \lambda f\mathord: X. f\ [0]\ (0\ [e])
+I & \isDefinedAs \lambda f\mathord: X. f\ [0]\ (0\ [B])
 & 
-J & \isDefinedAs \lambda y\mathord: Y. \Lambda t.\lambda v\mathord:\tyPrim{vec}{e,t}. \transup A t v (y)
+J & \isDefinedAs \lambda y\mathord: Y. \Lambda t.\lambda v\mathord:\tyPrim{vec}{B,t}. \transup A t v (y)
 \end{align*}
 where terms 
 \begin{align*}
 &
-\Delta,t\mathord:\SynTransl{2};v\mathord:\tyPrim{vec}{e,t}\vdash \transup A t v : A[0/t] \to A
+\DeltaWithB,t\mathord:\SynTransl{2};v\mathord:\tyPrim{vec}{B,t}\vdash \transup A t v : A[0/t] \to A
 \\\text{and } &
-\Delta,t\mathord:\SynTransl{2};v\mathord:\tyPrim{vec}{e,t}\vdash \transdn A t v : A\to A[0/t]
+\DeltaWithB,t\mathord:\SynTransl{2};v\mathord:\tyPrim{vec}{B,t}\vdash \transdn A t v : A\to A[0/t]
 \end{align*}
 are defined by induction over the syntax of $A$. For brevity we omit types on binders
-and note that the omitted cases for $\transup A t v$ 
+and indices on primitives; also note that the omitted cases for $\transup A t v$ 
 have definition symmetric to $\transdn A t v$:
 \begin{align*}
 \transdn{\tyPrimNm{unit}} t v &= \lambda x. x
@@ -166,26 +168,24 @@ have definition symmetric to $\transdn A t v$:
 \\
 \transdn{t} t v &= \lambda w.w + v 
 &
-\transup{t} t v &= \lambda w.w - v
+\transup{t} t v &= \lambda w.w + (\mathrm{negate}\, v)
 \\
 \transdn{t'} t v &= \lambda w.w\quad(t'\neq t)
 &
 \transup{t'} t v &= \lambda w.w\quad(t'\neq t)
 \end{align*}
 To show $I(J(y))$ is contextually equivalent to $y$ is an easy
-induction on $A$ using the fact that the vector $0$
+induction on $A$ using the fact that the vector $(0,0)$
 is an identity for vector addition. To show $J(I(x))$ is contextually
-equivalent to $x$ we must apply the abstraction theorem and use
-the fact that $\tmSem{\transup A t v}$ and $\tmSem{\transdn A t v}$ 
-considered as relations are simply instances of $\rsem A{}{}$.
+equivalent to $x$ we first prove (by induction on $A$) 
+that for any $\rho\in\semSort{\DeltaWithB}$, and any $\vec v\in\mathbb R^2$, 
+the graph of the function given by $\tmSem{\transdn A t v}(\opsEnv,\vec v)$
+is just  $\rsem A (\rho,\vec v)$, and conversely, the graph of $\tmSem{\transup A t v}(\opsEnv,\vec v)$
+is ${\rsem A (\rho,\vec v)}^{\mathrm{op}}$.
 \end{proof}
-%\[
-%$\rsem A {t \mapsto v} {} = \{ (x, \tmSem{\transup A (x)}) \mid x \in
-%\tySem A\}$.
-%\]
 
 \exref{ex:type-iso} and \exref{ex:simpletrans} are special cases of
-this isomorphism; another instance is the type of vector addition:
+this isomorphism. Another instance is the type of vector addition:
 \begin{align*}
 \forall B\mathord:\SynGL{2}, t_1, t_2\mathord:\SynTransl{2}.\tyPrim{vec}{B,t_1}\to\tyPrim{vec}{B,t_2}\to\tyPrim{vec}{B,t_1\mathord+t_2}\\
 \cong\quad\forall B\mathord:\SynGL{2}, t_1\mathord:\SynTransl{2}.\tyPrim{vec}{B,t_1}\to\tyPrim{vec}{B,t_1}
