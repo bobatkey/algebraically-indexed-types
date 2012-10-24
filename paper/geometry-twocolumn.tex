@@ -728,6 +728,36 @@ scalar multiplication and dot product:
 \end{example}
 
 
+\begin{figure}[t]
+  \centering
+  \begin{align*}
+    0 & : \forall B \mathord: \SynGL{2}.\ \tyPrim{vec}{B,0} \\
+    (+) & :
+    \begin{array}[t]{@{}l}
+      \forall B \mathord: \SynGL{2}, t_1,t_2 \mathord: \SynTransl{2}. \\
+      \tyPrim{vec}{B,t_1} \to \tyPrim{vec}{B,t_2} \to
+      \tyPrim{vec}{B,t_1 + t_2}
+    \end{array}
+    \\
+    \mathrm{negate} & : \forall B \mathord: \SynGL{2}, t \mathord: \SynTransl{2}.\ \tyPrim{vec}{B,t} \to \tyPrim{vec}{B,-t} \\
+  (*) & : 
+  \begin{array}[t]{@{}l}
+    \forall s \mathord: \SynGL{1}, B \mathord:\SynGL{2}.\ \\
+    \tyPrim{real}{s} \to \tyPrim{vec}{B,0} \to \tyPrim{vec}{\iota_1(s)B,0}
+  \end{array}\\
+    (\cdot) & :
+\begin{array}[t]{@{}l}
+    \forall s \mathord: \SynGL{1}, O \mathord: \SynOrth{2}.\ \\
+    \tyPrim{vec}{\iota_1(s)\iota_O(O),0} \to\tyPrim{vec}{\iota_1(s)\iota_O(O),0} \to \tyPrim{real}{s^2}
+\end{array}\\
+  (\times) & : \forall B \mathord: \SynGL{2}.\ \tyPrim{vec}{B,0} \to
+  \tyPrim{vec}{B,0} \to \tyPrim{real}{\det B} 
+\end{align*}
+  \caption{Operations on vectors}
+  \label{fig:vec-ops}
+\end{figure}
+
+
 %%% Local Variables:
 %%% TeX-master: "paper"
 %%% End:
