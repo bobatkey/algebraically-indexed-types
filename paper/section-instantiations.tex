@@ -91,15 +91,11 @@ the desired result.
 \qed
 \end{example}
 
-We can generalise this isomorphism to type
-of the form $\forall t\mathord:\SynTransl{2}.\tyPrim{vec}{e,t}\to A$
-in which $A$ contains no quantifiers. 
-To be precise, we have the following isomorphism:
-\[
-\Delta\vdash(\forall t\mathord:\SynTransl{2}.\tyPrim{vec}{e,t}\to A)
-\cong A[0/t]
-\]
-where $A[0/t]$ denotes substitution of the identity translation $0$
+We can generalise this isomorphism substantially, proving
+that for any quantifier-free type $A$, 
+the type $\forall t\mathord:\SynTransl{2}.\tyPrim{vec}{e,t}\to A$
+is isomorphic to $A[0/t]$, where $A[0/t]$ 
+denotes substitution of the identity translation $0$
 for index variable $t$ in type $A$. This isomorphism formalises the
 equivalence between \emph{coordinate-free} geometry, expressed by a
 polymorphic type whose first argument can be thought of as the
