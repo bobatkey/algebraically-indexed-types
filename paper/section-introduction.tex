@@ -114,7 +114,7 @@ points and vectors that is often enforced through abstract data
 types~\cite{CGAL} is captured here by indices instead. For example,
 the operation that takes two points and computes their vector
 difference can be assigned the type
-$\forall\alpha\mathord:\SynTransl{2}.\tyPrim{vec}\alpha\times\tyPrim{vec}\alpha\to\tyPrim{vec}0$,
+$\forall t\mathord:\SynTransl{2}.\tyPrim{vec}t\times\tyPrim{vec}t\to\tyPrim{vec}0$,
 reflecting the invariance of the result (a pure vector) under
 translations of the point arguments. As a result through types alone
 we can, in essence, derive so-called \emph{coordinate-free}
@@ -141,10 +141,10 @@ according to an interpretation of $\alpha$ (i.e., $w=\rho(\alpha)\cdot
 v$).  Values of polymorphic type are related exactly when they are
 related for all possible interpretations of the quantified
 variable. For example, values $v$ and $w$ of type
-$\forall\alpha\mathord:\SynTransl{2}.\tyPrim{vec}\alpha\to
-\tyPrim{vec}\alpha$ are related when they are related at type
-$\tyPrim{vec}\alpha\to\tyPrim{vec}\alpha$ for all translations
-$t\in\Transl{2}$ associated with $\alpha$.
+$\forall t\mathord:\SynTransl{2}.\tyPrim{vec} t\to
+\tyPrim{vec} t$ are related when they are related at type
+$\tyPrim{vec} t\to\tyPrim{vec}t$ for all translations
+$\vec t\in\Transl{2}$ associated with $t$.
 
 \vspace*{0.1in}
 
@@ -160,18 +160,18 @@ applications, however, we need the fully generality of binary
 relations. As is the case with type polymorphism, it
 provides the appropriate meaning for nested quantifiers in types such
 as
-$(\forall\alpha\mathord:\SynGL{1}.\tyPrim{real}\alpha\to\tyPrim{real}\alpha)\to\tyBool$.
+$(\forall s\mathord:\SynGL{1}.\tyPrim{real} s\to\tyPrim{real} s)\to\tyBool$.
 More interestingly, particular applications sometimes require
 relations that are not built compositionally---we can, for instance,
 use such relations to prove that there are no non-trivial programs of
 type
-$\forall\alpha\mathord:\SynGL{1}.\tyPrim{real}{\alpha\cdot\alpha}\to\tyPrim{real}\alpha$.
+$\forall s\mathord:\SynGL{1}.\tyPrim{real}{s\cdot s}\to\tyPrim{real}s$.
 Finally, there are interesting applications in which even the basic
 relations are not functional. In a type system in which the index in
-$\tyPrim{real}\alpha$ is interpreted not as a unit of measure, but as
+$\tyPrim{real}s$ is interpreted not as a unit of measure, but as
 a measure of \emph{closeness}, two values $x$ and $y$ of this type are
-related if $|x-y| < \rho(\alpha)$ for a positive real number
-$\rho(\alpha)$.  Rather beautifully, the standard notion of uniform
+related if $|x-y| < \rho(s)$ for a positive real number
+$\rho(s)$.  Rather beautifully, the standard notion of uniform
 continuity can then be expressed as %a type:
 %\begin{displaymath}
  $ \forall \epsilon \mathord: \mathsf{R}^{>0}.\ \exists \delta\mathord: \mathsf{R}^{>0}.\ \tyPrim{real}{\delta} \to \tyPrim{real}{\epsilon}$.
