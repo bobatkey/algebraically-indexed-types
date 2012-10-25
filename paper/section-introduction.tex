@@ -12,58 +12,70 @@ syntax~\cite{syntaxforfree}.
 
 Relational parametricity is in essence a principle of
 \emph{invariance}: the behaviour of polymorphic code is invariant
-under changes of data representation. Invariance results also abound in
+under changes of data representation. For example, the type
+$\forall\alpha.\tyPrim{list}\alpha\to\tyPrim{list}\alpha$
+tells us that any transformation applied to elements of
+the input list will be reflected by the same transformation applied
+to elements of the result. 
+Invariance results also abound in
 mathematics and physics. The area of a triangle is invariant with
 respect to isometries of the Euclidean plane; the determinant of a
 matrix is invariant under changes of basis; and Newton's laws are the
-same in all inertial frames. Typically, transformations in mathematics
-and physics have interesting structure; for example, translations in
+same in all inertial frames. Typically, the 
+transformations under which invariants are preserved have interesting structure: 
+for example, translations in
 the Euclidean plane form an abelian group.
 
-%Types express properties of programs. The statement $\mathit{b}:
-%\tyBool$ tells us that $\mathit{b}$ has value $\mathtt{true}$ or
-%$\mathtt{false}$; the statement
-%$\mathit{pos}:\tyReal\tyProduct\tyReal$ says that $\mathit{pos}$ is a
-%pair whose components are real numbers. More interestingly, the
-%statement $\mathit{f} : \forall
-%X. \tyPrim{list}X\tyArr\tyPrim{list}X$ tells us that if we apply
-%$\mathit{f}$ to a list whose elements satisfy some property $\psi$,
-%then the result is a list whose elements also satisfy $\psi$.
+Inspired by this connection, we study type systems that
+capture rich invariants through types indexed by attributes with
+algebraic structure.  For example, in computational geometry, points
+in the plane can be indexed by attributes representing affine
+transformations; in information-flow security, computations can be
+indexed by principals; in differential privacy, types can be indexed
+by `distance'. Types that are polymorphic over such indices induce
+invariance properties and abstraction barriers beyond those introduced
+by their unindexed versions, as we shall illustrate.  This generalises
+previous work by the third author on types parameterized by
+units-of-measure, whose invariance properties relate to changes of
+units, or \emph{scaling}~\cite{kennedy97relational}.
 
-%Unary predicates only go so far, and for polymorphic types
-%particularly do not express everything that follows from possessing
-%that type.  Imagine a function $\mathit{oddRev}$ that reverses any
-%list whose first element is an odd number, otherwise behaving as the
-%identity. It certainly preserves properties of the elements -- but
-%truly parametric polymorphism should tell us more.
+Our motivations for studying algebraically-indexed types are
+threefold. First, we believe that, as with
+units-of-measure~\cite{fsharp}, practical programming language
+extensions will follow. For example, in computational geometry and
+graphics, attributes on points, vectors, and other geometric types
+could be used to prevent the mixing of different coordinate systems,
+or `frames'. Second, type-based static analyses can be based on
+indexed types, for example, in effect systems~\cite{benton06reading},
+and, more speculatively, in continuity
+analysis~\cite{chaudhuri10continuity}.  Finally, we believe that
+expressing algebraic invariants through types has the potential to
+offer slick proof techniques for mechanized
+mathematics. Harrison has applied the
+invariance properties of geometric primitives to create elegant proofs
+in geometry, based on `without loss of
+generality' principles~\cite{harrison09without}. The invariance properties are expressed 
+and propagated using ad-hoc tactics; our types offer a more principled
+means of achieving the same end, and the `wlog' principle itself
+is expressed through type isomorphisms.
 
-%To obtain stronger properties we must \emph{relate} multiple
-%executions of the same code. The statement $\mathit{f}:\forall
-%X. \tyPrim{list}X\tyArr\tyPrim{list}X$ then says that any change in
-%representation of the list elements supplied to $\mathit{f}$ is
-%reflected in the elements in the result.  Formally, for any function
-%$g$, we have $\mathit{f}(\mathrm{map}\:\mathit{g}\:\mathit{x}) =
-%\mathrm{map}\:\mathit{g}\:(\mathit{f}\:\mathit{x})$.  This is the
-%essence of \emph{relational parametricity} as formulated by
-%Reynolds~\cite{reynolds83types}. Its consequences are striking.  It
-%immediately tells us that $\mathit{oddRev}$ cannot be given a
-%polymorphic type: simply consider the change-of-representation given
-%by $\lambda x. x+1$.  But more profoundly it can be used to prove
-%blah blah (initial algebras, term reps, non-inhabitation, etc.).
+We follow the mantra \emph{semantics first, syntax later} in studying
+types with algebraic structure. We have not yet built a practical
+programming language that supports algebraically-indexed types; nor
+have we designed type checking, type inference, or static analysis
+algorithms.  But when we do so, the semantics will guide us. The fact
+that zero is polymorphic in units-of-measure (it can be given type $\forall
+u.\tyPrim{real}u$) whereas other constants are dimensionless (having
+type $\tyPrim{real}1$) is justified by the invariance properties
+induced by the types: zero is invariant under scaling, other constants
+are not. For less trivial constants and operations, the appropriate types are
+not so apparent, as we shall see, but invariance properties expressed by
+the semantics guide us in assigning appropriate types. Semantics does not lie!
 
-In previous work the third author studied relational parametricity for
-types parameterized by units-of-measure, whose invariance 
-properties relate to changes of units, or \emph{scaling}~\cite{kennedy97relational}. 
-In this paper we investigate the general case of types indexed by attributes
-with algebraic structure. For example, in computational geometry, points in
-the plane can be indexed by a coordinate frame; in information-flow
-security, computations are indexed by principals; in differential privacy, types
-can be indexed by `distance'. Types that are
-polymorphic over such indices induce invariance properties and
-abstraction barriers beyond those introduced by their unindexed
-versions, as we now illustrate.
 
 \paragraph{Invariance}
+To illustrate type-induced invariance properties, consider
+2-dimensional geometry. 
 A function $\mathit{areaTri}$ that computes the area of a triangle
 can be assigned the type:
 $\tyPrimNm{vec}\times\tyPrimNm{vec}\times\tyPrimNm{vec}\tyArr\tyReal$.
@@ -92,8 +104,8 @@ radius the following polymorphic type:
 \]
 This captures the fact that the area of a circle varies as the square
 of its radius, i.e., $\mathrm{areaCircle}(k r) = k^2\cdot
-\mathrm{areaCircle}(r)$ for any $k\neq 0$ (i.e., any $k$ in the
-one-dimensional general linear group $\GL{1}$).  Here, $s$ 
+\mathrm{areaCircle}(r)$ for any $k\neq 0$ (the `sorts' $\SynTransl{2}$ and
+$\SynGL{1}$ will be explained later).  Here, $s$ 
 can be interpreted as the \emph{units of measure} of the argument to
 $\mathrm{areaCircle}$, and `$\cdot$' composes units using the
 product. We can also add an inverse operation and identity unit of
@@ -136,8 +148,8 @@ adopt the techniques of relational parametricity. Over an underlying
 index-erasure semantics we construct binary relations parameterised by
 an environment $\rho$ that describes how values of primitive type are
 related according to their indices.  For example, values $v$ and $w$
-of type $\tyPrim{real}\alpha$ are related when $v$ ``scales to'' $w$
-according to an interpretation of $\alpha$ (i.e., $w=\rho(\alpha)\cdot
+of type $\tyPrim{real}s$ are related when $v$ ``scales to'' $w$
+according to an interpretation of $s$ (i.e., $w=\rho(s)\cdot
 v$).  Values of polymorphic type are related exactly when they are
 related for all possible interpretations of the quantified
 variable. For example, values $v$ and $w$ of type
@@ -146,28 +158,10 @@ $\forall t\mathord:\SynTransl{2}.\tyPrim{vec} t\to
 $\tyPrim{vec} t\to\tyPrim{vec}t$ for all translations
 $\vec t\in\Transl{2}$ associated with $t$.
 
-\vspace*{0.1in}
-
-As it happens, the above examples can all be expressed using unary
-functions rather than binary relations: we can write functions that
-scale, or translate, one value to another according to their type,
-even for higher-order function types. Moreover, the interpretation of
-indices can be built up compositionally, by recursion over the
-syntactic structure. For example, we have $\rho(\alpha\cdot\beta) =
-\rho(\alpha)\cdot\rho(\beta)$ where product of units-of-measure is
-interpreted by product of scale factors. For more sophisticated
-applications, however, we need the fully generality of binary
-relations. As is the case with type polymorphism, it
-provides the appropriate meaning for nested quantifiers in types such
-as
-$(\forall s\mathord:\SynGL{1}.\tyPrim{real} s\to\tyPrim{real} s)\to\tyBool$.
-More interestingly, particular applications sometimes require
-relations that are not built compositionally---we can, for instance,
-use such relations to prove that there are no non-trivial programs of
-type
-$\forall s\mathord:\SynGL{1}.\tyPrim{real}{s\cdot s}\to\tyPrim{real}s$.
-Finally, there are interesting applications in which even the basic
-relations are not functional. In a type system in which the index in
+As it happens, the relational interpretations given above are
+functional, relating one value uniquely to another. Other applications
+make use of primitive relations that are not simple functions.
+For example, in a type system in which the index in
 $\tyPrim{real}s$ is interpreted not as a unit of measure, but as
 a measure of \emph{closeness}, two values $x$ and $y$ of this type are
 related if $|x-y| < \rho(s)$ for a positive real number
@@ -255,13 +249,22 @@ existential quantification over the indices, and a multi-sorted
 equational theory for indices.
 \item
 We describe a relational semantics for the type system and prove an
-analogue of Reynolds' abstraction theorem. We give precise conditions
-on sets of relation environments under which our abstraction theorem
-holds.
+analogue of Reynolds' abstraction theorem, for a given \emph{model}
+of index sorts and relational interpretation of primitive types.
+We prove that the semantics soundly approximates contextual equivalence.
 \item
 For each of our main examples we deduce free theorems that are
 consequences of our abstraction theorem, prove non-definability
 results, and derive interesting type isomorphisms.
+\item
+We improve on the earlier semantics of
+units-of-measure~\cite{kennedy97relational} in a number of ways.  By
+extending the language of units with an `absolute value' operation, we
+can give more precise types and obtain more general invariance
+properties.  The relational interpretation for units is both simpler
+and more flexible, and we derive slicker proofs of non-definability,
+and new results.  Our notion of type isomorphism is stronger than
+previously, being based on contextual equivalence.
 \end{itemize}
 We have fully formalised our framework and most examples in Coq,
 using strongly-typed term representations
