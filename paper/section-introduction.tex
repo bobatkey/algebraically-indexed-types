@@ -203,15 +203,15 @@ continuity can then be expressed as %a type:
 \begin{figure}
   \centering
   \begin{tikzpicture}
-  \node at (-3,1) [rectangle,style={align=center}] {Algebraic \\ Theory};
-  \node at (-2,1) {$+$};
-  \node at (-0.5,1) [rectangle,style={align=center}] {Index-Erasure \\ Interpretation};
-  \node at (1,1) {$+$};
-  \node at (2.6,1) [rectangle,style={align=center}] {Relational \\ Interpretation};
+  \node at (-3,0.8) [rectangle,style={align=center}] {Algebraic \\ Theory};
+  \node at (-2,0.8) {$+$};
+  \node at (-0.5,0.8) [rectangle,style={align=center}] {Index-Erasure \\ Interpretation};
+  \node at (1,0.8) {$+$};
+  \node at (2.6,0.8) [rectangle,style={align=center}] {Relational \\ Interpretation};
   
-  \draw plot (-4,0.8) .. controls (-4,0) and (-0.4,1) .. (-0.4,0)
-             -- (-0.6,0) -- (0,-0.3) -- (0.6,0) --
-             (0.4,0) .. controls (0.4,1) and (4,0) .. (4,0.8);
+  \draw plot (-4,0.6) .. controls (-4,-0.2) and (-0.4,0.8) .. (-0.4,-0.2)
+             -- (-0.6,-0.2) -- (0,-0.5) -- (0.6,-0.2) --
+             (0.4,-0.2) .. controls (0.4,0.8) and (4,-0.2) .. (4,0.6);
 
   \node at (0,-0.7) [rectangle,style={align=center}] {Abstraction Theorem (\thmref{thm:abstraction})};
 
@@ -255,7 +255,9 @@ We prove that the semantics soundly approximates contextual equivalence.
 \item
 For each of our main examples we deduce free theorems that are
 consequences of our abstraction theorem, prove non-definability
-results, and derive interesting type isomorphisms.
+results, and derive interesting type isomorphisms. \autoref{fig:summary}
+illustrates the central position of our analogue of Reynolds' Abstraction
+Theorem in these results.
 \item
 We improve on the earlier semantics of
 units-of-measure~\cite{kennedy97relational} in a number of ways.  By

@@ -224,7 +224,9 @@ length (in this case, 2).
 As is standard for parametricity, every type has two interpretations:
 an index-erasure interpretation that ignores the indexing expression,
 and a relational interpretation as a binary relation on the
-index-erasure interpretation. To give such interpretations for the
+index-erasure interpretation. We denote the index-erasure and
+relational interpretations with the notations $\tySem{\cdot}$ and
+$\rsem{\cdot}{}$ respectively. To give such interpretations for the
 types $\tyPrim{vec}{e}$ and $\forall t\mathord:\SynTransl{2}.A$, we
 assume for now that we can map each expression $e$ of sort
 $\SynTransl{2}$ to an element $\sem{e}\rho$ of the group $\Transl{2}$
@@ -287,12 +289,12 @@ follows: % typing and intended denotation:for
     \mathrm{affComb} :\forall t \mathord:
     \SynTransl{2}.\ \tyPrim{vec}{t} \to \tyPrimNm{real} \to
     \tyPrim{vec}{t} \to \tyPrim{vec}{t} \\ 
-    \sem{\mathrm{affComb}}\ \vec{v_1}\ r\ \vec{v_2} = (1-r)\vec{v_1} +
+    \tmSem{\mathrm{affComb}}\ \vec{v_1}\ r\ \vec{v_2} = (1-r)\vec{v_1} +
     r\vec{v_2} 
 \end{array}
 \end{displaymath}
-It can be verified by hand that %the intended denotation
-$\sem{\mathrm{affComb}}$ is invariant under all changes of origin, as
+It can be verified by hand that the index-erasure interpretation %the intended denotation
+$\tmSem{\mathrm{affComb}}$ is invariant under all changes of origin, as
 dictated by its type.
 % By defining the primitive function $\mathrm{affComb}$ to take a
 % single $\tyPrimNm{real}$ parameter $t$, we can easily ensure that we
@@ -691,7 +693,7 @@ are precisely the elements of $\GL{2}$ that commute with all others;
 these form the \emph{centre} of $\GL{2}$. If we keep track of
 scalings, then we can assign the more precise types to
 scalar multiplication and dot product. These
- are shown in Figure~\ref{fig:vec-ops}, which summarises the most general types 
+ are shown in \autoref{fig:vec-ops}, which summarises the most general types 
 of all the vector operations that we have described.
 
 \begin{example}
@@ -736,15 +738,13 @@ of all the vector operations that we have described.
   \end{array}\\
     \mathrm{affComb} &:
     \begin{array}[t]{@{}l}\forall t \mathord:
-    \SynTransl{2}.\ \tyPrim{vec}{t} \to \tyPrimNm{real} \to
-    \tyPrim{vec}{t} \to \tyPrim{vec}{t} \\ 
-    \sem{\mathrm{affComb}}\ \vec{v_1}\ r\ \vec{v_2} = (1-r)\vec{v_1} +
-    r\vec{v_2} 
-    \end{array}
+    \SynTransl{2}.\ \tyPrim{vec}{t} \to \tyPrim{real}{1} \to
+    \tyPrim{vec}{t} \to \tyPrim{vec}{t}
+    \end{array} \\
     (\cdot) & :
 \begin{array}[t]{@{}l}
-    \forall s \mathord: \SynGL{1}, O \mathord: \SynOrth{2}.\ \\
-    \tyPrim{vec}{\iota_1(s)\iota_O(O),0} \to\tyPrim{vec}{\iota_1(s)\iota_O(O),0} \to \tyPrim{real}{s^2}
+    \forall s \mathord: \SynGL{1}, O \mathord: \SynOrth{2}.\ \tyPrim{vec}{\iota_1(s)\iota_O(O),0} \to\\
+    \hspace{2cm}\tyPrim{vec}{\iota_1(s)\iota_O(O),0}\to \tyPrim{real}{s^2}
 \end{array}\\
   (\times) & : \forall B \mathord: \SynGL{2}.\ \tyPrim{vec}{B,0} \to
   \tyPrim{vec}{B,0} \to \tyPrim{real}{\det B} 
