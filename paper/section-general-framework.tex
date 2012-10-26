@@ -530,7 +530,7 @@ listed in \autoref{fig:real-ops} and \autoref{fig:vec-ops}.
 \subsection{Index-Erasure Semantics}
 \label{sec:erasure-semantics}
 %\fixme{Make sure that the semantics is motivated}
-Having defined the syntax of algebraically-indexed types and terms,
+Having defined the syntax of algebraically indexed types and terms,
 we turn to their denotational interpretation.  We first define an
 \emph{index-erasure} interpretation of types and terms that interprets
 every well-indexed type as a set, ignoring the indexing
@@ -715,7 +715,7 @@ carrier set $\semSort s$, and assigns to each operation $\texttt{f}
 \semSort{s_1}\times\cdots\times\semSort{s_n} \to \semSort{s}$.
 
 An index context $\Delta = (i_1\mathord:s_1,\ldots,i_n\mathord:s_n)$ is
-interpreted as cartesian product, i.e., $\semSort{\Delta} \isDefinedAs \semSort{s_1}
+interpreted as cartesian product,x i.e., $\semSort{\Delta} \isDefinedAs \semSort{s_1}
 \times\cdots \times \semSort{s_n}$. 
 For each well-sorted index expression $\Delta \vdash
 e : s$, we assign a function $\semIndexExp{e} : \semSort{\Delta} \to
