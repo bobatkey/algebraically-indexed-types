@@ -36,12 +36,12 @@ by `distance'. Types that are polymorphic over such indices induce
 invariance properties and abstraction barriers beyond those introduced
 by their unindexed versions, as we shall illustrate.  This generalises
 previous work by the third author on types parameterized by
-units-of-measure, whose invariance properties relate to changes of
+units of measure, whose invariance properties relate to changes of
 units, or \emph{scaling}~\cite{kennedy97relational}.
 
 Our motivations for studying algebraically indexed types are
 threefold. First, we believe that, as with
-units-of-measure~\cite{fsharp}, practical programming language
+units of measure~\cite{fsharp}, practical programming language
 extensions will follow. For example, in computational geometry and
 graphics, attributes on points, vectors, and other geometric types
 could be used to prevent the mixing of different coordinate systems,
@@ -64,7 +64,7 @@ types with algebraic structure. We have not yet built a practical
 programming language that supports algebraically indexed types; nor
 have we designed type checking, type inference, or static analysis
 algorithms.  But when we do so, the semantics will guide us. The fact
-that zero is polymorphic in units-of-measure (it can be given type $\forall
+that zero is polymorphic in units of measure (it can be given type $\forall
 u.\tyPrim{real}u$) whereas other constants are dimensionless (having
 type $\tyPrim{real}1$) is justified by the invariance properties
 induced by the types: zero is invariant under scaling, other constants
@@ -260,7 +260,7 @@ illustrates the central position of our analogue of Reynolds' Abstraction
 Theorem in these results.
 \item
 We improve on the earlier semantics of
-units-of-measure~\cite{kennedy97relational} in a number of ways.  By
+units of measure~\cite{kennedy97relational} in a number of ways.  By
 extending the language of units with an `absolute value' operation, we
 can give more precise types and obtain more general invariance
 properties.  The relational interpretation for units is both simpler
