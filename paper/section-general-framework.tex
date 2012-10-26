@@ -74,7 +74,7 @@ framework are derived from the following data:
       \indexOpArity(\cdot_G) & ([G,G],G) \\
       \indexOpArity(-) & ([\SynTransl{2}], \SynTransl{2}) &
       \indexOpArity(^{-1_G}) & ([G], G) \\
-      \indexOpArity(\iota_o) & ([\SynOrth{2}], \SynGL{2}) &
+      \indexOpArity(\iota_O) & ([\SynOrth{2}], \SynGL{2}) &
       \indexOpArity(\iota_1) & ([\SynGL{1}], \SynGL{2}) \\
       \indexOpArity(\det) & ([\SynGL{2}], \SynGL{1}) &
       \indexOpArity(\abs{\cdot}) & ([\SynGL{1}], \SynGL{1})
@@ -645,10 +645,13 @@ interpretation of the primitive operations $\opsEnv \in \ctxtSem{\opsCtxt}$.
 
 
 \paragraph{Contextual Equivalence.}
-We use our index-erasure semantics to define when a pair of terms
-are contextually equivalent with respect to syntactically defined
-contexts, following Hofmann \cite{hofmann08correctness}.
-
+We use our index-erasure semantics to define when a pair of terms are
+contextually equivalent with respect to syntactically defined
+contexts, following Hofmann \cite{hofmann08correctness}.  Given an
+index context $\Delta = i_1\mathord:s_1,...,i_n\mathord:s_n$, we write
+$\forall \Delta.A$ for $\forall i_1\mathord:s_1.\dots\forall
+i_n\mathord:s_n.A$, and similarly for $\Lambda\Delta.M$ and $\lambda
+\Gamma.M$.
 \begin{definition}[Contextual Equivalence]\label{defn:ctxt-equiv}
 Two terms $\Delta; \opsCtxt, \Gamma \vdash M_1, M_2 : A$
 are \emph{contextually equivalent}, written $\ctxteq\Delta\Gamma{M_1}{M_2}A$, if 
