@@ -180,7 +180,7 @@ Unfolding definitions, we deduce that
 \]
 for any $y \in \tmSem{A[0/t]}$. It's easy to prove by induction on $A$
 that $\tmSem{\transup A t v}(\opsEnv,\vec 0)(y) = y$, and so
-$\ctxteq\DeltaWithB{y\mathord:Y}{J(I(y))}y Y$ follows.
+$\ctxteq\DeltaWithB{y\mathord:Y}{I(J(y))}y Y$ follows.
 
 For the opposite direction of the isomorphism, we appeal to 
 \autoref{thm:soundness} and so it suffices to show
@@ -312,7 +312,7 @@ Now set
 \]
 It's easy to check that $(\opsEnv,\opsEnv)\in\rsem{\opsCtxt}*$.
 
-You can think of $z$ as tracking whether or not exponents on scale
+We think of $z$ as tracking whether or not exponents on scale
 parameters are divisible by 2: all the primitive operations in
 \autoref{fig:real-ops} produce results with even exponents if their
 inputs have even exponents. But the type under consideration here does
@@ -374,7 +374,7 @@ Now set
 \]
 It's easy to check that $(\opsEnv,\opsEnv)\in\rsem{\opsCtxt}*$.
 
-Here $q$ is tracking the exponents on scale parameters, with
+Here, $q$ is tracking the exponents on scale parameters, with
 $\semPrimType{\tyPrimNm{real}}(q)$ relating only zero to itself
 unless the denominator of $q$ is a power of two (a so-called
 \emph{dyadic} number).  
