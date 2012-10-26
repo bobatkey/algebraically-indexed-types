@@ -456,7 +456,7 @@ equal type $B$ as well.
     {\Delta; \Gamma \vdash M : B}
 
     \inferrule* [right=Unit]
-    { }
+    {\Delta \vdash \Gamma \isCtxt}
     {\Delta; \Gamma \vdash * : 1}
 
     \inferrule* [right=Pair]
@@ -504,7 +504,7 @@ equal type $B$ as well.
     {\Delta; \Gamma \vdash M [e] : (\id_\Delta, e)^*A}
 
     \inferrule* [right=ExPack]
-    {\Delta; \Gamma \vdash M : (\id_\Delta, e)^*A \\ \Delta, i\mathord:s \vdash A \isType}
+    {\Delta; \Gamma \vdash M : (\id_\Delta, e)^*A \\ \Delta \vdash e : s \\ \Delta, i\mathord:s \vdash A \isType}
     {\Delta; \Gamma \vdash \langle[e], M\rangle: \exists i\mathord:s. A}
 
     \inferrule* [right=ExUnpack]
