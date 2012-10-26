@@ -38,7 +38,7 @@ types indexed by change of origin transformations.
 
 This approach regards the difference between points and vectors as a
 change of data representation. For example, if $(0,0)$ and $(10,20)$
-are two origins, then the tuple $(1,1)$ with respect to $(0,0)$ the
+are two origins, then the tuple $(1,1)$ with respect to $(0,0)$ and the
 tuple $(11,21)$ with respect to $(10,20)$ represent \emph{the same
   point} because they have the same displacement from these two
 origins, respectively.
@@ -90,7 +90,7 @@ We then consider a function $f$ that takes as input two tuples in
 $\mathbb{R}^2$ and returns a single tuple in $\mathbb{R}^2$. We intend
 that the tuples all represent points with respect to the same origin,
 and that $f$ is invariant under the choice of origin.  Reynolds'
-relational approach formalises this intention precisely: for any
+relational approach formalises this intention precisely. For any
 $\vec{t} \in \Transl{2}$: % (i.e.~any change of origin), the function
 %$f$
 %should satisfy the following statement:
@@ -99,9 +99,9 @@ $\vec{t} \in \Transl{2}$: % (i.e.~any change of origin), the function
   (\vec{v_2},\vec{v'_2}) \in R_{\vec{t}}. (f(\vec{v_1}, \vec{v_2}),
   f(\vec{v'_1}, \vec{v'_2})) \in R_{\vec{t}}
 \end{equation}
-Unfolding the definition of $R_{\vec{t}}$ gives the equivalent formulation:
+Unfolding the definition of $R_{\vec{t}}$ gives the equivalent formulation,
 %\statementref{eq:f-preserve-rel-frame} is equivalent to: 
-%for all $\vec{t} \in \Transl{2}$,
+again for all $\vec{t} \in \Transl{2}$:
 \begin{equation}\label{eq:f-invariant-frame}
   \forall \vec{v_1}, \vec{v_2}.\ f(\vec{v_1} + \vec{t},\vec{v_2} +
   \vec{t}) = f(\vec{v_1},\vec{v_2}) + \vec{t}.
@@ -176,7 +176,7 @@ new types by universal quantification over types.
 In terms of relations, Reynolds interprets universal quantification
 over types as quantification over binary relations between denotations
 of types. By contrast, in our statements of geometric invariance in
-\autoref{sec:type-system-geom-intro} we did not quantify over all
+\autoref{sec:oiri} we did not quantify over all
 relations, but instead quantified over all changes of origin and used
 a specific choice of origin to select a relation from the family
 $\{R_{\vec{t}}\}$. This suggests introducing quantification over
@@ -265,7 +265,7 @@ At the end of \autoref{sec:oiri} we considered functions $f :
 changes of origin. This property of $f$ can be expressed in terms of
 types by
 %\begin{displaymath}
-$  \mathrm{f} : \forall t \mathord: \SynTransl{2}.\ \tyPrim{vec}{t}
+$  \mathit{f} : \forall t \mathord: \SynTransl{2}.\ \tyPrim{vec}{t}
   \times \tyPrim{vec}{t} \to \tyPrim{vec}{t}$.
 %\end{displaymath}
 Spelling out the relational interpretation of this type using the
@@ -472,7 +472,7 @@ with origin invariance, we can express basis invariance as
 preservation of relations indexed by changes of basis. Change of basis
 is achieved by applying an invertible linear map, and the collection
 of all such maps on $\mathbb{R}^2$ forms the \emph{General Linear}
-group $\GL{2}$ which we represent in our language by a new indexing
+group $\GL{2}$, which we represent in our language by a new indexing
 sort $\SynGL{2}$ with (non-abelian) group structure that we will write
 multiplicatively. We then extend $\tyPrimNm{vec}$ to allow indices of
 sort $\SynGL{2}$, as well as $\SynTransl{2}$, so that
