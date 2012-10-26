@@ -59,7 +59,7 @@ This theorem is usually applied in the contrapositive: if $e \not\in
 \Gen(\{e_1,...,e_n\})$ then no such $M$ can exist. Note that if
 $\Gamma_{\mathit{ops}}$ contains operations corresponding to each of
 the index-level operations (as, for example, in
-\autoref{fig:real-ops}), then this theorems yields a characterisation
+\autoref{fig:real-ops}), then this theorem yields a characterisation
 of definable terms, since the construction of $e$ from $e_1,...,e_n$
 can be replicated at the term level.
 \begin{proof}
@@ -67,8 +67,8 @@ can be replicated at the term level.
   context constructed from the universally quantified type variables
   in the type of $M$.  To interpret the index expressions, we use the
   free model over the variables in $\Delta$ constructed from the
-  syntax. This model assigns to each sort $s$ the set of index
-  expressions $\{ e \sepbar \Delta \vdash e : s \}/\mathord\equiv$,
+  syntax. This model assigns to each sort $s$ the set $\{ e \sepbar
+  \Delta \vdash e : s \}/\mathord\equiv$ of index expressions
   quotiented by index expression equality. Index operations are
   interpreted by the corresponding syntactic operation on equivalence
   classes: $\semIndexExp{\texttt{\textup{f}}}([e_1],...,[e_n]) =
@@ -82,8 +82,8 @@ can be replicated at the term level.
   It is straightforward to check that for any index-erasure
   interpretation of the primitive operations $\eta_{\mathit{ops}} \in
   \Gamma_{\mathit{ops}}$, we have $(\eta_{\mathit{ops}},
-  \eta_{\mathit{ops}}) \in \rsem{\Gamma_{\mathit{ops}}}*$ due to the
-  fact that all members of $\Gamma_{\mathit{ops}}$ have well-generated
+  \eta_{\mathit{ops}}) \in \rsem{\Gamma_{\mathit{ops}}}*$ because 
+  all members of $\Gamma_{\mathit{ops}}$ have well-generated
   types. Hence, by \thmref{thm:abstraction}, we know that for all
   terms (i.e., elements of the free model over $\Delta$)
   $e'_1\mathord:s_1,...,e'_m\mathord:s_m$:
