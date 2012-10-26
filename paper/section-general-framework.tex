@@ -247,7 +247,7 @@ and the universal and existential quantifiers:
     \begin{array}{c@{\hspace{2em}}c}
       \sigma^*(\forall i\mathord:s.A) \isDefinedAs \forall i\mathord:s.\sigma_{i\mathord:s}^*A
       &
-      \sigma^*(\exists i\mathord:s.A) \isDefinedAs \exists i\mathord:S. \sigma_{i\mathord:s}^*A
+      \sigma^*(\exists i\mathord:s.A) \isDefinedAs \exists i\mathord:s. \sigma_{i\mathord:s}^*A
     \end{array}
   \end{array}
 \end{displaymath}
@@ -340,10 +340,10 @@ transitivity rules for the equality judgment.
   expressions of the form $\iota_1(s)$ commute with group
   multiplication in the sort $\SynGL{2}$. The absolute value of the
   determinant of an orthgonal transformation is always $1$, so we also
-  assume $\abs{\det(\iota_OO)} \stackrel{ax}\equiv 1$. Likewise, scaling
-  maps have a determined determinant: $\det(\iota_1(s))
-  \stackrel{ax}\equiv s \cdot s$.
-\qed
+  assume $\abs{\det(\iota_OO)} \stackrel{ax}\equiv 1$. Similarly,
+  scaling maps have a determinant expressible in terms of other
+  operations: $\det(\iota_1(s)) \stackrel{ax}\equiv s \cdot s$. We
+  also assume the axiom $|s^2| \stackrel{ax}\equiv s^2$.  \qed
 \end{example*}
 
 The equality judgment $\Delta \vdash e \equiv e' : s$ on index
@@ -751,7 +751,7 @@ its semantic counterpart:
 \end{align*}
 Each of the index operations (e.g.,~the group structure and
 determinant) is interpreted by the intended semantic operation, and
-clearly satisfy the axioms in \exref{ex:two-dim-geo-axioms}. 
+clearly satisfies the axioms in \exref{ex:two-dim-geo-axioms}. 
 \qed
 \end{example*}
 
@@ -900,8 +900,10 @@ Semantic equivalence of terms is defined in terms of the relational
 interpretation. As a consequence of \thmref{thm:abstraction}, semantic
 equivalence is a sound approximation of contextual equivalence.
 
-  Let $\opsCtxt$ be the context of primitive operations and $\opsEnv$  its interpretation as in
-  \defref{defn:ctxt-equiv}. Fix a model and relational interpretation of primitive types so that
+  Let $\opsCtxt$ be the context of primitive operations and $\opsEnv$  its interpretation 
+%as in
+%  \defref{defn:ctxt-equiv}.
+Fix a model and relational interpretation of primitive types so that
   $(\opsEnv, \opsEnv) \in  \rsem{\opsCtxt} *$.
 
 \begin{definition}[Semantic equivalence]\label{def:semantic-equality}
