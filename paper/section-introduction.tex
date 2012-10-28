@@ -27,7 +27,7 @@ for example, translations in
 the Euclidean plane form an abelian group.
 
 Inspired by this connection, we study type systems that
-capture rich invariants through types indexed by attributes with
+capture rich invariants in types indexed by attributes with
 algebraic structure.  For example, in computational geometry, points
 in the plane can be indexed by attributes representing affine
 transformations; in information-flow security, computations can be
@@ -39,47 +39,14 @@ previous work by the third author on types parameterized by
 units of measure, whose invariance properties relate to changes of
 units, or \emph{scaling}~\cite{kennedy97relational}.
 
-Our motivations for studying algebraically indexed types are
-threefold. First, we believe that, as with
-units of measure~\cite{fsharp}, practical programming language
-extensions will follow. For example, in computational geometry and
-graphics, attributes on points, vectors, and other geometric types
-could be used to prevent the mixing of different coordinate systems,
-or `frames'. Second, type-based static analyses can be based on
-indexed types, for example, in effect systems~\cite{benton06reading},
-and, more speculatively, in continuity
-analysis~\cite{chaudhuri10continuity}.  Finally, we believe that
-expressing algebraic invariants through types has the potential to
-offer slick proof techniques for mechanized
-mathematics. Harrison has applied the
-invariance properties of geometric primitives to create elegant proofs
-in geometry, based on `without loss of
-generality' principles~\cite{harrison09without}. The invariance properties are expressed 
-and propagated using ad-hoc tactics; our types offer a more principled
-means of achieving the same end, and the `wlog' principle itself
-is expressed through type isomorphisms.
-
-We follow the mantra \emph{semantics first, syntax later} in studying
-types with algebraic structure. We have not yet built a practical
-programming language that supports algebraically indexed types; nor
-have we designed type checking, type inference, or static analysis
-algorithms.  But when we do so, the semantics will guide us. The fact
-that zero is polymorphic in units of measure (it can be given type $\forall
-u.\tyPrim{real}u$) whereas other constants are dimensionless (having
-type $\tyPrim{real}1$) is justified by the invariance properties
-induced by the types: zero is invariant under scaling, other constants
-are not. For less trivial constants and operations, the appropriate types are
-not so apparent, as we shall see, but invariance properties expressed by
-the semantics guide us in assigning appropriate types. Semantics does not lie!
-
 
 \paragraph{Invariance}
 To illustrate type-induced invariance properties, consider
-2-dimensional geometry. 
-A function $\mathit{areaTri}$ that computes the area of a triangle
-can be assigned the type:
+two-dimensional geometry. 
+In a conventional type system, a function $\mathit{areaTri}$ that computes the area of a triangle
+might be assigned the type:
 $\tyPrimNm{vec}\times\tyPrimNm{vec}\times\tyPrimNm{vec}\tyArr\tyReal$.
-But we can also assign it the following more expressive polymorphic
+But in our proposed system we can assign it the following more expressive polymorphic
 type:
 \[
 \mathrm{areaTri} : \forall t\mathord:\SynTransl{2}.
@@ -171,6 +138,40 @@ continuity can then be expressed as %a type:
  $ \forall \epsilon \mathord: \mathsf{R}^{>0}.\ \exists \delta\mathord: \mathsf{R}^{>0}.\ \tyPrim{real}{\delta} \to \tyPrim{real}{\epsilon}$.
 %\end{displaymath}
 
+\paragraph{Motivations}
+Our motivations for studying algebraically indexed types are
+threefold. First, we believe that, as with
+units of measure~\cite{fsharp}, practical programming language
+extensions will follow. For example, in computational geometry and
+graphics, attributes on points, vectors, and other geometric types
+could be used to prevent the mixing of different coordinate systems,
+or `frames'. Second, type-based static analyses can be based on
+indexed types, for example, in effect systems~\cite{benton06reading},
+and, more speculatively, in continuity
+analysis~\cite{chaudhuri10continuity}.  Finally, we believe that
+expressing algebraic invariants through types has the potential to
+offer slick proof techniques for mechanized
+mathematics. Harrison has applied the
+invariance properties of geometric primitives to create elegant proofs
+in geometry, based on `without loss of
+generality' principles~\cite{harrison09without}. The invariance properties are expressed 
+and propagated using ad-hoc tactics; our types offer a more principled
+means of achieving the same end, and the `wlog' principle itself
+is expressed through type isomorphisms.
+
+We follow the mantra \emph{semantics first, syntax later} in studying
+types with algebraic structure. We have not yet built a practical
+programming language that supports algebraically indexed types; nor
+have we designed type checking, type inference, or static analysis
+algorithms.  But when we do so, the semantics will guide us. The fact
+that zero is polymorphic in units of measure (it can be given type $\forall
+u.\tyPrim{real}u$) whereas other constants are dimensionless (having
+type $\tyPrim{real}1$) is justified by the invariance properties
+induced by the types: zero is invariant under scaling, other constants
+are not. For less trivial constants and operations, the appropriate types are
+not so apparent, as we shall see, but invariance properties expressed by
+the semantics guide us in assigning appropriate types. Semantics does not lie!
+
 
 % Possible angles of attack:
 % \begin{itemize}
@@ -254,11 +255,14 @@ of index sorts and relational interpretation of primitive types.
 We prove that the semantics soundly approximates contextual equivalence.
 \item
 For each of our main examples we deduce free theorems that are
-consequences of our Abstraction Theorem, prove non-definability
-results, and derive interesting type isomorphisms. \autoref{fig:summary}
+consequences of our Abstraction Theorem, prove specific non-definability
+results, and derive interesting type isomorphisms. 
+For a large class of first-order types we give a general method for 
+constructing suitable models to prove non-definability results. 
+\autoref{fig:summary}
 illustrates the central position of our analogue of Reynolds' Abstraction
 Theorem (\thmref{thm:abstraction}) in these results.
-\item
+\end{itemize}
 We improve on the earlier semantics of
 units of measure~\cite{kennedy97relational} in a number of ways.  By
 extending the language of units with an `absolute value' operation, we
@@ -266,13 +270,25 @@ can give more precise types and obtain more general invariance
 properties.  The relational interpretation for units is both simpler
 and more flexible, and we derive slicker proofs of non-definability,
 and new results.  Our notion of type isomorphism is stronger than
-previously, being based on contextual equivalence.
-\end{itemize}
+before, being based on contextual equivalence.
+
 We have fully formalised our framework and most examples in Coq,
 using strongly-typed term representations
 throughout~\cite{TypedSyntax}. The formalisation is available from
 \\{\small \url{https://github.com/bobatkey/algebraically-indexed-types}}
-
+\subsection{Structure of paper}
+Our paper is structured as follows. In \autoref{sec:motivating-examples}
+we present an extended case study of two-dimensional geometry, with semi-formal
+description of types and results.
+In \autoref{sec:a-general-framework} we describe fully formally a general framework
+for algebraically-indexed types, and prove the Abstraction Theorem and
+soundness for semantic equivalence. \autoref{sec:instantiations} presents a number
+of applications of the theory to 2-d geometry, including free theorems, type isomorphisms
+and non-definability. \autoref{sec:general-nondef} develops a more general technique 
+for proving non-definability results. \autoref{sec:information-flow} presents
+the application of algebraically indexed types to information flow security, and
+\autoref{sec:metric-types} applies it to types indexed by distances.
+Finally, \autoref{sec:discussion} discusses related work and future plans.
 
 
 %%% Local Variables:
