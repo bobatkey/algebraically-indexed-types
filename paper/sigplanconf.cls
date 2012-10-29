@@ -3,6 +3,7 @@
 %               LaTeX Class/Style File
 %
 % Name:         sigplanconf.cls
+%
 % Purpose:      A LaTeX 2e class file for SIGPLAN conference proceedings.
 %               This class file supercedes acm_proc_article-sp,
 %               sig-alternate, and sigplan-proc.
@@ -10,17 +11,23 @@
 % Author:       Paul C. Anagnostopoulos
 %               Windfall Software
 %               978 371-2316
-%               paul@windfall.com
+%               paul [atsign] windfall.com
 %
 % Created:      12 September 2004
 %
 % Revisions:    See end of file.
 %
+% This work is licensed under the Creative Commons Attribution License.
+% To view a copy of this license, visit
+%   http://creativecommons.org/licenses/by/3.0/
+% or send a letter to Creative Commons, 171 2nd Street, Suite 300,
+% San Francisco, California, 94105, U.S.A.
+%
 %-----------------------------------------------------------------------------
 
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesClass{sigplanconf}[2009/01/26 v1.8 ACM SIGPLAN Proceedings]
+\ProvidesClass{sigplanconf}[2011/11/08 v2.5 ACM SIGPLAN Proceedings]
 
 % The following few pages contain LaTeX programming extensions adapted
 % from the ZzTeX macro package.
@@ -191,11 +198,12 @@
 %                       -------
 
 
+\@setflag \@authoryear = \@false
 \@setflag \@blockstyle = \@false
 \@setflag \@copyrightwanted = \@true
 \@setflag \@explicitsize = \@false
 \@setflag \@mathtime = \@false
-\@setflag \@natbib = \@false
+\@setflag \@natbib = \@true
 \@setflag \@ninepoint = \@true
 \newcount{\@numheaddepth} \@numheaddepth = 3
 \@setflag \@onecolumn = \@false
@@ -224,6 +232,8 @@
 
 \DeclareOption{a5paper}{\@unsupportedoption{a5paper}}
 
+\DeclareOption{authoryear}{\@setflag \@authoryear = \@true}
+
 \DeclareOption{b5paper}{\@unsupportedoption{b5paper}}
 
 \DeclareOption{blockstyle}{\@setflag \@blockstyle = \@true}
@@ -246,11 +256,15 @@
 
 \DeclareOption{natbib}{\@setflag \@natbib = \@true}
 
+\DeclareOption{nonatbib}{\@setflag \@natbib = \@false}
+
 \DeclareOption{nocopyrightspace}{\@setflag \@copyrightwanted = \@false}
 
 \DeclareOption{notitlepage}{\@unsupportedoption{notitlepage}}
 
 \DeclareOption{numberedpars}{\@numheaddepth = 4}
+
+\DeclareOption{numbers}{\@setflag \@authoryear = \@false}
 
 %%%\DeclareOption{onecolumn}{\@setflag \@onecolumn = \@true}
 
@@ -497,7 +511,6 @@
             \let\p@enumiv\@empty
             \renewcommand\theenumiv{\@arabic\c@enumiv}}%
       \bibfont
-      \softraggedright%%%\sloppy
       \clubpenalty4000
       \@clubpenalty \clubpenalty
       \widowpenalty4000%
@@ -508,10 +521,17 @@
 
 \if \@natbib
 
-\usepackage{natbib}
+\if \@authoryear
+  \typeout{Using natbib package with 'authoryear' citation style.}
+  \usepackage[authoryear,square]{natbib}
+  \bibpunct{[}{]}{;}{a}{}{,}    % Change citation separator to semicolon,
+                                % eliminate comma between author and year.
+  \let \cite = \citep
+\else
+  \typeout{Using natbib package with 'numbers' citation style.}
+  \usepackage[numbers,sort&compress,square]{natbib}
+\fi
 \setlength{\bibsep}{3pt plus .5pt minus .25pt}
-\bibpunct{[}{]}{,}{A}{}{,}
-\let \cite = \citep
 
 \fi
 
@@ -550,7 +570,7 @@
 \def \ftype@copyrightbox {8}
 \def \@toappear {}
 \def \@permission {}
-
+\def \@reprintprice {}
 
 \def \@copyrightspace {%
   \@float{copyrightbox}[b]%
@@ -580,7 +600,7 @@
   \vspace{2pt}
   \noindent \textsl{\@conferencename}\quad \@conferenceinfo \par
   \noindent Copyright \copyright\ \@copyrightyear\ ACM \@copyrightdata
-    \dots \$5.00\par}
+    \dots \@reprintprice\par}
 
 \newcommand{\permission}[1]{%
   \gdef \@permission {#1}}
@@ -645,6 +665,18 @@
     \vspace{2pt}
     \noindent \textsl{\@conferencename}\quad \@conferenceinfo \par
     ACM \@copyrightdata.}}
+
+\newcommand{\reprintprice}[1]{%
+  \gdef \@reprintprice {#1}}
+
+\reprintprice{\$15.00}
+
+\newcommand{\authorversion}[4]{%
+  \permission{%
+  Copyright \copyright\ ACM, #1. This is the author's version of the work.
+  It is posted here by permission of ACM for your personal use.
+  Not for redistribution. The definitive version was published in
+  #2, #3, http://doi.acm.org/10.1145/#4.}}
 
 %                       Enunciations
 %                       ------------
@@ -895,8 +927,10 @@
 \def \ps@plain {%
   \let \@mkboth = \@gobbletwo
   \let \@evenhead = \@empty
-  \def \@evenfoot {\scriptsize \textit{\@preprintfooter}\hfil \thepage \hfil
-                   \textit{\@formatyear}}%
+  \def \@evenfoot {\scriptsize
+                   \rlap{\textit{\@preprintfooter}}\hfil
+                   \thepage \hfil
+                   \llap{\textit{\@formatyear}}}%
   \let \@oddhead = \@empty
   \let \@oddfoot = \@evenfoot}
 
@@ -1148,7 +1182,7 @@
 %  Date         Person  Ver.    Change
 %  ----         ------  ----    ------
 
-%  2004.09.12   PCA     0.1--5  Preliminary development.
+%  2004.09.12   PCA     0.1--4  Preliminary development.
 
 %  2004.11.18   PCA     0.5     Start beta testing.
 
@@ -1210,3 +1244,29 @@
 %                                 title (thanks to Norman Ramsey).
 
 %  2009.01.26   PCA     1.8     Change natbib \bibpunct values.
+
+%  2009.03.24   PCA     1.9     Change natbib to use the 'numbers' option.
+%                               Change templates to use 'natbib' option.
+
+%  2009.09.01   PCA     2.0     Add \reprintprice command (suggested by
+%                                 Stephen Chong).
+
+%  2009.09.08   PCA     2.1     Make 'natbib' the default; add 'nonatbib'.
+%               SB              Add 'authoryear' and 'numbers' (default) to
+%                               control citation style when using natbib.
+%                               Add \bibpunct to change punctuation for
+%                               'authoryear' style.
+
+%  2009.09.21   PCA     2.2     Add \softraggedright to the thebibliography
+%                               environment. Also add to template so it will
+%                               happen with natbib.
+
+%  2009.09.30   PCA     2.3     Remove \softraggedright from thebibliography.  
+%                               Just include in the template.
+
+%  2010.05.24   PCA     2.4     Obfuscate class author's email address.
+
+%  2011.11.08   PCA     2.5     Add copyright notice to this file.
+%                               Remove 'sort' option from natbib when using
+%                                 'authoryear' style.
+%                               Add the \authorversion command.
