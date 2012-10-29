@@ -695,7 +695,7 @@ relational interpretations of primitive types with index arguments and
 the universally quantified types require an interpretation of index
 contexts.
 
-A \emph{relational environment} $\rho$ assigns to each index variable $i:s$
+An \emph{index environment} $\rho$ assigns to each index variable $i:s$
 in the context $\Delta$ a value drawn from an interpretation of
 the sort $s$ that soundly models the equational theory associated with $s$. We call
 such an interpretation a \emph{model}: it assigns to each index operation in the equational 
@@ -758,7 +758,7 @@ clearly satisfies the axioms in \exref{ex:two-dim-geo-axioms}.
 Given $\rho \in \semSort{\Delta}$ and a substitution
 $\Delta \vdash \sigma \Rightarrow \Delta'$ with $\sigma = (e_1,\ldots,e_n)$, 
 we can derive the composed
-relational environment $\rho \circ \sigma
+index environment $\rho \circ \sigma
 \in \semSort{\Delta'}$ as $\rho \circ \sigma \isDefinedAs (\semIndexExp{e_1}\rho,\ldots,\semIndexExp{e_n}\rho)$.
 
 %A
@@ -789,7 +789,7 @@ $\semPrimType{\tyPrimNm{real}}(k) = \{ (x, kx) \sepbar x \in \mathbb{R} \}$.
 \paragraph{Relational interpretation of types.}
 We assign a relational interpretation to all well-indexed types $\Delta
 \vdash A \isType$ by induction on their derivations, parameterised by
-relational environments 
+index environments 
 $\rho \in \semSort{\Delta}$:
 \begin{eqnarray*}
 %  \rsem{\Delta \vdash A \isType}M R & : & \semSort\Delta  \to \Rel(\tyPrimSem{A})\\
@@ -823,7 +823,7 @@ that we have defined in this section behaves well: the first part of
 the lemma states that two types that are judgmentally equal are given
 equal relational interpretations, and the second part states that
 substitution of index expressions in types can be interpreted by the
-composition of relational environments with 
+composition of index environments with 
 substitutions.
 \begin{lemma}\label{lem:tyeqsubst-relational}
 \par
