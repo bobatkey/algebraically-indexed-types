@@ -805,15 +805,23 @@ $\rho \in \semSort{\Delta}$:
   \rsem{\exists i\mathord:s.A} \rho & \isDefinedAs & 
   \bigcup\{ \rsem{A} {(\rho,m)} \sepbar m \in \semSort{s} \}
 \end{eqnarray*}
-In this definition we have used the following standard %three
+In this definition, the relational interpretation of an application of
+a primitive type $\rsem{\tyPrim{X}{e_1,\ldots,e_n}}\rho$ is built from
+the relational interpretation of the primitive type,
+$\rsem{\tyPrimNm{X}}$, and the interpretation of the index terms
+$e_1,...,e_n$ in the index environment $\rho$. Universal and
+existential quantification are interpretated by the set-theoretic
+intersection and union, respectively, over all extensions of the index
+environment.
+
+We have also used the following standard %three
 constructions on binary relations: if $R \in \Rel(X)$ and $S \in
-\Rel(Y)$, then $R \relArrow S \in \Rel(X \to Y)$ is %defined as 
+\Rel(Y)$, then $R \relArrow S \in \Rel(X \to Y)$ is %defined as
 $\{(f_1,f_2) \sepbar \forall (a_1,a_2) \in R.\ (f_1a_1,f_2a_2) \in S
-\}$, and %. With the same assumptions on $R$ and $S$, the relation 
-$R
-\relTimes S \in \Rel(X \times Y)$ is %defined as 
+\}$, and %. With the same assumptions on $R$ and $S$, the relation
+$R \relTimes S \in \Rel(X \times Y)$ is %defined as
 $\{((a_1,b_1),(a_2,b_2)) \sepbar (a_1,a_2) \in R \land (b_1,b_2) \in S
-\}$, and %. Finally, the relation 
+\}$, and %. Finally, the relation
 $R \relSum S \in \Rel(X + Y)$ is %defined as
 $\{ (\mathrm{inl}\ x, \mathrm{inl}\ x') \sepbar (x,x') \in R \} \cup
 \{ (\mathrm{inr}\ y, \mathrm{inr}\ y') \sepbar (y,y') \in S \}$.
