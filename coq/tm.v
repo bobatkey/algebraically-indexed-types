@@ -122,49 +122,7 @@ Notation "##5" := (VAR _ (ixS _ (ixS _ (ixS _ (ixS _ (ixS _ (ixZ _ _))))))).
 Notation "##6" := (VAR _ (ixS _ (ixS _ (ixS _ (ixS _ (ixS _ (ixS _ (ixZ _ _)))))))).
 
 
-Section TmRen.
-
-Variable sig:SIG.
-Variable D: IxCtxt sig. 
-
-Definition TmRen (G G': Ctxt (sig:=sig) D) := Env (TmVar G') G.  
-
-Definition apTmRenVar G G' (R: TmRen G G') t v : TmVar G' t := lookup v R. 
-Definition nilTmRen G : TmRen [::] G := tt.
-Definition consTmRen G G' t v (R: TmRen G G') : TmRen (t::G) G' := (v,R). 
-
-Lemma apTmRenVarZ G G' t (R: TmRen (t::G) G') : apTmRenVar R (ixZ _ _) = R.1.  
-Proof. apply lookupZ. Qed. 
-
-Lemma apTmRenVarS G G' t t' (R: TmRen (t::G) G') (v: TmVar G t') : apTmRenVar R (ixS _ v) = apTmRenVar R.2 v.  
-Proof. apply lookupS. Qed. 
-
-Definition shiftTmRen G G' t : TmRen G G' -> TmRen G (t::G') := mapEnv (fun s => ixS _). 
-
-Lemma apTmRenVarShift G G' t' (R: TmRen G G') t (v: TmVar G t) : 
-  apTmRenVar (shiftTmRen t' R) v = ixS _ (apTmRenVar R v). 
-Proof. dependent induction v => //. by rewrite apTmRenVarS IHv. Qed. 
-
-Definition liftTmRen G G' t (R: TmRen G G'): TmRen (t::G) (t::G') := 
-  consTmRen (ixZ _ _) (shiftTmRen t R). 
-
-Lemma apTmRenVarLift G G' t t' (R: TmRen G G') (v: TmVar G t) : 
-  apTmRenVar (liftTmRen t' R) (ixS _ v) = ixS _ (apTmRenVar R v). 
-Proof. by rewrite /liftTmRen/= apTmRenVarShift. Qed. 
-
-Fixpoint idTmRen G : TmRen G G := 
-  if G is t::G' 
-  then (liftTmRen t (idTmRen G'))
-  else tt.    
-
-Lemma apTmRenVarId G : forall t (v:TmVar G t), apTmRenVar (idTmRen _) v = v. 
-Proof. dependent induction v => //. by rewrite apTmRenVarS apTmRenVarShift IHv. Qed. 
-
-Lemma apTmRenExtensional G G' (R R': TmRen G G') : 
-  (forall t (v: TmVar G t), apTmRenVar R v = apTmRenVar R' v) -> R = R'. 
-Proof. apply envExtensional. Qed. 
-
-End TmRen.
+Definition TmRen sig (D:IxCtxt sig) (G G': Ctxt (sig:=sig) D) := IxRen G G'.  
 
 Fixpoint apSubTmRen sig D D' G G' (S: Sub D D') : 
   TmRen (sig:=sig) G G' -> TmRen (apSubCtxt S G) (apSubCtxt S G') :=
@@ -175,7 +133,7 @@ Fixpoint apSubTmRen sig D D' G G' (S: Sub D D') :
 Fixpoint apTmRenTm sig A D G G' (t: Ty (sig:=sig) D) (R: TmRen G G') (M: Tm A G t) : Tm A G' t
   :=
   match M with
-  | VAR _ v => VAR _ (apTmRenVar R v)
+  | VAR _ v => VAR _ (apRenVar R v)
   | TYEQ t1 t2 eq M => TYEQ eq (apTmRenTm R M)
   | UNIT => UNIT _ _
   | PAIR t1 t2 M1 M2 => PAIR (apTmRenTm R M1) (apTmRenTm R M2)
@@ -185,17 +143,17 @@ Fixpoint apTmRenTm sig A D G G' (t: Ty (sig:=sig) D) (R: TmRen G G') (M: Tm A G 
   | INR t1 t2 M => INR _ (apTmRenTm R M)
   | APP t1 t2 M1 M2 => APP (apTmRenTm R M1) (apTmRenTm R M2)
   | CASE t1 t2 t M M1 M2 => 
-    CASE (apTmRenTm R M) (apTmRenTm (liftTmRen t1 R) M1) (apTmRenTm (liftTmRen t2 R) M2)
-  | ABS t1 t2 M => ABS (apTmRenTm (liftTmRen t1 R) M)
+    CASE (apTmRenTm R M) (apTmRenTm (liftRen t1 R) M1) (apTmRenTm (liftRen t2 R) M2)
+  | ABS t1 t2 M => ABS (apTmRenTm (liftRen t1 R) M)
   | UNIVAPP s t e M => UNIVAPP e (apTmRenTm R M)
   | EXPACK s e t M => EXPACK (apTmRenTm R M)
   | EXUNPACK s t t' M1 M2 => 
-    EXUNPACK (apTmRenTm R M1) (apTmRenTm (liftTmRen t (apSubTmRen (pi D s) R)) M2)
+    EXUNPACK (apTmRenTm R M1) (apTmRenTm (liftRen t (apSubTmRen (pi D s) R)) M2)
   | UNIVABS s t M => UNIVABS (apTmRenTm (apSubTmRen (pi D s) R) M)
   end.
 
 Definition shTmTm sig A D (G: Ctxt (sig:=sig) D) t t' : Tm A G t -> Tm A (t'::G) t := 
-  apTmRenTm (shiftTmRen t' (idTmRen G)). 
+  apTmRenTm (shiftRen t' (idRen G)). 
 
 Fixpoint shTmBy sig A D (G: Ctxt (sig:=sig) D) t G' : Tm A G t -> Tm A (G'++G) t :=
   if G' is t'::G' 
