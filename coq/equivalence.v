@@ -37,10 +37,15 @@ Fixpoint mkForallTy (D : IxCtxt sig) : Ty D -> Ty [::] :=
 (* Boolean type *)
 Definition tyBool D : Ty (sig:=sig) D := TySum (TyUnit D) (TyUnit D).
 
-Fixpoint mkLamTm D (G G': Ctxt (sig:=sig) D) (t: Ty D) : Tm A (G ++ G') t -> Tm A G' (mkArrTy G t) :=
+Fixpoint mkLamTm D (G G': Ctxt D) (t: Ty D) : Tm A (G ++ G') t -> Tm A G' (mkArrTy G t) :=
   if G is _::_
   then fun M => mkLamTm (ABS M) 
   else fun M => M. 
+
+Fixpoint mkAppTm D (G G': Ctxt D) (t: Ty D) : Tm A G' (mkArrTy G t) -> Tm A (G ++ G') t :=
+  if G is t1::G1 
+  then fun M => APP (shTmTm t1 (mkAppTm (G:=G1) M)) ##0
+  else fun M => M.
 
 Fixpoint piAll (D : IxCtxt sig) : Sub [::] D :=
   if D is s::D
@@ -48,7 +53,7 @@ Fixpoint piAll (D : IxCtxt sig) : Sub [::] D :=
   else idSub [::]. 
 
 Lemma tmEqPiNilCtxt (G : Ctxt [::]) (t : Ty [::]) :
-      Tm A (apSubCtxt (piAll [::]) G) t = Tm A G t.
+  Tm A (apSubCtxt (piAll [::]) G) t = Tm A G t.
 Proof. by rewrite apSubCtxtId. Qed.
 
 Lemma tmEqPiConsCtxt D (G : Ctxt [::]) s (t : Ty (s :: D)) :
@@ -60,6 +65,10 @@ Fixpoint mkForallTm (D : IxCtxt sig) (G : Ctxt [::]) :
   if D is _::_
   then fun t M => mkForallTm (UNIVABS (M :? tmEqPiConsCtxt G t))
   else fun t M => M :? tmEqPiNilCtxt G t.
+
+Lemma tmEqTy D (G : Ctxt D) (t1 t2 : Ty D) (pf: t1 = t2):
+  Tm A G t1 = Tm A G t2. 
+Proof. congruence. Qed. 
 
 (* Contextual equivalence: Definition 1 from POPL'13 paper *)
 Definition ctxtEq D (G: Ctxt D) (t: Ty D) (M1 M2: Tm A (G ++ (apSubCtxt (piAll D) G_ops)) t) :=
@@ -84,11 +93,10 @@ Lemma mkArrTy_usem D G :
 Proof.
   induction G => t' M1 M2 M1_M2.
    (* nil *)
-   apply (M1_M2 tt).
+   apply: M1_M2 tt.
    (* cons *)
-   simpl. apply IHG. 
-   simpl. move => eta.
-   apply functional_extensionality => x.
+   apply: IHG => eta.  
+   apply: functional_extensionality => x.
    apply: M1_M2 (x,eta). 
 Qed.
 
@@ -101,11 +109,10 @@ Lemma mkForallTy_usem D :
 Proof.
   induction D => t' M1 M2 H.
   (* nil *)
-   simpl. 
-   revert M1 M2 H.
-   rewrite cast_UIP. by rewrite apSubCtxtId.
-   move => H M1 M2.
-   rewrite (cast_UIP M1). by rewrite apSubCtxtId.
+  simpl. 
+  revert M1 M2 H. 
+  rewrite cast_UIP. by rewrite apSubCtxtId.
+  move => H M1 M2. rewrite (cast_UIP M1). by rewrite apSubCtxtId.
    move => H1.
    rewrite (cast_UIP M2). 
    revert H M1 M2 H1. rewrite apSubCtxtId.
@@ -118,7 +125,7 @@ Proof.
    rewrite cast_UIP. apply interpSubCtxt. 
    rewrite cast_UIP. rewrite apSubCtxtScS. apply interpSubCtxt. 
    move => H1 H2 M1 M2.
-   rewrite (cast_UIP M1). rewrite apSubCtxtScS. reflexivity.
+   rewrite (cast_UIP M1). by rewrite apSubCtxtScS. 
    move => H3.
    rewrite (cast_UIP M2).
    revert H1 H2 H3 M1 M2.
@@ -146,7 +153,7 @@ Lemma ctxtEq_equivalence D (G: Ctxt D) (t: Ty D) : equivalence _ (@ctxtEq _ G t)
 Proof. 
 apply Build_equivalence. 
 (* Reflexivity *)
-move => M. done. 
+done. 
 (* Transitivity *)
 move => M1 M2 M3 H1 H2.
 move => T.  
@@ -197,7 +204,9 @@ Notation "| t |" := (interpTy interpPrim t).
 Definition Id D (t:Ty D) := fun (x:|t|) => x.
 Implicit Arguments Id [D]. 
 
-Notation "G |- x =~= y :> t" := (@ctxtEq sig A interpPrim G_ops eta_ops _ G t x y) (at level 67, x at level 67,y at level 67).
+Notation "G |- x =~= y :> t" := 
+  (@ctxtEq sig A interpPrim G_ops eta_ops _ G t x y) 
+  (at level 67, x at level 67,y at level 67).
 
 Definition iso D (X Y: Ty D) := 
   exists i : Tm A (apSubCtxt (piAll D) G_ops) (TyArr X Y), 

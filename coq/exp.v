@@ -377,15 +377,6 @@ Proof. apply apSubExtensional => s v. rewrite !apVarScS. by rewrite apScS. Qed.
 Lemma idScS E E' (S: Sub E' E) : ScS (idSub E) S = S.
 Proof. apply apSubExtensional => s v. rewrite apVarScS. by rewrite apSubId. Qed.
 
-Lemma ScSingle E E' s (S:Sub E E') e :
-  ScS S (consSub e (idSub _)) = ScS (consSub (apSub S e) (idSub _)) (liftSub s S). 
-Proof. apply apSubExtensional => s' v.
-rewrite 2!apVarScS.  
-rewrite /consSub. 
-dependent destruction v => //.  
-simpl. rewrite apSubVarId. simpl.
-Admitted.
-
 Lemma shiftSubDef E E' s (S: Sub E E'): shiftSub s S = RcS (shiftRen s (idRen E')) S.
 Proof. apply apSubExtensional => s' v. rewrite /RcS/=. by  rewrite apSubVarShift. Qed. 
 
@@ -515,12 +506,24 @@ Lemma apSubSingleShift sig D (s:Srt sig) (e: Exp D s)
   (forall ss (es: Exps D ss), apSubSeq <<e>> (shExpSeq s es) = es). 
 Proof. 
 apply Exp_Exps_ind => //. 
-+ move => s' v. dependent induction v => //.
-  admit.   
++ move => s' v. rewrite /shExp /apRen apRenShift.
+rewrite /apSub.  simpl. rewrite apSubVarId. by rewrite apRenId.  
 + move => op es IH. by rewrite shAppCon apSubAppCon IH. 
 + move => s' ss e' IH es IH'. by rewrite shCons apSubSeqCons IH IH'. 
 Qed. 
 
+
+Lemma apScSingleVar sig E (s:Srt sig) e s' (v: Var  _ s') E' (S: Sub E E'):
+  apSub S (apSubVar (consSub e (idSub _)) v) = apSub (consSub (apSub S e) (idSub _)) (apSubVar (liftSub s S) v). 
+Proof. 
+dependent destruction v => //. 
+simpl. rewrite apSubVarId apSubVarShift. by rewrite (proj1 (apSubSingleShift _)).
+Qed. 
+
+Lemma ScSingle sig E E' (s: Srt sig) (S:Sub E E') e :
+  ScS S (consSub e (idSub _)) = ScS (consSub (apSub S e) (idSub _)) (liftSub s S). 
+Proof. apply apSubExtensional => s' v.
+rewrite 2!apVarScS. by rewrite apScSingleVar. Qed. 
 
 Bind Scope Exp_scope with Exp. 
 Delimit Scope Exp_scope with Exp. 
