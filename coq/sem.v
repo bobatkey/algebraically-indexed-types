@@ -253,7 +253,7 @@ Proof. apply envExtensional. Qed.
 Lemma interpShVar A (ME: ModelEnv A) D (rho: RelEnv ME D) s' k :
   (forall s (v:Var D s), interpExp (shExp s' v) (k, rho) = interpExp v rho).
 Proof. dependent induction v => //. 
-by rewrite /= !apRenVarShift apRenVarId. 
+by rewrite /= !apRenShift apRenId. 
 Qed. 
 
 Lemma interpShExpAndSeq A (ME: ModelEnv A) D (rho: RelEnv ME D) s' k :
@@ -504,16 +504,16 @@ Variable eta_ops : interpCtxt interpPrim Gops.
 Definition semEq D (G : Ctxt D) (t : Ty D) (M1 M2 : Tm A (G ++ apSubCtxt (piAll D) Gops) t) :=
   forall rho eta1 eta2,
    semCtxt (ME:=ME) rho eta1 eta2 ->
-   semTy A rho t (interpTm M1 (app_env eta1 (eta_ops :? interpSubCtxt interpPrim Gops (piAll D))))
-                 (interpTm M2 (app_env eta2 (eta_ops :? interpSubCtxt interpPrim Gops (piAll D)))).
+   semTy A rho t (interpTm M1 (catEnv eta1 (eta_ops :? interpSubCtxt interpPrim Gops (piAll D))))
+                 (interpTm M2 (catEnv eta2 (eta_ops :? interpSubCtxt interpPrim Gops (piAll D)))).
 
 Lemma mkArrTy_rel D (rho : RelEnv ME D) G :
   forall t (M1 M2 : Tm A (G ++ (apSubCtxt (piAll D) Gops)) t),
     (forall (eta1 eta2 : interpCtxt interpPrim G),
        semCtxt rho eta1 eta2 ->
        semTy A rho t
-         (interpTm M1 (app_env eta1 (eta_ops :? interpSubCtxt interpPrim Gops (piAll D))))
-         (interpTm M2 (app_env eta2 (eta_ops :? interpSubCtxt interpPrim Gops (piAll D))))) ->
+         (interpTm M1 (catEnv eta1 (eta_ops :? interpSubCtxt interpPrim Gops (piAll D))))
+         (interpTm M2 (catEnv eta2 (eta_ops :? interpSubCtxt interpPrim Gops (piAll D))))) ->
        semTy A rho _
          (interpTm (mkLamTm M1) (eta_ops :? interpSubCtxt interpPrim Gops (piAll D)))
          (interpTm (mkLamTm M2) (eta_ops :? interpSubCtxt interpPrim Gops (piAll D))).

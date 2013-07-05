@@ -63,6 +63,11 @@ Fixpoint mapEnv T (I J:T -> Type) ts (f: forall t, I t -> J t) : Env I ts -> Env
   then fun env => (f _ env.1, mapEnv f env.2)
   else fun env => tt.
 
+Fixpoint catEnv T (I: T -> Type) ts ts' : Env I ts -> Env I ts' -> Env I (ts ++ ts') :=
+  if ts is _::_ 
+  then fun env env' => (env.1, catEnv env.2 env') 
+  else fun env env' => env'. 
+
 Lemma lookupMapEnv T (I J:T -> Type) ts (f: forall t, I t -> J t) t 
   (v: Ix ts t) (env: Env I ts):
   lookup v (mapEnv f env) = f _ (lookup v env). 
@@ -71,6 +76,63 @@ Proof. dependent induction v => //. by rewrite /= IHv.  Qed.
 Lemma mapCompose T (I J K: T -> Type) ts (f: forall t, J t -> K t) (g: forall t, I t -> J t) 
   (env: Env I ts) : mapEnv f (mapEnv g env) = mapEnv (fun s x => f _ (g _ x)) env.
 Proof. induction ts => //. by rewrite /= IHts. Qed. 
+
+Section Ren.
+
+Variable T: Type.
+Variable I: T -> Type.
+
+Definition IxRen ts ts' := Env (Ix (T:=T) ts') ts. 
+
+Definition apRenVar ts ts' (R: IxRen ts ts') s v : Ix ts' s := lookup v R. 
+Definition nilRen ts : IxRen [::] ts := tt.
+Definition consRen ts ts' t v (R: IxRen ts ts') : IxRen (t::ts) ts' := (v,R). 
+
+Lemma apRenZ ts ts' t (R: IxRen (t::ts) ts') : apRenVar R (ixZ _ _) = R.1.  
+Proof. apply lookupZ. Qed. 
+
+Lemma apRenS ts ts' t t' (R: IxRen (t::ts) ts') (v: Ix ts t') : apRenVar R (ixS _ v) = apRenVar R.2 v.  
+Proof. apply lookupS. Qed. 
+
+Definition shiftRen ts ts' t : IxRen ts ts' -> IxRen ts (t::ts') := mapEnv (fun s => ixS _). 
+
+Lemma apRenShift ts ts' t' (R: IxRen ts ts') t (v: Ix ts t) : 
+  apRenVar (shiftRen t' R) v = ixS _ (apRenVar R v). 
+Proof. dependent induction v => //. by rewrite apRenS IHv. Qed. 
+
+Definition liftRen ts ts' t (R: IxRen ts ts'): IxRen (t::ts) (t::ts') := 
+  consRen (ixZ _ _) (shiftRen t R). 
+
+Lemma apRenLift ts ts' t t' (R: IxRen ts ts') (v: Ix ts t) : 
+  apRenVar (liftRen t' R) (ixS _ v) = ixS _ (apRenVar R v). 
+Proof. by rewrite /liftRen/= apRenShift. Qed. 
+
+Fixpoint idRen ts : IxRen ts ts := 
+  if ts is t::ts' 
+  then (liftRen t (idRen ts'))
+  else tt.    
+
+Lemma apRenId ts : forall t (v:Ix ts t), apRenVar (idRen _) v = v. 
+Proof. dependent induction v => //. by rewrite apRenS apRenShift IHv. Qed. 
+
+Lemma apRenExtensional ts ts' (R R': IxRen ts ts') : 
+  (forall t (v: Ix ts t), apRenVar R v = apRenVar R' v) -> R = R'. 
+Proof. apply envExtensional. Qed. 
+
+Definition RcR ts ts' ts'' (R: IxRen ts' ts'') : IxRen ts ts' -> IxRen ts ts'' := mapEnv (apRenVar R).
+
+Lemma shiftRenRcR ts : forall ts' ts'' s (R:IxRen ts' ts'') (R':IxRen ts ts'),
+  shiftRen s (RcR R R') = RcR (shiftRen s R) R'. 
+Proof. rewrite /shiftRen /RcR. induction ts => //. 
+move => ts' ts'' t R R'. 
+destruct R' as [v R']. by rewrite /= IHts apRenShift. 
+Qed. 
+
+Lemma apVarRcR ts ts' ts'' (r:IxRen ts' ts'') (r':IxRen ts ts') :
+  (forall t (v:Ix ts t), apRenVar (RcR r r') v = apRenVar r (apRenVar r' v)).
+Proof. dependent induction v => //. destruct r' as [v' r']. apply (IHv r'). Qed. 
+
+End Ren.
 
 Section ExpSyntax.
 
@@ -131,37 +193,7 @@ Ltac Rewrites E :=
    auto).
 
 (* Renamings: maps from variables to variables *)
-Definition Ren D D' := Env (Var D') D. 
-Definition apRenVar D D' (R: Ren D D') s v : Var D' s := lookup v R. 
-Definition nilRen D : Ren [::] D := tt.
-Definition consRen D D' s v (R: Ren D D') : Ren (s::D) D' := (v,R). 
-
-Lemma apRenVarZ D D' s (R: Ren (s::D) D') : apRenVar R (ixZ _ _) = R.1.  
-Proof. apply lookupZ. Qed. 
-
-Lemma apRenVarS D D' s s' (R: Ren (s::D) D') (v: Var D s') : apRenVar R (ixS _ v) = apRenVar R.2 v.  
-Proof. apply lookupS. Qed. 
-
-Definition shiftRen D D' s : Ren D D' -> Ren D (s::D') := mapEnv (fun s => ixS _). 
-
-Lemma apRenVarShift D D' s' (R: Ren D D') s (v: Var D s) : 
-  apRenVar (shiftRen s' R) v = ixS _ (apRenVar R v). 
-Proof. dependent induction v => //. by rewrite apRenVarS IHv. Qed. 
-
-Definition liftRen D D' s (R: Ren D D'): Ren (s::D) (s::D') := 
-  consRen (ixZ _ _) (shiftRen s R). 
-
-Lemma apRenVarLift D D' s s' (R: Ren D D') (v: Var D s) : 
-  apRenVar (liftRen s' R) (ixS _ v) = ixS _ (apRenVar R v). 
-Proof. by rewrite /liftRen/= apRenVarShift. Qed. 
-
-Fixpoint idRen (D: IxCtxt) : Ren D D := 
-  if D is s::D' 
-  then (liftRen s (idRen D'))
-  else tt.    
-
-Lemma apRenVarId D : forall s (v:Var D s), apRenVar (idRen _) v = v. 
-Proof. dependent induction v => //. by rewrite apRenVarS apRenVarShift IHv. Qed. 
+Definition Ren (D D': IxCtxt) := IxRen D D'.
 
 Fixpoint apRen D D' s (r: Ren D D') (ix: Exp D s): Exp D' s :=
   match ix with
@@ -173,13 +205,8 @@ with apRenSeq D D' ss (r: Ren D D') (ixs: Exps D ss) : Exps D' ss  :=
   then Cons (apRen r ix) (apRenSeq r ixs) 
   else Nil.
 
-Lemma apRenExtensional E E' (R R': Ren E E') : 
-  (forall s (v: Var E s), apRenVar R v = apRenVar R' v) -> R = R'. 
-Proof. apply envExtensional. Qed. 
-
 Definition shExp D s s' : Exp D s -> Exp (s'::D) s := apRen (shiftRen s' (idRen D)). 
 Definition shExpSeq D ss s' : Exps D ss -> Exps (s'::D) ss := apRenSeq (shiftRen s' (idRen D)). 
-Definition RcR D D' D'' (R: Ren D' D'') : Ren D D' -> Ren D D'' := mapEnv (apRenVar R).
 
 Lemma shAppCon D (s: Srt sig) op (es: Exps D _) : shExp s (AppCon op es) = 
   AppCon op (shExpSeq s es). 
@@ -187,17 +214,6 @@ Proof. done. Qed.
 
 Lemma shCons D (s: Srt sig) s' ss (e: Exp D s') (es: Exps D ss) : shExpSeq s (Cons e es) = Cons (shExp s e) (shExpSeq s es). 
 Proof. done. Qed. 
-
-Lemma shiftRenRcR E : forall E' E'' s (R:Ren E' E'') (R':Ren E E'),
-  shiftRen s (RcR R R') = RcR (shiftRen s R) R'. 
-Proof. rewrite /shiftRen. rewrite /RcR. induction E => //. 
-move => E' E'' s R R'. 
-destruct R' as [v R']. by rewrite /= IHE apRenVarShift. 
-Qed. 
-
-Lemma apVarRcR E E' E'' (r:Ren E' E'') (r':Ren E E') :
-  (forall s (v:Var E s), apRenVar (RcR r r') v = apRenVar r (apRenVar r' v)).
-Proof. dependent induction v => //. destruct r' as [v' r']. apply (IHv r'). Qed. 
 
 Lemma apRcRAndSeq E E' E'' (r:Ren E' E'') (r':Ren E E') :
   (forall s (e:Exp E s), apRen (RcR r r') e = apRen r (apRen r' e)) /\
@@ -272,7 +288,7 @@ Lemma apSubLiftAndSeq D D' s' (S: Sub D D') :
   (forall ss (es: Exps D ss), apSubSeq (liftSub s' S) (shExpSeq s' es) = shExpSeq s' (apSubSeq S es)). 
 Proof. 
 apply Exp_Exps_ind => //. 
-+ move => s v. by rewrite /= -apSubVarLift apRenVarShift apRenVarId. 
++ move => s v. by rewrite /= -apSubVarLift apRenShift apRenId. 
 + move => op es IH. by rewrite/= IH.  
 + move => s ss e IH1 es IH2. rewrite /shExp in IH1, IH2. simpl. by rewrite IH1 IH2. Qed.
 
@@ -300,7 +316,7 @@ Proof. done. Qed.
 
 Lemma apSubVarId D : forall s (v:Var D s), apSubVar (idSub _) v = v. 
 Proof. dependent induction v => //. rewrite apSubVarS apSubVarShift IHv. 
-by rewrite /shExp/= apRenVarShift apRenVarId. 
+by rewrite /shExp/= apRenShift apRenId. 
 Qed. 
 
 Lemma apSubIdAndSeq D :
@@ -361,15 +377,6 @@ Proof. apply apSubExtensional => s v. rewrite !apVarScS. by rewrite apScS. Qed.
 Lemma idScS E E' (S: Sub E' E) : ScS (idSub E) S = S.
 Proof. apply apSubExtensional => s v. rewrite apVarScS. by rewrite apSubId. Qed.
 
-Lemma ScSingle E E' s (S:Sub E E') e :
-  ScS S (consSub e (idSub _)) = ScS (consSub (apSub S e) (idSub _)) (liftSub s S). 
-Proof. apply apSubExtensional => s' v.
-rewrite 2!apVarScS.  
-rewrite /consSub. 
-dependent destruction v => //.  
-simpl. rewrite apSubVarId. simpl.
-Admitted.
-
 Lemma shiftSubDef E E' s (S: Sub E E'): shiftSub s S = RcS (shiftRen s (idRen E')) S.
 Proof. apply apSubExtensional => s' v. rewrite /RcS/=. by  rewrite apSubVarShift. Qed. 
 
@@ -424,7 +431,7 @@ Proof. done. Qed.
 
 Lemma consPi D D' s e (S: Sub D D') : ScS (consSub e S) (pi D s) = S.
 Proof. apply apSubExtensional => s' v. 
-by rewrite apVarScS/pi apSubVarShift apSubVarId /= apRenVarShift apSubVarS/= apRenVarId. 
+by rewrite apVarScS/pi apSubVarShift apSubVarId /= apRenShift apSubVarS/= apRenId. 
 Qed. 
 
 Lemma liftPi D D' s (S: Sub D D') : ScS (liftSub s S) (pi D s) = ScS (pi D' s) S.
@@ -499,19 +506,31 @@ Lemma apSubSingleShift sig D (s:Srt sig) (e: Exp D s)
   (forall ss (es: Exps D ss), apSubSeq <<e>> (shExpSeq s es) = es). 
 Proof. 
 apply Exp_Exps_ind => //. 
-+ move => s' v. dependent induction v => //.
-  admit.   
++ move => s' v. rewrite /shExp /apRen apRenShift.
+rewrite /apSub.  simpl. rewrite apSubVarId. by rewrite apRenId.  
 + move => op es IH. by rewrite shAppCon apSubAppCon IH. 
 + move => s' ss e' IH es IH'. by rewrite shCons apSubSeqCons IH IH'. 
 Qed. 
 
 
+Lemma apScSingleVar sig E (s:Srt sig) e s' (v: Var  _ s') E' (S: Sub E E'):
+  apSub S (apSubVar (consSub e (idSub _)) v) = apSub (consSub (apSub S e) (idSub _)) (apSubVar (liftSub s S) v). 
+Proof. 
+dependent destruction v => //. 
+simpl. rewrite apSubVarId apSubVarShift. by rewrite (proj1 (apSubSingleShift _)).
+Qed. 
+
+Lemma ScSingle sig E E' (s: Srt sig) (S:Sub E E') e :
+  ScS S (consSub e (idSub _)) = ScS (consSub (apSub S e) (idSub _)) (liftSub s S). 
+Proof. apply apSubExtensional => s' v.
+rewrite 2!apVarScS. by rewrite apScSingleVar. Qed. 
+
 Bind Scope Exp_scope with Exp. 
 Delimit Scope Exp_scope with Exp. 
 
-Notation "#0" := (VarAsExp (ixZ _ _)) : Ty_scope.
-Notation "#1" := (VarAsExp (ixS _ (ixZ _ _))) : Ty_scope.
-Notation "#2" := (VarAsExp (ixS _ (ixS _ (ixZ _ _)))) : Ty_scope.
+Notation "#0" := (VarAsExp (ixZ _ _)). (*: Ty_scope.*)
+Notation "#1" := (VarAsExp (ixS _ (ixZ _ _))). (* : Ty_scope. *)
+Notation "#2" := (VarAsExp (ixS _ (ixS _ (ixZ _ _)))). (*  : Ty_scope. *)
 
 (* This is lemma 2, part 1 *)
 Lemma equivSubst sig D D' (S: Sub D D') : 
