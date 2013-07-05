@@ -1,0 +1,976 @@
+\documentclass[preprint]{sigplanconf}
+
+\newcommand{\sepbar}{\mathrel|}
+\usepackage{mathpartir}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{stmaryrd}
+
+\title{From Parametricity to Conservation Laws, via Noether's Theorem}
+
+\authorinfo{}{}{}
+% \authorinfo{Robert Atkey}
+%            {}
+%            {bob.atkey@gmail.com}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+\newtheorem{property}{Property}
+\newtheorem{proposition}{Proposition}
+\newcommand{\lemref}[1]{\hyperref[#1]{Lemma~\ref*{#1}}}
+\newcommand{\thmref}[1]{\hyperref[#1]{Theorem~\ref*{#1}}}
+\newcommand{\defref}[1]{\hyperref[#1]{Definition~\ref*{#1}}}
+\newcommand{\propref}[1]{\hyperref[#1]{Proposition~\ref*{#1}}}
+\newcommand{\corref}[1]{\hyperref[#1]{Corollary~\ref*{#1}}}
+\newcommand{\conref}[1]{\hyperref[#1]{Conjecture~\ref*{#1}}}
+\newcommand{\exref}[1]{\hyperref[#1]{Example~\ref*{#1}}}
+\newcommand{\statementref}[1]{\hyperref[#1]{Statement~\ref*{#1}}}
+
+\newcommand{\smoothrightarrow}{\stackrel{C^\infty}\longrightarrow}
+\newcommand{\typeOfCartSp}[1]{\lbag #1 \rbag}
+\newcommand{\elab}[1]{\lfloor #1 \rfloor}
+
+\newtheoremstyle{examplestyle}
+  {\topsep}  % space above
+  {\topsep}  % space below
+  {\normalfont}% name of font to use in the body of the theorem
+  {0em}% measure of space to indent
+  {\bfseries}% name of head font
+  {.}% punctuation between head and body
+  {5pt plus 1pt minus 1pt}% space after theorem head; " " = normal interword space
+  {}% Manually specify head
+\theoremstyle{examplestyle}
+\newtheorem{example}{Example}
+\newtheorem*{example*}{Example}
+
+\newcommand{\fomega}{F$\omega$}
+\newcommand{\sem}[1]{\llbracket #1 \rrbracket}
+\newcommand{\Set}{\mathsf{Set}}
+\newcommand{\Rel}{\mathsf{Rel}}
+\newcommand{\Pow}{\mathcal{P}}
+\newcommand{\frel}[1]{\langle #1 \rangle}
+\newcommand{\coq}[1]{\textsf{#1}}
+\newcommand{\CIC}{\textsc{CIC}}
+
+\newcommand{\semKU}[1]{\llbracket #1 \rrbracket^O}
+\newcommand{\semKR}[1]{\llbracket #1 \rrbracket^R}
+\newcommand{\semKI}[1]{\llbracket #1 \rrbracket^{\mathrm{id}}}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+  Invariance is of paramount importance in programming languages and
+  in physics. In programming languages, John Reynolds' theory of
+  relational parametricity demonstrates that parametric polymorphic
+  programs are invariant under change of data representation, a
+  property that yields ``free'' theorems about programs just from
+  their types. In physics, Emmy Noether showed that if the action of a
+  physical system is invariant under change of coordinates, then the
+  physical system has a conserved quantity: a quantity that remains
+  constant for all time. Knowledge of conserved quantities can reveal
+  deep properties of physical systems. For example, the conservation
+  of energy, which by Noether's theorem is a consequence of a system's
+  invariance under time-shifting.
+
+  In this paper, we link Reynolds' relational parametricity with
+  Noether's theorem for deriving conserved quantities. We propose an
+  extension of System F$\omega$ with new kinds, types and term
+  constants for writing programs that describe classical mechanical
+  systems in terms of their Lagrangians. We show, by constructing a
+  relationally parametric model of our extension of F$\omega$, that
+  relational parametricity is enough to satisfy the hypotheses of
+  Noether's theorem, and so to derive conserved quantities for free,
+  directly from the polymorphic types of Lagrangians expressed in our
+  system.
+\end{abstract}
+
+\section{Introduction}
+
+\begin{enumerate}
+\item Symmetry in programming and physics
+  \begin{enumerate}
+  \item In programming: replacement of one data type by another
+  \item In physics: invariance under change of unobservable
+    properties. FIXME: check this.
+  \item What unifies these, at a conceptual level? Inability to
+    distinguish between situations, given the tools provided. In both
+    cases, this leads to interesting properties of such systems. In
+    programming, we get ``free theorems''. In Physics, via Noether's
+    theorem, we get ``conservation laws''.
+  \item In this paper, we show that we can define a programming
+    language for classical mechanics, based on System F$\omega$, where
+    the abstraction theorem directly fulfils the hypothesis of
+    Noether's theorem, allowing us to derive conservation laws.
+  \end{enumerate}
+\item Parametricity: polymorphic programs have symmetry properties
+  \begin{enumerate}
+  \item Example of a free theorem
+  \item Example of a geometric free theorem (the area of a triangle
+    example)
+  \end{enumerate}
+\item Noether's theorem: symmetry properties of descriptions of
+  systems lead to conservation laws
+\item Let's put the two together
+  \begin{enumerate}
+  \item Need invariance properties of smooth functions
+  \item So we extend System F$\omega$ with 
+  \end{enumerate}
+\item We present the classical mechanics and Noether's theorem first,
+  since it is likely to be more unfamiliar to readers.
+\end{enumerate}
+
+We restate the results of Atkey, Johann and Kennedy in the more
+general setting of System F$\omega$... which is good because it allows
+for a deeper interpretation of what the unit kinds are. Also, we can
+introduce useful stuff like nat-indexed types without too much fuss.
+
+\paragraph{Summary of the Paper}
+
+\begin{itemize}
+\item FIXME: Recall the necessary background for Noether's theorem
+  (Section~\ref{sec:conservation-laws-from-symmetry}).
+\item FIXME: Show how to get symmetry properties from types
+  (Section~\ref{sec:symmetry-from-types}).
+\item FIXME: In Section~\ref{sec:types-for-classical-mech}, we
+  construct a type system for classical mechanics,
+\item FIXME: Section~\ref{sec:examples} we present examples of using
+  our extension of System F$\omega$ for writing invariant Lagrangians
+  that describe physical systems.
+\item FIXME: field theory
+\end{itemize}
+
+\section{Conservation Laws from Symmetry}
+\label{sec:conservation-laws-from-symmetry}
+
+Make sure to state up front the necessary background required. To
+understand: basic(ish) calculus. We will be using the Calculus of
+Variations, but only by stating the main results. We go for standard
+physics notation, rather than anything more complicated.
+
+\subsection{The Principle of Stationary Action}
+
+Introduce by stating Newton's second law, and saying that it can be
+derived from the principle of stationary action.
+
+Analytical mechanics, Lagrangian and Hamiltonian mechanics. Basically
+different mathematical reformulations of Newtonian mechanics that
+yield new insights into the underlying structure of the kinds of
+physical systems studied in classical mechanics. 
+
+\paragraph{Lagrangian and Action}
+
+Lagrangian mechanics reformulates Newtonian mechanics in terms of 
+
+Two points: the Langrangian and generalised coordinates. Do
+generalised coordinates as a secondary thing.
+
+\begin{displaymath}
+  \mathcal{S}[q;a;b] = \int_a^b L(t,q(t),\dot{q}(t)) \mathit{dt}
+\end{displaymath}
+
+\begin{example}
+  A single particle under a potential field. Set the potential field
+  to be (downward) gravity.
+\end{example}
+
+\paragraph{The Principle of Stationary Action}
+
+The principle of stationary action 
+
+\begin{displaymath}
+  \frac{d}{dt}\frac{\partial L}{\partial \dot{q_i}} - \frac{\partial L}{\partial q_i} = 0
+\end{displaymath}
+
+Explain the different derivatives going on here
+
+Example: Newton's second law...
+
+\subsection{Noether's Theorem} Noether's theorem provides us with deep
+insights into the properties of the solutions of the Euler-Lagrange
+equations. FIXME: motivate invariance.
+
+\paragraph{Invariance of the Action} Let
+\begin{displaymath}
+  \mathcal{S}[q;a;b] = \int_a^b L(t,q(t),\dot{q}(t)) \mathit{dt}
+\end{displaymath}
+be the action of some physical system described by the Lagrangian
+$L$. Assume a differentiable invertible function $\tau : \mathbb{R}
+\to \mathbb{R}$ that transforms time in some way and a function
+$\sigma : \mathbb{R} \times \mathbb{R}^n \to \mathbb{R}^n$ that
+transforms the vector of generalised coordinates $\vec{q}$ at time $t$
+to another vector of generalised coordinates $\sigma(t,\vec{q})$.
+
+We say that the action $\mathcal{S}$ is invariant under the
+transformations $\tau$ and $\sigma$ if it is the case that for all
+$a$, $b$ and $q$ that:
+\begin{displaymath}
+  \int_a^b L(t,q,\dot{q}) \mathit{dt} = \int_{\tau(a)}^{\tau(b)} L(t', \sigma(\tau^{-1}(t'), q(t')), \mathbf{FIXME}) \mathit{dt'}
+\end{displaymath}
+FIXME: Remark on the use of $t$ and $t'$ in the integrals. FIXME:
+state that all we are doing is transforming the time and the path by
+the transformations $\tau$ and $\sigma$ respectively. State why it
+will be useful for the 
+
+Remark on how to give a simpler version of the invariance principle by
+applying some simple transformations of integrals (see notes).
+
+\begin{example}
+  Continue a simple example from above to show that its action is
+  invariant under (e.g.) time translation.
+\end{example}
+
+\paragraph{Noether's Theorem} Noether's theorem applies to actions
+that are \emph{continuously} invariant. FIXME: not quite right: write
+out the maths first.
+
+(a) parameterise $\tau$ and $\sigma$ by a real value $\epsilon$ such
+that we get a continuous symmetry of the action; (b) state Noether's
+theorem as we will use it.
+
+\begin{theorem}
+  Noether's theorem
+\end{theorem}
+
+\begin{example}
+  Continue the simple example from above to show that the invariance
+  under time translation yields conservation of energy.
+\end{example}
+
+State that we will do more examples later on, after we discuss how to
+derive symmetry from types.
+
+\section{Symmetry from Types}
+
+The first part here will be at least partly taken from Atkey
+2012. Work out a way of emphasising that we do not need to do anything
+to extend the basic underlying semantic structures involved: reflexive
+graphs are enough. This presentation differs from Atkey 2012 in that
+we emphasise the reflexive graph structure more, in order to be able
+to better expose the connection with the groupoid kinds in the section
+below.
+
+\subsection{Relational Parametricity for System F$\omega$}
+\label{sec:refl-graphs-for-fomega}
+
+Reflexive graphs give us a way of capturing the higher-dimensional
+structure of types in a 
+
+Relational parametricity (Reynolds, BFSS), reflexive graphs
+(Robinson/Rosolini, Hasegawa, me).
+
+Explain the semantic setting. Explain the ``property'' thing.
+
+\paragraph{Syntax of System F$\omega$} Present the basic syntax of the
+kinds, types and terms of (predicative) System F$\omega$.
+
+Small kinds. We will extend the kinds, types and terms later to
+encompass the necessary geometrical constructs for classical
+mechanics.
+
+\begin{displaymath}
+  \kappa ::= * \sepbar \kappa_1 \to \kappa_2 \sepbar \kappa_1 \times \kappa_2 \sepbar \cdots
+\end{displaymath}
+
+\begin{mathpar}
+  \inferrule*
+  {\kappa_1~\mathrm{small} \\ \kappa_2~\mathrm{small}}
+  {\kappa_1 \to \kappa_2~\mathrm{small}}
+
+  \inferrule*
+  {\kappa_1~\mathrm{small} \\ \kappa_2~\mathrm{small}}
+  {\kappa_1 \times \kappa_2~\mathrm{small}}
+\end{mathpar}
+
+Type equality... $\Theta \vdash A \equiv B : \kappa$
+
+\begin{figure}[t]
+  \centering
+  \begin{mathpar}
+    \inferrule*
+    {\alpha : \kappa \in \Theta}
+    {\Theta \vdash \alpha : \kappa}
+
+    \inferrule*
+    {\Theta, \alpha : \kappa_1 \vdash A : \kappa_2}
+    {\Theta \vdash \lambda \alpha : \kappa_1.\ A : \kappa_1 \to \kappa_2}
+
+    \inferrule*
+    {\Theta \vdash F : \kappa_1 \to \kappa_2 \\ \Theta \vdash A : \kappa_1}
+    {\Theta \vdash F A : \kappa_2}
+
+    \inferrule*
+    {\Theta \vdash A : \kappa_1 \\ \Theta \vdash B : \kappa_2}
+    {\Theta \vdash \langle A, B \rangle : \kappa_1 \times \kappa_2}
+
+    \inferrule* [right=${i \in \{1,2\}}$]
+    {\Theta \vdash A : \kappa_1 \times \kappa_2}
+    {\Theta \vdash \pi_i~A : \kappa_i}
+
+    \inferrule*
+    {\Theta \vdash A : * \\ \Theta \vdash B : *}
+    {\Theta \vdash A \times B : *}
+
+    \inferrule*
+    {\Theta \vdash A : * \\ \Theta \vdash B : *}
+    {\Theta \vdash A \to B : *}
+
+    \inferrule*
+    {\Theta, \alpha : \kappa \vdash A : * \\ \kappa\textrm{ small}}
+    {\Theta \vdash \forall\alpha\mathord:\kappa.\ A : *}
+  \end{mathpar}
+  \caption{Types and their Kinds}
+  \label{fig:types}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \begin{mathpar}
+    \inferrule*
+    {x : A \in \Gamma}
+    {\Theta \sepbar \Gamma \vdash x : A}
+
+    \inferrule*
+    {\Theta \sepbar \Gamma \vdash e : A \\ \Theta \vdash A \equiv B : *}
+    {\Theta \sepbar \Gamma \vdash e : B}
+  \end{mathpar}
+  \begin{mathpar}
+    \inferrule*
+    {\Theta \sepbar \Gamma \vdash e_1 : A_1 \\\\
+      \Theta \sepbar \Gamma \vdash e_2 : A_2}
+    {\Theta \sepbar \Gamma \vdash (e_1, e_2) : A_1 \times A_2}
+
+    \inferrule* [right=${i \in \{1,2\}}$]
+    {\Theta \sepbar \Gamma \vdash e : A_1 \times A_2}
+    {\Theta \sepbar \Gamma \vdash \pi_i e : A_i}
+  \end{mathpar}
+  \begin{mathpar}
+    \inferrule*
+    {\Theta \sepbar \Gamma, x : A \vdash e : B}
+    {\Theta \sepbar \Gamma \vdash \lambda x : A.\ e : A \to B}
+
+    \inferrule*
+    {\Theta \sepbar \Gamma \vdash e_1 : A \to B \\
+      \Theta \sepbar \Gamma \vdash e_2 : A}
+    {\Theta \sepbar \Gamma \vdash e_1 e_2 : B}
+
+    \inferrule*
+    {\Theta, \alpha : \kappa \sepbar \Gamma \vdash e : A \\ \alpha \not\in \mathit{fv}(\Gamma)}
+    {\Theta \sepbar \Gamma \vdash \Lambda \alpha \mathord: \kappa.\ e : \forall \alpha \mathord:\kappa. A}
+
+    \inferrule*
+    {\Theta \sepbar \Gamma \vdash e : \forall \alpha\mathord:\kappa. A \\ \Theta \vdash B : \kappa}
+    {\Theta \sepbar \Gamma \vdash e\ [B] : A\{B/\alpha\}}
+  \end{mathpar}
+  \caption{Terms and their Types}
+  \label{fig:terms}
+\end{figure}
+
+
+\paragraph{Reflexive Graphs and the Interpretation of Kinds} We will
+interpret every kind $\kappa$ is as a reflexive graph, which we now
+define. A \emph{reflexive graph} is a triple $(O, R, \mathrm{id})$,
+where $O$ is a large set of objects, $R : O \times O \to \Set$ assigns
+a small set of directed `edges' to each pair of objects, and
+$\mathrm{id} : \forall o \in O.~R(o,o)$ assigns a distinguished
+`identity' edge from every object to itself. We think of the edges of
+a reflexive graph as abstract ``relations'' between the
+objects. Indeed, in the interpretation of the kind of types, $*$,
+below, the edges will be exactly relations.
+
+A \emph{small} reflexive graph is a reflexive graph $(O, R,
+\mathrm{id})$ where $O$ is a small set of objects. We use small
+reflexive graphs as the semantic interpretation of small kinds.
+
+The interpretation of kinds as reflexive graphs, and small kinds as
+small reflexive graphs is a key property of our semantics that we will
+maintain as we add additional kinds in Sections XXX below.
+
+\begin{property}\label{property:semantic-kinds}
+  Each kind $\kappa$ is interpreted as a reflexive graph
+  $\sem{\kappa}$. If $\kappa~\mathrm{small}$, then $\sem{\kappa}$ is a
+  small reflexive graph.
+\end{property}
+
+An appealing interpretation of reflexive graphs is as ``categories
+without composition''. Following this intuition, we define morphisms
+of reflexive graphs as ``functors'', without the preservation of
+composition condition. A \emph{morphism of reflexive graphs}
+$(O_1,R_1,\mathrm{id}_1)$ and $(O_2, R_2, \mathrm{id}_2)$ is a pair of
+mappings $f : O_1 \to O_2$ and $r : \forall o, o' \in
+O_1.~R_1(o,o') \to R_2(f~o, f~o')$ such that identities are
+preserved: $r~o~o~(\mathrm{id}_1~o) = \mathrm{id}_2~(f~o)$. We use
+morphisms of reflexive graphs below to interpret well-kinded types.
+
+We will use the notation $-^O$, $-^R$ and $-^{\mathrm{id}}$ for the
+first, second and third projections out of tuples representing
+reflexive graphs. Similarly, we use $-^f$ and $-^r$ for the first and
+second projections out of tuples representing reflexive graph
+morphisms.
+
+We now define the interpretations of the basic kinds of System
+F$\omega$ we defined above, making sure that we maintain
+Property~\ref{property:semantic-kinds}. At base kind, the collection
+of objects is simply the type of all small sets; edges between $A$ and
+$B$ are binary relations on $A$ and $B$ (i.e., subsets of $A \times
+B$); and the distinguished identity edge is exactly the equality
+relation:
+\begin{displaymath}
+  \sem{*} = (\Set, \Rel, \equiv)
+\end{displaymath}
+The reflexive graph $\sem{*}$ is not small, due to the collection of
+all small sets $\Set$ not forming a small set.
+
+For higher kinds $\kappa_1 \to \kappa_2$, the collection of objects
+consists of reflexive graph morphisms from the interpretation of
+$\kappa_1$ to the interpretation of $\kappa_2$; the edges between
+morphisms $(f, r)$ and $(f', r')$ are edge transformers; and the
+distinguished identity relation for $(f,r)$ is just $r$:
+\begin{displaymath}
+  \begin{array}{@{}l}
+    \sem{\kappa_1 \to \kappa_2} = \\
+    \begin{array}[t]{l@{}l@{}}
+      (& \{ (f,r) \sepbar (f, r) : \sem{\kappa_1} \to \sem{\kappa_2} \},\\
+      &((f,r),(f',r')) \mapsto \forall o,o'. \semKR{\kappa_1}(o,o') \to \semKR{\kappa_2}(f~o, f'~o'), \\
+      &(f,r) \mapsto r\ )
+    \end{array}
+  \end{array}
+\end{displaymath}
+By the assumption that our collection of small sets is closed under
+the formation of function spaces and set comprehension, if
+$\sem{\kappa_1}$ and $\sem{\kappa_2}$ are small reflexive graphs, then
+so is $\sem{\kappa_1 \to \kappa_2}$.
+
+Product kinds are interpreted by taking the product of their
+interpretations as reflexive graphs:
+\begin{displaymath}
+  \begin{array}{@{}l}
+    \sem{\kappa_1 \times \kappa_2} = \\
+    \begin{array}[t]{l@{}l}
+      (& \semKU{\kappa_1} \times \semKU{\kappa_2}, \\
+      & ((o_1,o_2),(o_1',o_2')) \mapsto \semKR{\kappa_1}(o_1,o_1') \times \semKR{\kappa_2}(o_2,o_2'), \\
+      & (o_1,o_2) \mapsto (\semKI{\kappa_1}(o_1), \semKI{\kappa_2}(o_2)))
+    \end{array}
+  \end{array}
+\end{displaymath}
+The objects of the interpretation of a product kind is the product of
+the underlying collections of objects of the two parts, and the
+relational component is simply the product of the relational
+components. This naturally leads to the identity component being
+defined as the tuple of the identity components of the two
+parts. Again, by assumption that our collection of small sets is
+closed under products, if $\sem{\kappa_1}$ and $\sem{\kappa_2}$ are
+small reflexive graphs, then so is $\sem{\kappa_1 \times
+  \kappa_2}$. Product kinds generalise to the interpretation of
+kinding contexts $\Theta = \alpha_1 : \kappa_1, ..., \alpha_n :
+\kappa_n$, which are interpreted as the product of the reflexive graph
+interpretations of $\kappa_1, ..., \kappa_n$:
+\begin{displaymath}
+  \begin{array}{l}
+    \sem{\alpha_1 : \kappa_1, ..., \alpha_n : \kappa_n} = \\
+    \begin{array}[t]{l@{}l}
+      (&\semKU{\kappa_1} \times ... \times \semKU{\kappa_n}, \\
+      &(\theta,\theta') \mapsto \semKR{\kappa_1}(\pi_1\theta, \pi_1\theta') \times ... \times \semKR{\kappa_n}(\pi_n\theta, \pi_n\theta'), \\
+      &\theta \mapsto (\semKI{\kappa_1}(\pi_1 \theta), ..., \semKI{\kappa_n}(\pi_n \theta)))
+    \end{array}
+  \end{array}
+\end{displaymath}
+
+In Sections~\ref{sec:discrete-kinds} and~\ref{sec:groupoid-kinds}
+below, we will extend System F$\omega$ with additional kinds, and
+assign them reflexive graph interpretations, making sure that we
+maintain Property~\ref{property:semantic-kinds}.
+
+\begin{figure*}[t]
+  \begin{displaymath}
+    \begin{array}{l@{\hspace{0.3em}}c@{\hspace{0.3em}}l}
+      \sem{\Theta \vdash \alpha_i : \kappa_i}^f \theta & = & \pi_i \theta \\
+      \sem{\Theta \vdash \alpha_i : \kappa_i}^r\theta\theta' \rho & = & \pi_i \rho \\
+      \\
+      \sem{\Theta \vdash \lambda \alpha \mathord: \kappa_1.~A : \kappa_1 \to \kappa_2}^f \theta & = & (
+      \begin{array}[t]{@{}l}
+        \lambda o \in \semKU{\kappa_1}.\ \sem{A}^f(\theta, o), 
+        \lambda o, o' \in \semKU{\kappa_1}, r \in \semKR{\kappa_1}(o,o').\ \sem{A}^r(\theta,o)(\theta,o')(\semKI{\Theta}\theta, r))
+      \end{array}\\
+      \sem{\Theta \vdash \lambda \alpha \mathord: \kappa_1.~A : \kappa_1 \to \kappa_2}^r \theta\theta' \rho & = &
+      \lambda o,o' \in \semKU{\kappa_1}, r \in \semKR{\kappa_1}(o,o').\ \sem{A}^r(\theta,o)(\theta',o')(\rho, r) \\
+      \\
+      \sem{\Theta \vdash F A : \kappa_2}^f \theta & = & \pi_1 (\sem{F}^f\ \theta)\ (\sem{A}^f\ \theta)\\
+      \sem{\Theta \vdash F A : \kappa_2}^r\theta\theta'\rho & = & \sem{F}^r\theta\theta'\rho\ (\sem{A}^f \theta)(\sem{A}^f \theta')(\sem{A}^r\theta\theta'\rho) \\
+      \\
+      \sem{\Theta \vdash \langle A, B \rangle : \kappa_1 \times \kappa_2}^f \theta & = & (\sem{A}^f \theta, \sem{B}^f \theta) \\
+      \sem{\Theta \vdash \langle A, B \rangle : \kappa_1 \times \kappa_2}^r \theta \theta' \rho & = & (\sem{A}^r \theta \theta' \rho, \sem{B}^r \theta \theta' \rho) \\
+      \\
+      \sem{\Theta \vdash \pi_i A : \kappa_i}^f \theta & = & \pi_i (\sem{A}^f \theta) \\
+      \sem{\Theta \vdash \pi_i A : \kappa_i}^r \theta \theta' \rho & = & \pi_i (\sem{A}^r \theta \theta' \rho)
+    \end{array}
+  \end{displaymath}
+  \caption{Interpretation of type-level $\lambda$-calculus as reflexive graph morphisms}
+  \label{fig:type-level-lambda-calc}
+\end{figure*}
+
+\begin{figure*}[t]
+  \begin{displaymath}
+    \begin{array}{l@{\hspace{0.3em}}c@{\hspace{0.3em}}l}
+      \sem{\Theta \vdash A \to B : *}^f \theta & = & \sem{A}^f\theta \to \sem{B}^f\theta \\
+      \sem{\Theta \vdash A \to B : *}^r\theta\theta'\rho & = &
+      \{ (f,f') \sepbar \forall (a,a') \in \sem{A}^r\theta\theta'\rho.\ (f~a, f'~a') \in \sem{B}^r\theta\theta'\rho \} \\
+      \\
+      \sem{\Theta \vdash A \times B : *}^f \theta & = & \sem{A}^f\theta \times \sem{B}^f\theta \\
+      \sem{\Theta \vdash A \times B : *}^r\theta\theta'\rho & = &
+      \{ ((a,b),(a',b')) \sepbar (a,a') \in \sem{A}^r\theta\theta'\rho, (b,b') \in \sem{B}^r\theta\theta'\rho \} \\
+      \\
+      \sem{\Theta \vdash \forall \alpha\mathord:\kappa.~A : *}^f \theta &=& \{
+      \begin{array}[t]{@{}l}
+        x \in (\forall o \in \semKU{\kappa}.\ \sem{A}^f(\theta, o)) \sepbar
+        \forall o,o',r \in \semKR{\kappa}(o,o').\ (x~o, x~o') \in \sem{A}^r(\theta,o)(\theta,o')(\semKI{\Theta} \theta, r) \}
+      \end{array} \\
+      \sem{\Theta \vdash \forall \alpha\mathord:\kappa.~A : *}^r\theta\theta'\rho &=& \{ (x,x') \sepbar \forall o, o', r \in \semKR{\kappa}(o,o').\ (x~o, x'~o') \in \sem{A}^r(\theta,o)(\theta',o')(\rho, r) \}
+    \end{array}
+  \end{displaymath}
+  \caption{Interpretation of basic types as reflexive graph morphisms}
+  \label{fig:basic-type-interpretation}
+\end{figure*}
+
+\paragraph{Interpretation of Types} Well-kinded types $\Theta \vdash A
+: \kappa$ from Figure~\ref{fig:types} are interpreted as reflexive
+graph morphisms $\sem{A} : \sem{\Theta} \to \sem{\kappa}$. We sum this
+up as a property of our semantics:
+\begin{property}\label{property:semantic-types}
+  Each well-kinded type $\Theta \vdash A : \kappa$ is interpreted as a
+  reflexive graph morphism $\sem{A} : \sem{\Theta} \to \sem{\kappa}$,
+  such that if $\Theta \vdash A \equiv B : \kappa$, then $\sem{A} =
+  \sem{B}$.
+\end{property}
+%
+% That is, every well-kinded type is interpreted as a pair $(\sem{A}^f,
+% \sem{A}^r)$ of functions $\sem{A}^f : \sem{\Theta}^O \to
+% \sem{\kappa}^O$ and $\sem{A}^r : \forall o, o'.~\sem{\Theta}^R(o,o')
+% \to \sem{\kappa}^R(\sem{A}^f~o, \sem{A}^f~o')$, such that identity
+% edges are preserved.
+%
+The interpretation of the $\lambda$-calculus fragment (i.e.,
+variables, $\lambda$-abstraction and application, and products) of the
+language of well-kinded types is displayed in
+Figure~\ref{fig:type-level-lambda-calc}. The interpretations are
+unsurprising given the reflexive graph interpretation of the kinds
+$\kappa_1 \to \kappa_2$ and $\kappa_1 \times \kappa_2$ we gave above.
+
+Figure~\ref{fig:basic-type-interpretation} shows the interpretations
+of the basic type constructors for function and product types, and
+universal quantification. Each of these constructs builds an object of
+kind $*$, so the object-level interpretation is a small set in $\Set$,
+and the relation-level interpretation is an actual relation. In the
+cases of the function and product types, the object-level
+interpretation is just as set-theoretic function and product
+respectively, and the relation-level interpretation uses the standard
+logical relations interpretations of these type
+constructors. Universal quantification, $\forall
+\alpha\mathord:\kappa.~A$, is interpreted at the object level by
+taking the dependent product over the objects of the interpretation of
+$\kappa$ (this product exists because we have stipulated that $\kappa$
+must be small), and then restricting to those elements of the
+dependent product that preserve relations. This restriction is
+required for this interpretation to preserve identity edges, and so be
+a reflexive graph morphism. The relation-level interpretation of
+universal quantification is the standard relational interpretation of
+such types, albeit here generalised to kinds interpreted as arbitrary
+reflexive graphs.
+
+Well-kinded typing contexts $\Theta \vdash \Gamma$ are interpreted as
+reflexive graph morphisms $\sem{\Gamma} : \sem{\Theta} \to \sem{*}$ by
+taking the product of the interpretations of their constituent types,
+similar to the interpretation of the product types $A \times B$.
+
+We will extend basic System F$\omega$ with additional types and type
+equalities in Sections~\ref{sec:discrete-kinds},
+\ref{sec:groupoid-kinds}, and~\ref{sec:types-for-classical-mech},
+below. These new types will also be assigned interpretations as
+reflexive graph morphisms, and we will ensure that
+Property~\ref{property:semantic-types} is maintained.
+
+\paragraph{Interpretation of Terms} We omit the straightforward and
+relatively uninteresting interpretation of well-typed terms $\Theta
+\sepbar \Gamma \vdash e : A$, and just state that there is a
+well-defined function interpreting each well-typed term, with the
+property that it takes related environments to related results:
+
+\begin{property}
+  For all well-typed terms $\Theta \sepbar \Gamma \vdash e : A$ there
+  is a function $\sem{e} \in (\forall \theta \in \semKU{\Theta}.\
+  \sem{\Gamma}^f\theta \to \sem{A}^f\theta)$, such that, for all
+  $\theta, \theta' \in \semKU{\Theta}$, $\rho \in
+  \semKR{\Theta}(\theta,\theta')$, $\gamma \in \sem{\Gamma}^f\theta$
+  and $\gamma' \in \sem{\Gamma}^f\theta'$, if $(\gamma, \gamma') \in
+  \sem{\Gamma}^r\theta\theta'\rho$ then $(\sem{e}\theta\gamma,
+  \sem{e}\theta'\gamma') \in \sem{A}^r\theta\theta'\rho$.  Moreover,
+  this interpretation is sound for the $\beta\eta$ equational theory
+  of terms.
+\end{property}
+
+\subsection{Discrete Kinds}
+\label{sec:discrete-kinds}
+
+In Section~\ref{sec:refl-graphs-for-fomega}, we only had a single base
+kind: the kind $*$ of proper types.
+
+Natural numbers as a discrete kind. The type of length-indexed
+vectors.
+
+\begin{displaymath}
+  \kappa ::= \cdots \sepbar \mathsf{nat}
+\end{displaymath}
+
+\begin{displaymath}
+  \inferrule*
+  { }
+  {\mathsf{nat}~\mathrm{small}}
+\end{displaymath}
+
+\begin{displaymath}
+  \sem{\mathsf{nat}} = (\mathbb{N}, (n_1,n_2) \mapsto \{ * \sepbar n_1 = n_2 \}, n \mapsto *)
+\end{displaymath}
+
+Make the point that any set can be used as the interpretation of a
+kind. Also, the utility of singleton types.
+
+\subsection{Group(oid) Kinds}
+\label{sec:groupoid-kinds}
+
+There is a full and faithful functor from the category of groupoids to
+the category of reflexive graphs, that preserves smallness.
+
+\begin{enumerate}
+\item Each (matrix) group gives a kind, which we can use as parameter
+  to a type.
+\item The collection of cartesian spaces, with diffeomorphisms as the
+  edges.
+\item Do units of measure as an example (include one of the results
+  from that paper, e.g., type iso)
+\item Mention groupoid kinds, and link to Hofmann and Streicher. Do
+  finite sets and bijections as an example.
+\end{enumerate}
+
+\paragraph{Why not Groupoids Everywhere?} Explain why we aren't using
+groupoids as kinds: don't need to, doesn't directly generalise
+relational parametricity, see Robinson's paper. Distance-indexed
+types.
+
+\section{A Type System for Classical Mechanics}
+\label{sec:types-for-classical-mech}
+
+FIXME: rewrite this para to refer back concretely
+
+We have a way of getting symmetry properties from types, and a way of
+using symmetry properties to derive conservation laws for physical
+systems. We now put the two together by building an applied version
+System F$\omega$ with new kind-, type- and term-level constants that
+will deliver us the exact symmetry properties we require to be able to
+apply Noether's theorem.
+
+\subsection{Extending System F$\omega$ for Classical Mechanics}
+
+Let us enumerate our requirements for an extension of System F$\omega$
+for writing invariant Lagrangians\footnote{Make sure that I say this
+  is the plan back in Sec 2}.
+
+\begin{enumerate}
+\item Kind of cartesian spaces, parameterised by a matrix group and a
+  translation group
+\item Smooth functions between spaces: motivate this by looking at the
+  requirements of the Euler-Lagrange equations.
+\item Primitives for dealing with the geometry of the spaces (inner
+  product, vector space operations, cross product(?), trigonometric
+  functions (at least sin and cos)).\footnote{FIXME: fix the notation of $\forall$}
+  \begin{displaymath}
+    \begin{array}{l@{\hspace{0.3em}}c@{\hspace{0.3em}}l}
+      \sin &:& \forall z \mathord: \mathsf{Z}.~\mathbb{R}\langle 2\pi \cdot z, 1 \rangle \smoothrightarrow \mathbb{R} \langle 0, 1 \rangle \\
+      \cos &:& \forall z \mathord: \mathsf{Z}.~\mathbb{R}\langle 2\pi \cdot z, 1 \rangle \smoothrightarrow \mathbb{R} \langle 0, 1 \rangle \\
+    \end{array}
+  \end{displaymath}
+\end{enumerate}
+
+\begin{displaymath}
+  \begin{array}{l@{\hspace{0.3em}}c@{\hspace{0.3em}}l}
+    \mathrm{exp} &:& \forall t \mathord: \mathsf{T}(1).~\mathbb{R}\langle t, 1 \rangle \smoothrightarrow \mathbb{R}\langle 0, \mathit{exp}~t \rangle
+  \end{array}
+\end{displaymath}
+
+Group homomorphisms:
+\begin{itemize}
+\item $\mathit{exp} : \mathsf{T}(1) \to \mathsf{GL}(1)$
+\item $\mathit{scale}_n : \mathsf{GL}(1) \to \mathsf{GL}(n)$
+\item $\mathit{ortho}_n : \mathsf{O}(n) \to \mathsf{GL}(n)$
+\item $\underline{c}\cdot- : \mathsf{Z} \to \mathsf{T}(1)$
+\end{itemize}
+Group operations on translations (for all $n$), and on
+$\mathsf{GL}(1)$ (no abs, because it is not smooth).
+
+\begin{displaymath}
+  \kappa ::= \cdots \sepbar \mathsf{CartSp} \sepbar \mathsf{T}(n) \sepbar \mathsf{GL}(n) \sepbar \mathsf{O}(n) \sepbar \mathsf{Z} \sepbar XXX
+\end{displaymath}
+
+\begin{displaymath}
+  \begin{array}{l@{\hspace{0.3em}}c@{\hspace{0.3em}}l}
+    (\smoothrightarrow) &:& \mathsf{CartSp} \to \mathsf{CartSp} \to * \\
+    \mathbb{R}^n &:& \mathsf{T}(n) \to \mathsf{GL}(n) \to \mathsf{CartSp} \\
+    (\times) &:& \mathsf{CartSp} \to \mathsf{CartSp} \to \mathsf{CartSp}
+  \end{array}
+\end{displaymath}
+
+\begin{itemize}
+\item $\mathsf{CartSp}$ is the kind of cartesian spaces
+  ($\mathbb{R}^n$, for some $n$) and diffeomorphisms between them,
+  with the standard definition of diffeomorphism on these spaces. The
+  identity edge is just the identity function.
+\item $\mathbb{R}^n~t~g$ is the cartesian space with the
+  diffeomorphism defined by the action of the translation and matrix
+  group.
+\item $X \times Y$ takes the product of two cartesian spaces, and the
+  corresponding product of the diffeomorphisms.
+\item $X \smoothrightarrow Y$ consists of the infinitely
+  differentiable functions from $X$ to $Y$ that preserve the
+  diffeomorphisms.
+\end{itemize}
+
+\begin{enumerate}
+\item Need coercions between the different groups, as required by the
+  examples.
+\item Need operations on vectors, e.g., the usual linear space ones,
+  and inner product. Perhaps also the cross product one.
+\item What operations on the smooth function space do we need?
+  composition, products, identities.
+\end{enumerate}
+
+\begin{figure*}[t]
+  \centering
+  \textbf{Administrative rules}
+  \begin{mathpar}
+    \inferrule*
+    {x : \typeOfCartSp{X} \in \Gamma}
+    {\Theta \sepbar \Gamma; \Delta \vdash x : X}
+
+    \inferrule*
+    {x : X \in \Delta}
+    {\Theta \sepbar \Gamma; \Delta \vdash x : X}
+
+    \inferrule*
+    {\Theta \sepbar \Gamma; \Delta \vdash e_1 : X \\
+      \Theta \sepbar \Gamma; \Delta, x : X \vdash e_2 : Y}
+    {\Theta \sepbar \Gamma; \Delta \vdash \mathrm{let}~x = e_1~\mathrm{in}~e_2 : Y}
+
+    \inferrule*
+    {\Theta \sepbar \Gamma \vdash e_1 : C^\infty(X, Y) \\\\
+      \Theta \sepbar \Gamma; \Delta \vdash e_2 : X}
+    {\Theta \sepbar \Gamma; \Delta \vdash e_1 (e_2) : Y}
+  \end{mathpar}
+  \textbf{Vector space operations, and dot product}
+  \begin{mathpar}
+    \inferrule*
+    {\vec{x} \in \mathbb{R}^n}
+    {\Theta \sepbar \Gamma; \Delta \vdash \vec{x} : \mathbb{R}^n\langle 1, 0 \rangle}
+
+    \inferrule*
+    {\Theta \vdash g : \mathsf{GL}(n)}
+    {\Theta \sepbar \Gamma; \Delta \vdash 0 : \mathbb{R}^n\langle g, 0 \rangle}
+
+    \inferrule*
+    {\Theta \sepbar \Gamma; \Delta \vdash e_1 : \mathbb{R}^n\langle g, t_1 \rangle \\
+      \Theta \sepbar \Gamma; \Delta \vdash e_2 : \mathbb{R}^n\langle g, t_2 \rangle}
+    {\Theta \sepbar \Gamma; \Delta \vdash e_1 + e_2 : \mathbb{R}^n\langle g, t_1 + t_2 \rangle}
+
+    \inferrule*
+    {\Theta \sepbar \Gamma; \Delta \vdash e_1 : \mathbb{R}^n\langle g, t_1 \rangle \\
+      \Theta \sepbar \Gamma; \Delta \vdash e_2 : \mathbb{R}^n\langle g, t_2 \rangle}
+    {\Theta \sepbar \Gamma; \Delta \vdash e_1 - e_2 : \mathbb{R}^n\langle g, t_1 - t_2 \rangle}
+
+    \inferrule*
+    {\Theta \sepbar \Gamma; \Delta \vdash e_1 : \mathbb{R}\langle g_1, 0 \rangle \\
+      \Theta \sepbar \Gamma; \Delta \vdash e_2 : \mathbb{R}^n\langle g_2, 0 \rangle}
+    {\Theta \sepbar \Gamma; \Delta \vdash e_1 * e_2 : \mathbb{R}^n\langle \mathit{scale}_n(g_1)g_2, 0 \rangle}
+
+    \inferrule*
+    {\Theta \sepbar \Gamma; \Delta \vdash e_1 : \mathbb{R}^n\langle \mathit{scale}_n(s)\mathit{ortho}_n(o), 0 \rangle \\
+      \Theta \sepbar \Gamma; \Delta \vdash e_2 : \mathbb{R}^n\langle \mathit{scale}_n(s)\mathit{ortho}_n(o), 0 \rangle}
+    {\Theta \sepbar \Gamma; \Delta \vdash e_1 \cdot e_2 : \mathbb{R}\langle\mathit{scale}_n(s)^2, 0 \rangle}
+  \end{mathpar}
+  \textbf{Transcendental functions}
+  \begin{mathpar}
+    \inferrule*
+    {\Theta \sepbar \Gamma; \Delta \vdash e : \mathbb{R}\langle 1, t \rangle}
+    {\Theta \sepbar \Gamma; \Delta \vdash \mathrm{exp}~e : \mathbb{R}\langle \mathit{exp}~t, 0 \rangle}
+
+    \inferrule*
+    {\Theta \sepbar \Gamma; \Delta \vdash e : \mathbb{R}\langle 2\pi z, 0 \rangle}
+    {\Theta \sepbar \Gamma; \Delta \vdash \mathrm{sin}~e : \mathbb{R}\langle 1, 0 \rangle}
+
+    \inferrule*
+    {\Theta \sepbar \Gamma; \Delta \vdash e : \mathbb{R}\langle 2\pi z, 0 \rangle}
+    {\Theta \sepbar \Gamma; \Delta \vdash \mathrm{cos}~e : \mathbb{R}\langle 1, 0 \rangle}
+  \end{mathpar}
+  FIXME: products, division, n-ary products (sum, zip, reduce), constants
+  \caption{Type system for smooth functions}
+  \label{fig:smooth-terms}
+\end{figure*}
+
+\begin{theorem}
+  If $\Theta \sepbar \Gamma; \Delta \vdash e : X$ then $\Theta \sepbar
+  \Gamma \vdash \elab{e} : C^\infty(\elab{\Delta}, X)$.
+\end{theorem}
+
+\section{Examples}
+
+$- \sepbar V : \forall ... . C^\infty(\mathbb{R}^3\langle o, t \rangle, \mathbb{R}\langle 1, 0 \rangle); t : \mathbb{R}\langle 1, t_t \rangle, q : \mathbb{R}^3\langle o, t_q \rangle, \dot{q} : \mathbb{R}^3\langle o, 0 \rangle \vdash \frac{1}{2} * m * (\dot{q} \cdot \dot{q}) - V(q) : \mathbb{R}\langle 1, 0 \rangle$
+
+\begin{enumerate}
+\item free particle
+\item $2$-body
+\item $n$-body (use length-indexed vectors)
+\item pendulums
+\item oscillators
+\end{enumerate}
+
+\section{Basic Field Theory}
+
+\subsection{Principle of Stationary Action for Fields}
+
+\subsection{Noether's Theorem for Fields}
+
+\subsection{The Klein-Gordon Equation}
+
+\section{Conclusions}
+
+\begin{enumerate}
+\item Gauge theory
+\item Quantum field theory
+\item Dependent types
+\item Homotopy type theory
+\item Distance indexed types and differential privacy.
+\item Languages with function spaces with more structure (Alex's
+  Enriched Effect Calculus) (Idea for differential privacy)
+\end{enumerate}
+
+
+\newpage
+
+Overall plan:
+\begin{enumerate}
+\item A type system for writing smooth functions between smooth
+  manifolds, subject to invariance with respect to certain Lie groups
+\item Use this to write Lagrangians that describe classical mechanics
+  situations, in such a way that Noether's theorem can be applied.
+\item Need to explain:
+  \begin{enumerate}
+  \item Lagrangians
+  \item Euler-Lagrange equations for $L(t,q,q')$
+    \begin{displaymath}
+      \frac{\mathrm{d}}{\mathrm{d}t} \frac{\partial L}{\partial q'} - \frac{\partial L}{\partial q} = 0
+    \end{displaymath}
+  \item Lie groups (manifolds!?), and their infinitesimal generators
+    (see the exposition in Olver's book).
+  \item Noether's theorem, with (lots of) examples. Explain what was
+    in Noether's original paper (first theorem vs. second theorem).
+  \end{enumerate}
+  Interleave the presentation of the maths/physics and the type
+  system?
+\item Stick to being relatively uncomplicated with respect to the
+  manifold stuff? Or use dependent types to handle the tangent spaces
+  ``properly''?
+\item Operations we want (in order to do the examples): distance
+  between points (arclength/geodesic length), trigonometric functions
+  (what continuous invariance properties do these have?),
+\item Possibly use a variant of System F$\omega$ as the
+  superstructure: System F$\omega$ plus a sub-language for dealing
+  with smooth functions (which, in principle, could be handled just by
+  using combinators to build something in a arrow-style). System
+  F$\omega$ gives us a lot of power, and means that we don't need to
+  go anywhere near dependent types...
+  \begin{enumerate}
+  \item So manifolds are a kind
+  \item And so are Lie groups (?), not really, they have a different
+    status (due to the identity extension requirement)
+  \item Flat spaces are type operators from groups that act on them to
+    manifolds
+  \item Have a type constructor that builds the space of infinitely
+    differentiable functions between two spaces
+  \item Elaboration process that desugars a nicer syntax for smooth
+    functions...
+  \item Possibly a bit of natural numbers and vectors to allow for
+    $n$-body problems...
+  \item Need to restrict to predicativity in order to get classical
+    mathematics? (probably should just forget about type
+    quantification, and restrict the set of things we can quantify
+    over to certain ``small'' kinds; just the groups?). Mention that
+    going for SDG as a basis might offer a way out of this.
+  \item Sub-kinding?
+  \end{enumerate}
+\item Examples:
+  \begin{enumerate}
+  \item $n$-body problem in $\mathbb{R}^3$, with all the consequent
+    conservation laws.
+  \item Central force problem
+  \item Pendulums
+  \item Rigid body problem? Use quotients in the definitions of the
+    trigonometric functions? $\sin : \forall n :
+    \mathbb{Z}.~\mathbb{R}\langle2\pi n\rangle \to \mathbb{R}\langle 1
+    \rangle$. This gives us a way of doing circles in a neat way.
+  \end{enumerate}
+\end{enumerate}
+
+\begin{enumerate}
+\item Be clear that we don't really expect these programs to
+  necessarily be (directly) executable.
+\item Manifolds?
+  \begin{enumerate}
+  \item Spheres
+  \item Tangent spaces
+  \item 'Flat' spaces
+  \item (Quotient spaces?) (have a look at Olver's book)
+  \end{enumerate}
+\end{enumerate}
+
+Groups and their operations:
+\begin{enumerate}
+\item General linear group
+\item Orthogonal group
+\item Rotations around certain axes (in 
+\end{enumerate}
+
+
+Types (maybe include dependent types, for $n$-ary sized problems?)
+\begin{displaymath}
+  \begin{array}{rcl}
+    M,M' & ::= & \mathbb{R}^n\langle e \rangle \sepbar \Sigma x : M.~M' \sepbar T_xM \\
+    A, B & ::= & S \sepbar C^\infty(S,T) \sepbar A \times B \sepbar \forall G.~A \sepbar A \to B \sepbar A + B
+  \end{array}
+\end{displaymath}
+
+\begin{mathpar}
+  \inferrule*
+  {\Gamma \sepbar x : S \vdash M :^\infty T}
+  {\Gamma \vdash \lambda^\infty x : S.~M : C^\infty(S,T)}
+\end{mathpar}
+
+So a Lagrangian is something of type:
+\begin{displaymath}
+  \forall G:\mathsf{E}(3).~C^\infty(\mathbb{R} \times \mathbb{R}^3\langle G \rangle \times \mathbb{R}^3\langle G \rangle, \mathbb{R})
+\end{displaymath}
+
+\section{Introduction}
+
+\section{Lagrangian Mechanics}
+
+\section{Symmetry and Conservation Laws}
+
+\section{A Type System for Lagrangians}
+
+Syntax and Semantics, and the abstraction theorem...
+
+\section{Examples}
+
+\section{Field Theory}
+
+\end{document}
