@@ -103,69 +103,87 @@ us that parametrically polymorphic programs automatically satisfy
 invariance properties. Such invariance properties are often called
 \emph{Free Theorems}, after Wadler \cite{wadler89theorems}, since they
 follow ``for free'' from the types of programs, rather than through
-detailed study of the program text itself. A classic example,
-presented by Wadler, is the free theorem for programs $f$ with the
-following type:
+detailed study of the program text itself. An illustrative example is
+the free theorem for programs $f$ with the following type:
 \begin{displaymath}
-  f : \forall \alpha.~\mathsf{List}~\alpha \to \mathsf{List}~\alpha
+  f : \forall \alpha.~\mathsf{List}~\alpha \to \mathsf{Nat}
 \end{displaymath}
 Such programs takes lists of $\alpha$s, for any type $\alpha$, to
-lists of $\alpha$s. Using Reynolds' theory of relational
-parametricity, Wadler showed that \emph{any} $f$ with this type
-satisfies the following property:
+natural numbers. Using Reynolds' theory of relational parametricity,
+Wadler showed that \emph{any} $f$ with this type satisfies the
+following property:
 \begin{displaymath}
-  \forall \alpha, \beta, g : \alpha \to \beta, l : \mathsf{List}~\alpha.~\mathrm{map}~g~(f~[\alpha]~l) = f~[\beta]~(\mathrm{map}~g~l)
+  \forall \alpha, \beta, g : \alpha \to \beta, l : \mathsf{List}~\alpha.~f~[\alpha]~l = f~[\beta]~(\mathrm{map}~g~l)
 \end{displaymath}
-Thus, any $f$ with the type given above commutes with mapping some
-arbitrary function $g$ over lists. Thinking in terms of abstract data
-types and change of data representation, this free theorem states that
-$f$ is invariant under change of data representation from an arbitrary
-type $\alpha$ to another arbitrary type $\beta$, via $g$.
+Thus, any $f$ with the type given above is invariant under mapping
+some arbitrary function $g$ over its input. Thinking in terms of
+abstract data types and change of data representation, this free
+theorem states that $f$ is invariant under change of data
+representation from an arbitrary type $\alpha$ to another arbitrary
+type $\beta$, via $g$.
 
-Using invariance under change to derive useful properties is a concept
-much older than programming languages. In physics, Noether's theorem
-\cite{noether} provides a general way to derive conserved properties
-of physical systems from 
+The use of invariance under change to derive useful consequences is a
+technique much older than programming languages. In physics,
+\emph{Noether's theorem} \cite{noether} provides a general way to
+derive conservation laws for physical systems from invariance
+properties. Informally speaking, Noether's theorem states that every
+continuous symmetry of a physical system implies the existence of a
+corresponding conserved quantity. A conserved quantity is a function
+of the state of the system that is constant for all time. We
+illustrate the use of Noether's theorem with a simple example of a
+classical system consisting of two particles of equal mass $m$
+connected by a spring with coefficient $k$, such that the particles
+are constrained to move one-dimensionally.
 
-
-
-
-FIXME: example of translation invariance, with the coupled spring example
-\begin{equation}\label{eq:coupled-spring-langrangian}
-  L(t,q_1,q_2,\dot{q_1},\dot{q_2}) = \frac{1}{2}m(\dot{q_1}^2 + \dot{q_2}^2) - \frac{1}{2}k(q_1 - q_2)^2
+Noether's theorem applies to systems described in terms of
+\emph{Lagrangians}. For classical mechanics, a Lagrangian is a
+function of time, and the positions and velocities of all the
+particles in the system, to the difference between the kinetic energy
+and the potential energy of the system. For our system with two
+particles at positions $x_1$ and $x_2$ with velocities $\dot{x_1}$ and
+$\dot{x_2}$ the Lagrangian is:
+\begin{equation}\label{eq:coupled-spring-lagrangian}
+  L(t,x_1,x_2,\dot{x_1},\dot{x_2}) = \frac{1}{2}m(\dot{x_1}^2 + \dot{x_2}^2) - \frac{1}{2}k(x_1 - x_2)^2
 \end{equation}
-As a general rule, Lagrangians for classical mechanical systems take
-the form $L = T - V$, where $T$ is the kinetic energy of the system
-and $V$ is the potential energy. From the Lagrangian, using the
-principle of stationary action, we can derive the following two
+The first summand represents the total kinetic energy of the system in
+terms of the mass and velocities, while the second summand represents
+the potential energy contained within the spring due to the distance
+between the particles.
+
+From the Lagrangian (\ref{eq:coupled-spring-lagrangian}), using the
+\emph{principle of stationary action}, we can derive the following two
 equations of motion for this system. (We describe the principle of
 stationary action, and the process for deriving the equations of
 motion fully in Section~\ref{sec:conservation-laws-from-symmetry}.)
 For this system, the equations of motion are a pair of ordinary
 differential equations (ODEs) that describe how the positions and
-velocities of the particles evolve over time:
-\begin{displaymath}
-  FIXME
-\end{displaymath}
+velocities of the particles evolve over time (the second deivative
+with respect to time, $\ddot{x_i}$, denotes the acceleration of the
+$i$th particle):
+\begin{mathpar}
+  m\ddot{x_1} = k(x_1 - x_2)
+
+  m\ddot{x_2} = k(x_1 - x_2)
+\end{mathpar}
 We could now proceed to solve these ODEs to further analyse the
 behaviour of this system. However, Noether's theorem gives us a
 powerful way of gaining insight into properties of these ODEs ``for
 free'', without necessarily having to find solutions to them.
 
-The Lagrangian (\ref{eq:coupled-spring-langrangian}) does not refer to
+The Lagrangian (\ref{eq:coupled-spring-lagrangian}) does not refer to
 any fixed point in space; only the relative distance between the two
 particles, along with their velocities, is relevant. Therefore, the
-Langrangian (\ref{eq:coupled-spring-langrangian}) is invariant under
-translation in space by some arbitrary displacement $x$:
+Lagrangian (\ref{eq:coupled-spring-lagrangian}) is invariant under
+translation in space by some arbitrary displacement $y$:
 \begin{equation}\label{eq:coupled-spring-translation-invariance}
-  L(t,q_1,q_2,\dot{q_1},\dot{q_2}) = L(t,q_1+x,q_2+x,\dot{q_1},\dot{q_2})
+  L(t,x_1,x_2,\dot{x_1},\dot{x_2}) = L(t,x_1+y,x_2+y,\dot{x_1},\dot{x_2})
 \end{equation}
 By Noether's theorem, invariance under spatial translation implies
 that the linear momentum of the whole system is constant for all
 time. For this system, conservation of linear momentum is stated
-mathematically like so:
+mathematically as a vanishing derivative with respect to time:
 \begin{equation}\label{eq:coupled-spring-linear-momentum}
-  FIXME
+  \frac{d}{\mathit{dt}}~m(\dot{x}_1 + \dot{x_2}) = 0
 \end{equation}
 In general, Noether's theorem gives us a way of deriving conserved
 properties like (\ref{eq:coupled-spring-linear-momentum}) from
@@ -174,20 +192,21 @@ invariance properties like
 have used invariance under translation in space to derive conservation
 of linear momentum. Other common examples include invariance under
 translation in time, yielding conservation of energy, and invariance
-under rotation, yield conservation of angular momentum. We will see
-examples of each of these kinds of invariance, and consequent
+under rotation, yielding conservation of angular momentum. We will see
+examples of each of these kinds of invariance, and their consequent
 conservation laws, in Section~\ref{sec:examples}.
 
 The invariance property stated in
 Equation~(\ref{eq:coupled-spring-translation-invariance}) is highly
-reminisicent of the
+reminiscent of the free theorem we stated for the polymorphic program
+at the start of this introduction. FIXME
 
 In this paper, we present a way of using a generalised version of
 Reynolds' theory of relational parametricity to prove the geometric
 invariance properties required for the hypotheses of Noether's
 theorem. We build an extension of System F$\omega$ suitable for
 writing invariant Lagrangians. In our system, the Lagrangian
-(\ref{eq:coupled-spring-langrangian}) we gave above for describing a
+(\ref{eq:coupled-spring-lagrangian}) we gave above for describing a
 system of two particles coupled by a spring will have the type:
 \begin{displaymath}
   \forall x \mathord: \mathsf{T}(1).~C^\infty(\mathbb{R}\langle 1, 0 \rangle \times \mathbb{R}\langle 1, x \rangle \times \mathbb{R}\langle 1, x \rangle \times \mathbb{R}\langle 1, 0 \rangle \times \mathbb{R}\langle 1, 0 \rangle, \mathbb{R}\langle 1, 0 \rangle)
@@ -233,7 +252,7 @@ Our major contributions are threefold:
 \item FIXME: field theory
 \end{itemize}
 
-\section{Conservation Laws from Symmetry}
+\section{Conservation Laws from Invariance}
 \label{sec:conservation-laws-from-symmetry}
 
 Make sure to state up front the necessary background required. To
@@ -241,7 +260,7 @@ understand: basic(ish) calculus. We will be using the Calculus of
 Variations, but only by stating the main results. We go for standard
 physics notation, rather than anything more complicated.
 
-\subsection{The Principle of Stationary Action}
+\subsection{Lagrangian Mechanics}
 
 Introduce by stating Newton's second law, and saying that it can be
 derived from the principle of stationary action.
@@ -255,7 +274,7 @@ physical systems studied in classical mechanics.
 
 Lagrangian mechanics reformulates Newtonian mechanics in terms of 
 
-Two points: the Langrangian and generalised coordinates. Do
+Two points: the Lagrangian and generalised coordinates. Do
 generalised coordinates as a secondary thing.
 
 \begin{displaymath}
@@ -263,82 +282,214 @@ generalised coordinates as a secondary thing.
 \end{displaymath}
 
 \begin{example}
-  A single particle under a potential field. Set the potential field
-  to be (downward) gravity.
+  We have already seen an example of a Lagrangian, in the
+  introduction, describing a system of two particles coupled by a
+  spring. Another example of a Lagrangian describes a system
+  consisting of a single particle of mass $m$ acted upon by a constant
+  downward gravitational field with gravitational acceleration\footnote{is this the right word?} $g$:
+  \begin{equation}\label{eq:simple-g-lagrangian}
+    L(t,x,y,\dot{x},\dot{y}) = \frac{1}{2}m(\dot{x}^2 + \dot{y}^2) - mgy
+  \end{equation}
+  Again, the left summand represents the kinetic energy of the system
+  in terms of the mass and horizontal and vertical velocities of the
+  particle. The right summand represents the potential energy of the
+  system due to the gravitational field's strength determined by the
+  particle's distance from a fixed baseline at $y = 0$.
 \end{example}
 
 \paragraph{The Principle of Stationary Action}
 
-The principle of stationary action 
-
-\begin{displaymath}
+The \emph{principle of stationary action} states that the physically
+realisable paths $q$ are the paths that yield stationary points (i.e.,
+either minima or maxima) of the action $\mathcal{S}[q;a;b]$, for all
+$a$ and $b$. Defining what is exactly meant by a stationary point of
+the action is beyond the scope of this paper, and can be found in
+standard references on the calculus of variations, such as Gelfand and
+Fomin \cite{gelfandXXcalculus}. The key point for our purposes is that
+a path $q$ satisfies the principle of stationary action if and only if
+it satisfies a system of ODEs derived from the Lagrangian $L$, called
+the Euler-Lagrange equations:
+\begin{equation}\label{eq:euler-lagrange}
   \frac{d}{dt}\frac{\partial L}{\partial \dot{q_i}} - \frac{\partial L}{\partial q_i} = 0
-\end{displaymath}
+\end{equation}
+The ODEs derived from the Lagrangian for a classical mechanical system
+are called the \emph{equations of motion} for the system.
 
-Explain the different derivatives going on here
+The notation in the Euler-Lagrange equation, while standard, is not
+exactly clear, especially to a programming language theorist used to a
+more careful treatment of variables. The two partial derivatives
+$\frac{\partial L}{\partial \dot{q_i}}$ and $\frac{\partial
+  L}{\partial q_i}$ take partial derivatives of $L$ with respect to
+$\dot{q_i}$ and $q_i$ \emph{as variables}. The derivative with respect
+to time, $\frac{d}{dt}$ then treats $\dot{q_i}$ as a function of time,
+hence the appearance of the second derivatives $\ddot{q_i}$ in the
+equations of motion. Sussman and XXX \cite{sussman} criticise the
+standard presentation of Lagrangian mechanics for this kind of
+confusing notation, and define a clearer notation based on the Scheme
+programming language. We elect to stick with the standard notation as
+used in physics textbooks just for reasons of familiarity.
 
-Example: Newton's second law...
+\begin{example}
+  Computing the Euler-Lagrange equations for the Lagrangian
+  (\ref{eq:simple-g-lagrangian}), above, yields a pair of ODEs, for
+  the $x$ and $y$ coordinates of the single particle of the system:
+  \begin{mathpar}
+    m\ddot{x} = 0
 
-\subsection{Noether's Theorem} Noether's theorem provides us with deep
-insights into the properties of the solutions of the Euler-Lagrange
-equations. FIXME: motivate invariance.
+    m\ddot{y} = mg
+  \end{mathpar}
+  Note that both these ODEs have the form $F = m\ddot{x}$, which is
+  exactly Newton's second law. Lagrangian mechanics allows, from the
+  principle of stationary action, the derivation of Newton's second
+  law, rather than postulating it as an axiom.
+\end{example}
 
-FIXME: Define one-parameter groups
+\subsection{Noether's Theorem} 
+
+As we described in the introduction, Noether's theorem provides us
+with deep insights into the properties of the solutions of the
+Euler-Lagrange equations. Formally, Noether's theorem requires the
+invariance of the action $\mathcal{S}$, rather than invariance of the
+Lagrangian itself. We therefore first define what is meant by
+invariance of the action, and then state Noether's theorem.
 
 \paragraph{Invariance of the Action} Let
 \begin{displaymath}
   \mathcal{S}[q;a;b] = \int_a^b L(t,q(t),\dot{q}(t)) \mathit{dt}
 \end{displaymath}
 be the action of some physical system described by the Lagrangian
-$L$. Assume a differentiable invertible function $\tau : \mathbb{R}
+$L$. Assume a differentiable invertible function $\Phi : \mathbb{R}
 \to \mathbb{R}$ that transforms time in some way and a function
-$\sigma : \mathbb{R}^n \to \mathbb{R}^n$ that transforms the vector of
+$\Psi : \mathbb{R}^n \to \mathbb{R}^n$ that transforms the vector of
 generalised coordinates $\vec{q}$ to another vector of generalised
-coordinates $\sigma(\vec{q})$.
+coordinates $\Psi(\vec{q})$.
 
-We say that the action $\mathcal{S}$ is invariant under the
-transformations $\tau$ and $\sigma$ if it is the case that for all
-$a$, $b$ and $q$ that:
+The action $\mathcal{S}$ is \emph{invariant} between the endpoints $a$
+and $b$, under the transformations $\Phi$ and $\Psi$, if it is the
+case that for all paths $q$:
 \begin{equation}\label{eq:invariance}
     \int_a^b L(t,q(t),\dot{q}(t)) \mathit{dt}
-    = \int_{\tau(a)}^{\tau(b)} L(s, q^*(s), \dot{q^*}(s)) \mathit{ds}
+    = \int_{\Phi(a)}^{\Phi(b)} L(s, q^*(s), \dot{q^*}(s)) \mathit{ds}
 \end{equation}
-where $q^*(s) = (\sigma \circ q \circ \tau^{-1})(s)$ is the path $q$
-transformed by $\tau$ and $\sigma$.  FIXME: Remark on the use of $t$
-and $s$ in the integrals. By change of variables, the right hand
-integral in the above equation is equal to the following integral:
+where $q^*(s) = (\Psi \circ q \circ \Phi^{-1})(s)$ is the path $q$
+transformed by $\Phi$ and $\Psi$.  By change of variables, the right
+hand integral in the above equation is equal to the following
+integral:
 \begin{displaymath}
-  \int_a^b L(\tau(t), q^*(\tau(t)), \dot{q^*}(\tau(t)))\cdot \dot{\tau}(t) \mathit{dt}
+  \int_a^b L(\Phi(t), q^*(\Phi(t)), \dot{q^*}(\Phi(t)))\cdot \dot{\Phi}(t) \mathit{dt}
 \end{displaymath}
-Since the endpoints $a$ and $b$ are arbitrary 
+For our application to classical mechanics, the endpoints $a$ and $b$
+are arbitrary, so we can rewrite Equation (\ref{eq:invariance}) to the
+following equation between applications of the Lagrangian:
+\begin{equation}\label{eq:simplified-invariance}
+  L(t,q(t),\dot{q}(t)) = L(\Phi(t), q^*(\Phi(t)), \dot{q^*}(\Phi(t)))\cdot \dot{\Phi}(t)
+\end{equation}
+For most examples, it will be the case that $\Phi$ has the form
+$\Phi(t) = t + t'$ and $\Psi$ is an affine transformation $\Psi(q)
+= Gq + x$, where $G$ is an $n\mathord\times n$ real matrix and $x \in
+\mathbb{R}^n$. In this case, Equation (\ref{eq:simplified-invariance})
+simplifies further, using the definition of $q^*$ and the chain rule
+of differentiation, to:
+\begin{equation}
+  \label{eq:simple-invariance}
+  L(t,q(t),\dot{q}(t)) = L(t + t', Gq(t) + x, G\dot{q}(t))
+\end{equation}
+Equation (\ref{eq:simple-invariance}) is obviously implied by the
+following equation, where we treat $q$ and $\dot{q}$ as universally
+quantified variables, instead of as functions of time:
+\begin{equation}
+  \label{eq:simplest-invariance}
+  L(t,q,\dot{q}) = L(t + t', Gq + x, G\dot{q})
+\end{equation}
+Equation (\ref{eq:simplest-invariance}) is the form of invariance that
+the free theorems we derive from the types of our typed language for
+classical mechanics will usually take. We define our type system for
+classical mechanics in Sections~\ref{sec:symmetry-from-types}
+and~\ref{sec:types-for-classical-mech} below.
 
-
-\begin{example}
-  Continue a simple example from above to show that its action is
-  invariant under (e.g.) time translation.
+\begin{example}\label{ex:invariance-examples}
+  In the introduction, we stated that the Lagrangian
+  (\ref{eq:coupled-spring-lagrangian}) describing the spring-coupled
+  system is invariant under translation in space. Our running example
+  in this section, the Lagrangian (\ref{eq:simple-g-lagrangian}) for
+  the single particle under gravity, is not invariant under all
+  spatial translations, due to the reference in the potential energy
+  term to the distance from the fixed baseline at $y = 0$. It is
+  invariant under translations along the $x$-axis, however. Both
+  Lagrangians are also invariant in translations in time, a special
+  case of Equation~(\ref{eq:simplest-invariance}):
+  \begin{displaymath}
+    L(t,q,\dot{q}) = L(t+t',q,\dot{q})
+  \end{displaymath}
+  This invariance property is simply a consequence of the fact that
+  neither Lagrangian explicitly mentions the time $t$.
 \end{example}
 
 \paragraph{Noether's Theorem} Noether's theorem applies to actions
-that are \emph{continuously} invariant. FIXME: not quite right: write
-out the maths first.
+that are \emph{continuously} invariant. Being continuously invariant
+means that, instead of having fixed transformations $\Phi$ and $\Psi$,
+we have two families of transformations, $\Phi_\epsilon$ and
+$\Psi_\epsilon$, differentiably indexed by a real parameter
+$\epsilon$, such that $\Phi_0$ and $\Psi_0$ are the identity function.
 
-(a) parameterise $\tau$ and $\sigma$ by a real value $\epsilon$ such
-that we get a continuous symmetry of the action; (b) state Noether's
-theorem as we will use it.
-
-\begin{theorem}
-  Noether's theorem
+\begin{theorem}[Noether]
+  If the action
+  \begin{displaymath}
+    \mathcal{S}[q;a;b] = \int_a^b L(t,q(t),\dot{q}(t))~dt
+  \end{displaymath}
+  is invariant under $\epsilon$-indexed families of transformations
+  $\Phi_\epsilon$ and $\Psi_\epsilon$, then the equation
+  \begin{equation}
+    \label{eq:conservation-law}
+    \frac{d}{dt}\left(\sum_{i=1}^n \frac{\partial L}{\partial \dot{q_i}}\psi_i + \left(L - \sum_{i=1}^n \dot{q_i}\frac{\partial L}{\partial \dot{q_i}}\right) \phi \right) = 0
+  \end{equation}
+  holds for all paths $q$ satisfying the Euler-Lagrange equations
+  (\ref{eq:euler-lagrange}), where $\psi = \left. \frac{\partial
+      \Psi}{\partial \epsilon} \right|_{\epsilon = 0}$ and $\phi =
+  \left. \frac{\partial \Phi}{\partial \epsilon} \right|_{\epsilon =
+    0}$.
 \end{theorem}
 
+\begin{proof}
+  E.g., Gelfand and Fomin \cite{gelfandXXcalculus}, Section 20.
+\end{proof}
+
 \begin{example}
-  Continue the simple example from above to show that the invariance
-  under time translation yields conservation of energy.
+  In Example~\ref{ex:invariance-examples}, we noted that the
+  Lagrangians (\ref{eq:coupled-spring-lagrangian}) and
+  (\ref{eq:simple-g-lagrangian}) are both invariant under arbitrary
+  translations in time. In terms of continuous invariance, their
+  corresponding actions are invariant under the families
+  $\Phi_\epsilon(t) = t + \epsilon$ and $\Psi_\epsilon(q) =
+  q$. Plugging these definitions into
+  Equation~(\ref{eq:conservation-law}), we learn that, for these
+  systems:
+  \begin{displaymath}
+    \frac{d}{dt}~\left(L - \sum_{i=1}^2 \dot{q_i}\frac{\partial L}{\partial \dot{q_i}} \right) = 0
+  \end{displaymath}
+  For the spring-coupled particles Lagrangian,
+  (\ref{eq:coupled-spring-lagrangian}), we obtain:
+  \begin{displaymath}
+    \frac{d}{dt}~\left(\frac{1}{2}m(\dot{x_1}^2 + \dot{x_2}^2) + \frac{1}{2}k(x_1 - x_2) \right) = 0
+  \end{displaymath}
+  and for the single particle under gravity Lagrangian
+  (\ref{eq:simple-g-lagrangian}), we obtain:
+  \begin{displaymath}
+    \frac{d}{dt}~\left(\frac{1}{2}m(\dot{x}^2 + \dot{y}^2) + mgy\right) = 0
+  \end{displaymath}
+  In both cases, we have discovered that, as a consequence of
+  invariance under translation in time, the total energy of the system
+  is conserved (note that the $-$ signs in the original Lagrangians
+  have turned into $+$s). In general, invariance under translation in
+  time implies, via Noether's theorem, conservation of energy.
 \end{example}
 
-State that we will do more examples later on, after we discuss how to
-derive symmetry from types.
+This finishes our short introduction to Lagrangian mechanics and
+Noether's theorem. FIXME: State that we will do more examples later
+on, after we discuss how to derive invariance properties from types.
 
-\section{Symmetry from Types}
+\section{Invariance from Types}
+\label{sec:symmetry-from-types}
 
 The first part here will be at least partly taken from Atkey
 2012. Work out a way of emphasising that we do not need to do anything
@@ -961,7 +1112,7 @@ Administrative things: composition, products
   \Gamma \vdash \elab{e} : C^\infty(\elab{\Delta}, X)$.
 \end{theorem}
 
-\section{Examples}
+\section{Examples}\label{sec:examples}
 
 $- \sepbar V : \forall ... . C^\infty(\mathbb{R}^3\langle o, t \rangle, \mathbb{R}\langle 1, 0 \rangle); t : \mathbb{R}\langle 1, t_t \rangle, q : \mathbb{R}^3\langle o, t_q \rangle, \dot{q} : \mathbb{R}^3\langle o, 0 \rangle \vdash \frac{1}{2} * m * (\dot{q} \cdot \dot{q}) - V(q) : \mathbb{R}\langle 1, 0 \rangle$
 
