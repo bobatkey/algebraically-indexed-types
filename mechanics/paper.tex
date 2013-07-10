@@ -88,47 +88,137 @@
   system.
 \end{abstract}
 
+\category{CR-number}{subcategory}{third-level}
+
+\terms
+term1, term2
+
+\keywords
+keyword1, keyword2
+
 \section{Introduction}
 
+Reynolds' theory of relational parametricity \cite{reynolds82} tells
+us that parametrically polymorphic programs automatically satisfy
+invariance properties. Such invariance properties are often called
+\emph{Free Theorems}, after Wadler \cite{wadler89theorems}, since they
+follow ``for free'' from the types of programs, rather than through
+detailed study of the program text itself. A classic example,
+presented by Wadler, is the free theorem for programs $f$ with the
+following type:
+\begin{displaymath}
+  f : \forall \alpha.~\mathsf{List}~\alpha \to \mathsf{List}~\alpha
+\end{displaymath}
+Such programs takes lists of $\alpha$s, for any type $\alpha$, to
+lists of $\alpha$s. Using Reynolds' theory of relational
+parametricity, Wadler showed that \emph{any} $f$ with this type
+satisfies the following property:
+\begin{displaymath}
+  \forall \alpha, \beta, g : \alpha \to \beta, l : \mathsf{List}~\alpha.~\mathrm{map}~g~(f~[\alpha]~l) = f~[\beta]~(\mathrm{map}~g~l)
+\end{displaymath}
+Thus, any $f$ with the type given above commutes with mapping some
+arbitrary function $g$ over lists. Thinking in terms of abstract data
+types and change of data representation, this free theorem states that
+$f$ is invariant under change of data representation from an arbitrary
+type $\alpha$ to another arbitrary type $\beta$, via $g$.
+
+Using invariance under change to derive useful properties is a concept
+much older than programming languages. In physics, Noether's theorem
+\cite{noether} provides a general way to derive conserved properties
+of physical systems from 
+
+
+
+
+FIXME: example of translation invariance, with the coupled spring example
+\begin{equation}\label{eq:coupled-spring-langrangian}
+  L(t,q_1,q_2,\dot{q_1},\dot{q_2}) = \frac{1}{2}m(\dot{q_1}^2 + \dot{q_2}^2) - \frac{1}{2}k(q_1 - q_2)^2
+\end{equation}
+As a general rule, Lagrangians for classical mechanical systems take
+the form $L = T - V$, where $T$ is the kinetic energy of the system
+and $V$ is the potential energy. From the Lagrangian, using the
+principle of stationary action, we can derive the following two
+equations of motion for this system. (We describe the principle of
+stationary action, and the process for deriving the equations of
+motion fully in Section~\ref{sec:conservation-laws-from-symmetry}.)
+For this system, the equations of motion are a pair of ordinary
+differential equations (ODEs) that describe how the positions and
+velocities of the particles evolve over time:
+\begin{displaymath}
+  FIXME
+\end{displaymath}
+We could now proceed to solve these ODEs to further analyse the
+behaviour of this system. However, Noether's theorem gives us a
+powerful way of gaining insight into properties of these ODEs ``for
+free'', without necessarily having to find solutions to them.
+
+The Lagrangian (\ref{eq:coupled-spring-langrangian}) does not refer to
+any fixed point in space; only the relative distance between the two
+particles, along with their velocities, is relevant. Therefore, the
+Langrangian (\ref{eq:coupled-spring-langrangian}) is invariant under
+translation in space by some arbitrary displacement $x$:
+\begin{equation}\label{eq:coupled-spring-translation-invariance}
+  L(t,q_1,q_2,\dot{q_1},\dot{q_2}) = L(t,q_1+x,q_2+x,\dot{q_1},\dot{q_2})
+\end{equation}
+By Noether's theorem, invariance under spatial translation implies
+that the linear momentum of the whole system is constant for all
+time. For this system, conservation of linear momentum is stated
+mathematically like so:
+\begin{equation}\label{eq:coupled-spring-linear-momentum}
+  FIXME
+\end{equation}
+In general, Noether's theorem gives us a way of deriving conserved
+properties like (\ref{eq:coupled-spring-linear-momentum}) from
+invariance properties like
+(\ref{eq:coupled-spring-translation-invariance}). In this case, we
+have used invariance under translation in space to derive conservation
+of linear momentum. Other common examples include invariance under
+translation in time, yielding conservation of energy, and invariance
+under rotation, yield conservation of angular momentum. We will see
+examples of each of these kinds of invariance, and consequent
+conservation laws, in Section~\ref{sec:examples}.
+
+The invariance property stated in
+Equation~(\ref{eq:coupled-spring-translation-invariance}) is highly
+reminisicent of the
+
+In this paper, we present a way of using a generalised version of
+Reynolds' theory of relational parametricity to prove the geometric
+invariance properties required for the hypotheses of Noether's
+theorem. We build an extension of System F$\omega$ suitable for
+writing invariant Lagrangians. In our system, the Lagrangian
+(\ref{eq:coupled-spring-langrangian}) we gave above for describing a
+system of two particles coupled by a spring will have the type:
+\begin{displaymath}
+  \forall x \mathord: \mathsf{T}(1).~C^\infty(\mathbb{R}\langle 1, 0 \rangle \times \mathbb{R}\langle 1, x \rangle \times \mathbb{R}\langle 1, x \rangle \times \mathbb{R}\langle 1, 0 \rangle \times \mathbb{R}\langle 1, 0 \rangle, \mathbb{R}\langle 1, 0 \rangle)
+\end{displaymath}
+where... FIXME
+
+Atkey, Johann and Kennedy \cite{atkey13abstraction} have already
+presented a polymorphic type system for expressing geometric
+invariance properties similar to the 
+
+FIXME: area of triangle type
+
+By extending System F$\omega$, we get to 
+
+\paragraph{Contributions}
+
+Our major contributions are threefold:
 \begin{enumerate}
-\item Symmetry in programming and physics
-  \begin{enumerate}
-  \item In programming: replacement of one data type by another
-  \item In physics: invariance under change of unobservable
-    properties. FIXME: check this.
-  \item What unifies these, at a conceptual level? Inability to
-    distinguish between situations, given the tools provided. In both
-    cases, this leads to interesting properties of such systems. In
-    programming, we get ``free theorems''. In Physics, via Noether's
-    theorem, we get ``conservation laws''.
-  \item In this paper, we show that we can define a programming
-    language for classical mechanics, based on System F$\omega$, where
-    the abstraction theorem directly fulfils the hypothesis of
-    Noether's theorem, allowing us to derive conservation laws.
-  \end{enumerate}
-\item Parametricity: polymorphic programs have symmetry properties
-  \begin{enumerate}
-  \item Example of a free theorem
-  \item Example of a geometric free theorem (the area of a triangle
-    example)
-  \end{enumerate}
-\item Noether's theorem: symmetry properties of descriptions of
-  systems lead to conservation laws
-\item Let's put the two together
-  \begin{enumerate}
-  \item Need invariance properties of smooth functions
-  \item So we extend System F$\omega$ with 
-  \end{enumerate}
-\item We present the classical mechanics and Noether's theorem first,
-  since it is likely to be more unfamiliar to readers.
+\item FIXME: reformulate AJK in terms of the reflexive graph model of
+  relational parametricity in order to unify that paper with the
+  natural extension of Reynolds' relational parametricity to indexed
+  types.
+\item FIXME: Present an extension of System F$\omega$ suitable for
+  writing invariant Lagrangians. This requires special attention to
+  ensure that all the functions that we can write are actually
+  continuous and differentiable. Hence we include a special type of
+  smooth, invariant functions between cartesian spaces.
+\item FIXME: Present many examples of 
 \end{enumerate}
 
-We restate the results of Atkey, Johann and Kennedy in the more
-general setting of System F$\omega$... which is good because it allows
-for a deeper interpretation of what the unit kinds are. Also, we can
-introduce useful stuff like nat-indexed types without too much fuss.
-
-\paragraph{Summary of the Paper}
+\paragraph{Outline}
 
 \begin{itemize}
 \item FIXME: Recall the necessary background for Noether's theorem
@@ -193,6 +283,8 @@ Example: Newton's second law...
 insights into the properties of the solutions of the Euler-Lagrange
 equations. FIXME: motivate invariance.
 
+FIXME: Define one-parameter groups
+
 \paragraph{Invariance of the Action} Let
 \begin{displaymath}
   \mathcal{S}[q;a;b] = \int_a^b L(t,q(t),\dot{q}(t)) \mathit{dt}
@@ -200,23 +292,26 @@ equations. FIXME: motivate invariance.
 be the action of some physical system described by the Lagrangian
 $L$. Assume a differentiable invertible function $\tau : \mathbb{R}
 \to \mathbb{R}$ that transforms time in some way and a function
-$\sigma : \mathbb{R} \times \mathbb{R}^n \to \mathbb{R}^n$ that
-transforms the vector of generalised coordinates $\vec{q}$ at time $t$
-to another vector of generalised coordinates $\sigma(t,\vec{q})$.
+$\sigma : \mathbb{R}^n \to \mathbb{R}^n$ that transforms the vector of
+generalised coordinates $\vec{q}$ to another vector of generalised
+coordinates $\sigma(\vec{q})$.
 
 We say that the action $\mathcal{S}$ is invariant under the
 transformations $\tau$ and $\sigma$ if it is the case that for all
 $a$, $b$ and $q$ that:
+\begin{equation}\label{eq:invariance}
+    \int_a^b L(t,q(t),\dot{q}(t)) \mathit{dt}
+    = \int_{\tau(a)}^{\tau(b)} L(s, q^*(s), \dot{q^*}(s)) \mathit{ds}
+\end{equation}
+where $q^*(s) = (\sigma \circ q \circ \tau^{-1})(s)$ is the path $q$
+transformed by $\tau$ and $\sigma$.  FIXME: Remark on the use of $t$
+and $s$ in the integrals. By change of variables, the right hand
+integral in the above equation is equal to the following integral:
 \begin{displaymath}
-  \int_a^b L(t,q,\dot{q}) \mathit{dt} = \int_{\tau(a)}^{\tau(b)} L(t', \sigma(\tau^{-1}(t'), q(t')), \mathbf{FIXME}) \mathit{dt'}
+  \int_a^b L(\tau(t), q^*(\tau(t)), \dot{q^*}(\tau(t)))\cdot \dot{\tau}(t) \mathit{dt}
 \end{displaymath}
-FIXME: Remark on the use of $t$ and $t'$ in the integrals. FIXME:
-state that all we are doing is transforming the time and the path by
-the transformations $\tau$ and $\sigma$ respectively. State why it
-will be useful for the 
+Since the endpoints $a$ and $b$ are arbitrary 
 
-Remark on how to give a simpler version of the invariance principle by
-applying some simple transformations of integrals (see notes).
 
 \begin{example}
   Continue a simple example from above to show that its action is
@@ -387,7 +482,9 @@ reflexive graphs as the semantic interpretation of small kinds.
 
 The interpretation of kinds as reflexive graphs, and small kinds as
 small reflexive graphs is a key property of our semantics that we will
-maintain as we add additional kinds in Sections XXX below.
+maintain as we add additional kinds in
+Sections~\ref{sec:discrete-kinds} and~\ref{sec:groupoid-kinds},
+below. We state this as Property~\ref{property:semantic-kinds}:
 
 \begin{property}\label{property:semantic-kinds}
   Each kind $\kappa$ is interpreted as a reflexive graph
@@ -615,10 +712,18 @@ property that it takes related environments to related results:
 \label{sec:discrete-kinds}
 
 In Section~\ref{sec:refl-graphs-for-fomega}, we only had a single base
-kind: the kind $*$ of proper types.
+kind: the kind $*$ of proper types, with a specific intepretation as
+the reflexive graph of sets and relations. We now describe two
+families of base kinds with interpretations that are particular sorts
+of reflexive graphs. In this section, we look at discrete kinds; kinds
+whose reflexive graph interpretations are such that the reflexive
+edges are the only edges between objects. In the following section
+(Section~\ref{sec:groupoid-kinds}), we look at groupoid kinds, where
+edges are composable and invertible.
 
-Natural numbers as a discrete kind. The type of length-indexed
-vectors.
+Discrete kinds can be seen as the natural way of lifting base types up
+to the kind level. 
+
 
 \begin{displaymath}
   \kappa ::= \cdots \sepbar \mathsf{nat}
@@ -634,30 +739,53 @@ vectors.
   \sem{\mathsf{nat}} = (\mathbb{N}, (n_1,n_2) \mapsto \{ * \sepbar n_1 = n_2 \}, n \mapsto *)
 \end{displaymath}
 
+\begin{mathpar}
+  \inferrule*
+  { }
+  {\Theta \vdash \mathit{zero} : \mathsf{nat}}
+
+  \inferrule*
+  {\Theta \vdash A : \mathsf{nat}}
+  {\Theta \vdash \mathit{succ}~A : \mathsf{nat}}
+
+  \inferrule*
+  {\Theta \vdash A : \mathsf{nat} \\
+    \Theta \vdash B : \kappa \\
+    \Theta \vdash C : \kappa \to \kappa}
+  {\Theta \vdash \mathit{natrec}~A~B~C : \kappa}
+\end{mathpar}
+
 Make the point that any set can be used as the interpretation of a
 kind. Also, the utility of singleton types.
 
-\subsection{Group(oid) Kinds}
+\subsection{Groupoid Kinds}
 \label{sec:groupoid-kinds}
 
 There is a full and faithful functor from the category of groupoids to
 the category of reflexive graphs, that preserves smallness.
 
-\begin{enumerate}
-\item Each (matrix) group gives a kind, which we can use as parameter
-  to a type.
-\item The collection of cartesian spaces, with diffeomorphisms as the
-  edges.
-\item Do units of measure as an example (include one of the results
-  from that paper, e.g., type iso)
-\item Mention groupoid kinds, and link to Hofmann and Streicher. Do
-  finite sets and bijections as an example.
-\end{enumerate}
+\paragraph{The additive group of integers}
 
-\paragraph{Why not Groupoids Everywhere?} Explain why we aren't using
-groupoids as kinds: don't need to, doesn't directly generalise
-relational parametricity, see Robinson's paper. Distance-indexed
-types.
+\paragraph{Matrix groups}
+
+GL and O, with group operations
+
+$\mathit{ortho}_n : \mathsf{O}(n) \to \mathsf{GL}(n)$
+$\mathit{scale}_n : \mathsf{GL}(1) \to \mathsf{GL}(n)$
+
+\paragraph{Translation groups}
+
+$\mathit{exp} : \mathsf{T}(1) \to \mathsf{GL}(1)$
+$\underline{c}\cdot- : \mathsf{Z} \to \mathsf{T}(1)$
+
+\paragraph{Groupoid of Cartesian Spaces}
+
+
+\subsection{Why not Groupoids Everywhere?}
+
+Explain why we aren't using groupoids as kinds: don't need to, doesn't
+directly generalise relational parametricity, see Robinson's
+paper. Distance-indexed types.
 
 \section{A Type System for Classical Mechanics}
 \label{sec:types-for-classical-mech}
@@ -671,11 +799,53 @@ System F$\omega$ with new kind-, type- and term-level constants that
 will deliver us the exact symmetry properties we require to be able to
 apply Noether's theorem.
 
-\subsection{Extending System F$\omega$ for Classical Mechanics}
+%\subsection{Extending System F$\omega$ for Classical Mechanics}
 
 Let us enumerate our requirements for an extension of System F$\omega$
 for writing invariant Lagrangians\footnote{Make sure that I say this
   is the plan back in Sec 2}.
+
+\subsection{Extending System F$\omega$ with Smooth Functions}
+
+\begin{enumerate}
+\item We have already done the matrix kinds and the CartSp kind back
+  in the previous section. Add $n-ary$ products for CartSp.
+  \begin{displaymath}
+    \begin{array}{l@{\hspace{0.3em}}c@{\hspace{0.3em}}l}
+      C^\infty &:& \mathsf{CartSp} \to \mathsf{CartSp} \to * \\
+      \mathbb{R}^n &:& \mathsf{GL}(n) \to \mathsf{T}(n) \to \mathsf{CartSp} \\
+%      (\times) &:& \mathsf{CartSp} \to \mathsf{CartSp} \to \mathsf{CartSp} \\
+      \mathit{vec} &:& \mathsf{nat} \to \mathsf{CartSp} \to \mathsf{CartSp}
+    \end{array}
+\end{displaymath}
+\item Note that the $n$ in $\mathbb{R}^n$ is static
+\item Add the type former for the smooth function space, and all the
+  relevant constants
+\item Give a (very) small example, and complain that it is very
+  difficult to write anything in this point-free style.
+\end{enumerate}
+
+Administrative things: composition, products
+
+\begin{displaymath}
+  \begin{array}{l@{\hspace{0.3em}}c@{\hspace{0.3em}}l}
+    (+) &:&
+    \begin{array}[t]{@{}l}
+      \forall g \mathord: \mathsf{GL}(n), t_1,t_2 \mathord: \mathsf{T}(n). \\
+      \hspace{1.5cm} C^\infty(\mathbb{R}^n\langle g, t_1 \rangle \times \mathbb{R}^n\langle g, t_2 \rangle, \mathbb{R}^n\langle g, t_1 + t_2 \rangle)\\
+    \end{array} \\
+    (-) &:&
+    \begin{array}[t]{@{}l}
+      \forall g \mathord: \mathsf{GL}(n), t_1,t_2 \mathord: \mathsf{T}(n). \\
+      \hspace{1.5cm} C^\infty(\mathbb{R}^n\langle g, t_1 \rangle \times \mathbb{R}^n\langle g, t_2 \rangle, \mathbb{R}^n\langle g, t_1 - t_2 \rangle)\\
+    \end{array} \\
+    \sin &:& \forall z \mathord: \mathsf{Z}.~C^\infty(\mathbb{R}\langle 1, 2\pi \cdot z \rangle, \mathbb{R} \langle 1, 0 \rangle) \\
+    \cos &:& \forall z \mathord: \mathsf{Z}.~C^\infty(\mathbb{R}\langle 1, 2\pi \cdot z \rangle, \mathbb{R} \langle 1, 0 \rangle) \\
+    \mathrm{exp} &:& \forall t \mathord: \mathsf{T}(1).~C^\infty(\mathbb{R}\langle 1, t \rangle, \mathbb{R}\langle \mathit{exp}~t, 0 \rangle)
+  \end{array}
+\end{displaymath}
+
+\subsection{A Surface Syntax for Smooth Functions}
 
 \begin{enumerate}
 \item Kind of cartesian spaces, parameterised by a matrix group and a
@@ -684,41 +854,11 @@ for writing invariant Lagrangians\footnote{Make sure that I say this
   requirements of the Euler-Lagrange equations.
 \item Primitives for dealing with the geometry of the spaces (inner
   product, vector space operations, cross product(?), trigonometric
-  functions (at least sin and cos)).\footnote{FIXME: fix the notation of $\forall$}
-  \begin{displaymath}
-    \begin{array}{l@{\hspace{0.3em}}c@{\hspace{0.3em}}l}
-      \sin &:& \forall z \mathord: \mathsf{Z}.~\mathbb{R}\langle 2\pi \cdot z, 1 \rangle \smoothrightarrow \mathbb{R} \langle 0, 1 \rangle \\
-      \cos &:& \forall z \mathord: \mathsf{Z}.~\mathbb{R}\langle 2\pi \cdot z, 1 \rangle \smoothrightarrow \mathbb{R} \langle 0, 1 \rangle \\
-    \end{array}
-  \end{displaymath}
+  functions (at least sin and cos)).
 \end{enumerate}
 
 \begin{displaymath}
-  \begin{array}{l@{\hspace{0.3em}}c@{\hspace{0.3em}}l}
-    \mathrm{exp} &:& \forall t \mathord: \mathsf{T}(1).~\mathbb{R}\langle t, 1 \rangle \smoothrightarrow \mathbb{R}\langle 0, \mathit{exp}~t \rangle
-  \end{array}
-\end{displaymath}
-
-Group homomorphisms:
-\begin{itemize}
-\item $\mathit{exp} : \mathsf{T}(1) \to \mathsf{GL}(1)$
-\item $\mathit{scale}_n : \mathsf{GL}(1) \to \mathsf{GL}(n)$
-\item $\mathit{ortho}_n : \mathsf{O}(n) \to \mathsf{GL}(n)$
-\item $\underline{c}\cdot- : \mathsf{Z} \to \mathsf{T}(1)$
-\end{itemize}
-Group operations on translations (for all $n$), and on
-$\mathsf{GL}(1)$ (no abs, because it is not smooth).
-
-\begin{displaymath}
-  \kappa ::= \cdots \sepbar \mathsf{CartSp} \sepbar \mathsf{T}(n) \sepbar \mathsf{GL}(n) \sepbar \mathsf{O}(n) \sepbar \mathsf{Z} \sepbar XXX
-\end{displaymath}
-
-\begin{displaymath}
-  \begin{array}{l@{\hspace{0.3em}}c@{\hspace{0.3em}}l}
-    (\smoothrightarrow) &:& \mathsf{CartSp} \to \mathsf{CartSp} \to * \\
-    \mathbb{R}^n &:& \mathsf{T}(n) \to \mathsf{GL}(n) \to \mathsf{CartSp} \\
-    (\times) &:& \mathsf{CartSp} \to \mathsf{CartSp} \to \mathsf{CartSp}
-  \end{array}
+  \kappa ::= \cdots \sepbar \mathsf{CartSp} \sepbar \mathsf{T}(n) \sepbar \mathsf{GL}(n) \sepbar \mathsf{O}(n) \sepbar \mathsf{Z}
 \end{displaymath}
 
 \begin{itemize}
@@ -795,7 +935,7 @@ $\mathsf{GL}(1)$ (no abs, because it is not smooth).
     \inferrule*
     {\Theta \sepbar \Gamma; \Delta \vdash e_1 : \mathbb{R}^n\langle \mathit{scale}_n(s)\mathit{ortho}_n(o), 0 \rangle \\
       \Theta \sepbar \Gamma; \Delta \vdash e_2 : \mathbb{R}^n\langle \mathit{scale}_n(s)\mathit{ortho}_n(o), 0 \rangle}
-    {\Theta \sepbar \Gamma; \Delta \vdash e_1 \cdot e_2 : \mathbb{R}\langle\mathit{scale}_n(s)^2, 0 \rangle}
+    {\Theta \sepbar \Gamma; \Delta \vdash e_1 \cdot e_2 : \mathbb{R}\langle\mathit{scale}_n(s)^n, 0 \rangle}
   \end{mathpar}
   \textbf{Transcendental functions}
   \begin{mathpar}
@@ -852,125 +992,5 @@ $- \sepbar V : \forall ... . C^\infty(\mathbb{R}^3\langle o, t \rangle, \mathbb{
 \item Languages with function spaces with more structure (Alex's
   Enriched Effect Calculus) (Idea for differential privacy)
 \end{enumerate}
-
-
-\newpage
-
-Overall plan:
-\begin{enumerate}
-\item A type system for writing smooth functions between smooth
-  manifolds, subject to invariance with respect to certain Lie groups
-\item Use this to write Lagrangians that describe classical mechanics
-  situations, in such a way that Noether's theorem can be applied.
-\item Need to explain:
-  \begin{enumerate}
-  \item Lagrangians
-  \item Euler-Lagrange equations for $L(t,q,q')$
-    \begin{displaymath}
-      \frac{\mathrm{d}}{\mathrm{d}t} \frac{\partial L}{\partial q'} - \frac{\partial L}{\partial q} = 0
-    \end{displaymath}
-  \item Lie groups (manifolds!?), and their infinitesimal generators
-    (see the exposition in Olver's book).
-  \item Noether's theorem, with (lots of) examples. Explain what was
-    in Noether's original paper (first theorem vs. second theorem).
-  \end{enumerate}
-  Interleave the presentation of the maths/physics and the type
-  system?
-\item Stick to being relatively uncomplicated with respect to the
-  manifold stuff? Or use dependent types to handle the tangent spaces
-  ``properly''?
-\item Operations we want (in order to do the examples): distance
-  between points (arclength/geodesic length), trigonometric functions
-  (what continuous invariance properties do these have?),
-\item Possibly use a variant of System F$\omega$ as the
-  superstructure: System F$\omega$ plus a sub-language for dealing
-  with smooth functions (which, in principle, could be handled just by
-  using combinators to build something in a arrow-style). System
-  F$\omega$ gives us a lot of power, and means that we don't need to
-  go anywhere near dependent types...
-  \begin{enumerate}
-  \item So manifolds are a kind
-  \item And so are Lie groups (?), not really, they have a different
-    status (due to the identity extension requirement)
-  \item Flat spaces are type operators from groups that act on them to
-    manifolds
-  \item Have a type constructor that builds the space of infinitely
-    differentiable functions between two spaces
-  \item Elaboration process that desugars a nicer syntax for smooth
-    functions...
-  \item Possibly a bit of natural numbers and vectors to allow for
-    $n$-body problems...
-  \item Need to restrict to predicativity in order to get classical
-    mathematics? (probably should just forget about type
-    quantification, and restrict the set of things we can quantify
-    over to certain ``small'' kinds; just the groups?). Mention that
-    going for SDG as a basis might offer a way out of this.
-  \item Sub-kinding?
-  \end{enumerate}
-\item Examples:
-  \begin{enumerate}
-  \item $n$-body problem in $\mathbb{R}^3$, with all the consequent
-    conservation laws.
-  \item Central force problem
-  \item Pendulums
-  \item Rigid body problem? Use quotients in the definitions of the
-    trigonometric functions? $\sin : \forall n :
-    \mathbb{Z}.~\mathbb{R}\langle2\pi n\rangle \to \mathbb{R}\langle 1
-    \rangle$. This gives us a way of doing circles in a neat way.
-  \end{enumerate}
-\end{enumerate}
-
-\begin{enumerate}
-\item Be clear that we don't really expect these programs to
-  necessarily be (directly) executable.
-\item Manifolds?
-  \begin{enumerate}
-  \item Spheres
-  \item Tangent spaces
-  \item 'Flat' spaces
-  \item (Quotient spaces?) (have a look at Olver's book)
-  \end{enumerate}
-\end{enumerate}
-
-Groups and their operations:
-\begin{enumerate}
-\item General linear group
-\item Orthogonal group
-\item Rotations around certain axes (in 
-\end{enumerate}
-
-
-Types (maybe include dependent types, for $n$-ary sized problems?)
-\begin{displaymath}
-  \begin{array}{rcl}
-    M,M' & ::= & \mathbb{R}^n\langle e \rangle \sepbar \Sigma x : M.~M' \sepbar T_xM \\
-    A, B & ::= & S \sepbar C^\infty(S,T) \sepbar A \times B \sepbar \forall G.~A \sepbar A \to B \sepbar A + B
-  \end{array}
-\end{displaymath}
-
-\begin{mathpar}
-  \inferrule*
-  {\Gamma \sepbar x : S \vdash M :^\infty T}
-  {\Gamma \vdash \lambda^\infty x : S.~M : C^\infty(S,T)}
-\end{mathpar}
-
-So a Lagrangian is something of type:
-\begin{displaymath}
-  \forall G:\mathsf{E}(3).~C^\infty(\mathbb{R} \times \mathbb{R}^3\langle G \rangle \times \mathbb{R}^3\langle G \rangle, \mathbb{R})
-\end{displaymath}
-
-\section{Introduction}
-
-\section{Lagrangian Mechanics}
-
-\section{Symmetry and Conservation Laws}
-
-\section{A Type System for Lagrangians}
-
-Syntax and Semantics, and the abstraction theorem...
-
-\section{Examples}
-
-\section{Field Theory}
 
 \end{document}
