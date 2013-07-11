@@ -168,7 +168,8 @@ $i$th particle):
 We could now proceed to solve these ODEs to further analyse the
 behaviour of this system. However, Noether's theorem gives us a
 powerful way of gaining insight into properties of these ODEs ``for
-free'', without necessarily having to find solutions to them.
+free'', without necessarily having to find solutions to them. This is
+accomplished by finding invariance properties of the Lagrangian.
 
 The Lagrangian (\ref{eq:coupled-spring-lagrangian}) does not refer to
 any fixed point in space; only the relative distance between the two
@@ -181,7 +182,8 @@ translation in space by some arbitrary displacement $y$:
 By Noether's theorem, invariance under spatial translation implies
 that the linear momentum of the whole system is constant for all
 time. For this system, conservation of linear momentum is stated
-mathematically as a vanishing derivative with respect to time:
+mathematically as the vanishing of the derivative with respect to time
+of the total linear momentum of the system:
 \begin{equation}\label{eq:coupled-spring-linear-momentum}
   \frac{d}{\mathit{dt}}~m(\dot{x}_1 + \dot{x_2}) = 0
 \end{equation}
@@ -199,87 +201,196 @@ conservation laws, in Section~\ref{sec:examples}.
 The invariance property stated in
 Equation~(\ref{eq:coupled-spring-translation-invariance}) is highly
 reminiscent of the free theorem we stated for the polymorphic program
-at the start of this introduction. FIXME
+at the start of this introduction. A change in representation in the
+input, whether a change in data representation from a type $\alpha$ to
+a type $\beta$, or a change in where time zero is counted from,
+results in no change in the output. Since Reynolds' relational
+parametricity was allowed us to derive the invariance properties for
+the program $f$ just by looking at its type, we ask the following
+question:
 
-In this paper, we present a way of using a generalised version of
-Reynolds' theory of relational parametricity to prove the geometric
-invariance properties required for the hypotheses of Noether's
-theorem. We build an extension of System F$\omega$ suitable for
-writing invariant Lagrangians. In our system, the Lagrangian
-(\ref{eq:coupled-spring-lagrangian}) we gave above for describing a
-system of two particles coupled by a spring will have the type:
+\medskip
+
+\noindent
+\textbf{Question:} \emph{Is it possible to use Reynolds' theory of
+  relational parametricity to derive the invariance properties of
+  Lagrangians required for Noether's theorem to derive conservation
+  laws?}
+
+\medskip
+
+In this paper, we answer this question positively. We show that it is
+indeed the case that we can use a generalised version of Reynolds'
+theory of relational parametricity to prove the geometric invariance
+properties required for the hypotheses of Noether's theorem. We
+construct an extension of System F$\omega$ suitable for writing
+invariant Lagrangians, with a relationally parametric model that
+allows us to prove invariance properties as free theorems. In our
+system, the Lagrangian (\ref{eq:coupled-spring-lagrangian}) we gave
+above for describing a system of two particles coupled by a spring
+will have the type:
 \begin{displaymath}
-  \forall x \mathord: \mathsf{T}(1).~C^\infty(\mathbb{R}\langle 1, 0 \rangle \times \mathbb{R}\langle 1, x \rangle \times \mathbb{R}\langle 1, x \rangle \times \mathbb{R}\langle 1, 0 \rangle \times \mathbb{R}\langle 1, 0 \rangle, \mathbb{R}\langle 1, 0 \rangle)
+  \begin{array}{@{}l}
+  \forall y \mathord: \mathsf{T}(1).\\
+  \quad C^\infty(\mathbb{R}\langle 1, 0 \rangle \times \mathbb{R}\langle 1, y \rangle \times \mathbb{R}\langle 1, y \rangle \times \mathbb{R}\langle 1, 0 \rangle \times \mathbb{R}\langle 1, 0 \rangle, \mathbb{R}\langle 1, 0 \rangle)
+\end{array}
 \end{displaymath}
-where... FIXME
+We explain this type by breaking it down from left to right. The
+quantifier $\forall x \mathord: \mathsf{T}(1)$ indicates that we are
+quantifying over all translations $y$ in one-dimensional space, just
+as we did implicity in Equation
+(\ref{eq:coupled-spring-translation-invariance}). The notation
+$C^\infty(-,-)$ denotes the type of \emph{smooth} functions between
+spaces. A smooth function is a function that is infinitely
+differentiable. All the functions that we wish to use as Lagrangians
+must be smooth (at least up to second order) for the theory to
+work. The type $\mathbb{R}\langle g, x \rangle$ denotes real numbers
+that vary with some linear transformation $g$ and translation $x$. In
+this case, all the linear transformations are $1$, indicating no
+transformation. Likewise, when the translation component is $0$, there
+is no translation. Thus a value of type $\mathbb{R}\langle 1, 0
+\rangle$ is invariant, but a value of type $\mathbb{R}\langle 1, y
+\rangle$ varies with the translation $y$. In the smooth function type
+above, in domain space consists of vectors of five real numbers: the
+time, the two particle positions, which vary with the translation $y$,
+and the two particle velocities.
 
-Atkey, Johann and Kennedy \cite{atkey13abstraction} have already
-presented a polymorphic type system for expressing geometric
-invariance properties similar to the 
-
-FIXME: area of triangle type
-
-By extending System F$\omega$, we get to 
+Atkey, Johann and Kennedy \cite{atkey13abstraction}, building on older
+work by Kennedy \cite{kennedy94para}, have already presented a
+polymorphic type system for expressing geometric invariance properties
+similar to the translation invariance property in Equation
+(\ref{eq:coupled-spring-translation-invariance}). In the present work,
+we extend their type system by embedding it within System
+F$\omega$. The benefits of this embedding are twofold. Firstly, by
+using the richer type-level structure of System F$\omega$, we can
+easily add useful indexed types like length indexed vectors and smooth
+function types, both of which would have required special treatment in
+the special purpose type system presented by Atkey \emph{et
+  al.}. Secondly, by using System F$\omega$ as our base, we are able
+to reuse the reflexive graph-based relationally parametric semantics
+presented by Atkey \cite{atkey12relational}, extending it as
+appropriate for our geometric setting.
 
 \paragraph{Contributions}
 
 Our major contributions are threefold:
 \begin{enumerate}
-\item FIXME: reformulate AJK in terms of the reflexive graph model of
-  relational parametricity in order to unify that paper with the
-  natural extension of Reynolds' relational parametricity to indexed
-  types.
-\item FIXME: Present an extension of System F$\omega$ suitable for
-  writing invariant Lagrangians. This requires special attention to
-  ensure that all the functions that we can write are actually
-  continuous and differentiable. Hence we include a special type of
-  smooth, invariant functions between cartesian spaces.
-\item FIXME: Present many examples of 
+\item We reformulate the type system for geometric invariance of
+  Atkey, Johann and Kennedy \cite{atkey13abstraction} as an extension
+  of System F$\omega$. This shows that the special status of the
+  group-indexed types in Atkey \emph{et al.}'s work can be
+  incorporated into a standard framework for presenting indexed types.
+\item We present a relationally parametric semantics of our extension
+  of System F$\omega$. In this model, following Atkey's model for
+  basic System F$\omega$ \cite{atkey12relational}, each kind is
+  interpreted as a reflexive graph. Our key technical contribution is
+  to note that the many geometric groups that we wish to incorporate
+  are expressible as groupoids, and hence as reflexive graphs. We
+  therefore show that Reynolds' theory of relational parametricity,
+  suitably generalised to indexed types by considering reflexive
+  graphs, already accomodates geometric invariance properties.
+\item Finally, we connect the free theorems derivable from our
+  relationally parametric semantics with Noether's theorem for
+  deriving conservation laws. We present many examples of invariant
+  Lagrangians expressible in our type system, along with the
+  consequent conservation laws for physical systems. In each case, the
+  necessary invariance property is derived from the type we assign to
+  the Lagrangian.
 \end{enumerate}
 
 \paragraph{Outline}
 
 \begin{itemize}
-\item FIXME: Recall the necessary background for Noether's theorem
-  (Section~\ref{sec:conservation-laws-from-symmetry}).
-\item FIXME: Show how to get symmetry properties from types
-  (Section~\ref{sec:symmetry-from-types}).
-\item FIXME: In Section~\ref{sec:types-for-classical-mech}, we
-  construct a type system for classical mechanics,
-\item FIXME: Section~\ref{sec:examples} we present examples of using
-  our extension of System F$\omega$ for writing invariant Lagrangians
-  that describe physical systems.
-\item FIXME: field theory
+\item In the next section,
+  Section~\ref{sec:conservation-laws-from-symmetry}, we describe the
+  necessary background to understand Noether's theorem and the
+  conservation laws it generates. We briefly introduce the Lagrangian
+  formulation of classical mechanics, define precisely what it means
+  for a physical system to be invariant under transformations, and
+  state Noether's theorem.
+\item Having shown how invariance generates conservation laws in
+  Section~\ref{sec:conservation-laws-from-symmetry}, in
+  Section~\ref{sec:symmetry-from-types}, we show how to derive
+  invariance properties from indexed types. We present a relationally
+  parametric semantics for System F$\omega$, and show how geometric
+  invariance properties can be accomodated within this semantics.
+\item In Section~\ref{sec:types-for-classical-mech}, we construct a
+  type system for classical mechanics, by extending System F$\omega$
+  with the necessary constants for smooth function types and
+  combinators for constructing smooth functions. Programming directly
+  with our combinators in raw System F$\omega$ is awkward, due to the
+  point-free style required, so in Section~\ref{sec:surface-syntax} we
+  define a surface syntax for defining smooth functions that is
+  translated into our applied System F$\omega$.
+\item In Section~\ref{sec:examples} we present several examples of
+  using our extension of System F$\omega$ for writing invariant
+  Lagrangians that describe physical systems.
+\item Section~\ref{sec:conclusions} concludes, and offers directions
+  for further work.
 \end{itemize}
 
 \section{Conservation Laws from Invariance}
 \label{sec:conservation-laws-from-symmetry}
 
-Make sure to state up front the necessary background required. To
-understand: basic(ish) calculus. We will be using the Calculus of
-Variations, but only by stating the main results. We go for standard
-physics notation, rather than anything more complicated.
+Noether's theorem applies to systems described using the formalism of
+Lagrangian mechanics, a reformulation of Newtonian classical
+mechanics. In this section we can only offer a very brief introduction
+to the concepts of Lagrangian mechanics. The reader is referred to
+other sources, such as Landau and Lifschitz \cite{landau60mechanics}
+or Arnol'd \cite{arnoldXXmathematical} for the necessary background in
+the mathematical theory of classical mechanics. Lagrangian mechanics,
+and Noether's theorem, make crucial use of the Calculus of
+Variations. Gelfand and Fomin \cite{gelfandXXcalculus} provide a good
+introduction to this topic.
+
+In this section, we will endeavour to keep the presentation relatively
+elementary. However, some knowledge of differential and integral
+calculus will be required. Knowledge of basic Newtonian mechanics will
+also be helpful. We will use standard notation from physics and
+mathematics for integrals and (partial) derivatives. In particular,
+when discussing derivatives with respect to time, we use dot notation:
+$\dot{x}$ for the first derivative of $x$ with respect to time, and
+$\ddot{x}$ for the second derivative.
 
 \subsection{Lagrangian Mechanics}
 
-Introduce by stating Newton's second law, and saying that it can be
-derived from the principle of stationary action.
-
-Analytical mechanics, Lagrangian and Hamiltonian mechanics. Basically
-different mathematical reformulations of Newtonian mechanics that
-yield new insights into the underlying structure of the kinds of
-physical systems studied in classical mechanics. 
+Lagrangian mechanics is a branch of analytical mechanics, along with
+Hamiltonian mechanics
+\cite{landau60mechanics,arnoldXXmathematical}. Analytical mechanics
+seeks to discover the underlying structure of Newtonian classical
+mechanics by reformulating it in different terms.
 
 \paragraph{Lagrangian and Action}
 
-Lagrangian mechanics reformulates Newtonian mechanics in terms of 
+For Lagrangian mechanics, classical mechanical systems are described
+in terms of \emph{Lagrangians} $L = T - V$, where $T$ is the total
+kinetic energy of the system, and $V$ is the total potential
+energy. The Lagrangian is a function of time, the positions of all the
+particles in the system, and their velocities. This is usually written
+like so, with abuse of notation for $\dot{q}$ which is a variable
+here, not a derivative of a function:
+\begin{displaymath}
+  L(t, q, \dot{q}) = T - V
+\end{displaymath}
+In this expression, $q$ and $\dot{q}$ are actually vectors containing
+the components of the position and velocity vectors for each
+particle. A key feature of Lagrangian mechanics is that the coordinate
+system used to describe the system need not necessarily be the usual
+cartesian coordinates. For example, one of the components of $q$ might
+be the angle of swing of a pendulum. This use of generalised
+coordinates is one of the advantages of Lagrangian mechanics over the
+Newtonian presentation in terms of positions and forces.
 
-Two points: the Lagrangian and generalised coordinates. Do
-generalised coordinates as a secondary thing.
-
+The Lagrangian for a particular system is used to define the
+\emph{action} of that system. For a particular path $q : \mathbb{R}
+\to \mathbb{R}^n$ and endpoints $a < b$ in time, the action of the
+Lagrangian $L$ over this path is defined by the following integral:
 \begin{displaymath}
   \mathcal{S}[q;a;b] = \int_a^b L(t,q(t),\dot{q}(t)) \mathit{dt}
 \end{displaymath}
+Below, we will use the principle of stationary action to select the
+physically realisable paths from all the possible paths $q :
+\mathbb{R} \to \mathbb{R}^n$.
 
 \begin{example}
   We have already seen an example of a Lagrangian, in the
@@ -470,7 +581,7 @@ $\epsilon$, such that $\Phi_0$ and $\Psi_0$ are the identity function.
   For the spring-coupled particles Lagrangian,
   (\ref{eq:coupled-spring-lagrangian}), we obtain:
   \begin{displaymath}
-    \frac{d}{dt}~\left(\frac{1}{2}m(\dot{x_1}^2 + \dot{x_2}^2) + \frac{1}{2}k(x_1 - x_2) \right) = 0
+    \frac{d}{dt}~\left(\frac{1}{2}m(\dot{x_1}^2 + \dot{x_2}^2) + \frac{1}{2}k(x_1 - x_2)^2 \right) = 0
   \end{displaymath}
   and for the single particle under gravity Lagrangian
   (\ref{eq:simple-g-lagrangian}), we obtain:
@@ -485,8 +596,11 @@ $\epsilon$, such that $\Phi_0$ and $\Psi_0$ are the identity function.
 \end{example}
 
 This finishes our short introduction to Lagrangian mechanics and
-Noether's theorem. FIXME: State that we will do more examples later
-on, after we discuss how to derive invariance properties from types.
+Noether's theorem. We have shown how Noether's theorem can be used to
+derive conservation laws from invariance properties. We now go on to
+show how suitable invariance properties can be derived from types. In
+Section~\ref{sec:examples}, we give examples of invariant Lagrangian's
+and their consequent conservation laws.
 
 \section{Invariance from Types}
 \label{sec:symmetry-from-types}
@@ -997,6 +1111,7 @@ Administrative things: composition, products
 \end{displaymath}
 
 \subsection{A Surface Syntax for Smooth Functions}
+\label{sec:surface-syntax}
 
 \begin{enumerate}
 \item Kind of cartesian spaces, parameterised by a matrix group and a
@@ -1124,15 +1239,16 @@ $- \sepbar V : \forall ... . C^\infty(\mathbb{R}^3\langle o, t \rangle, \mathbb{
 \item oscillators
 \end{enumerate}
 
-\section{Basic Field Theory}
+% \section{Basic Field Theory}
 
-\subsection{Principle of Stationary Action for Fields}
+% \subsection{Principle of Stationary Action for Fields}
 
-\subsection{Noether's Theorem for Fields}
+% \subsection{Noether's Theorem for Fields}
 
-\subsection{The Klein-Gordon Equation}
+% \subsection{The Klein-Gordon Equation}
 
 \section{Conclusions}
+\label{sec:conclusions}
 
 \begin{enumerate}
 \item Gauge theory
