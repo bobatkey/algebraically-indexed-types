@@ -1306,6 +1306,15 @@ interpretation of $\mathbb{R}^n\langle G, T \rangle$, and also the
 interpretation for products of cartesian spaces, preserves
 Property~\ref{property:semantic-types}.
 
+Using the type-level natural numbers and their recursion operator, we
+can define a type of $n$-ary products of a cartesian space:
+\begin{displaymath}
+  \mathit{vec} = \lambda n\mathord:\mathsf{Nat}, x\mathord:\mathsf{CartSp}.~\mathit{natrec}~n~\mathbb{R}^0~(\lambda x.~X \times x)
+\end{displaymath}
+$n$-ary products of cartesian spaces will be useful in
+Section~\ref{sec:examples} when we define Lagrangians describing
+systems that are generic in the number of particles involved.
+
 Finally, we include an operator that takes any cartesian space to
 its corresponding proper type:
 \begin{displaymath}
@@ -1358,7 +1367,7 @@ invariant smooth functions from $X$ to $Y$:
   {\Theta \vdash C^\infty(X, Y) : *}
 \end{displaymath}
 with the following interpretation. Since $C^\infty(X,Y)$ is a proper
-type, the relational interpetation in this case is a genuine
+type, the relational interpretation in this case is a genuine
 relation. We relate functions that are invariant under the
 diffeomorphism interpretations of $X$ and $Y$ in the current
 relational context $\rho$:
@@ -1400,24 +1409,29 @@ function spaces. We now extend our type system, for the last time,
 with a set of term-level constants for constructing smooth functions,
 invariant under linear transformations and translations.
 
-FIXME: Administrative things: composition, products
-
+Our first set of combinators constructs constant and identity smooth
+functions, and composes smooth functions between cartesian spaces. We
+also have combinators for pairing and projection for the product of
+cartesian spaces.
 \begin{displaymath}
   \begin{array}{l@{\hspace{0.3em}}c@{\hspace{0.3em}}l}
     \mathrm{const} &:& \typeOfCartSp{Y} \to C^\infty(X, Y) \\
+    \mathrm{id} &:& C^\infty(X,X) \\
+    (\comp) &:& C^\infty(X,Y) \to C^\infty(Y,Z) \\
     \mathrm{pair} &:& C^\infty(X,Y) \to C^\infty(X,Z) \to C^\infty(X, Y \times Z) \\
     \mathrm{proj_1}&:& C^\infty(X \times Y, X) \\
     \mathrm{proj_2}&:& C^\infty(X \times Y, Y) \\
-    (\comp) &:& C^\infty(X,Y) \to C^\infty(Y,Z) \\
-    \mathrm{id} &:& C^\infty(X,X)
   \end{array}
 \end{displaymath}
 
-FIXME: vector spacey things
-
+Next, we include combinators for constant, invariant, vectors, the
+zero vector, vector addition, subtraction and scaling. We also include
+the Euclidean dot product of vectors. The type dot product operation
+is where the orthogonal group kind $\mathsf{O}(n)$ is used: the dot
+product of vectors is invariant under orthogonal transformations.
 \begin{displaymath}
   \begin{array}{l@{\hspace{0.3em}}c@{\hspace{0.3em}}l}
-    \underline{\vec{x}} &:& \typeOfCartSp{\mathbb{R}^n\langle 1, 0 \rangle} \\
+    \underline{\vec{c}} &:& \typeOfCartSp{\mathbb{R}^n\langle 1, 0 \rangle} \\
     0 &:& \forall g \mathord: \mathsf{GL}(n).~\typeOfCartSp{\mathbb{R}^n\langle g, 0 \rangle} \\
     (+) &:&
     \begin{array}[t]{@{}l}
@@ -1429,28 +1443,66 @@ FIXME: vector spacey things
       \forall g \mathord: \mathsf{GL}(n), t_1,t_2 \mathord: \mathsf{T}(n). \\
       \hspace{1.5cm} C^\infty(\mathbb{R}^n\langle g, t_1 \rangle \times \mathbb{R}^n\langle g, t_2 \rangle, \mathbb{R}^n\langle g, t_1 - t_2 \rangle)\\
     \end{array} \\
-    (*) &:& FIXME \\
-    (\cdot) &:& FIXME \\
+    (*) &:&
+    \begin{array}[t]{@{}l}
+      \forall g_1 \mathord: \mathsf{GL}(1), g_2 \mathord: \mathsf{GL}(n).\\
+      \quad C^\infty(\mathbb{R}\langle g_1, 0 \rangle \times \mathbb{R}^n\langle g_2, 0\rangle, \mathbb{R}\langle \mathit{scale}_n(g_1)g_2, 0 \rangle)
+    \end{array}
+    \\
+    (\cdot) &:& 
+    \begin{array}[t]{@{}l}
+      \forall g \mathord: \mathsf{GL}(1), o \mathord: \mathsf{O}(n).~\\
+      C^\infty(\mathbb{R}^n\langle (\mathit{scale}_n~g)(\mathit{ortho}_n~o), 0 \rangle \times \\
+      \quad\quad\; \mathbb{R}^n\langle (\mathit{scale}_n~g)(\mathit{ortho}_n~o), 0\rangle, \mathbb{R}\langle (\mathit{scale}_n~g)^n, 0 \rangle)
+    \end{array}
   \end{array}
 \end{displaymath}
+Each of these combinators has a straightforward interpretation as a
+smooth function, and the proof that the fundamental theorem of logical
+relations is maintained for our system (i.e., that
+Property~\ref{property:semantic-terms} is maintained), follows
+directly from elementary facts about linear algebra.
 
-FIXME: trigonometic functions, and exponentials.
-
+It will be useful for our examples to have the following trigonometric
+functions, exponential function and division operation. The types of
+each of these functions describes some of their invariance properties,
+for example the periodicity of the $\sin$ and $\cos$ functions. A
+technical problem with our current system is that we do not account
+for the non-definedness of division at $0$. However, division will be
+useful in many of our examples, so we take a pragmatic approach, in
+common with most physics textbooks, and informally treat division as
+total function.
 \begin{displaymath}
   \begin{array}{l@{\hspace{0.3em}}c@{\hspace{0.3em}}l}
-    \sin &:& \forall z \mathord: \mathsf{Z}.~C^\infty(\mathbb{R}\langle 1, \underline{2\pi} z \rangle, \mathbb{R} \langle 1, 0 \rangle) \\
-    \cos &:& \forall z \mathord: \mathsf{Z}.~C^\infty(\mathbb{R}\langle 1, \underline{2\pi} z \rangle, \mathbb{R} \langle 1, 0 \rangle) \\
+    \sin &:& \forall z \mathord: \mathsf{Z}.~C^\infty(\mathbb{R}\langle 1, \underline{2\pi} * z \rangle, \mathbb{R} \langle 1, 0 \rangle) \\
+    \cos &:& \forall z \mathord: \mathsf{Z}.~C^\infty(\mathbb{R}\langle 1, \underline{2\pi} * z \rangle, \mathbb{R} \langle 1, 0 \rangle) \\
     \mathrm{exp} &:& \forall t \mathord: \mathsf{T}(1).~C^\infty(\mathbb{R}\langle 1, t \rangle, \mathbb{R}\langle \mathit{exp}~t, 0 \rangle) \\
+    (/) &:& \forall g_1, g_2 \mathord: \mathsf{GL}(1).~C^\infty(\mathbb{R}\langle g_1, 0 \rangle \times \mathbb{R}\langle g_2, 0\rangle, \mathbb{R}\langle g_1g_2^{-1}, 0 \rangle)
   \end{array}
 \end{displaymath}
 
-FIXME: division, excusing the partiality
-
+Finally, we include two primitive combinators for dealing with $n$-ary
+products of vectors. Both of these combinators will be useful when
+defining Lagrangians that are generic in the number of particles.
 \begin{displaymath}
-  (/) : \forall 
+  \begin{array}{l@{\hspace{0.3em}}c@{\hspace{0.3em}}l}
+    \mathrm{sum} &:& \forall n \mathord: \mathsf{Nat}, g \mathord: \mathsf{GL}(1). C^\infty(\mathit{vec}~n~(\mathbb{R}\langle g, 0 \rangle), \mathbb{R}\langle g, 0\rangle) \\
+    \mathrm{cross} &:& 
+    \begin{array}[t]{@{}l}
+      \forall m,n \mathord: \mathsf{Nat}.\\
+      \quad C^\infty(X \times Y, Z) \to \\
+      \quad\quad C^\infty(\mathit{vec}~m~X \times \mathit{vec}~n~Y, \mathit{vec}~(m*n)~Z)
+    \end{array}
+  \end{array}
 \end{displaymath}
-
-FIXME: sum and cross
+The combinator $\mathrm{sum}$ sums the list of real numbers it is
+given, while $\mathrm{cross}$ takes the cartesian product of two
+vectors of elements of cartesian spaces, and maps the given smooth
+function over them. The multiplication of natural numbers $m*n$ is
+straightforwardly defined in terms of the $\mathit{natrec}$ recursion
+operator. We will use $\mathrm{cross}$ in Section~\ref{sec:examples}
+to define Lagrangians in terms of the interactions between systems of
+particles.
 
 \subsection{A Surface Syntax for Smooth Functions}
 \label{sec:surface-syntax}
@@ -1488,47 +1540,47 @@ FIXME: sum and cross
   \textbf{Vector space operations, and dot product}
   \begin{mathpar}
     \inferrule*
-    {\vec{x} \in \mathbb{R}^n}
-    {\Theta \sepbar \Gamma; \Delta \vdash \vec{x} : \mathbb{R}^n\langle 1, 0 \rangle}
+    {\vec{c} \in \mathbb{R}^n}
+    {\Theta \sepbar \Gamma; \Delta \vdash \vec{c} : \mathbb{R}^n\langle 1, 0 \rangle}
 
     \inferrule*
-    {\Theta \vdash g : \mathsf{GL}(n)}
-    {\Theta \sepbar \Gamma; \Delta \vdash 0 : \mathbb{R}^n\langle g, 0 \rangle}
+    {\Theta \vdash G : \mathsf{GL}(n)}
+    {\Theta \sepbar \Gamma; \Delta \vdash 0 : \mathbb{R}^n\langle G, 0 \rangle}
 
     \inferrule*
-    {\Theta \sepbar \Gamma; \Delta \vdash e_1 : \mathbb{R}^n\langle g, t_1 \rangle \\
-      \Theta \sepbar \Gamma; \Delta \vdash e_2 : \mathbb{R}^n\langle g, t_2 \rangle}
-    {\Theta \sepbar \Gamma; \Delta \vdash e_1 + e_2 : \mathbb{R}^n\langle g, t_1 + t_2 \rangle}
+    {\Theta \sepbar \Gamma; \Delta \vdash e_1 : \mathbb{R}^n\langle G, T_1 \rangle \\
+      \Theta \sepbar \Gamma; \Delta \vdash e_2 : \mathbb{R}^n\langle G, T_2 \rangle}
+    {\Theta \sepbar \Gamma; \Delta \vdash e_1 + e_2 : \mathbb{R}^n\langle G, T_1 + T_2 \rangle}
 
     \inferrule*
-    {\Theta \sepbar \Gamma; \Delta \vdash e_1 : \mathbb{R}^n\langle g, t_1 \rangle \\
-      \Theta \sepbar \Gamma; \Delta \vdash e_2 : \mathbb{R}^n\langle g, t_2 \rangle}
-    {\Theta \sepbar \Gamma; \Delta \vdash e_1 - e_2 : \mathbb{R}^n\langle g, t_1 - t_2 \rangle}
+    {\Theta \sepbar \Gamma; \Delta \vdash e_1 : \mathbb{R}^n\langle G, T_1 \rangle \\
+      \Theta \sepbar \Gamma; \Delta \vdash e_2 : \mathbb{R}^n\langle G, T_2 \rangle}
+    {\Theta \sepbar \Gamma; \Delta \vdash e_1 - e_2 : \mathbb{R}^n\langle G, T_1 - T_2 \rangle}
 
     \inferrule*
-    {\Theta \sepbar \Gamma; \Delta \vdash e_1 : \mathbb{R}\langle g_1, 0 \rangle \\
-      \Theta \sepbar \Gamma; \Delta \vdash e_2 : \mathbb{R}^n\langle g_2, 0 \rangle}
-    {\Theta \sepbar \Gamma; \Delta \vdash e_1 * e_2 : \mathbb{R}^n\langle \mathit{scale}_n(g_1)g_2, 0 \rangle}
+    {\Theta \sepbar \Gamma; \Delta \vdash e_1 : \mathbb{R}\langle G_1, 0 \rangle \\
+      \Theta \sepbar \Gamma; \Delta \vdash e_2 : \mathbb{R}^n\langle G_2, 0 \rangle}
+    {\Theta \sepbar \Gamma; \Delta \vdash e_1 * e_2 : \mathbb{R}^n\langle \mathit{scale}_n(G_1)G_2, 0 \rangle}
 
     \inferrule*
-    {\Theta \sepbar \Gamma; \Delta \vdash e_1 : \mathbb{R}^n\langle \mathit{scale}_n(s)\mathit{ortho}_n(o), 0 \rangle \\
-      \Theta \sepbar \Gamma; \Delta \vdash e_2 : \mathbb{R}^n\langle \mathit{scale}_n(s)\mathit{ortho}_n(o), 0 \rangle}
-    {\Theta \sepbar \Gamma; \Delta \vdash e_1 \cdot e_2 : \mathbb{R}\langle\mathit{scale}_n(s)^n, 0 \rangle}
+    {\Theta \sepbar \Gamma; \Delta \vdash e_1 : \mathbb{R}^n\langle \mathit{scale}_n(G)\mathit{ortho}_n(O), 0 \rangle \\
+      \Theta \sepbar \Gamma; \Delta \vdash e_2 : \mathbb{R}^n\langle \mathit{scale}_n(G)\mathit{ortho}_n(O), 0 \rangle}
+    {\Theta \sepbar \Gamma; \Delta \vdash e_1 \cdot e_2 : \mathbb{R}\langle\mathit{scale}_n(G)^n, 0 \rangle}
   \end{mathpar}
 
   \medskip
   \textbf{Transcendental functions}
   \begin{mathpar}
     \inferrule*
-    {\Theta \sepbar \Gamma; \Delta \vdash e : \mathbb{R}\langle 1, t \rangle}
-    {\Theta \sepbar \Gamma; \Delta \vdash \mathrm{exp}~e : \mathbb{R}\langle \mathit{exp}~t, 0 \rangle}
+    {\Theta \sepbar \Gamma; \Delta \vdash e : \mathbb{R}\langle 1, T \rangle}
+    {\Theta \sepbar \Gamma; \Delta \vdash \mathrm{exp}~e : \mathbb{R}\langle \mathit{exp}~T, 0 \rangle}
 
     \inferrule*
-    {\Theta \sepbar \Gamma; \Delta \vdash e : \mathbb{R}\langle 2\pi z, 0 \rangle}
+    {\Theta \sepbar \Gamma; \Delta \vdash e : \mathbb{R}\langle 1, \underline{2\pi} * Z \rangle}
     {\Theta \sepbar \Gamma; \Delta \vdash \mathrm{sin}~e : \mathbb{R}\langle 1, 0 \rangle}
 
     \inferrule*
-    {\Theta \sepbar \Gamma; \Delta \vdash e : \mathbb{R}\langle 2\pi z, 0 \rangle}
+    {\Theta \sepbar \Gamma; \Delta \vdash e : \mathbb{R}\langle 1, \underline{2\pi} * Z \rangle}
     {\Theta \sepbar \Gamma; \Delta \vdash \mathrm{cos}~e : \mathbb{R}\langle 1, 0 \rangle}
   \end{mathpar}
   FIXME: division, n-ary products (sum, zip, reduce)
@@ -1541,7 +1593,11 @@ FIXME: sum and cross
   \begin{displaymath}
     \begin{array}{l@{\hspace{0.3em}}c@{\hspace{0.3em}}l}
       \elab{z}_\Delta & = & \mathrm{const}~z \\
-      \elab{x}_\Delta & = & \mathrm{project}(x, \Delta) \\
+      \elab{x}_\Delta & = & \underline{\mathrm{project}_\Delta}(x) \\
+      \elab{\mathrm{let}~\vec{x} = e_1\textrm{ in }e_2}_\Delta & = & \mathrm{pair}~\mathrm{id}~\elab{e_1}_\Delta \comp \elab{e_2}_{\Delta, \vec{x}} \\
+      \elab{(e_1,...,e_n)}_\Delta &=& \underline{\mathrm{pair}_n}(\elab{e_1}_\Delta, ..., \elab{e_n}_\Delta) \\
+      \elab{e_1(e_2)}_\Delta &=& \elab{e_2}_\Delta \comp e_1 \\
+      \elab{\vec{c}}_\Delta &=& 
     \end{array}
   \end{displaymath}
   \caption{Desugaring of the surface syntax}
