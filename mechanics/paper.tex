@@ -1221,23 +1221,32 @@ $\mathsf{GL}(n)$ and $\mathsf{O}(n)$. Note that, except for
 $\mathsf{GL}(1)$, the groups $\mathsf{GL}(n)$ and $\mathsf{O}(n)$ are
 not abelian.
 
-FIXME: the following group homomorphisms become type-level constants,
-using the interpretation we defined at the start of this section.
+We also extend our type system with the following type-level
+constants. Each of these is interpreted by the correspondingly named
+homomorphism between the groups involved. For example,
+$\mathit{scale}_n$ is interpreted by the homomorphism $\mathrm{GL}(1)
+\to \mathrm{GL}(n)$ that takes a non-zero real number $s$ to the
+matrix with $s$s along the diagonal and zeros elsewhere.
+\begin{displaymath}
+  \begin{array}{l@{\hspace{0.3em}}c@{\hspace{0.3em}}l}
+    \mathit{exp} &:& \mathsf{T}(1) \to \mathsf{GL}(1) \\
+    \mathit{ortho}_n &:& \mathsf{O}(n) \to \mathsf{GL}(n) \\
+    \mathit{scale}_n &:& \mathsf{GL}(1) \to \mathsf{GL}(n) \\
+    \underline{c}*- &:& \mathsf{Z} \to \mathsf{T}(1) 
+  \end{array}
+\end{displaymath}
+In the last of these $\underline{c}$ stands for an arbitrary real
+constant.  Since each of these is interpreted by a group homomorphism,
+we are justified in adding the group homomorphism laws as axioms to
+our type-level equational theory, maintaining
+Property~\ref{property:semantic-types}.
 
-$\mathit{exp} : \mathsf{T}(1) \to \mathsf{GL}(1)$
-
-$\underline{c}\cdot- : \mathsf{Z} \to \mathsf{T}(1)$
-
-$\mathit{ortho}_n : \mathsf{O}(n) \to \mathsf{GL}(n)$
-
-$\mathit{scale}_n : \mathsf{GL}(1) \to \mathsf{GL}(n)$
-
-\paragraph{The Groupoid of Cartesian Spaces} Finally, we introduce the
-groupoid kind of cartesian spaces, which we will use for the
-configuration spaces of the classical mechanical systems we describe
-in our system. As we noted above, the collection of cartesian spaces
-is a groupoid with a non-trivial collection of objects. We extend our
-system with a kind of cartesian spaces:
+\paragraph{The Groupoid of Cartesian Spaces} Finally in this section,
+we introduce the groupoid kind of cartesian spaces, which we will use
+for the configuration spaces of the classical mechanical systems we
+describe in our system. As we noted above, the collection of cartesian
+spaces is a groupoid with a non-trivial collection of objects. We
+extend our system with a kind of cartesian spaces:
 \begin{displaymath}
   \kappa ::= \cdots \sepbar \mathsf{CartSp}
 \end{displaymath}
