@@ -100,13 +100,13 @@ keyword1, keyword2
 
 \section{Introduction}
 
-Reynolds' theory of relational parametricity \cite{reynolds82} tells
-us that parametrically polymorphic programs automatically satisfy
-invariance properties. Such invariance properties are often called
-\emph{Free Theorems}, after Wadler \cite{wadler89theorems}, since they
-follow ``for free'' from the types of programs, rather than through
-detailed study of the program text itself. An illustrative example is
-the free theorem for programs $f$ with the following type:
+Reynolds' theory of relational parametricity \cite{reynolds83types}
+tells us that parametrically polymorphic programs automatically
+satisfy invariance properties. Such invariance properties are often
+called \emph{Free Theorems}, after Wadler \cite{wadler89theorems},
+since they follow ``for free'' from the types of programs, rather than
+through detailed study of the program text itself. An illustrative
+example is the free theorem for programs $f$ with the following type:
 \begin{displaymath}
   f : \forall \alpha.~\mathsf{List}~\alpha \to \mathsf{Nat}
 \end{displaymath}
@@ -126,7 +126,7 @@ type $\beta$, via $g$.
 
 The use of invariance under change to derive useful consequences is a
 technique much older than programming languages. In physics,
-\emph{Noether's theorem} \cite{noether} provides a general way to
+\emph{Noether's theorem} \cite{noether71} provides a general way to
 derive conservation laws for physical systems from invariance
 properties. Informally speaking, Noether's theorem states that every
 continuous symmetry of a physical system implies the existence of a
@@ -260,7 +260,7 @@ time, the two particle positions, which vary with the translation $y$,
 and the two particle velocities.
 
 Atkey, Johann and Kennedy \cite{atkey13abstraction}, building on older
-work by Kennedy \cite{kennedy94para}, have already presented a
+work by Kennedy \cite{kennedy97relational}, have already presented a
 polymorphic type system for expressing geometric invariance properties
 similar to the translation invariance property in Equation
 (\ref{eq:coupled-spring-translation-invariance}). In the present work,
@@ -341,10 +341,10 @@ Lagrangian mechanics, a reformulation of Newtonian classical
 mechanics. In this section we can only offer a very brief introduction
 to the concepts of Lagrangian mechanics. The reader is referred to
 other sources, such as Landau and Lifschitz \cite{landau60mechanics}
-or Arnol'd \cite{arnoldXXmathematical} for the necessary background in
+or Arnol'd \cite{arnold89mathematical} for the necessary background in
 the mathematical theory of classical mechanics. Lagrangian mechanics,
 and Noether's theorem, make crucial use of the Calculus of
-Variations. Gelfand and Fomin \cite{gelfandXXcalculus} provide a good
+Variations. Gelfand and Fomin \cite{gelfand00calculus} provide a good
 introduction to this topic.
 
 In this section, we will endeavour to keep the presentation relatively
@@ -360,7 +360,7 @@ $\ddot{x}$ for the second derivative.
 
 Lagrangian mechanics is a branch of analytical mechanics, along with
 Hamiltonian mechanics
-\cite{landau60mechanics,arnoldXXmathematical}. Analytical mechanics
+\cite{landau60mechanics,arnold89mathematical}. Analytical mechanics
 seeks to discover the underlying structure of Newtonian classical
 mechanics by reformulating it in different terms.
 
@@ -420,7 +420,7 @@ either minima or maxima) of the action $\mathcal{S}[q;a;b]$, for all
 $a$ and $b$. Defining what is exactly meant by a stationary point of
 the action is beyond the scope of this paper, and can be found in
 standard references on the calculus of variations, such as Gelfand and
-Fomin \cite{gelfandXXcalculus}. The key point for our purposes is that
+Fomin \cite{gelfand00calculus}. The key point for our purposes is that
 a path $q$ satisfies the principle of stationary action if and only if
 it satisfies a system of ODEs derived from the Lagrangian $L$, called
 the Euler-Lagrange equations:
@@ -438,11 +438,11 @@ $\frac{\partial L}{\partial \dot{q_i}}$ and $\frac{\partial
 $\dot{q_i}$ and $q_i$ \emph{as variables}. The derivative with respect
 to time, $\frac{d}{dt}$ then treats $\dot{q_i}$ as a function of time,
 hence the appearance of the second derivatives $\ddot{q_i}$ in the
-equations of motion. Sussman and Wisdom \cite{sussman} criticise the
-standard presentation of Lagrangian mechanics for this kind of
-confusing notation, and define a clearer notation based on the Scheme
-programming language. We elect to stick with the standard notation as
-used in physics textbooks just for familiarity.
+equations of motion. Sussman and Wisdom \cite{sussman01structure}
+criticise the standard presentation of Lagrangian mechanics for this
+kind of confusing notation, and define a clearer notation based on the
+Scheme programming language. We elect to stick with the standard
+notation as used in physics textbooks just for familiarity.
 
 \begin{example}
   Computing the Euler-Lagrange equations for the Lagrangian
@@ -567,10 +567,10 @@ $\epsilon$, such that $\Phi_0$ and $\Psi_0$ are the identity function.
 \end{theorem}
 
 \begin{proof}
-  E.g., Gelfand and Fomin \cite{gelfandXXcalculus}, Section 20.
+  E.g., Gelfand and Fomin \cite{gelfand00calculus}, Section 20.
 \end{proof}
 
-\begin{example}
+\begin{example}\label{ex:conservation-laws}
   In Example~\ref{ex:invariance-examples}, we noted that the
   Lagrangians (\ref{eq:coupled-spring-lagrangian}) and
   (\ref{eq:simple-g-lagrangian}) are both invariant under arbitrary
@@ -620,15 +620,15 @@ writing invariant Lagrangians. Our relationally parametric model is
 based on the reflexive graph model presented by
 Atkey~\cite{atkey12relational} (based on previous work on reflexive
 graph models of relational parametricity by Robinson and
-Rosolini~\cite{robinson94} and Hasegawa~\cite{hasegawa94}). In
-reflexive graph models of relational parametricity, the kinds of
-System F$\omega$ are interpreted as reflexive graphs, while types are
-interpreted as morphisms of reflexive graphs. As demonstrated by
-Atkey, uniformly interpreting kinds as reflexive graphs allows for a
-straightforward interpretation of higher kinds like $* \to *$. In the
-present setting, reflexive graphs will allow us to accomodate
-arbitrary groupoids as kinds
-(Section~\ref{sec:groupoid-kinds}). Groupoid kinds are the key
+Rosolini~\cite{robinson94reflexive} and
+Hasegawa~\cite{hasegawa94relational}). In reflexive graph models of
+relational parametricity, the kinds of System F$\omega$ are
+interpreted as reflexive graphs, while types are interpreted as
+morphisms of reflexive graphs. As demonstrated by Atkey, uniformly
+interpreting kinds as reflexive graphs allows for a straightforward
+interpretation of higher kinds like $* \to *$. In the present setting,
+reflexive graphs will allow us to accomodate arbitrary groupoids as
+kinds (Section~\ref{sec:groupoid-kinds}). Groupoid kinds are the key
 technical tool that we need to derive the kinds of geometric
 invariance properties we need for Noether's theorem.
 
@@ -652,12 +652,13 @@ is \emph{not} small. The reason for this is that we desire a simple
 set-theoretic model. However, requiring that we have a set of sets
 closed under large products, in order to interpret quantification over
 the kind $*$, would force us to use an intuitionistic metatheory
-\cite{pitts}. The basic results of the calculus of variations that we
-are relying on, such as the derivation of the Euler-Lagrange
-equations, use excluded middle in their proofs, so an intuitionistic
-metatheory is not an option. We therefore just assume that we have a
-set of ``small'' sets, which includes the real numbers and is closed
-under subsets, products, function space and comprehension.
+\cite{pitts87polymorphism}. The basic results of the calculus of
+variations that we are relying on, such as the derivation of the
+Euler-Lagrange equations, use excluded middle in their proofs, so an
+intuitionistic metatheory is not an option. We therefore just assume
+that we have a set of ``small'' sets, which includes the real numbers
+and is closed under subsets, products, function space and
+comprehension.
 
 \paragraph{Syntax} The kinds of System F$\omega$ include at least the
 base kind of types, $*$, and function and product kinds, as generated
@@ -691,7 +692,7 @@ typing contexts $\Gamma$ only contain well-kinded types of kind
 $*$. Terms also have an equational theory, with $\beta\eta$-laws for
 functions, products, and universal quantification, which we omit. Our
 presentation of System F$\omega$ is entirely standard (see, e.g.,
-Pierce~\cite{pierce01types}), except for the restriction to small
+Pierce~\cite{pierce02types}), except for the restriction to small
 kinds in the formation of universal kinds $\forall
 \alpha\mathord:\kappa. A$. As is the case for kinds, we will extend
 the types, type equalities and terms in
@@ -1468,21 +1469,23 @@ functions, exponential function and division operation. The types of
 each of these functions describes some of their invariance properties,
 for example the periodicity of the $\sin$ and $\cos$ functions. A
 technical problem with our current system is that we do not account
-for the non-definedness of division at $0$. However, division will be
-useful in many of our examples, so we take a pragmatic approach, in
-common with most physics textbooks, and informally treat division as
-total function.
+for the non-definedness of division at $0$, nor do we account for the
+square root of negative numbers. However, division and square root
+will be useful in our examples in Section~\ref{sec:examples}, so we
+take a pragmatic approach, in common with most physics textbooks, and
+informally treat them as total functions.
 \begin{displaymath}
   \begin{array}{l@{\hspace{0.3em}}c@{\hspace{0.3em}}l}
     \sin &:& \forall z \mathord: \mathsf{Z}.~C^\infty(\mathbb{R}\langle 1, \underline{2\pi} * z \rangle, \mathbb{R} \langle 1, 0 \rangle) \\
     \cos &:& \forall z \mathord: \mathsf{Z}.~C^\infty(\mathbb{R}\langle 1, \underline{2\pi} * z \rangle, \mathbb{R} \langle 1, 0 \rangle) \\
     \mathrm{exp} &:& \forall t \mathord: \mathsf{T}(1).~C^\infty(\mathbb{R}\langle 1, t \rangle, \mathbb{R}\langle \mathit{exp}~t, 0 \rangle) \\
-    (/) &:& \forall g_1, g_2 \mathord: \mathsf{GL}(1).~C^\infty(\mathbb{R}\langle g_1, 0 \rangle \times \mathbb{R}\langle g_2, 0\rangle, \mathbb{R}\langle g_1g_2^{-1}, 0 \rangle)
+    (/) &:& \forall g_1, g_2 \mathord: \mathsf{GL}(1).~C^\infty(\mathbb{R}\langle g_1, 0 \rangle \times \mathbb{R}\langle g_2, 0\rangle, \mathbb{R}\langle g_1g_2^{-1}, 0 \rangle) \\
+    \mathrm{sqrt} &:& \forall g \mathord: \mathsf{GL}(1).~C^\infty(\mathbb{R}\langle g^2, 0 \rangle, \mathbb{R}\langle g, 0 \rangle)
   \end{array}
 \end{displaymath}
 
-Finally, we include two primitive combinators for dealing with $n$-ary
-products of vectors. Both of these combinators will be useful when
+Finally, we include three primitive combinators for dealing with
+$n$-ary products of vectors. These combinators will be useful when
 defining Lagrangians that are generic in the number of particles.
 \begin{displaymath}
   \begin{array}{l@{\hspace{0.3em}}c@{\hspace{0.3em}}l}
@@ -1585,12 +1588,16 @@ interactions between systems of particles.
   \end{mathpar}
 
   \medskip
-  \textbf{Division, sum, and cross}
+  \textbf{Division, square root, sum, and cross}
   \begin{mathpar}
     \inferrule*
     {\Theta \sepbar \Gamma; \Delta \vdash e_1 : \mathbb{R}\langle G_1, 0 \rangle \\
       \Theta \sepbar \Gamma; \Delta \vdash e_2 : \mathbb{R}\langle G_2, 0 \rangle}
     {\Theta \sepbar \Gamma; \Delta \vdash \frac{e_1}{e_2} : \mathbb{R}\langle G_1G_2^{-1}, 0 \rangle}
+
+    \inferrule*
+    {\Theta \sepbar \Gamma; \Delta \vdash e : \mathbb{R}\langle G^2, 0 \rangle}
+    {\Theta \sepbar \Gamma; \Delta \vdash \mathrm{sqrt}~e : \mathbb{R}\langle G, 0 \rangle}
 
     \inferrule*
     {\Theta \sepbar \Gamma; \Delta \vdash e : \mathit{vec}~N~(\mathbb{R}\langle G, 0 \rangle)}
@@ -1630,6 +1637,7 @@ interactions between systems of particles.
       \elab{\cos~e}_\Delta &=& \elab{e}_\Delta \comp \cos \\
       \elab{\mathrm{exp}~e}_\Delta &=& \elab{e}_\Delta \comp \mathrm{exp} \\
       \elab{e_1 / e_2}_\Delta &=& \mathrm{pair}~\elab{e_1}_\Delta~\elab{e_2}_\Delta \comp (/) \\
+      \elab{\mathrm{sqrt}~e}_\Delta &=& \elab{e}_\Delta \comp \mathrm{sqrt} \\
       \elab{\mathrm{sum}~e}_\Delta &=& \elab{e}_\Delta \comp \mathrm{sum} \\
       \elab{\mathrm{map}~(x.~e_1)~e_2}_\Delta &=& \mathrm{pair}~\mathrm{id}~\elab{e_2}_\Delta \comp (\mathrm{map}~\elab{e_1}_{\Delta,x}) \\
       \elab{\mathrm{cross}~e_1~e_2}_\Delta &=& \mathrm{pair}~\elab{e_1}_\Delta~\elab{e_2}_\Delta \comp \mathrm{cross}
@@ -1696,63 +1704,432 @@ properties.
 
 \paragraph{Free Particle}
 
+Our first example is of a simple Lagrangian for a single free particle
+in $3$-dimensional space, with no external forces. We define the
+Lagrangian using the syntax for smooth terms we defined in the
+previous section, in the following kinding, typing and cartesian space
+contexts:
+\begin{displaymath}
+  \begin{array}{l@{\hspace{0.3em}}l}
+    \Theta = & t_t : \mathsf{T}(1), t_x : \mathsf{T}(3), o : \mathsf{O}(3) \\
+    \Gamma = & m : \typeOfCartSp{\mathbb{R}\langle 1, 0 \rangle} \\
+    \Delta = & t : \mathbb{R}\langle 1, t_t \rangle, x : \mathbb{R}^3\langle \mathit{ortho}_3(o), t_x \rangle, \dot{x} : \mathbb{R}^3\langle \mathit{ortho}_3(o), 0 \rangle
+  \end{array}
+\end{displaymath}
+where $o$ represents an arbitrary orthogonal transformation of the
+space, $t_t$ represents a translation in time, $t_x$ represents a
+$3$-dimensional translation in space, $m$ is the constant mass of the
+free particle, $t$ is the current time, $x$ is the current position of
+the particle, and $\dot{x}$ is the current velocity.
+
+We write the Lagrangian like so, which in the absence of external
+forces just consists of the kinetic energy term:
+\begin{displaymath}
+  L = \frac{1}{2}m(\dot{x} \cdot \dot{x}) : \mathbb{R}\langle 1, 0 \rangle
+\end{displaymath}
+
+By the fundamental theorem of logical relations for our calculus
+(Property~\ref{property:semantic-terms}), we can derive the following
+free theorems, one each for the three group parameters $t_t$, $t_x$
+and $o$. Quantifying over translations in time, $t_t$, gives us
+invariance under translation in time:
+\begin{displaymath}
+  \forall t_t \in \mathbb{R}.~\sem{L}(t + t_t, \vec{x}, \dot{\vec{x}}) = \sem{L}(t, \vec{x}, \dot{\vec{x}})
+\end{displaymath}
+As we saw in Example~\ref{ex:conservation-laws}, Noether's theorem
+tells us that invariance under translation in time yields conservation
+of energy. Likewise, quantifying over translations in space, $t_x$,
+gives us invariance under translation in space:
+\begin{displaymath}
+  \forall \vec{t_x} \in \mathbb{R}^3.~\sem{L}(t, \vec{x} + \vec{t_x}, \dot{\vec{x}}) = \sem{L}(t, \vec{x}, \dot{\vec{x}})
+\end{displaymath}
+Similar to the example of the spring-coupled particles in the
+introduction, invariance under translations in space yields
+conservation of linear momentum.
+
+Quantification over orthogonal transformations $o : \mathsf{O}(3)$
+yields the following free theorem, which states that the Lagrangian is
+invariant under modification of the positions and velocities by
+arbitrary orthogonal transformations $O$:
+\begin{displaymath}
+  \forall O \in \mathrm{O}(3).~\sem{L}(t, O\vec{x}, O\dot{\vec{x}}) = \sem{L}(t, \vec{x}, \dot{\vec{x}})
+\end{displaymath}
+We are particularly interested in the orthogonal transformations
+derived from rotations, since these will give us the continuous
+transformations we need to apply Noether's theorem. For example,
+rotation by an angle $\epsilon$ around the $x_3$-axis is given by the
+following $\epsilon$-indexed family of orthogonal matricies:
+\begin{displaymath}
+  O_\epsilon =
+  \left(
+    \begin{array}{ccc}
+      \cos \epsilon  & \sin \epsilon & 0 \\
+      -\sin \epsilon & \cos \epsilon & 0 \\
+      0 & 0 & 0
+    \end{array}
+  \right)
+\end{displaymath}
+This leads to the following $\epsilon$-indexed family of
+transformations, suitable for Noether's theorem:
+\begin{displaymath}
+  \Psi_\epsilon\left(\begin{array}{@{}c@{}} x_1 \\ x_2 \\ x_3 \end{array}\right) =
+  O_\epsilon \left(\begin{array}{@{}c@{}} x_1 \\ x_2 \\ x_3 \end{array}\right) =
+  \left(\begin{array}{@{}c@{}} x_1 \cos \epsilon + x_2 \sin \epsilon \\ - x_1 \sin \epsilon + x_2 \cos \epsilon \\ x_3 \end{array}\right)
+\end{displaymath}
+Plugging this into Equation~\ref{eq:conservation-law}, and using the
+definition of $L$ above, we obtain the following conservation law:
+\begin{displaymath}
+  \frac{d}{dt}(m\dot{x}x_2 - m\dot{x}x_1) = 0
+\end{displaymath}
+This is exactly conservation of angular momentum around the $x_3$-axis
+\cite{landau60mechanics}. By considering the families of orthogonal
+matrices for rotation around other axes, we can also derive
+conservation laws for angular momentum around arbitrary axes.
+
 \paragraph{Particle in a Potential Field}
 
-\subsection{$n$-Body Problems}
+If we now extend the typing context of our example with a arbitrary
+potential energy term, depending on the position of the particle, we
+can define the Lagrangian for a single particle acted upon by a
+potential field that depends on the position of the particle. The
+invariance properties of the whole system will depend upon the
+invariance properties of the potential field. If we assume the
+following contexts:
+\begin{displaymath}
+  \begin{array}{l@{\hspace{0.3em}}l}
+    \Theta = & t_t : \mathsf{T}(1), o : \mathsf{O}(3) \\
+    \Gamma = &
+    \begin{array}[t]{@{}l}
+      m : \typeOfCartSp{\mathbb{R}\langle 1, 0 \rangle}, \\
+      V : \forall o \mathord: \mathsf{O}(3).~C^\infty(\mathbb{R}^3\langle \mathit{ortho}_3(o), 0 \rangle, \mathbb{R}\langle 1, 0 \rangle)
+    \end{array}\\
+    \Delta = & t : \mathbb{R}\langle 1, t_t \rangle, x : \mathbb{R}^3\langle \mathit{ortho}_3(o), 0 \rangle, \dot{x} : \mathbb{R}^3\langle \mathit{ortho}_3(o), 0 \rangle
+  \end{array}
+\end{displaymath}
+where everything is as in the previous example, except for the
+addition of the polymophic potential energy function $V$. We
+incorporate this into our Lagrangian like so:
+\begin{displaymath}
+  L = \frac{1}{2}m(\dot{x} \cdot \dot{x}) - V(x) : \mathbb{R}\langle 1, 0 \rangle
+\end{displaymath}
+Even though $V$ is left abstract, the types of $t$, $x$, $\dot{x}$ and
+$L$ tell us that this Lagrangian is invariant under translations in
+time and also under all orthogonal transformations. Hence, by
+Noether's theorem, the system this Lagrangian describes has energy and
+angular momentum as conserved quantities.
 
-\paragraph{Two Bodies}
+\subsection{The $n$-Body Problem}
 
-\paragraph{$n$-Bodies}
+Using the constructs of our calculus for dealing with $n$-ary vectors
+of positions and velocities, we can compactly write Lagrangians that
+describe systems of $n$ particles interacting through Newtonian
+gravitational attraction. We use the following kinding, typing and
+cartesian space contexts, where the type-level parameter $n$
+represents the number of particles that we are considering. For
+simplicity, we assume that all the bodies involved in the system have
+equal mass $m$.
+\begin{displaymath}
+  \begin{array}{l@{\hspace{0.3em}}l}
+    \Theta = & n : \mathsf{Nat}, t_t : \mathsf{T}(1), t_x : \mathsf{T}(3), o : \mathsf{O}(3) \\
+    \Gamma = & m : \typeOfCartSp{\mathbb{R}\langle 1, 0 \rangle} \\
+    \Delta = &
+    \begin{array}[t]{@{}l}
+      t : \mathbb{R}\langle 1, t_t \rangle, \\
+      x : \mathit{vec}~n~(\mathbb{R}^3\langle \mathit{ortho}_3(o), t_x \rangle), \\
+      \dot{x} : \mathit{vec}~n~(\mathbb{R}^3\langle \mathit{ortho}_3(o), 0 \rangle)
+    \end{array}
+  \end{array}
+\end{displaymath}
+The Lagrangian for this system is defined as follows in our surface
+syntax for smooth terms. The kinetic energy component is the sum of
+the kinetic energies of all the particles in the system. The potential
+energy components sums up all the gravitational potential energies due
+to the interactions between each pair of bodies, where $G$ is the
+gravitational constant.
+\begin{displaymath}
+  L =
+  \begin{array}[t]{@{}l}
+    \frac{1}{2}m(\mathrm{sum}~(\mathrm{map}~(\dot{x_i}.~\dot{x_i}\cdot\dot{x_i}))~\dot{x}) - \\
+    \quad \mathrm{sum}~(\mathrm{map}~((x_i,x_j).~Gm^2/|x_i - x_j|)~(\mathrm{cross}~x~x)) : \mathbb{R}\langle 1, 0 \rangle
+  \end{array}
+\end{displaymath}
+We have used the notation $|e|$ as shorthand for $\mathrm{sqrt}~(e
+\cdot e)$, i.e., the norm of the vector $e$.
 
-\subsection{Pendulums}
+Again, just by looking at the types of $t$, $x$, $\dot{x}$, and $L$,
+we can determine via free theorems that this Lagrangian is invariant
+under translation in time and space, and under all orthogonal
+transformations. Hence, by Noether's theorem, this system has energy
+and linear and angular momentum as conserved quantities.
 
-\paragraph{A single pendulum}
+\subsection{Pendulum}
 
-\paragraph{Coupled pendulum}
+All our examples above have used rectangular coordinate systems. Part
+of the power of the Lagrangian formulation of classical mechanics is
+the ability to use appropriate generalised coordinates to describe
+systems in simple terms. A standard example is that of a pendulum,
+where we take the angle of swing from the vertical, $\theta$ as the
+coordinate.
 
-\paragraph{Pendulum on a Moving Base}
+We use the following kinding, typing and cartesian space contexts:
+\begin{displaymath}
+  \begin{array}{l@{\hspace{0.3em}}l}
+    \Theta = & t_t : \mathsf{T}(1), z : \mathsf{Z} \\
+    \Gamma = & m : \typeOfCartSp{\mathbb{R}\langle 1, 0 \rangle}, l : \typeOfCartSp{\mathbb{R}\langle 1, 0 \rangle} \\
+    \Delta = &
+    \begin{array}[t]{@{}l}
+      t : \mathbb{R}\langle 1, t_t \rangle, \theta : \mathbb{R}\langle 1, \underline{2\pi}*z \rangle. \dot{\theta} : \mathbb{R}\langle 1, 0 \rangle
+\end{array}
+  \end{array}
+\end{displaymath}
+where $m$ is the mass at the end of the pendulum (we assume the rod of
+the pendulum to be massless), $l$ is the length of the pendulum,
+$\theta$ is the angle of swing and $\dot{\theta}$ is the current rate
+of change of the angle of swing.
 
-\paragraph{Pendulum on a Rotating Base}
-
-No time translation invariance.
+Defining the Lagrangian for this system is a matter of simple
+trigonometry and differential calculus:
+\begin{displaymath}
+  L =
+  \begin{array}[t]{@{}l}
+    \textrm{let }y = l\sin \theta \textrm{ in} \\
+    \textrm{let }\dot{x} = l\dot{\theta}\cos \theta \textrm{ in} \\
+    \textrm{let }\dot{y} = - l\dot{\theta}\sin \theta \textrm{ in} \\
+    \quad \frac{1}{2}m(\dot{x}^2 + \dot{y}^2) - mgy : \mathbb{R}\langle 1, 0 \rangle
+  \end{array}
+\end{displaymath}
+From the type of $t$, we can easily determine that this Lagrangian is
+invariant under translation in time, and hence the total energy is a
+conserved quantity of this system. We can also derive another free
+theorem due to the quantification over the group of integers via the
+variable $z$. However, this does not yield a continuous invariance of
+the Lagrangian, and hence no conserved quantity via Noether's theorem.
 
 \subsection{Oscillators}
 
 \paragraph{Coupled Particles} Our first example of a Lagrangian in the
 introduction was of a pair of particles of equal mass coupled by a
-spring.
+spring, for which we derived conservation of linear momentum and
+energy. In terms of our type system, we have the following kinding,
+typing and cartesian space contexts, where $m$ is the individual mass
+of the two particles, and $k$ is the spring constant:
+\begin{displaymath}
+  \begin{array}{l@{\hspace{0.3em}}l}
+    \Theta = & t_t : \mathsf{T}(1), t_x : \mathsf{T}(1) \\
+    \Gamma = & m : \typeOfCartSp{\mathbb{R}\langle 1, 0 \rangle}, k : \typeOfCartSp{\mathbb{R}\langle 1, 0 \rangle} \\
+    \Delta = &
+    \begin{array}[t]{@{}l}
+      t : \mathbb{R}\langle 1, t_t \rangle, x_1 : \mathbb{R}\langle 1, t_x \rangle, x_2 : \mathbb{R}\langle 1, t_x \rangle, \\
+      \dot{x_1} : \mathbb{R}\langle 1, 0 \rangle, \dot{x_2} : \mathbb{R}\langle 1, 0 \rangle
+\end{array}
+  \end{array}
+\end{displaymath}
+In our surface syntax for smooth terms, the Lagrangian is written just
+as it was in the introduction:
+\begin{displaymath}
+  L = \frac{1}{2}m(\dot{x_1}^2 + \dot{x_2}^2) - \frac{1}{2}k^2(x_1 - x_2)^2 : \mathbb{R}\langle 1, 0 \rangle
+\end{displaymath}
+The free theorems for this term state the invariance in time and space
+translation:
+\begin{displaymath}
+  \begin{array}{@{}l}
+    \forall t_t : \mathbb{R}.~\sem{L}(t + t_t, x_1, x_2, \dot{x_1}, \dot{x_2}) = \sem{L}(t, x_1, x_2, \dot{x_1}, \dot{x_2}) \\
+    \forall t_x : \mathbb{R}.~\sem{L}(t, x_1 + t_x, x_2 + t_x, \dot{x_1}, \dot{x_2}) = \sem{L}(t, x_1, x_2, \dot{x_1}, \dot{x_2})
+  \end{array}
+\end{displaymath}
+As we saw in Section~\ref{sec:conservation-laws-from-symmetry}, these
+invariance properties allow us to deduce conservation of energy and
+linear momentum for this system.
 
-\paragraph{Fixed Endpoint Oscillator} We now look at the slightly
-simpler case of a single particle connected to a spring attached to a
-fixed point.
+% \paragraph{Fixed Endpoint Oscillator} We now look at the slightly
+% simpler case of a single particle connected to a spring attached to a
+% fixed point.
 
-\paragraph{Damped Oscillator}
+\paragraph{Damped Oscillator} All of the example Lagrangians we have
+looked at so far have had no dependence on time, and so they have all
+described systems with total energy as a conserved quantity. A system
+with a single particle attached to a damped spring (whose other
+endpoint is fixed at position $0$) provides an example of system that
+does not have energy as a conserved quantity. This example is taken
+from Neuenschwander's book \cite{neuenschwander11}.  We use the
+following kinding, typing and cartesian space contexts:
+\begin{displaymath}
+  \begin{array}{l@{\hspace{0.3em}}l}
+    \Theta = & t_t : \mathsf{T}(1) \\
+    \Gamma = & k : \typeOfCartSp{\mathbb{R}\langle 1, 0 \rangle} \\
+    \Delta = &
+    \begin{array}[t]{@{}l}
+      t : \mathbb{R}\langle 1, t_t + t_t \rangle, x : \mathbb{R}\langle \mathit{exp}(-t_t), 0 \rangle, \dot{x} : \mathbb{R}\langle \mathit{exp}(-t_t), 0 \rangle
+    \end{array}
+  \end{array}
+\end{displaymath}
+Here, the position and velocity of the single particle \emph{scale}
+with the exponential of the translation in time. This will account for
+the exponential damping we apply to the system. For simplicity, we
+assume that the mass of the particle and the spring constant are both
+$1$. The Lagrangian for this system looks similar to the coupled pair
+above, except for an additional damping factor:
+\begin{displaymath}
+  L = \left(\frac{1}{2}\dot{x}^2 - \frac{1}{2}x^2\right)\mathrm{exp}(t) : \mathbb{R}\langle 1, 0 \rangle
+\end{displaymath}
+From the types of $t$, $x$ and $\dot{x}$, we learn that this system is
+invariant under the families of transformations $\Phi_\epsilon(t) = t
++ 2\epsilon$ and $\Psi_\epsilon(x) = e^\epsilon x$. This leads to the
+following conservation law for this system, linking energy and linear
+momentum:
+\begin{displaymath}
+  \frac{d}{dt}\left[\left(\frac{1}{2}x\dot{x} + \frac{1}{2}\dot{x}^2 + \frac{1}{2}x^2\right)e^t\right] = 0
+\end{displaymath}
 
 \section{Conclusions}
 \label{sec:conclusions}
 
-FIXME: sum up what's happened
+We have presented a type system for writing invariant Langrangians,
+with a relationally parametric semantics that allows the derivation of
+free theorems that can be used with Noether's theorem to discover
+conservation laws for classical mechanical systems. Our key technical
+contribution has been the observation that relationally parametric
+models of System F$\omega$ admit kinds that are interpreted as
+groupoids, allowing geometric invariance properties to be integrated
+directly into the model.
 
 \paragraph{Related Work} We are not aware of any other work linking
-type systems, programming languages or relational parametricity with
-invariance properties for classical mechanics, or with Noether's
-theorem. We have already mentioned the work of Atkey, Johann and
-Kennedy \cite{atkey13abstraction} that uses 
+type systems or relational parametricity with invariance properties
+for classical mechanics, or with Noether's theorem. We have already
+mentioned the work of Atkey, Johann and Kennedy
+\cite{atkey13abstraction} that uses relational parametricity with a
+specialised type system to derive geometric invariance properties,
+albeit in a setting without smooth functions, and without an
+application to Noether's theorem. In this paper, we have placed Atkey
+\emph{et al.}'s work in a more general setting by framing it as an
+extension of System F$\omega$, which allows us to (a) incorporate
+type-level computation, as we used to define the $n$-ary vectors of
+coordinates; and (b) to reuse previous work on relationally parametric
+models of System F$\omega$ by Atkey \cite{atkey12relational}.
 
-Quantum programming languages
+Sussman and Wisdom \cite{sussman01structure} reformulate Lagrangian
+and Hamiltonian mechanics in a more programming language style so that
+it can be implemented within the programming language Scheme. In doing
+so, they clear up some of the ambiguous syntax common in the standard
+presentations of classical mechanics. However, they do not attempt to
+incorporate invariance properties into types, as we have done here.
 
-Information effects
+There has been prior work on programming languages inspired by
+theoretical physics. Quantum programming languages, which hope to
+exploit the properties of quantum computation in an understandable way
+have been the subject of study for several years now. We cite Abramsky
+\cite{abramsky04} as an introduction to this field.
 
-\paragraph{Future Work}
+\paragraph{Future Work} We have barely scratched the surface of the
+applicability of Noether's theorem to theoretical
+physics. Conservation laws for classical and quantum field theories
+are derivable from generalisations of Noether's
+theorem. Neuenschwander's book \cite{neuenschwander11} describes in an
+easy to read way how Noether's theorem applies to field theories,
+allowing for relativistic and quantum systems to be studied, and how
+it naturally leads to the notion of Gauge invariance, an important
+principle in modern theories of particle physics.
 
-\begin{enumerate}
-\item Gauge theory
-\item Quantum field theory
-\item Dependent types
-\item Homotopy type theory
-\item Distance indexed types and differential privacy.
-\item Languages with function spaces with more structure (Alex's
-  Enriched Effect Calculus) (Idea for differential privacy)
-\end{enumerate}
+From the type system point of view, it seems clear that greater
+expressiveness will be required in order to accomodate more detailed
+physical theories. Study of relational parametricity for dependent
+types, as done for example by Bernardy \emph{et al.}
+\cite{bernardy12proofs} may be useful here. Also, recent work on
+homotopy type theory and, in particular $\infty$-groupoid models of
+type theory is almost certainly relevant \cite{hottbook2013}.
+
+For each of the examples in Section~\ref{sec:examples}, we computed
+the necessary typing derivations by hand. Type inference for the
+system was have presented here, or some variant of it, is a key item
+of future work. Ideally, the user would enter the description of a
+Lagrangian, and the system would be able to tell them the free
+theorems, and consequent conservation laws that hold. Kennedy
+\cite{kennedy94} and Gundry \cite{gundry11} have studied type
+inference for the related, but simpler, setting of dimension types.
+
+\begin{thebibliography}{12}
+\softraggedright
+
+\bibitem{abramsky04}
+S.~Abramsky. High-Level Methods for Quantum Computation and Information.
+Proceedings, LICS, 2004.
+
+\bibitem{arnold89mathematical} V.~I.~Arnol'd. {\em Mathematical Methods of
+  Classical Mechanics}. Springer, 1989.
+
+\bibitem{atkey12relational}
+R.~Atkey. Relational Parametricity for Higher Kinds.
+Proceedings, CSL, 2012.
+
+\bibitem{atkey13abstraction}
+R.~Atkey, P.~Johann, and A.~J.~Kennedy. Abstraction and Invariance for Algebraically Indexed Types.
+Proceedings, POPL, 2013.
+
+\bibitem{bernardy12proofs} 
+J.-P.~Bernardy, P.~Jansson, R.~Paterson.
+Proofs for Free: Parametricity for Dependent Types.
+{\em Journal of Functional Programming} 22(2), pp. 107-152, 2012.
+
+\bibitem{gelfand00calculus} I.~M.~Gelfand and S.~V.~Fomin,
+  R.~A.~Silverman (ed.). {\em Calculus of Variations}. Dover Publications,
+  2000.
+
+\bibitem{gundry11} A.~Gundry. Type Inference for Units of
+  Measure. Technical Report, University of Strathclyde, 2011.
+
+\bibitem{hasegawa94relational} R. Hasegawa.  Relational Limits in
+  General Polymorphism.  {\em Publications of the Research Institute
+    for Mathematical Sciences} 30, pp. 535--576, 1994.
+
+\bibitem{kennedy94}
+A.~J.~Kennedy. Dimension Types.
+Proceedings, ESOP, 1994.
+
+\bibitem{kennedy97relational} 
+A.~J.~Kennedy. Relational Parametricity and Units of Measure.
+Proceedings, POPL, pp. 442-455, 1997.
+
+\bibitem{landau60mechanics} L.~D.~Landau and
+  E.~M.~Lifschitz. {\em Mechanics}. Pergamon Press. 1967.
+
+\bibitem{neuenschwander11}
+D.~E.~Neuenschwander. {\em Emmy Noether's Wonderful Theorem}.
+The John Hopkins University Press, 2011.
+
+\bibitem{noether71} E.~Noether, M.~Tavel (translator). Invariant
+  Variation Problems.  {\em Transport Theory and Statistical Physics}
+  1(3), pp. 186-207, 1971. Original in {\em Gott. Nachr.},
+  1918:235-257, 1918.
+
+\bibitem{maclane98categories} S.~Mac~Lane. {\em Categories for the Working
+  Mathematician}, 2nd edition. Springer, 1998.
+
+\bibitem{pierce02types} B.~Pierce. {\em Types and Programming
+  Languages}. MIT Press, 2002.
+
+\bibitem{pitts87polymorphism} A.~M.~Pitts.  Polymorphism is Set
+  Theoretic, Constructively.  {\em Proc., Category Theory and Computer
+    Science}, pp. 12--39, 1987.
+
+\bibitem{reynolds83types}
+J.~C.~Reynolds. Types, Abstraction and Parametric Polymorphism.
+{\em Information Processing} 83, pp. 513-523, 1983.
+
+\bibitem{robinson94reflexive} E. Robinson and G. Rosolini.  Reflexive
+Graphs and Parametric Polymorphism.  {\em Proc., Logic in Computer
+  Science}, pp. 364--371, 1994.
+
+\bibitem{sussman01structure} G.~J.Sussman and J.~Wisdom. Structure and
+  Interpretation of Classical Mechanics. MIT Press, 2001
+
+\bibitem{hottbook2013} The Univalent Foundations Program. {\em
+    Homotopy Type Theory}. Institute for Advanced Study, 2013.
+
+\bibitem{wadler89theorems}
+P.~Wadler.  Theorems for Free!.  Proceedings, FPCA,
+pp. 347-359, 1989.
+
+\end{thebibliography}
+
 
 \end{document}
