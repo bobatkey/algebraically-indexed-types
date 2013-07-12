@@ -1487,22 +1487,22 @@ defining Lagrangians that are generic in the number of particles.
 \begin{displaymath}
   \begin{array}{l@{\hspace{0.3em}}c@{\hspace{0.3em}}l}
     \mathrm{sum} &:& \forall n \mathord: \mathsf{Nat}, g \mathord: \mathsf{GL}(1). C^\infty(\mathit{vec}~n~(\mathbb{R}\langle g, 0 \rangle), \mathbb{R}\langle g, 0\rangle) \\
+    \mathrm{map} &:& \forall n \mathord: \mathsf{Nat}. C^\infty(Z \times X,Y) \to C^\infty(Z \times \mathrm{vec}~n~X, \mathrm{vec}~n~Y) \\
     \mathrm{cross} &:& 
     \begin{array}[t]{@{}l}
       \forall m,n \mathord: \mathsf{Nat}.\\
-      \quad C^\infty(X \times Y, Z) \to \\
-      \quad\quad C^\infty(\mathit{vec}~m~X \times \mathit{vec}~n~Y, \mathit{vec}~(m*n)~Z)
+      \quad\quad C^\infty(\mathit{vec}~m~X \times \mathit{vec}~n~Y, \mathit{vec}~(m*n)~(X \times Y))
     \end{array}
   \end{array}
 \end{displaymath}
 The combinator $\mathrm{sum}$ sums the list of real numbers it is
 given, while $\mathrm{cross}$ takes the cartesian product of two
-vectors of elements of cartesian spaces, and maps the given smooth
-function over them. The multiplication of natural numbers $m*n$ is
-straightforwardly defined in terms of the $\mathit{natrec}$ recursion
-operator. We will use $\mathrm{cross}$ in Section~\ref{sec:examples}
-to define Lagrangians in terms of the interactions between systems of
-particles.
+vectors of elements of cartesian spaces, and $\mathrm{map}$ maps the
+given smooth function over a vector. The multiplication of natural
+numbers $m*n$ is straightforwardly defined in terms of the
+$\mathit{natrec}$ recursion operator. We will use $\mathrm{cross}$ in
+Section~\ref{sec:examples} to define Lagrangians in terms of the
+interactions between systems of particles.
 
 \subsection{A Surface Syntax for Smooth Functions}
 \label{sec:surface-syntax}
@@ -1560,7 +1560,7 @@ particles.
     \inferrule*
     {\Theta \sepbar \Gamma; \Delta \vdash e_1 : \mathbb{R}\langle G_1, 0 \rangle \\
       \Theta \sepbar \Gamma; \Delta \vdash e_2 : \mathbb{R}^n\langle G_2, 0 \rangle}
-    {\Theta \sepbar \Gamma; \Delta \vdash e_1 * e_2 : \mathbb{R}^n\langle \mathit{scale}_n(G_1)G_2, 0 \rangle}
+    {\Theta \sepbar \Gamma; \Delta \vdash e_1 e_2 : \mathbb{R}^n\langle \mathit{scale}_n(G_1)G_2, 0 \rangle}
 
     \inferrule*
     {\Theta \sepbar \Gamma; \Delta \vdash e_1 : \mathbb{R}^n\langle \mathit{scale}_n(G)\mathit{ortho}_n(O), 0 \rangle \\
@@ -1583,7 +1583,30 @@ particles.
     {\Theta \sepbar \Gamma; \Delta \vdash e : \mathbb{R}\langle 1, \underline{2\pi} * Z \rangle}
     {\Theta \sepbar \Gamma; \Delta \vdash \mathrm{cos}~e : \mathbb{R}\langle 1, 0 \rangle}
   \end{mathpar}
-  FIXME: division, n-ary products (sum, zip, reduce)
+
+  \medskip
+  \textbf{Division, sum, and cross}
+  \begin{mathpar}
+    \inferrule*
+    {\Theta \sepbar \Gamma; \Delta \vdash e_1 : \mathbb{R}\langle G_1, 0 \rangle \\
+      \Theta \sepbar \Gamma; \Delta \vdash e_2 : \mathbb{R}\langle G_2, 0 \rangle}
+    {\Theta \sepbar \Gamma; \Delta \vdash \frac{e_1}{e_2} : \mathbb{R}\langle G_1G_2^{-1}, 0 \rangle}
+
+    \inferrule*
+    {\Theta \sepbar \Gamma; \Delta \vdash e : \mathit{vec}~N~(\mathbb{R}\langle G, 0 \rangle)}
+    {\Theta \sepbar \Gamma; \Delta \vdash \mathrm{sum}~e : \mathbb{R}\langle G, 0 \rangle}
+
+    \inferrule*
+    {\Theta \sepbar \Gamma; \Delta, x : X \vdash e_1 : Y \\
+      \Theta \sepbar \Gamma; \Delta \vdash e_2 : \mathit{vec}~N~X}
+    {\Theta \sepbar \Gamma; \Delta \vdash \mathrm{map}~(x.~e_1)~e_2 : \mathit{vec}~N~Y}
+    
+    \inferrule*
+    {\Theta \sepbar \Gamma; \Delta \vdash e_1 : \mathit{vec}~M~X \\
+      \Theta \sepbar \Gamma; \Delta \vdash e_2 : \mathit{vec}~N~Y}
+    {\Theta \sepbar \Gamma; \Delta \vdash \mathrm{cross}~e_1~e_2 : \mathit{vec}~(M*N)~(X \times Y)}
+  \end{mathpar}
+
   \caption{A surface syntax for smooth functions}
   \label{fig:smooth-terms}
 \end{figure*}
@@ -1597,22 +1620,62 @@ particles.
       \elab{\mathrm{let}~\vec{x} = e_1\textrm{ in }e_2}_\Delta & = & \mathrm{pair}~\mathrm{id}~\elab{e_1}_\Delta \comp \elab{e_2}_{\Delta, \vec{x}} \\
       \elab{(e_1,...,e_n)}_\Delta &=& \underline{\mathrm{pair}_n}(\elab{e_1}_\Delta, ..., \elab{e_n}_\Delta) \\
       \elab{e_1(e_2)}_\Delta &=& \elab{e_2}_\Delta \comp e_1 \\
-      \elab{\vec{c}}_\Delta &=& 
+      \elab{\vec{c}}_\Delta &=& \mathrm{const}~\vec{c} \\
+      \elab{0}_\Delta &=& \mathrm{const}~0 \\
+      \elab{e_1 + e_2}_\Delta &=& \mathrm{pair}~\elab{e_1}_\Delta~\elab{e_2}_\Delta \comp (+) \\
+      \elab{e_1 - e_2}_\Delta &=& \mathrm{pair}~\elab{e_1}_\Delta~\elab{e_2}_\Delta \comp (-) \\
+      \elab{e_1 e_2}_\Delta &=& \mathrm{pair}~\elab{e_1}_\Delta~\elab{e_2}_\Delta \comp (*) \\
+      \elab{e_1 \cdot e_2}_\Delta &=& \mathrm{pair}~\elab{e_1}_\Delta~\elab{e_2}_\Delta \comp (\cdot) \\
+      \elab{\sin~e}_\Delta &=& \elab{e}_\Delta \comp \sin \\
+      \elab{\cos~e}_\Delta &=& \elab{e}_\Delta \comp \cos \\
+      \elab{\mathrm{exp}~e}_\Delta &=& \elab{e}_\Delta \comp \mathrm{exp} \\
+      \elab{e_1 / e_2}_\Delta &=& \mathrm{pair}~\elab{e_1}_\Delta~\elab{e_2}_\Delta \comp (/) \\
+      \elab{\mathrm{sum}~e}_\Delta &=& \elab{e}_\Delta \comp \mathrm{sum} \\
+      \elab{\mathrm{map}~(x.~e_1)~e_2}_\Delta &=& \mathrm{pair}~\mathrm{id}~\elab{e_2}_\Delta \comp (\mathrm{map}~\elab{e_1}_{\Delta,x}) \\
+      \elab{\mathrm{cross}~e_1~e_2}_\Delta &=& \mathrm{pair}~\elab{e_1}_\Delta~\elab{e_2}_\Delta \comp \mathrm{cross}
     \end{array}
   \end{displaymath}
   \caption{Desugaring of the surface syntax}
   \label{fig:desugar}
 \end{figure}
 
-FIXME: define the translation
+The combinators we have presented allow the construction of smooth
+invariant functions, but doing so is painful due to the point-free
+style that they force. In order to be able to actually define readable
+Lagrangians in our calculus, we define a surface syntax for writing
+smooth functions that is desugared into our extended version of System
+F$\omega$.
 
-Define $\Delta$ and $\elab{\Delta}$.
+We define a typing judgement of smooth terms $\Theta \sepbar \Gamma;
+\Delta \vdash e : X$ by the rules in Figure~\ref{fig:smooth-terms},
+where $\Theta$ and $\Gamma$ are the kinding and typing contexts of our
+extension of F$\omega$, and $\Delta = x_1 : X_1, ..., x_n : X_n$ is a
+context of cartesian spaces. That is, for each $x : X$ in $\Delta$, we
+have $\Theta \vdash X : \mathsf{CartSp}$.
 
-Define project
-
+The desugaring of smooth function terms into our extension of System
+F$\omega$ is via the operation $\elab{-}_\Delta$, defined in
+Figure~\ref{fig:desugar}. In this definition, we make use of two
+derived combinators for projection and pairing:
+\begin{displaymath}
+  \begin{array}{l@{\hspace{0.3em}}c@{\hspace{0.3em}}l}
+    \underline{\mathrm{project}_{x : X, \Delta}}(x) & = & \mathrm{proj_1} \\
+    \underline{\mathrm{project}_{y : Y, \Delta}}(x) & = & \mathrm{proj_2} \comp \underline{\mathrm{project}_\Delta}(x) \quad (x \not= y)
+  \end{array}
+\end{displaymath}
+and
+\begin{displaymath}
+  \begin{array}{l@{\hspace{0.3em}}c@{\hspace{0.3em}}l}
+    \underline{\mathrm{pair}_1}(e) & = & e \\
+    \underline{\mathrm{pair}_{n+1}}(e, \vec{e}) & = & \mathrm{pair}~e~(\underline{\mathrm{pair}_n}(\vec{e}))
+  \end{array}
+\end{displaymath}
+The following theorem follows easily by induction on the typing
+derivations of smooth terms, where $\elab{\Delta} = \elab{x_1 : X_1,
+  ..., x_n : X_n} = X_1 \times ... \times X_n$:
 \begin{theorem}
-  If $\Theta |\Gamma; \Delta \vdash e : X$ then $\Theta \sepbar
-  \Gamma \vdash \elab{e} : C^\infty(\elab{\Delta}, X)$.
+  If $\Theta |\Gamma; \Delta \vdash e : X$ then $\Theta |
+  \Gamma \vdash \elab{e}_\Delta : C^\infty(\elab{\Delta}, X)$.
 \end{theorem}
 
 \section{Examples of Conservation Laws from Types}
@@ -1675,6 +1738,10 @@ type systems, programming languages or relational parametricity with
 invariance properties for classical mechanics, or with Noether's
 theorem. We have already mentioned the work of Atkey, Johann and
 Kennedy \cite{atkey13abstraction} that uses 
+
+Quantum programming languages
+
+Information effects
 
 \paragraph{Future Work}
 
