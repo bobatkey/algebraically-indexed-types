@@ -1,0 +1,508 @@
+% -*- TeX-engine: xetex -*-
+
+\documentclass[xetex,serif,mathserif]{beamer}
+
+\usepackage{stmaryrd}
+%\usepackage[all]{xy}
+\usepackage{soul}
+
+\usepackage{euler}
+\usepackage[cm-default]{fontspec}
+\usepackage{xunicode}
+\usepackage{xltxtra}
+
+%\usepackage{mathpartir}
+\usepackage{cancel}
+
+\newcommand{\delay}[1]{\mathord{\rhd\kern-0.4em^{#1}}}
+\newcommand{\sem}[1]{\llbracket #1 \rrbracket}
+
+\setmainfont{Linux Libertine O}
+
+\setbeamertemplate{navigation symbols}{}
+\usecolortheme[rgb={0.8,0,0}]{structure}
+\usefonttheme{serif}
+\usefonttheme{structurebold}
+\setbeamercolor{description item}{fg=black}
+
+\definecolor{titlered}{rgb}{0.8,0.0,0.0}
+\definecolor{white}{rgb}{1.0,1.0,1.0}
+
+\newenvironment{slide}[1]{\begin{frame}\frametitle{#1}}{\end{frame}}
+\newenvironment{verbslide}[1]{\begin{frame}[containsverbatim]\frametitle{#1}}{\end{frame}}
+\newcommand{\titlecard}[1]{\begin{frame}\begin{center}\usebeamercolor[fg]{frametitle}\usebeamerfont{frametitle}#1\end{center}\end{frame}}
+
+\def\greyuntil<#1>#2{{\temporal<#1>{\color{black!0}}{\color{black}}{\color{black}} #2}}
+\def\greyfrom<#1>#2{{\temporal<#1>{\color{black}}{\color{black!40}}{\color{black!40}} #2}}
+
+\definecolor{highlight}{rgb}{0.8,0.1,0.1}
+\definecolor{cons}{rgb}{0.8,0.1,0.2}
+\definecolor{elim}{rgb}{0.1,0.5,0.35}
+\definecolor{defnd}{rgb}{0.1,0.2,0.8}
+\newcommand{\highlight}[1]{\textcolor{highlight}{#1}}
+\newcommand{\cons}[1]{\textcolor{cons}{\textsf{#1}}}
+\newcommand{\elim}[1]{\textcolor{elim}{\textsf{#1}}}
+\newcommand{\defnd}[1]{\mathit{#1}}
+\newcommand{\unitSet}{1}
+\newcommand{\hlchange}[1]{\colorbox{black!20}{$#1$}}
+\newcommand{\hlchangenull}[1]{\colorbox{white}{$#1$}}
+
+\newcommand{\Fam}{\mathrm{Fam}}
+\newcommand{\Set}{\mathrm{Set}}
+\newcommand{\Alg}{\mathrm{Alg}}
+\newcommand{\inn}{\mathit{in}}
+\newcommand{\fold}[1]{\llparenthesis #1 \rrparenthesis}
+%\newcommand{\tyname}[1]{\texttt{#1}}
+\newcommand{\sepbar}{\mathrel|}
+\newcommand{\altdiff}[3]{\alt<-#1>{\hlchangenull{#2}}{\hlchange{#3}}}
+\newcommand{\altdiffX}[3]{\alt<-#1>{\hlchangenull{\textcolor{white}{#3}}}{\hlchange{#3}}}
+
+\newcommand{\adjunction}[4]{{#1} \ar@/_/[r]_{#4}
+    \ar@{}[r]|{\perp}& \ar@/_/[l]_{#3} {#2}}
+
+\newcommand{\pullbackcorner}[1][dr]{\save*!/#1-1.2pc/#1:(-1,1)@^{|-}\restore}
+
+\title{From Parametricity to Conservation Laws, via Noether's Theorem}
+\author{Robert Atkey \\ {\small \textcolor{black!60}{\textit{@bentnib}}}}
+\date{30th October 2013}
+
+\newcommand{\kw}[1]{\textbf{#1}}
+\newcommand{\tyname}[1]{\textit{#1}}
+\newcommand{\ident}[1]{\textrm{#1}}
+\newcommand{\defn}[1]{\textcolor{defnd}{\textrm{#1}}}
+
+\begin{document}
+
+\frame{\titlepage}
+
+\begin{slide}{}
+  \textcolor{titlered}{\emph{Invariance in Programming}}:
+  \begin{displaymath}
+    \vdash M : \forall \alpha.~\mathsf{List}~\alpha \to \mathsf{Int}
+  \end{displaymath}
+  \quad implies
+  \begin{displaymath}
+    \forall f : A \to B, l : \mathsf{List}~A.~M~l = M~(\mathrm{map}~f~~l)
+  \end{displaymath}
+\end{slide}
+
+\begin{slide}{}
+  \textcolor{titlered}{\emph{Invariance in Physics}}: \hspace{3cm} \textcolor{black!60}{(Classical Mechanics)} \\
+  \quad A Lagrangian:
+  \begin{displaymath}
+    L(t, q, \dot{q})
+  \end{displaymath}
+  \quad If
+  \begin{displaymath}
+    \forall x.~L(t, q, \dot{q}) = L(t, q + x, \dot{q})
+  \end{displaymath}
+  \quad then, for all “physically realisable” paths $q$:
+  \begin{displaymath}
+    \frac{d}{dt}\frac{\partial L}{\partial \dot{q}} = 0
+  \end{displaymath}
+  \quad\quad ... a conservation law via Noether's theorem.
+\end{slide}
+
+\begin{slide}{}
+  \textcolor{titlered}{\emph{A Concrete Lagrangian}}: \hspace{1cm} \textcolor{black!60}{(Two particles connected by a spring)}
+  \begin{displaymath}
+    L(t, x_1, x_2, \dot{x_1}, \dot{x_2}) = \frac{1}{2}m(\dot{x_1}^2 + \dot{x_2}^2) - \frac{1}{2}k(x_1 - x_2)^2
+  \end{displaymath}
+  \quad This satisfies:
+  \begin{displaymath}
+    \forall y.~L(t, x_1, x_2, \dot{x_1}, \dot{x_2}) = L(t, x_1 + y, x_2 + y, \dot{x_1}, \dot{x_2})
+  \end{displaymath}
+  \quad so, for all “physically realisable” paths for $x_1$ and $x_2$:
+  \begin{displaymath}
+    \frac{d}{dt}m(\dot{x_1} + \dot{x_2}) = 0
+  \end{displaymath}
+\end{slide}
+
+\begin{slide}{}
+  \textcolor{titlered}{\emph{Compare}}:
+  \begin{displaymath}
+    \forall f : A \to B, l : \mathsf{List}~A.~M~l = M~(\mathrm{map}~f~~l)
+  \end{displaymath}
+  \quad with
+  \begin{displaymath}
+    \forall x.~L(t, q, \dot{q}) = L(t, q + x, \dot{q})
+  \end{displaymath}
+
+  \bigskip
+
+  \textcolor{titlered}{\emph{The Plan}}:
+  \begin{itemize}
+  \item Types give invariance properties \\ \hspace{6cm} \textcolor{black!60}{(\emph{via Parametricity})}
+  \item Invariance properties give conservation laws \\ \hspace{6cm} \textcolor{black!60}{(\emph{via Noether’s theorem})}
+  \end{itemize}
+\end{slide}
+
+\begin{frame}
+  \only<2>{\special{pdf: put @thispage <</Trans<</S /Fade /D 0.2>>>>}}
+  \begin{center}
+    {\usebeamercolor[fg]{frametitle}\usebeamerfont{frametitle}Lagrangian Mechanics and Noether's Theorem} \\
+    \pause
+    \textcolor{black!60}{\emph{From Invariance to Conservation Laws}}
+  \end{center}
+\end{frame}
+
+\begin{slide}{}
+  \textcolor{titlered}{\emph{Lagrangians}}:
+  \begin{displaymath}
+    L(t,q,\dot{q}) = T - V
+  \end{displaymath}
+  \quad where: \\
+  \quad\quad $T$ is the total \emph{kinetic energy} of the system \\
+  \quad\quad $V$ is the total \emph{potential energy} of the system
+
+  \bigskip
+
+  \textcolor{titlered}{\emph{The Action}}:
+  \begin{displaymath}
+    \mathcal{S}[q;a;b] = \int_a^bL(t,q(t),\dot{q}(t)) dt
+  \end{displaymath}
+
+  \bigskip
+
+  \textcolor{titlered}{\emph{Principle of Stationary Action}}: \hspace{1cm} \textcolor{black!60}{\emph{(Euler-Lagrange Equations)}}
+  \begin{displaymath}
+    \begin{array}{lcl}
+      \delta \mathcal{S} = 0
+      & \Leftrightarrow &
+      \frac{d}{dt}\frac{\partial L}{\partial \dot{q}} - \frac{\partial L}{\partial q} = 0
+    \end{array}
+  \end{displaymath}
+  \quad The “physically realisable” paths $q$ satisfy these ODEs
+\end{slide}
+
+\begin{slide}{}
+  \textcolor{titlered}{\emph{An Example Lagrangian}}: \hspace{2cm} \textcolor{black!60}{\emph{(Particle under gravity)}}
+  \begin{displaymath}
+    L(t,x,y,\dot{x},\dot{y}) = \frac{1}{2}m(\dot{x}^2 + \dot{y}^2) - mgy
+  \end{displaymath}
+
+  \pause
+  \bigskip
+
+  \textcolor{titlered}{\emph{Euler-Lagrange Equations}}:
+  \begin{displaymath}
+    \begin{array}{l@{\hspace{1cm}}l}
+      m\ddot{x} = 0 & m\ddot{y} = -mg
+    \end{array}
+  \end{displaymath}
+  \quad\quad Both equations are of the form $F = m\ddot{x}$ ... \\
+  \quad\quad ... Newton’s second law is derived in Lagrangian mechanics
+\end{slide}
+
+\begin{slide}{}
+  \textcolor{titlered}{\emph{Given an Action}}: \\
+  \begin{displaymath}
+    \mathcal{S}[q;a;b] = \int_a^bL(t,q,\dot{q}) dt
+  \end{displaymath}
+  \quad assume transformations of time $\Phi_\epsilon : \mathbb{R} \to \mathbb{R}$ \\
+  \quad assume transformations of space $\Psi_\epsilon : \mathbb{R}^n \to \mathbb{R}^n$ \\
+  \quad\quad where $\Phi_0$ and $\Psi_0$ are the identity
+
+  \bigskip
+
+  \textcolor{titlered}{\emph{Invariance of the Action}}: \\
+  \quad\quad The action is invariant if (for all $q$, $a$, $b$, $\epsilon$):
+  \begin{displaymath}
+    \int_a^bL(t,q(t),\dot{q}(t)) dt = \int_{\Phi_\epsilon(a)}^{\Phi_\epsilon(b)} L(s, q^*(s), \dot{q^*}(s)) ds
+  \end{displaymath}
+  \quad\quad\quad where $q^* = \Psi_\epsilon \circ q \circ \Phi_\epsilon^{-1}$
+\end{slide}
+
+\begin{slide}{}
+  \textcolor{titlered}{\emph{Noether’s Theorem}}: \\
+  \quad If the action
+  \begin{displaymath}
+    \mathcal{S}[q;a;b] = \int_a^bL(t,q,\dot{q}) dt
+  \end{displaymath}
+  \quad is invariant under $\Phi_\epsilon$ and $\Psi_\epsilon$, then
+  \begin{displaymath}
+    \frac{d}{dt}\left(\sum_{i=1}^n \frac{\partial L}{\partial \dot{q_i}}\psi_i + \left(L - \sum_{i=1}^n \dot{q_i}\frac{\partial L}{\partial \dot{q_i}}\right)\phi\right) = 0
+  \end{displaymath}
+  \quad where $\phi = \left.\frac{\partial \Phi}{\partial \epsilon}\right|_{\epsilon=0}$ and $\psi = \left.\frac{\partial \Psi}{\partial \epsilon}\right|_{\epsilon=0}$
+\end{slide}
+
+\begin{slide}{}
+  \textcolor{titlered}{\emph{Simplified Invariance}}: \\
+  \quad when $\Phi(t) = t + t'$, and $\Psi(x) = Gx + x'$, then invariance reduces:
+  \begin{displaymath}
+    L(t, q, \dot{q}) = L(t + t', Gq + x', G\dot{q})
+  \end{displaymath}
+\end{slide}
+
+\begin{slide}{}
+  \textcolor{titlered}{\emph{The Spring Lagrangian}}:
+  \begin{displaymath}
+    L(t, x_1, x_2, \dot{x_1}, \dot{x_2}) = \frac{1}{2}m(\dot{x_1}^2 + \dot{x_2}^2) - \frac{1}{2}k(x_1 - x_2)^2
+  \end{displaymath}
+  \quad satisfies:
+  \begin{displaymath}
+    L(t + t', x_1, x_2, \dot{x_1}, \dot{x_2}) = L(t, x_1, x_2, \dot{x_1}, \dot{x_2})
+  \end{displaymath}
+  \quad and so, by Noether’s theorem:
+  \begin{displaymath}
+    \frac{d}{dt}\left(\frac{1}{2}m(\dot{x_1}^2 + \dot{x_2}^2) + \frac{1}{2}k(x_1 - x_2)^2\right) = 0
+  \end{displaymath}
+  \quad\quad i.e., \emph{energy} is conserved.
+
+\end{slide}
+
+\begin{frame}
+  \only<2>{\special{pdf: put @thispage <</Trans<</S /Fade /D 0.2>>>>}}
+  \begin{center}
+    {\usebeamercolor[fg]{frametitle}\usebeamerfont{frametitle}Higher-kinded Parametricity} \\
+    \pause
+    \textcolor{black!60}{\emph{From Types to Invariance}}
+  \end{center}
+\end{frame}
+
+\newcommand{\sechead}[1]{\textcolor{titlered}{\emph{#1}}}
+
+\begin{slide}{}
+  \sechead{Higher kinded types in Programming}:
+  \begin{displaymath}
+    \begin{array}{lcl}
+      \mathsf{List} & : & * \to * \\
+      (\mathord\to) & : & * \to * \to *
+    \end{array}
+  \end{displaymath}
+
+  \bigskip
+
+  \sechead{Higher kinded types in Classical Mechanics}:
+  \begin{displaymath}
+    \begin{array}{lcl}
+      \mathbb{R}^n & : & \mathsf{GL}(n) \to \mathsf{T}(n) \to \mathsf{CartSp} \\
+      C^\infty & : & \mathsf{CartSp} \to \mathsf{CartSp} \to *
+    \end{array}
+  \end{displaymath}
+  \quad where \\
+  \quad\quad $\mathsf{GL}(n)$ is the kind of invertible linear transformations \\
+  \quad\quad $\mathsf{T}(n)$ is the kind of translations \\
+  \quad\quad $\mathsf{CartSp}$ is the kind of cartesian spaces
+\end{slide}
+
+\begin{slide}{}
+  \sechead{Interpreting kinds} \hspace{4cm} \textcolor{black!60}{\emph{(Kinds as large sets)}}
+  \begin{displaymath}
+    \llbracket * \rrbracket = \mathrm{set}
+  \end{displaymath}
+
+  \medskip
+  \quad Types are just functions:
+  \begin{displaymath}
+    \begin{array}{l}
+      \llbracket \mathsf{List} \rrbracket X = X^* \\
+      \llbracket \mathord\to \rrbracket X Y = X \to Y
+    \end{array}
+  \end{displaymath}
+
+  \medskip
+  \quad\quad \emph{Does not} give the invariance properties we are looking for.
+\end{slide}
+
+\begin{slide}{}
+  \sechead{Interpreting kinds} \hspace{3cm} \textcolor{black!60}{\emph{(Kinds as reflexive graphs)}} \\
+  \quad $\begin{array}[t]{ll}
+    A : \mathrm{Set} & \textrm{a large set of objects} \\
+    R : A \times A \to \mathrm{Set} & \textrm{sets of edges/relations between objects} \\
+    \mathrm{refl} : \forall a.~R(a,a) & \textrm{distinguished identity edges}
+  \end{array}$
+
+  \bigskip
+
+  \sechead{Interpreting specific kinds}:
+  \begin{displaymath}
+    \begin{array}{lcl}
+      \llbracket * \rrbracket & = & (\mathrm{set}, \mathrm{rel}, \equiv) \\
+      \llbracket \mathsf{GL}(n) \rrbracket & = & (\{*\}, \mathrm{GL}(n), I) \\
+      \llbracket \mathsf{T}(n) \rrbracket & = & (\{*\}, \mathrm{T}(n), 0) \\
+      \llbracket \mathsf{CartSp} \rrbracket & = & (\mathbb{N}, \textrm{diffeomorphisms on }\mathbb{R}^n, \mathrm{id})
+    \end{array}
+  \end{displaymath}
+\end{slide}
+
+\begin{slide}{}
+  \sechead{Interpreting types}: \\
+  \quad Types $\kappa_1 \to \kappa_2$ are \emph{morphisms} of reflexive graphs:
+  \begin{displaymath}
+    (f,r) : (A, R_A, \mathrm{refl}_A) \to (B, R_B, \mathrm{refl}_B)
+  \end{displaymath}
+  \quad where: \\
+  \quad\quad $f : A \to B$ \\
+  \quad\quad $r : \forall a,a' \in A.~R_A(a,a') \to R_B(f~a, f~a')$ \\
+  \quad\quad\quad such that $r~a~a~(\mathrm{refl}_A~a) = \mathrm{refl}_B~(f~a)$
+
+  \pause
+  \bigskip
+
+  \sechead{Interpreting specific types}: \\
+  \begin{displaymath}
+    \begin{array}{lcl}
+      \llbracket \mathsf{List} \rrbracket^f X &=& X^* \\
+      \llbracket \mathsf{List} \rrbracket^r X~Y~R &=& \{ (l, l') \sepbar |l| = |l'| \land \forall i.~R(l[i], l'[i]) \}
+    \end{array}
+  \end{displaymath}
+  \begin{displaymath}
+    \begin{array}{lcl}
+      \llbracket \mathbb{R}^n \rrbracket~*~* &=& n \\
+      \llbracket \mathbb{R}^n \rrbracket~*~*~G~*~*~t &=& \lambda \vec{x}.~G\vec{x} + t
+    \end{array}
+  \end{displaymath}
+  \begin{displaymath}
+    \begin{array}{lcl}
+      \llbracket C^\infty \rrbracket~m~n & = & \textrm{smooth functions }\mathbb{R}^m \to \mathbb{R}^n \\
+      \llbracket C^\infty \rrbracket~m~m~d_1~n~n~d_2 & = & \{ (f,f') \sepbar d_2 \circ f = f' \circ d_1 \}
+    \end{array}
+  \end{displaymath}
+\end{slide}
+
+\newcommand{\elab}[1]{\lfloor #1 \rfloor}
+
+\begin{slide}{}
+  \sechead{A syntax for smooth invariant functions}:
+  \begin{displaymath}
+    \Theta | \Gamma; \Delta \vdash M : X
+  \end{displaymath}
+  \quad where \\
+  \quad\quad $\Theta = \alpha_1 : \kappa_1, ..., \alpha_n : \kappa_n$ - kinding context \\
+  \quad\quad $\Gamma = z_1 : A_1, ..., z_m : A_m$ - typing context \\
+  \quad\quad $\Delta = x_1 : X_1, ..., x_k : X_k$ - spatial context
+
+  \bigskip
+  \begin{itemize}
+  \item Semantics is given by translation into F$\omega$
+  \item $\Theta | \Gamma; \Delta \vdash M : X$ \quad $\Rightarrow$ \quad $\Theta \vdash \Gamma \vdash \elab{M} : C^\infty(\Delta, X)$
+  \end{itemize}
+  
+\end{slide}
+
+\titlecard{Examples}
+
+\newcommand{\typeOfCartSp}[1]{\lbag #1 \rbag}
+
+\begin{slide}{}
+  \sechead{Free Particle}
+  \begin{displaymath}
+    \begin{array}{l@{\hspace{0.3em}}l}
+      \Theta = & t_t : \mathsf{T}(1), t_x : \mathsf{T}(3), o : \mathsf{O}(3) \\
+      \Gamma = & m : \typeOfCartSp{\mathbb{R}\langle 1, 0 \rangle} \\
+      \Delta = & t : \mathbb{R}\langle 1, t_t \rangle, x : \mathbb{R}^3\langle \mathrm{ortho}_3(o), t_x \rangle, \dot{x} : \mathbb{R}^3\langle \mathrm{ortho}_3(o), 0 \rangle
+    \end{array}
+  \end{displaymath}
+
+  \bigskip
+
+  \begin{displaymath}
+    L = \frac{1}{2}m(\dot{x} \cdot \dot{x}) : \mathbb{R}\langle 1, 0 \rangle
+  \end{displaymath}
+
+  \pause
+  \bigskip
+
+  \sechead{Free theorems}
+  \begin{displaymath}
+    \begin{array}{l@{\hspace{1cm}}@{\Rightarrow}@{\hspace{0.5cm}}l}
+      \forall t_t \in \mathbb{R}.~\sem{L}(t + t_t, \vec{x}, \dot{\vec{x}}) = \sem{L}(t, \vec{x}, \dot{\vec{x}})
+      &
+      \textrm{energy}
+      \\
+      \forall \vec{t_x} \in \mathbb{R}^3.~\sem{L}(t, \vec{x} + \vec{t_x}, \dot{\vec{x}}) = \sem{L}(t, \vec{x}, \dot{\vec{x}})
+      &
+      \textrm{linear momentum}
+      \\
+      \forall O \in \mathrm{O}(3).~\sem{L}(t, O\vec{x}, O\dot{\vec{x}}) = \sem{L}(t, \vec{x}, \dot{\vec{x}})
+      &
+      \textrm{angular momentum}
+    \end{array}
+  \end{displaymath}
+\end{slide}
+
+\begin{slide}{}
+  \sechead{$n$-body problem}
+  \begin{displaymath}
+    \begin{array}{l@{\hspace{0.3em}}l}
+      \Theta = & n : \mathsf{Nat}, t_t : \mathsf{T}(1), t_x : \mathsf{T}(3), o : \mathsf{O}(3) \\
+      \Gamma = & m : \typeOfCartSp{\mathbb{R}\langle 1, 0 \rangle} \\
+      \Delta = &
+      \begin{array}[t]{@{}l}
+        t : \mathbb{R}\langle 1, t_t \rangle, \\
+        x : \mathrm{vec}~n~(\mathbb{R}^3\langle \mathrm{ortho}_3(o), t_x \rangle), \\
+        \dot{x} : \mathrm{vec}~n~(\mathbb{R}^3\langle \mathrm{ortho}_3(o), 0 \rangle)
+      \end{array}
+    \end{array}
+  \end{displaymath}
+
+  \smallskip
+
+  \begin{displaymath}
+    L =
+    \begin{array}[t]{@{}l}
+      \frac{1}{2}m(\mathrm{sum}~(\mathrm{map}~(\dot{x_i}.~\dot{x_i}\cdot\dot{x_i}))~\dot{x}) - \\
+      \quad \mathrm{sum}~(\mathrm{map}~((x_i,x_j).~Gm^2/|x_i - x_j|)~(\mathrm{cross}~x~x)) : \mathbb{R}\langle 1, 0 \rangle
+    \end{array}
+  \end{displaymath}
+
+  \pause
+
+  \sechead{Conserved quantities}:
+  \begin{itemize}
+  \item Energy
+  \item Linear momentum
+  \item Angular momentum
+  \end{itemize}
+  
+
+\end{slide}
+
+\begin{slide}{}
+  \sechead{Damped spring}
+  \begin{displaymath}
+    \begin{array}{l@{\hspace{0.3em}}l}
+      \Theta = & t_t : \mathsf{T}(1) \\
+      \Gamma = & k : \typeOfCartSp{\mathbb{R}\langle 1, 0 \rangle} \\
+      \Delta = &
+      \begin{array}[t]{@{}l}
+        t : \mathbb{R}\langle 1, t_t + t_t \rangle, x : \mathbb{R}\langle \mathrm{exp}(-t_t), 0 \rangle, \dot{x} : \mathbb{R}\langle \mathrm{exp}(-t_t), 0 \rangle
+      \end{array}
+    \end{array}
+  \end{displaymath}
+
+  \begin{displaymath}
+    L = \left(\frac{1}{2}\dot{x}^2 - \frac{1}{2}x^2\right)\mathrm{exp}(t) : \mathbb{R}\langle 1, 0 \rangle
+  \end{displaymath}
+
+  \bigskip
+  \pause
+
+  \sechead{Conservation Law}:
+  \begin{displaymath}
+    \frac{d}{dt}\left[\left(\frac{1}{2}x\dot{x} + \frac{1}{2}\dot{x}^2 + \frac{1}{2}x^2\right)e^t\right] = 0
+  \end{displaymath}
+\end{slide}
+
+\titlecard{Conclusions...}
+
+\begin{slide}{}
+  \sechead{What’s been done}:\\
+  \quad A type system for Lagrangians\\ 
+  \quad Types $\Rightarrow$ Free theorems $\Rightarrow$ Noether's Thm. $\Rightarrow$ Conservation Laws 
+
+  \pause
+  \bigskip
+
+  \sechead{What’s to do}:
+  \begin{itemize}
+  \item Field Theory?
+  \item Quantum Field Theory?
+  \item Relativistic Mechanics?
+  \item Type theoretic reconstruction of the Standard Model?
+  \item Analogues of Noether's Thm in CS?
+  \end{itemize}
+\end{slide}
+
+\end{document}
