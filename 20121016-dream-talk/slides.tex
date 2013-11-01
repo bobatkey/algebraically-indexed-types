@@ -1,0 +1,501 @@
+% -*- TeX-engine: xetex -*-
+
+\documentclass[xetex,serif,mathserif]{beamer}
+
+\usepackage{stmaryrd}
+\usepackage[all]{xy}
+
+%\usepackage{euler}
+\usepackage[cm-default]{fontspec}
+\usepackage{xunicode}
+
+\defaultfontfeatures{Scale=MatchLowercase,Mapping=tex-text}
+
+\setmainfont{Linux Libertine O} %Charis SIL}
+
+\setbeamertemplate{navigation symbols}{}
+\usecolortheme[rgb={0.8,0,0}]{structure}
+\usefonttheme{serif}
+\usefonttheme{structurebold}
+
+\definecolor{highlightcolour}{rgb}{1.0,0.1,0.2}
+\newcommand{\highlight}[1]{\textcolor{highlightcolour}{#1}}
+\definecolor{titlered}{rgb}{0.8,0.0,0.0}
+
+\newcommand{\sepbar}{\mathrel|}
+% \newcommand{\tysem}[1]{\mathcal{T}\llbracket #1 \rrbracket}
+% \newcommand{\relsem}[1]{\mathcal{R}\llbracket #1 \rrbracket}
+% \newcommand{\sem}[1]{\llbracket #1 \rrbracket}
+% \newcommand{\Rel}{\mathrm{Rel}}
+% \newcommand{\PER}{\mathrm{PER}}
+% \newcommand{\Set}{\mathrm{Set}}
+% \newcommand{\Eq}{\mathrm{Eq}}
+
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+
+\newcommand{\GL}[1]{\mathrm{GL}_#1}
+\newcommand{\SynGL}[1]{\mathsf{GL}_#1}
+\newcommand{\SE}[1]{\mathsf{SE}_#1}
+\newcommand{\SynSE}[1]{\mathsf{SE}_#1}
+\newcommand{\Orth}[1]{\mathrm{O}_#1}
+\newcommand{\SynOrth}[1]{\mathsf{O}_#1}
+\newcommand{\Transl}[1]{\mathrm{T}_#1}
+\newcommand{\SynTransl}[1]{\mathsf{T}_#1}
+\newcommand{\Scal}{\mathrm{Scal}}
+\newcommand{\SynScal}{\mathsf{Scal}}
+
+\newcommand{\tyPrim}[2]{\textup{\texttt{#1}}\langle #2 \rangle}
+\newcommand{\tyPrimNm}[1]{\textup{\texttt{#1}}}
+
+\newcommand{\sem}[1]{\llbracket #1 \rrbracket}
+\newcommand{\tySem}[1]{\llbracket #1 \rrbracket^{\mathcal{T}}}
+\newcommand{\ctxtSem}[1]{\llbracket #1 \rrbracket^{\mathcal{C}}}
+\newcommand{\tmSem}[1]{\llbracket #1 \rrbracket^{\mathit{tm}}}
+\newcommand{\tyPrimSem}[1]{\llbracket #1 \rrbracket^{\mathcal{T}_0}}
+\newcommand{\rsem}[3]{\llbracket #1 \rrbracket^{\mathcal{R}}_{#2}{#3}}
+
+\newenvironment{slide}[1]{\begin{frame}\frametitle{#1}}{\end{frame}}
+\newenvironment{verbslide}[1]{\begin{frame}[containsverbatim]\frametitle{#1}}{\end{frame}}
+\newcommand{\titlecard}[1]{\begin{frame}\begin{center}\usebeamercolor[fg]{frametitle}\usebeamerfont{frametitle}#1\end{center}\end{frame}}
+
+\title{Geometric Theorems \\ \emph{for} \\ Free}
+\author{Robert Atkey, Patricia Johann \\ \textit{University of Strathclyde} \\~ \\ Andrew Kennedy \\ \textit{Microsoft Research Cambridge}}
+\date{16th October 2012}
+
+\newcommand{\altdiff}[3]{\alt<-#1>{\hlchangenull{#2}}{\hlchange{#3}}}
+
+\begin{document}
+
+\frame{\titlepage}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{slide}{}
+  \textcolor{titlered}{\emph{For any}} function $\mathit{area}$ with the type:
+  \begin{displaymath}
+    \begin{array}[t]{l}
+      \mathit{area} : \forall B \mathord: \SynGL{2}, t \mathord: \SynTransl{2}.\\
+      \quad\quad\quad\quad\tyPrim{vec}{B,t} \to \tyPrim{vec}{B,t} \to \tyPrim{vec}{B,t} \to \tyPrim{real}{\abs{\det B}}
+    \end{array}
+  \end{displaymath}
+
+  \bigskip
+  \pause
+
+  \textcolor{titlered}{\emph{Deduce}} translation invariance:
+  \begin{displaymath}
+    \forall \vec{t}, \vec{v_1}, \vec{v_2}, \vec{v_3}.~\mathit{area}~(v_1 + t)~(v_2 + t)~(v_3 + t) = \mathit{area}~v_1~v_2~v_3
+  \end{displaymath}
+
+  \bigskip
+  \pause
+
+  \textcolor{titlered}{\emph{Deduce}} orthogonal transformation invariance:
+  \begin{displaymath}
+    \forall O, \vec{v_1}, \vec{v_2}, \vec{v_3}.~\mathit{area}~(Ov_1)~(Ov_2)~(Ov_3) = \mathit{area}~v_1~v_2~v_3
+  \end{displaymath}
+
+  \bigskip
+  \pause
+
+  \textcolor{titlered}{\emph{Deduce}} scaling variance:
+  \begin{displaymath}
+    \forall s, \vec{v_1}, \vec{v_2}, \vec{v_3}.~\mathit{area}~(s \cdot v_1)~(s \cdot v_2)~(s \cdot v_3) = s^2 \cdot \mathit{area}~v_1~v_2~v_3
+  \end{displaymath}
+\end{slide}
+
+\begin{slide}{Affine Geometry: Points \emph{vs.} Vectors}
+  \textcolor{titlered}{\emph{Points}} $(x,y)$:\\
+  % \begin{displaymath}
+  %   FIXME: picture
+  % \end{displaymath}
+  \quad $(x,y)$ is an offset from some origin
+
+  \medskip
+
+  \textcolor{titlered}{\emph{Vectors}} $(x,y)$:\\
+  % \begin{displaymath}
+  %   FIXME: picture
+  % \end{displaymath}
+  \quad $(x,y)$ is an offset in its own right
+
+  \hspace{1cm}
+  \pause
+  
+  \textcolor{titlered}{\emph{Change of Origin}}: \\
+  \quad Two tuples can represent the same point \\
+  \quad\quad $(1,1)$ with respect to origin $(0,0)$; \\
+  \quad\quad $(11,21)$ with respect to origin $(10,20)$ \\
+  \medskip
+  \quad They are related by a change of origin.
+
+\end{slide}
+
+\begin{slide}{Affine Geometry \emph{as} Data Representation Invariance}
+  \textcolor{titlered}{\emph{Change of Origin}}: \\
+  \quad Two tuples can represent the same point \\
+  \quad\quad $(1,1)$ with respect to origin $(0,0)$; \\
+  \quad\quad $(11,21)$ with respect to origin $(10,20)$ \\
+  \medskip
+  \quad They are related by a change of origin.
+
+  \bigskip
+  \pause
+
+  \textcolor{titlered}{\emph{Change of Data Representation}}: \\
+  \quad Two datums can represent the same set of numbers: \\
+  \quad\quad $[1,2,4]$ with respect to a sorted list impl; \\
+  \quad\quad $\mathsf{Br}(2, \mathsf{Br}(1,\mathsf{L},\mathsf{L}), \mathsf{Br}(4,\mathsf{L},\mathsf{L}))$ with respect to a binary tree impl\\
+  \medskip
+  \quad They are related by change of data representation
+
+  \bigskip
+  \pause
+  \textcolor{titlered}{\emph{Invariance}}: \\
+  \quad Programs should be invariant under change of representation
+\end{slide}
+
+\begin{slide}{Invariance under Representation Change}
+  \textcolor{titlered}{\emph{Interpretations of types}}
+  \begin{displaymath}
+    \begin{array}{l@{\hspace{0.3em}}l}
+      \tySem{\tyPrimNm{nat}}\gamma & = \mathbb{N} \\
+      \tySem{A \to B}\gamma        & = \tySem{A}\gamma \to \tySem{B}\gamma \\
+      \tySem{\alpha}\gamma         & = \gamma(\alpha) \\
+      %\tySem{\forall \alpha. A}\gamma & = \Pi_{X \in \mathrm{Set}}.~\tySem{A}(\gamma[\alpha \mapsto X])
+    \end{array}
+  \end{displaymath}
+
+  \pause
+
+  \textcolor{titlered}{\emph{Relational Interpretations of Types}}
+  \begin{displaymath}
+    \begin{array}{l@{\hspace{0.3em}}l}
+      \rsem{A}{\gamma_1\gamma_2}\rho & \subseteq \tySem{A}\gamma_1 \times \tySem{A}\gamma_2 \\
+      \rsem{\tyPrimNm{nat}}{\gamma_1\gamma_2}\rho & = \mathord\equiv_{\mathbb{N}} \\
+      \rsem{A \to B}{\gamma_1\gamma_2}\rho & = \{
+      \begin{array}[t]{@{}l}
+        (f_1,f_2) \sepbar \forall (a_1,a_2) \in \rsem{A}{\gamma_1\gamma_2}\rho. \\
+        \quad (f_1a_1,f_2a_2) \in \rsem{A}{\gamma_1\gamma_2}\rho \}
+      \end{array} \\
+      \rsem{\alpha}{\gamma_1,\gamma_2}\rho & = \rho(\gamma)
+    \end{array}
+  \end{displaymath}
+  
+  \pause
+
+  \textcolor{titlered}{\emph{Abstraction Theorem}}
+  \begin{displaymath}
+    \begin{array}{lll}
+      \alpha_1, ..., \alpha_n; - \vdash M : A & \Rightarrow & \forall \gamma_1, \gamma_2, \rho.~(\tmSem{M}, \tmSem{M}) \in \rsem{A}{\gamma_1,\gamma_2}\rho
+    \end{array}
+  \end{displaymath}
+\end{slide}
+
+\begin{slide}{Types \emph{for} Affine Geometry}
+  \textcolor{titlered}{\emph{Translation invariance}}: consider a function
+  \begin{displaymath}
+    f : \mathbb{R}^2 \times \mathbb{R}^2 \to \mathbb{R}^2
+  \end{displaymath}
+  \quad if the arguments and result are \emph{points}, then we must have
+  \begin{displaymath}
+    \forall t \in \mathbb{R}^2, \vec{v_1}, \vec{v_2}.~f~(v_1 + t)~(v_2 + t) = (f~v_1~v_2) + t
+  \end{displaymath}
+
+  \pause
+
+  \textcolor{titlered}{\emph{Meanings of types}}:
+  \begin{displaymath}
+    \begin{array}{l@{\hspace{0.3em}}l}
+      \tySem{\tyPrim{vec}{t}} & = \mathbb{R}^2 \\
+      \rsem{\tyPrim{vec}{t}}{}\rho & = \{ (\vec{v_1}, \vec{v_2}) \sepbar \vec{v_2} = \vec{v_1} + \llbracket t \rrbracket \rho \} \\
+      \\
+      \tySem{\forall t \mathord: \SynTransl{2}. A} & = \tySem{A} \\
+      \rsem{\forall t \mathord: \SynTransl{2}. A}{}\rho & = \bigcap \{ \rsem{A}{}(\rho, t) \sepbar t \in \Transl{2} \}
+    \end{array}
+  \end{displaymath}
+
+  \pause
+
+  \textcolor{titlered}{\emph{Change of Origin invariance as a type}}:
+  \begin{displaymath}
+    \forall t \mathord:\SynTransl{2}.~\tyPrim{vec}{t} \times \tyPrim{vec}{t} \to \tyPrim{vec}{t}
+  \end{displaymath}
+\end{slide}
+
+\begin{slide}{Types \emph{for} Affine Geometry}
+  \textcolor{titlered}{\emph{Basic types}}:
+  \begin{displaymath}
+    \begin{array}{l@{\hspace{1cm}}l}
+      \tyPrim{vec}{t} & \tyPrimNm{real}
+    \end{array}
+  \end{displaymath}
+  \quad Vectors: $\tyPrim{vec}{0}$; Points: $\tyPrim{vec}{t}$
+
+  \bigskip
+
+  \textcolor{titlered}{\emph{Basic operations}}:
+  \begin{displaymath}
+    \begin{array}{l@{\hspace{0.3em}}l}
+      \mathit{affComb} & : \forall t \mathord: \SynTransl{2}.~\tyPrim{vec}{t} \to \tyPrimNm{real} \to \tyPrim{vec}{t} \to \tyPrim{vec}{t} \\
+      (+) & : \forall t_1,t_2 \mathord: \SynTransl{2}.~\tyPrim{vec}{t_1} \to \tyPrim{vec}{t_2} \to \tyPrim{vec}{t_1 + t_2} \\
+      (-) & : \forall t \mathord: \SynTransl{2}.~\tyPrim{vec}{t} \to \tyPrim{vec}{-t} \\
+      0   & : \tyPrim{vec}{0} \\
+      (*) & : \tyPrimNm{real} \to \tyPrim{vec}{0} \to \tyPrim{vec}{0}
+    \end{array}
+  \end{displaymath}
+
+  \textcolor{titlered}{\emph{Derived operations}}:
+  \begin{displaymath}
+    \begin{array}{l@{\hspace{0.3em}}l}
+      \mathit{offset} & : \forall t \mathord: \SynTransl{2}.~\tyPrim{vec}{t} \to \tyPrim{vec}{t} \to \tyPrim{vec}{0} \\
+      \mathit{moveBy} & : \forall t \mathord: \SynTransl{2}.~\tyPrim{vec}{0} \to \tyPrim{vec}{t} \to \tyPrim{vec}{t}
+    \end{array}
+  \end{displaymath}
+\end{slide}
+
+\begin{slide}{A Type Isomorphism}
+  \textcolor{titlered}{\emph{Using the Abstraction Theorem}}:
+  \begin{displaymath}
+    \begin{array}{c}
+      \tau_{n} = \forall
+      t\mathord:\SynTransl{2}.\ \underbrace{\tyPrim{vec}{t} \to ... \to
+        \tyPrim{vec}{t}}_{n+1\textrm{ times}} \to \tyPrimNm{real}
+      \\
+      \\
+      \textrm{is isomorphic to}
+      \\
+      \\
+      \sigma_{n} = \underbrace{\tyPrim{vec}{0} \to
+        ... \tyPrim{vec}{0}}_{n\textrm{ times}} \to \tyPrimNm{real}
+    \end{array}
+  \end{displaymath}
+
+  \medskip
+  \textcolor{titlered}{\emph{Without Loss of Generality}}: \\
+  \quad we can regard the first point as the origin
+\end{slide}
+
+\begin{slide}{Uninhabited Types}
+  \textcolor{titlered}{\emph{Using the Abstraction Theorem}}:
+  \begin{displaymath}
+    \forall t \mathord: \SynTransl{2}.~\tyPrim{vec}{t + t} \to \tyPrim{vec}{t}
+  \end{displaymath}
+
+  \bigskip
+
+  \textcolor{titlered}{\emph{No Inhabitants}}: \\
+  \quad There is no program with this type \\
+  \quad\quad (written using the operations given)
+\end{slide}
+
+\begin{slide}{Invariance under Change of Basis}
+  \textcolor{titlered}{\emph{Vector types indexed by Change of Basis}}:
+  \begin{displaymath}
+    \begin{array}{l@{\hspace{0.5em}=\hspace{0.5em}}l}
+      \tySem{\tyPrim{vec}{B,t}} & \mathbb{R}^2
+      \\ \rsem{\tyPrim{vec}{B,t}}{}\rho & \{ (\vec{v_1},\vec{v_2})
+      \sepbar \vec{v_2} = (\sem{B}\rho)\vec{v_1} + \sem{t}\rho \}
+    \end{array}
+  \end{displaymath}
+
+  \textcolor{titlered}{\emph{Vector operations indexed by Change of Basis}}:
+  \begin{eqnarray*}
+    \mathrm{affComb} & : &
+    \begin{array}[t]{@{}l}
+      \forall B \mathord: \SynGL{2}, t \mathord: \SynTransl{2}.\\
+      \hspace{0.2cm} \tyPrim{vec}{B,t} \to \tyPrimNm{real} \to
+      \tyPrim{vec}{B,t} \to \tyPrim{vec}{B,t}
+    \end{array}
+    \\
+    (+) & : &
+    \begin{array}[t]{@{}l}
+      \forall B \mathord: \SynGL{2}, t_1,t_2 \mathord: \SynTransl{2}. \\
+      \hspace{0.2cm}\tyPrim{vec}{B,t_1} \to \tyPrim{vec}{B,t_2} \to
+      \tyPrim{vec}{B,t_1 + t_2}
+    \end{array}
+    \\
+    (-) & : & \forall B \mathord: \SynGL{2}, t \mathord: \SynTransl{2}.\ \tyPrim{vec}{B,t} \to \tyPrim{vec}{B,-t} \\
+    0 & : & \forall B \mathord: \SynGL{2}.\ \tyPrim{vec}{B,0} \\
+    (*) & : & \forall B \mathord: \SynGL{2}.\ \tyPrimNm{real} \to \tyPrim{vec}{B,0} \to \tyPrim{vec}{B,0}
+\end{eqnarray*}
+\end{slide}
+
+\begin{slide}{Euclidean Geometry}
+  \textcolor{titlered}{\emph{New Indexing Sorts}} \\
+  \quad $\SynOrth{2}$ - 2-dimensional orthogonal transformations \\
+  \quad $\SynGL{1}$ - 1-dimensional scalings (non-zero reals) 
+
+  \bigskip
+
+  \textcolor{titlered}{\emph{Dot Product}} \\
+  \begin{displaymath}
+    (\cdot) : \forall O \mathord: \SynOrth{2}.\ \tyPrim{vec}{\iota_OO, 0} \to \tyPrim{vec}{\iota_OO, 0} \to \tyPrimNm{real}
+  \end{displaymath}
+
+  \textcolor{titlered}{\emph{Cross Product}} \\
+  \begin{displaymath}
+    (\times) : \forall B \mathord: \SynGL{2}.\ \tyPrim{vec}{B,0} \to
+    \tyPrim{vec}{B,0} \to \tyPrim{real}{\det B} 
+  \end{displaymath}
+
+\end{slide}
+
+\begin{slide}{Scalars and Scaling}
+  \textcolor{titlered}{\emph{Real Numbers with Scaling}}
+  \begin{eqnarray*}
+    0   &:& \forall s \mathord:\SynGL{1}.\ \tyPrim{real}{s} \\
+    (+) &:& \forall s \mathord:\SynGL{1}.\ \tyPrim{real}{s} \to \tyPrim{real}{s} \to \tyPrim{real}{s} \\
+    (-) &:& \forall s \mathord:\SynGL{1}.\ \tyPrim{real}{s} \to \tyPrim{real}{s} \to \tyPrim{real}{s} \\
+    1   &:& \tyPrim{real}{1} \\
+    (*) &:& \forall s_1,s_2 \mathord:\SynGL{1}.\ \tyPrim{real}{s_1} \to \tyPrim{real}{s_2} \to \tyPrim{real}{s_1s_2} \\
+    (/) &:&
+    \begin{array}[t]{@{}l@{}l}
+      \forall s_1,s_2 \mathord:\SynGL{1}.\ \tyPrim{real}{s_1}\ & \to \tyPrim{real}{s_2} \\
+      &\to \tyPrim{real}{s_1s_2^{-1}} + \tyPrimNm{unit} \\
+    \end{array}\\
+    \mathrm{abs} &:& \forall s \mathord:\SynGL{1}.\ \tyPrim{real}{s} \to \tyPrim{real}{\abs{s}} %\\
+  \end{eqnarray*}
+
+\end{slide}
+
+\begin{slide}{Area of a Triangle}
+  \begin{displaymath}
+    \begin{array}{@{}l}
+      \mathit{area} : \forall B\mathord:\SynGL{2},
+      t\mathord:\SynTransl{2}.\ \\
+      \hspace{0.8cm}\tyPrim{vec}{B, t} \to \tyPrim{vec}{B, t} \to
+      \tyPrim{vec}{B, t} \to \tyPrim{real}{\abs{\det B}}
+      \\ \mathit{area}\ [B]\ [t]\ p_1\ p_2\ p_3 = \frac{1}{2} *
+      \mathrm{abs}\ ((p_2 - p_1) \times (p_3 - p_1))
+    \end{array}
+  \end{displaymath}
+ 
+  \vspace{1cm}
+
+  \pause
+  \textcolor{titlered}{\emph{Specialise to Isometries}}:
+  \begin{displaymath}
+    \begin{array}{@{}l}
+      \mathit{area} : \forall O\mathord:\SynOrth{2},
+      t\mathord:\SynTransl{2}.\ \\
+      \hspace{0.8cm}\tyPrim{vec}{\iota_OO, t} \to
+      \tyPrim{vec}{\iota_OO, t} \to \tyPrim{vec}{\iota_OO, t} \to
+      \tyPrim{real}{1}
+    \end{array}
+  \end{displaymath}
+
+  \pause
+  \textcolor{titlered}{\emph{Specialise to Scalings}}:
+  \begin{displaymath}
+    \begin{array}{@{}l}
+      \mathit{area} : \forall s\mathord:\SynGL{1}, t\mathord:\SynTransl{2}.\ \\
+      \hspace{0.8cm} \tyPrim{vec}{\iota_1s, t} \to \tyPrim{vec}{\iota_1s, t} \to \tyPrim{vec}{\iota_1s, t} \to \tyPrim{real}{s^2}
+    \end{array}
+  \end{displaymath}
+\end{slide}
+
+\begin{slide}{Scaling Invariance and Dimension Analysis}
+  \textcolor{titlered}{\emph{Kennedy's Dimension Types}}:
+  \begin{displaymath}
+    \tyPrim{real}{\mathrm{metres} \cdot \mathrm{seconds}^{-1}} \to \tyPrim{real}{\mathrm{seconds}} \to \tyPrim{real}{\mathrm{metres}}
+  \end{displaymath}
+
+  \bigskip
+
+  \textcolor{titlered}{\emph{Semantic Interpretation of Dimension Types}} \\
+  \quad Kennedy interpreted the dimension types as \\
+  \quad\hspace{5cm} \emph{invariance under scaling} \\
+  \quad Generalised to invariance under geometric transformations
+\end{slide}
+
+\begin{slide}{Generalising to Algebraically Indexed Types}
+  \textcolor{titlered}{\emph{Index Types by a Multi-sorted Algebraic Theory}} \\
+  \quad $\SynGL{2}$, $\SynTransl{2}$, $\SynOrth{2}$, $\SynGL{1}$ for geometry
+
+  \bigskip
+
+  \textcolor{titlered}{\emph{Choose Types indexed by Algebraic Terms}} \\
+  \quad $\tyPrim{vec}{B,t}$ and $\tyPrim{real}{s}$ for geometry
+
+  \bigskip
+
+  \textcolor{titlered}{\emph{Relational Meanings of Types}} \\
+  \quad Choose a model of the indexing theory \\
+  \quad Assign relational meanings to types
+
+  \bigskip
+
+  \textcolor{titlered}{\emph{Generic Abstraction Theorem}} \\
+  \quad Derive ``Free Theorems'' \\
+  \quad Derive non-definability results
+
+\end{slide}
+
+\begin{slide}{General Non-definability Result}
+  \textcolor{titlered}{\emph{Type Indexed by an Abelian Group}}
+  \begin{displaymath}
+    \begin{array}{l@{\hspace{0.3em}}l}
+      1 & : \tyPrim{X}{1} \\
+      (*) & : \forall u_1,u_2.~\tyPrim{X}{u_1} \to \tyPrim{X}{u_2} \to \tyPrim{X}{u_1 \cdot u_2} \\
+      -^{-1} & : \forall u.~\tyPrim{X}{u} \to \tyPrim{X}{u^{-1}}
+    \end{array}
+  \end{displaymath}
+
+  \textcolor{titlered}{\emph{``Square root'' is not definable}}:
+  \begin{displaymath}
+    \forall u.~\tyPrim{X}{u \cdot u} \to \tyPrim{X}{u}
+  \end{displaymath}
+
+  \textcolor{titlered}{\emph{Proof sketch}}: \\
+  \quad Interpret the indexes as rational numbers \\
+  \quad Let:
+  \begin{displaymath}
+    \begin{array}{l@{\hspace{0.3em}}l}
+      \tySem{\tyPrim{X}{u}} & = \{ * \} \\
+      \rsem{\tyPrim{X}{u}}{}\rho & = \{ (*,*) \sepbar \sem{u}\rho \in \mathbb{Z} \}
+    \end{array}
+  \end{displaymath}
+  \quad Apply the abstraction theorem with
+  $u = \frac{1}{2}$.
+\end{slide}
+
+\begin{slide}{More Algebraic Theories}
+  \textcolor{titlered}{\emph{Logic indexed types and Information Flow}} \\
+  \quad $\tyPrim{T}{\phi}$ - witness that $\phi$ is true \\
+  \quad $\tyPrim{T}{\phi \land \psi} \to \tyPrim{T}{\phi}$ - inference by writing programs \\
+  \quad $M_\phi A = \tyPrim{T}{\phi} \to A$ - data ``protected by $\phi$'' \\
+  \quad\quad Abstraction theorem implies information flow properties
+
+  \pause
+  \bigskip
+
+  \textcolor{titlered}{\emph{Distance indexed Types}} \\
+  \quad $\tyPrim{real}{\epsilon}$ - real numbers related if less than $\epsilon$ apart \\
+  \quad Uniform continuity:
+  \begin{displaymath}
+    \forall \epsilon \mathord: \mathsf{R}^{>0}.\ \exists \delta\mathord: \mathsf{R}^{>0}.\ \tyPrim{real}{\delta} \to \tyPrim{real}{\epsilon}
+  \end{displaymath}
+  \quad Applications to differential privacy? 
+\end{slide}
+
+\begin{slide}{Future Work}
+  \textcolor{titlered}{\emph{More Geometry}} \\
+  \quad Higher dimensional? \\
+  \quad Application to Theorem Proving? \\
+  \quad More complex geometries?
+
+  \bigskip
+
+  \textcolor{titlered}{\emph{Application to Physics?}} \\
+  \quad Add time dependence? \\
+  \quad Gaillean invariance as a type system? \\
+  \quad Noether's theorem?
+
+  \bigskip
+
+  \textcolor{titlered}{\emph{More Algebraic theories}} \\
+  \quad Develop the distance indexing further \\
+  \quad Dependent Types
+\end{slide}
+
+\end{document}
