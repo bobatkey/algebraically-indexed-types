@@ -1,4 +1,7 @@
-\documentclass[preprint]{sigplanconf}
+\documentclass{sigplanconf}
+
+\pdfpagewidth=8.5in
+\pdfpageheight=11in
 
 \newcommand{\sepbar}{\mathrel|}
 \usepackage{mathpartir}
@@ -9,10 +12,7 @@
 
 \title{From Parametricity to Conservation Laws, via Noether's Theorem}
 
-\authorinfo{}{}{}
-% \authorinfo{Robert Atkey}
-%            {}
-%            {bob.atkey@gmail.com}
+\authorinfo{Robert Atkey}{}{bob.atkey@gmail.com}
 
 \newtheorem{lemma}{Lemma}
 \newtheorem{theorem}{Theorem}
@@ -33,6 +33,8 @@
 \newcommand{\smoothrightarrow}{\stackrel{C^\infty}\longrightarrow}
 \newcommand{\typeOfCartSp}[1]{\lbag #1 \rbag}
 \newcommand{\elab}[1]{\lfloor #1 \rfloor}
+
+\newcommand{\abs}[1]{\lvert #1 \rvert}
 
 \newtheoremstyle{examplestyle}
   {\topsep}  % space above
@@ -62,6 +64,12 @@
 
 \begin{document}
 
+\exclusivelicense
+\conferenceinfo{POPL~'14}{January 22--24, 2014, San Diego, CA, USA}
+\copyrightyear{2014}
+\copyrightdata{978-1-4503-2544-8/14/01}
+\doi{2535838.2535867}
+
 \maketitle
 
 \begin{abstract}
@@ -75,7 +83,7 @@
   physical system has a conserved quantity: a quantity that remains
   constant for all time. Knowledge of conserved quantities can reveal
   deep properties of physical systems. For example, the conservation
-  of energy, which by Noether's theorem is a consequence of a system's
+  of energy is by Noether's theorem a consequence of a system's
   invariance under time-shifting.
 
   In this paper, we link Reynolds' relational parametricity with
@@ -90,13 +98,14 @@
   system.
 \end{abstract}
 
-\category{CR-number}{subcategory}{third-level}
+\category{D.3.1}{Programming Languages}{Formal Definitions and Theory}
+\category{J.2}{Physical Sciences and Engineering}{Physics}
 
 \terms
-term1, term2
+  Languages, Theory, Types, Physics
 
 \keywords
-keyword1, keyword2
+  classical mechanics; relational parametricity; higher-kinded types; invariance; conservation laws
 
 \section{Introduction}
 
@@ -105,15 +114,15 @@ tells us that parametrically polymorphic programs automatically
 satisfy invariance properties. Such invariance properties are often
 called \emph{Free Theorems}, after Wadler \cite{wadler89theorems},
 since they follow ``for free'' from the types of programs, rather than
-through detailed study of the program text itself. An illustrative
-example is the free theorem for programs $f$ with the following type:
+through detailed study of the program text. An illustrative example is
+the free theorem for programs $f$ with the following type:
 \begin{displaymath}
   f : \forall \alpha.~\mathsf{List}~\alpha \to \mathsf{Nat}
 \end{displaymath}
-Such programs takes lists of $\alpha$s, for any type $\alpha$, to
-natural numbers. Using Reynolds' theory of relational parametricity,
-Wadler showed that \emph{any} $f$ with this type satisfies the
-following property:
+Such programs take lists of $\alpha$s, for any type $\alpha$, and
+return natural numbers. Using Reynolds' theory of relational
+parametricity, Wadler showed that \emph{any} $f$ with this type
+satisfies the following property:
 \begin{displaymath}
   \forall \alpha, \beta, g : \alpha \to \beta, l : \mathsf{List}~\alpha.~f~[\alpha]~l = f~[\beta]~(\mathrm{map}~g~l)
 \end{displaymath}
@@ -141,7 +150,7 @@ particles are constrained to move one-dimensionally.
 
 Noether's theorem applies to systems described in terms of
 \emph{Lagrangians}. For classical mechanics, a Lagrangian is a
-function of time, and the positions and velocities of all the
+function of time and the positions and velocities of all the
 particles in the system, to the difference between the kinetic energy
 and the potential energy of the system. For our system with two
 particles at positions $x_1$ and $x_2$ with velocities $\dot{x_1}$ and
@@ -161,7 +170,7 @@ stationary action, and the process for deriving the equations of
 motion fully in Section~\ref{sec:conservation-laws-from-symmetry}.)
 For this system, the equations of motion are a pair of ordinary
 differential equations (ODEs) that describe how the positions and
-velocities of the particles evolve over time (the second deivative
+velocities of the particles evolve over time (the second derivative
 with respect to time, $\ddot{x_i}$, denotes the acceleration of the
 $i$th particle):
 \begin{mathpar}
@@ -209,8 +218,8 @@ at the start of this introduction. A change in representation in the
 input, whether a change in data representation from a type $\alpha$ to
 a type $\beta$, or a change in where time zero is counted from,
 results in no change in the output. Since Reynolds' relational
-parametricity was allowed us to derive the invariance properties for
-the program $f$ just by looking at its type, we ask the following
+parametricity allowed us to derive the invariance properties for the
+program $f$ just by looking at its type, we ask the following
 question:
 
 \medskip
@@ -240,9 +249,9 @@ will have the type:
 \end{array}
 \end{displaymath}
 We explain this type by breaking it down from left to right. The
-quantifier $\forall x \mathord: \mathsf{T}(1)$ indicates that we are
+quantifier $\forall y \mathord: \mathsf{T}(1)$ indicates that we are
 quantifying over all translations $y$ in one-dimensional space, just
-as we did implicity in Equation
+as we did implicitly in Equation
 (\ref{eq:coupled-spring-translation-invariance}). The notation
 $C^\infty(-,-)$ denotes the type of \emph{smooth} functions between
 spaces. (A smooth function is a function that is infinitely
@@ -255,11 +264,11 @@ transformation. Likewise, when the translation component is $0$, there
 is no translation. Thus a value of type $\mathbb{R}\langle 1, 0
 \rangle$ is invariant, but a value of type $\mathbb{R}\langle 1, y
 \rangle$ varies with the translation $y$. In the smooth function type
-above, in domain space consists of vectors of five real numbers: the
+above, the domain space consists of vectors of five real numbers: the
 time, the two particle positions, which vary with the translation $y$,
 and the two particle velocities.
 
-Atkey, Johann and Kennedy \cite{atkey13abstraction}, building on older
+Atkey, Johann and Kennedy \cite{atkey13abstraction}, building on
 work by Kennedy \cite{kennedy97relational}, have already presented a
 polymorphic type system for expressing geometric invariance properties
 similar to the translation invariance property in Equation
@@ -283,7 +292,7 @@ Our core contributions are threefold:
   Atkey, Johann and Kennedy \cite{atkey13abstraction} as an extension
   of System F$\omega$. This shows that the special status of the
   group-indexed types in Atkey \emph{et al.}'s work can be
-  incorporated into a standard framework for presenting indexed types.
+  incorporated into a standard framework for indexed types.
 \item We present a relationally parametric semantics of our extension
   of System F$\omega$. In this model, following Atkey's model for
   basic System F$\omega$ \cite{atkey12relational}, each kind is
@@ -292,14 +301,14 @@ Our core contributions are threefold:
   are expressible as groupoids, and hence as reflexive graphs. We
   therefore show that Reynolds' theory of relational parametricity,
   suitably generalised to indexed types by considering reflexive
-  graphs, already accomodates geometric invariance properties.
+  graphs, already accommodates geometric invariance properties.
 \item Finally, we connect the free theorems derivable from our
   relationally parametric semantics with Noether's theorem for
   deriving conservation laws. We present many examples of invariant
   Lagrangians expressible in our type system, along with the
   consequent conservation laws for physical systems. In each case, the
-  necessary invariance property is derived from the type we assign to
-  the Lagrangian.
+  necessary invariance property is derived from the type of the
+  Lagrangian.
 \end{enumerate}
 
 \paragraph{Outline}
@@ -314,12 +323,12 @@ Our core contributions are threefold:
   state Noether's theorem.
 \item Having shown how invariance generates conservation laws in
   Section~\ref{sec:conservation-laws-from-symmetry}, in
-  Section~\ref{sec:symmetry-from-types}, we show how to derive
+  Section~\ref{sec:symmetry-from-types} we show how to derive
   invariance properties from indexed types. We present a relationally
   parametric semantics for System F$\omega$, and show how geometric
   invariance properties can be accomodated within this semantics.
-\item In Section~\ref{sec:types-for-classical-mech}, we construct a
-  type system for classical mechanics, by extending System F$\omega$
+\item In Section~\ref{sec:types-for-classical-mech} we construct a
+  type system for classical mechanics by extending System F$\omega$
   with the necessary constants for smooth function types and
   combinators for constructing smooth functions. Programming directly
   with our combinators in raw System F$\omega$ is awkward, due to the
@@ -372,7 +381,7 @@ kinetic energy of the system, and $V$ is the total potential
 energy. The Lagrangian is a function of time, the positions of all the
 particles in the system, and their velocities. This is usually written
 like so, with abuse of notation for $\dot{q}$ which is a variable
-here, not a derivative of a function:
+here, not the derivative of a function:
 \begin{displaymath}
   L(t, q, \dot{q}) = T - V
 \end{displaymath}
@@ -436,9 +445,9 @@ more careful treatment of variables. The two partial derivatives
 $\frac{\partial L}{\partial \dot{q_i}}$ and $\frac{\partial
   L}{\partial q_i}$ take partial derivatives of $L$ with respect to
 $\dot{q_i}$ and $q_i$ \emph{as variables}. The derivative with respect
-to time, $\frac{d}{dt}$ then treats $\dot{q_i}$ as a function of time,
-hence the appearance of the second derivatives $\ddot{q_i}$ in the
-equations of motion. Sussman and Wisdom \cite{sussman01structure}
+to time, $\frac{d}{dt}$, then treats $\dot{q_i}$ as a function of
+time, hence the appearance of the second derivatives $\ddot{q_i}$ in
+the equations of motion. Sussman and Wisdom \cite{sussman01structure}
 criticise the standard presentation of Lagrangian mechanics for this
 kind of confusing notation, and define a clearer notation based on the
 Scheme programming language. We elect to stick with the standard
@@ -485,20 +494,20 @@ and $b$, under the transformations $\Phi$ and $\Psi$, if it is the
 case that for all paths $q$:
 \begin{equation}\label{eq:invariance}
     \int_a^b L(t,q(t),\dot{q}(t)) \mathit{dt}
-    = \int_{\Phi(a)}^{\Phi(b)} L(s, q^*(s), \dot{q^*}(s)) \mathit{ds}
+    = \int_{\Phi(a)}^{\Phi(b)} L(s, q^*(s), \frac{d q^*}{ds}(s)) \mathit{ds}
 \end{equation}
 where $q^*(s) = (\Psi \circ q \circ \Phi^{-1})(s)$ is the path $q$
 transformed by $\Phi$ and $\Psi$.  By change of variables, the right
 hand integral in the above equation is equal to the following
 integral:
 \begin{displaymath}
-  \int_a^b L(\Phi(t), q^*(\Phi(t)), \dot{q^*}(\Phi(t)))\cdot \dot{\Phi}(t) \mathit{dt}
+  \int_a^b L(\Phi(t), q^*(\Phi(t)), \frac{d q^*}{ds}(\Phi(t)))\cdot \abs{\dot{\Phi}(t)} \mathit{dt}
 \end{displaymath}
 For our application to classical mechanics, the endpoints $a$ and $b$
 are arbitrary, so we can rewrite Equation (\ref{eq:invariance}) to the
 following equation between applications of the Lagrangian:
 \begin{equation}\label{eq:simplified-invariance}
-  L(t,q(t),\dot{q}(t)) = L(\Phi(t), q^*(\Phi(t)), \dot{q^*}(\Phi(t)))\cdot \dot{\Phi}(t)
+  L(t,q(t),\dot{q}(t)) = L(\Phi(t), q^*(\Phi(t)), \frac{d q^*}{ds}(\Phi(t)))\cdot \abs{\dot{\Phi}(t)}
 \end{equation}
 For most examples, it will be the case that $\Phi$ has the form
 $\Phi(t) = t + t'$ and $\Psi$ is an affine transformation $\Psi(q)
@@ -532,7 +541,7 @@ and~\ref{sec:types-for-classical-mech} below.
   spatial translations, due to the reference in the potential energy
   term to the distance from the fixed baseline at $y = 0$. It is
   invariant under translations along the $x$-axis, however. Both
-  Lagrangians are also invariant in translations in time, a special
+  Lagrangians are also invariant under translations in time, a special
   case of Equation~(\ref{eq:simplest-invariance}):
   \begin{displaymath}
     L(t,q,\dot{q}) = L(t+t',q,\dot{q})
@@ -548,7 +557,7 @@ we have two families of transformations, $\Phi_\epsilon$ and
 $\Psi_\epsilon$, differentiably indexed by a real parameter
 $\epsilon$, such that $\Phi_0$ and $\Psi_0$ are the identity function.
 
-\begin{theorem}[Noether]
+\begin{theorem}[Noether]\label{thm:noether}
   If the action
   \begin{displaymath}
     \mathcal{S}[q;a;b] = \int_a^b L(t,q(t),\dot{q}(t))~dt
@@ -569,6 +578,15 @@ $\epsilon$, such that $\Phi_0$ and $\Psi_0$ are the identity function.
 \begin{proof}
   E.g., Gelfand and Fomin \cite{gelfand00calculus}, Section 20.
 \end{proof}
+
+% Theorem \ref{thm:noether} is a special case of what is known as
+% Noether's ``first theorem''. The general case of Theorem
+% \ref{thm:noether} applies to situations where the action is an
+% integral over regions of $n$-dimensional space, and the
+% transformations $\Psi$ can also depend on time. Noether's second
+% theorem generalises further to the case when there are infinitely many
+% parameters $\epsilon$. This is the case when considering local
+% symmetries that vary at different points in spacetime.
 
 \begin{example}\label{ex:conservation-laws}
   In Example~\ref{ex:invariance-examples}, we noted that the
@@ -648,17 +666,17 @@ below), and maintain them as we extend the system.
 We deviate from the standard presentation of System F$\omega$ in that
 we distinguish between large and small kinds, and only allow
 quantification over small kinds. In particular, the kind of types $*$
-is \emph{not} small. The reason for this is that we desire a simple
-set-theoretic model. However, requiring that we have a set of sets
-closed under large products, in order to interpret quantification over
-the kind $*$, would force us to use an intuitionistic metatheory
-\cite{pitts87polymorphism}. The basic results of the calculus of
-variations that we are relying on, such as the derivation of the
+is \emph{not} small. The reason for this choice is that we desire a
+simple set-theoretic model. However, requiring that we have a set of
+sets closed under large products, in order to interpret quantification
+over the kind $*$, would force us to use an intuitionistic metatheory
+\cite{pitts87polymorphism}. The basic results of the Calculus of
+Variations that we are relying on, such as the derivation of the
 Euler-Lagrange equations, use excluded middle in their proofs, so an
 intuitionistic metatheory is not an option. We therefore just assume
 that we have a set of ``small'' sets, which includes the real numbers
-and is closed under subsets, products, function space and
-comprehension.
+and is closed under subsets, products, function spaces and
+set comprehensions.
 
 \paragraph{Syntax} The kinds of System F$\omega$ include at least the
 base kind of types, $*$, and function and product kinds, as generated
@@ -668,7 +686,7 @@ by the following grammar:
 \end{displaymath}
 We will extend the collection of kinds in
 Section~\ref{sec:discrete-kinds} with type-level natural numbers, and
-in Section~\ref{sec:groupoid-kinds}
+in Section~\ref{sec:groupoid-kinds} with groupoid kinds.
 
 We use the judgement $\kappa~\mathrm{small}$ to denote when the kind
 $\kappa$ will be interpreted by a small reflexive graph (to be defined
@@ -687,15 +705,17 @@ The additional kinds we introduce below will all be small.
 
 The well-kinded types, type equalities, and well-typed terms of System
 F$\omega$ are shown in Figures~\ref{fig:types},
-\ref{fig:type-equality} and~\ref{fig:terms}, respectively. Note that
-typing contexts $\Gamma$ only contain well-kinded types of kind
-$*$. Terms also have an equational theory, with $\beta\eta$-laws for
-functions, products, and universal quantification, which we omit. Our
-presentation of System F$\omega$ is entirely standard (see, e.g.,
-Pierce~\cite{pierce02types}), except for the restriction to small
-kinds in the formation of universal kinds $\forall
-\alpha\mathord:\kappa. A$. As is the case for kinds, we will extend
-the types, type equalities and terms in
+\ref{fig:type-equality} and~\ref{fig:terms}, respectively. Kinding
+contexts $\alpha_1 : \kappa_1, ..., \alpha_n : \kappa_n$ are denoted
+by $\Theta$ and typing contexts $x_1 : A_1, ..., x_n : A_n$ are
+denoted by $\Gamma$. Note that typing contexts $\Gamma$ only contain
+well-kinded types of kind $*$. Terms also have an equational theory,
+with $\beta\eta$-laws for functions, products, and universal
+quantification, which we omit. Our presentation of System F$\omega$ is
+entirely standard (see, e.g., Pierce~\cite{pierce02types}), except for
+the restriction to small kinds in the formation of universal kinds
+$\forall \alpha\mathord:\kappa. A$. As is the case for kinds, we will
+extend the types, type equalities, and terms in
 Sections~\ref{sec:discrete-kinds},~\ref{sec:groupoid-kinds}
 and~\ref{sec:types-for-classical-mech}, below.
 
@@ -808,11 +828,11 @@ and~\ref{sec:types-for-classical-mech}, below.
 
 
 \paragraph{Reflexive Graphs and the Interpretation of Kinds} We will
-interpret every kind $\kappa$ is as a reflexive graph, which we now
+interpret every kind $\kappa$ as a reflexive graph, which we now
 define. A \emph{reflexive graph} is a triple $(O, R, \mathrm{id})$,
 where $O$ is a large set of objects, $R : O \times O \to \Set$ assigns
 a small set of directed `edges' to each pair of objects, and
-$\mathrm{id} : \forall o \in O.~R(o,o)$ assigns a distinguished
+$\mathrm{id} : \Pi o \in O.~R(o,o)$ assigns a distinguished
 `identity' edge from every object to itself. We think of the edges of
 a reflexive graph as abstract ``relations'' between the
 objects. Indeed, in the interpretation of the kind of types, $*$,
@@ -854,10 +874,10 @@ morphisms.
 We now define the interpretations of the basic kinds of System
 F$\omega$ we defined above, making sure that we maintain
 Property~\ref{property:semantic-kinds}. At base kind, the collection
-of objects is simply the type of all small sets; edges between $A$ and
-$B$ are binary relations on $A$ and $B$ (i.e., subsets of $A \times
-B$); and the distinguished identity edge is exactly the equality
-relation:
+of objects is simply the (large) set of all small sets; edges between
+$A$ and $B$ are binary relations on $A$ and $B$ (i.e., subsets of $A
+\times B$); and the distinguished identity edge is exactly the
+equality relation:
 \begin{displaymath}
   \sem{*} = (\Set, \Rel, \equiv)
 \end{displaymath}
@@ -874,7 +894,7 @@ distinguished identity relation for $(f,r)$ is just $r$:
     \sem{\kappa_1 \to \kappa_2} = \\
     \begin{array}[t]{l@{}l@{}}
       (& \{ (f,r) \sepbar (f, r) : \sem{\kappa_1} \to \sem{\kappa_2} \},\\
-      &((f,r),(f',r')) \mapsto \forall o,o'. \semKR{\kappa_1}(o,o') \to \semKR{\kappa_2}(f~o, f'~o'), \\
+      &((f,r),(f',r')) \mapsto \Pi o,o'. \semKR{\kappa_1}(o,o') \to \semKR{\kappa_2}(f~o, f'~o'), \\
       &(f,r) \mapsto r\ )
     \end{array}
   \end{array}
@@ -982,7 +1002,7 @@ up as a property of our semantics:
 \begin{property}\label{property:semantic-types}
   Each well-kinded type $\Theta \vdash A : \kappa$ is interpreted as a
   reflexive graph morphism $\sem{A} : \sem{\Theta} \to \sem{\kappa}$,
-  such that if $\Theta \vdash A \equiv B : \kappa$, then $\sem{A} =
+  such that if $\Theta \vdash A \equiv B : \kappa$ then $\sem{A} =
   \sem{B}$.
 \end{property}
 %
@@ -1001,7 +1021,7 @@ $\kappa_1 \to \kappa_2$ and $\kappa_1 \times \kappa_2$ we gave above.
 
 Figure~\ref{fig:basic-type-interpretation} shows the interpretations
 of the basic type constructors for function and product types, and
-universal quantification. Each of these constructs builds an object of
+of universal quantification. Each of these constructs builds an object of
 kind $*$, so the object-level interpretation is a small set in $\Set$,
 and the relation-level interpretation is an actual relation. In the
 cases of the function and product types, the object-level
@@ -1036,7 +1056,7 @@ Property~\ref{property:semantic-types} is maintained.
 relatively uninteresting interpretation of well-typed terms $\Theta
 \sepbar \Gamma \vdash e : A$, and just state that there is a
 well-defined function interpreting each well-typed term, with the
-property that it takes related environments to related results, this
+property that it takes related environments to related results; this
 is the fundamental theorem of logical relations for System F$\omega$:
 
 \begin{property}\label{property:semantic-terms}
@@ -1131,15 +1151,15 @@ invariance properties that we need.
 Recall that a groupoid is a category in which all morphisms have
 inverses \cite{maclane98categories}. Functors between categories
 always preserve isomorphisms, so morphisms of groupoids are just
-functors. Every group is a groupoid with one object and a morphism for
-every element of the group: composition is the group operation,
-inverses are given by the group inverses, and the identity morphism is
-given by the group unit. Homomorphisms between groups are in
-one-to-one correspondence with functors between the corresponding
-groupoids. An example of a groupoid that is not a group is given by
-the collection of cartesian spaces (i.e., $\mathbb{R}^n$ for some
-$n$), with all diffeomorphisms (smooth invertible functions) as the
-morphisms.
+functors. Every group is a groupoid with one object, and a morphism
+from this object to itself for every element of the group: composition
+is the group operation, inverses are given by the group inverses, and
+the identity morphism is given by the group unit. Homomorphisms
+between groups are in one-to-one correspondence with functors between
+the corresponding groupoids. An example of a groupoid that is not a
+group is given by the collection of cartesian spaces (i.e.,
+$\mathbb{R}^n$ for some $n$), with all diffeomorphisms (smooth
+functions with smooth inverses) as the morphisms.
 
 Trivially, every groupoid is a reflexive graph, simply by forgetting
 the composition and inverses. Likewise, every functor between
@@ -1164,11 +1184,11 @@ period $2\pi$. The kind $\mathsf{Z}$ is small:
 The kind $\mathsf{Z}$ has the following interpretation as a reflexive
 graph:
 \begin{displaymath}
-  \sem{\mathsf{Z}} = (\{*\}, \lambda *, *.~\mathbb{Z}, \lambda \mathord*.~0)
+  \sem{\mathsf{Z}} = (\{*\}, \lambda (*, *).~\mathbb{Z}, \lambda \mathord*.~0)
 \end{displaymath}
-Note the difference between this interpretation, and the
-interpretation of the kind $\mathsf{Nat}$ in the previous section. In
-the interpretation of $\mathsf{Nat}$, the objects were complex and the
+Note the difference between this interpretation and the interpretation
+of the kind $\mathsf{Nat}$ in the previous section. In the
+interpretation of $\mathsf{Nat}$, the objects were complex and the
 relations were trivial. The reflexive graph interpreting $\mathsf{Z}$
 has a trivial collection of objects, but a rich structure at the
 relation level, given by the group of integers. This structure means
@@ -1193,12 +1213,13 @@ simply given using the group structure of the integers. These
 interpretations satisfy the abelian group axioms, so we add these
 axioms to the type-level equations.
 
-\paragraph{Translation and Matrix Groups} The group of integers is not
-suitable for stating the invariance properties we require to apply
-Noether's theorem. To do so, we require groups of translations and
-invertible linear transformations. We extend our type system with
-small kinds representing $n$-dimensional ($n \geq 0$) translations,
-invertible linear transformations, and orthogonal transformations:
+\paragraph{Translation and Linear Transformation Groups} The group of
+integers is not suitable for stating the invariance properties we
+require to apply Noether's theorem. To do so, we require groups of
+translations and invertible linear transformations. We extend our type
+system with small kinds representing $n$-dimensional ($n \geq 0$)
+translations, invertible linear transformations, and orthogonal
+transformations:
 \begin{mathpar}
   \kappa ::= \cdots \sepbar \mathsf{T}(n) \sepbar \mathsf{GL}(n) \sepbar \mathsf{O}(n)
 
@@ -1210,17 +1231,21 @@ a trivial collection of objects, and relations taken from the
 appropriate group:
 \begin{displaymath}
   \begin{array}{@{}l@{\hspace{0.3em}}c@{\hspace{0.3em}}l}
-    \sem{\mathsf{T}(n)} &=& (\{*\}, \lambda *,*.~\mathbb{R}^n, \lambda \mathord*.~\vec{0}) \\
-    \sem{\mathsf{GL}(n)} &=& (\{*\}, \lambda *,*.~\mathrm{GL}(n), \lambda \mathord*. I) \\
-    \sem{\mathsf{O}(n)} &=& (\{*\}, \lambda *,*.~\mathrm{O}(n), \lambda \mathord*. I)
+    \sem{\mathsf{T}(n)} &=& (\{*\}, \lambda (*,*).~\mathbb{R}^n, \lambda \mathord*.~\vec{0}) \\
+    \sem{\mathsf{GL}(n)} &=& (\{*\}, \lambda (*,*).~\mathrm{GL}(n), \lambda \mathord*. I) \\
+    \sem{\mathsf{O}(n)} &=& (\{*\}, \lambda (*,*).~\mathrm{O}(n), \lambda \mathord*. I)
   \end{array}
 \end{displaymath}
-We add the group operations and group axioms for each of these
-groupoid kinds in the same way as we did for the kind $\mathsf{Z}$
-above, except that we use multiplicative notation for the kinds
-$\mathsf{GL}(n)$ and $\mathsf{O}(n)$. Note that, except for
-$\mathsf{GL}(1)$, the groups $\mathsf{GL}(n)$ and $\mathsf{O}(n)$ are
-not abelian.
+Here, we take $\mathrm{GL}(n)$ to be exactly the group of invertible
+real $n\times n$ matricies, and $\mathrm{O}(n)$ to be the group of
+$n\times n$ orthogonal matricies (recall that an orthogonal matrix is
+one whose transpose is equal to its inverse).  We add the group
+operations and group axioms for each of these groupoid kinds in the
+same way as we did for the kind $\mathsf{Z}$ above, except that we use
+multiplicative notation for the kinds $\mathsf{GL}(n)$ and
+$\mathsf{O}(n)$. Note that, except for $\mathsf{GL}(0)$,
+$\mathsf{GL}(1)$, $\mathsf{O}(0)$ and $\mathsf{O}(1)$, the groups
+$\mathsf{GL}(n)$ and $\mathsf{O}(n)$ are not abelian.
 
 We also extend our type system with the following type-level
 constants. Each of these is interpreted by the correspondingly named
@@ -1260,10 +1285,10 @@ with the following interpretation:
 \end{displaymath}
 We have chosen to represent cartesian spaces of dimension $n$ just as
 the natural number $n$. This gives us a canonical representation of
-$n$-dimensional space for each $n$, avoids tricky problems with
+$n$-dimensional space for each $n$, avoiding tricky problems with
 isomorphic constructions of the same space.
 
-Cartesian spaces are closed under taking their product:
+Cartesian spaces are closed under products:
 \begin{displaymath}
   \inferrule*
   {\Theta \vdash X : \mathsf{CartSp} \\ \Theta \vdash Y : \mathsf{CartSp}}
@@ -1310,7 +1335,7 @@ Property~\ref{property:semantic-types}.
 Using the type-level natural numbers and their recursion operator, we
 can define a type of $n$-ary products of a cartesian space:
 \begin{displaymath}
-  \mathit{vec} = \lambda n\mathord:\mathsf{Nat}, x\mathord:\mathsf{CartSp}.~\mathit{natrec}~n~\mathbb{R}^0~(\lambda x.~X \times x)
+  \mathit{vec} = \lambda n\mathord:\mathsf{Nat}, X\mathord:\mathsf{CartSp}.~\mathit{natrec}~n~\mathbb{R}^0~(\lambda x.~X \times x)
 \end{displaymath}
 $n$-ary products of cartesian spaces will be useful in
 Section~\ref{sec:examples} when we define Lagrangians describing
@@ -1401,8 +1426,8 @@ require to apply Noether's theorem. Compare the form of the statement
 here, with the mildly more general statement of
 Equation~\ref{eq:simplest-invariance}, back in
 Section~\ref{sec:conservation-laws-from-symmetry}. Moreover, $\sem{e}$
-is a smooth function from $\mathbb{R}^n$ to $\mathbb{R}$, just we
-require to for Lagrangian mechanics.
+is a smooth function from $\mathbb{R}^n$ to $\mathbb{R}$, just as we
+require for Lagrangian mechanics.
 
 \paragraph{Combinators for Smooth Functions} Of course, such free
 theorems are pointless without ways to build elements of the smooth
@@ -1418,7 +1443,7 @@ cartesian spaces.
   \begin{array}{l@{\hspace{0.3em}}c@{\hspace{0.3em}}l}
     \mathrm{const} &:& \typeOfCartSp{Y} \to C^\infty(X, Y) \\
     \mathrm{id} &:& C^\infty(X,X) \\
-    (\comp) &:& C^\infty(X,Y) \to C^\infty(Y,Z) \\
+    (\comp) &:& C^\infty(X,Y) \to C^\infty(Y,Z) \to C^\infty(X,Z) \\
     \mathrm{pair} &:& C^\infty(X,Y) \to C^\infty(X,Z) \to C^\infty(X, Y \times Z) \\
     \mathrm{proj_1}&:& C^\infty(X \times Y, X) \\
     \mathrm{proj_2}&:& C^\infty(X \times Y, Y) \\
@@ -1447,27 +1472,27 @@ product of vectors is invariant under orthogonal transformations.
     (*) &:&
     \begin{array}[t]{@{}l}
       \forall g_1 \mathord: \mathsf{GL}(1), g_2 \mathord: \mathsf{GL}(n).\\
-      \quad C^\infty(\mathbb{R}\langle g_1, 0 \rangle \times \mathbb{R}^n\langle g_2, 0\rangle, \mathbb{R}\langle \mathit{scale}_n(g_1)g_2, 0 \rangle)
+      \quad C^\infty(\mathbb{R}\langle g_1, 0 \rangle \times \mathbb{R}^n\langle g_2, 0\rangle, \mathbb{R}^n\langle \mathit{scale}_n(g_1)g_2, 0 \rangle)
     \end{array}
     \\
     (\cdot) &:& 
     \begin{array}[t]{@{}l}
       \forall g \mathord: \mathsf{GL}(1), o \mathord: \mathsf{O}(n).~\\
       C^\infty(\mathbb{R}^n\langle (\mathit{scale}_n~g)(\mathit{ortho}_n~o), 0 \rangle \times \\
-      \quad\quad\; \mathbb{R}^n\langle (\mathit{scale}_n~g)(\mathit{ortho}_n~o), 0\rangle, \mathbb{R}\langle (\mathit{scale}_n~g)^n, 0 \rangle)
+      \quad\quad\; \mathbb{R}^n\langle (\mathit{scale}_n~g)(\mathit{ortho}_n~o), 0\rangle, \mathbb{R}\langle (\mathit{scale}_n~g)^2, 0 \rangle)
     \end{array}
   \end{array}
 \end{displaymath}
 Each of these combinators has a straightforward interpretation as a
 smooth function, and the proof that the fundamental theorem of logical
 relations is maintained for our system (i.e., that
-Property~\ref{property:semantic-terms} is maintained), follows
+Property~\ref{property:semantic-terms} is maintained) follows
 directly from elementary facts about linear algebra.
 
 It will be useful for our examples to have the following trigonometric
 functions, exponential function and division operation. The types of
 each of these functions describes some of their invariance properties,
-for example the periodicity of the $\sin$ and $\cos$ functions. A
+such as the periodicity of the $\sin$ and $\cos$ functions. A
 technical problem with our current system is that we do not account
 for the non-definedness of division at $0$, nor do we account for the
 square root of negative numbers. However, division and square root
@@ -1480,7 +1505,7 @@ informally treat them as total functions.
     \cos &:& \forall z \mathord: \mathsf{Z}.~C^\infty(\mathbb{R}\langle 1, \underline{2\pi} * z \rangle, \mathbb{R} \langle 1, 0 \rangle) \\
     \mathrm{exp} &:& \forall t \mathord: \mathsf{T}(1).~C^\infty(\mathbb{R}\langle 1, t \rangle, \mathbb{R}\langle \mathit{exp}~t, 0 \rangle) \\
     (/) &:& \forall g_1, g_2 \mathord: \mathsf{GL}(1).~C^\infty(\mathbb{R}\langle g_1, 0 \rangle \times \mathbb{R}\langle g_2, 0\rangle, \mathbb{R}\langle g_1g_2^{-1}, 0 \rangle) \\
-    \mathrm{sqrt} &:& \forall g \mathord: \mathsf{GL}(1).~C^\infty(\mathbb{R}\langle g^2, 0 \rangle, \mathbb{R}\langle g, 0 \rangle)
+    \mathrm{sqrt} &:& \forall g \mathord: \mathsf{GL}(1).~C^\infty(\mathbb{R}\langle g\cdot g, 0 \rangle, \mathbb{R}\langle g, 0 \rangle)
   \end{array}
 \end{displaymath}
 
@@ -1568,7 +1593,7 @@ interactions between systems of particles.
     \inferrule*
     {\Theta \sepbar \Gamma; \Delta \vdash e_1 : \mathbb{R}^n\langle \mathit{scale}_n(G)\mathit{ortho}_n(O), 0 \rangle \\
       \Theta \sepbar \Gamma; \Delta \vdash e_2 : \mathbb{R}^n\langle \mathit{scale}_n(G)\mathit{ortho}_n(O), 0 \rangle}
-    {\Theta \sepbar \Gamma; \Delta \vdash e_1 \cdot e_2 : \mathbb{R}\langle\mathit{scale}_n(G)^n, 0 \rangle}
+    {\Theta \sepbar \Gamma; \Delta \vdash e_1 \cdot e_2 : \mathbb{R}\langle\mathit{scale}_n(G)^2, 0 \rangle}
   \end{mathpar}
 
   \medskip
@@ -1765,7 +1790,7 @@ following $\epsilon$-indexed family of orthogonal matricies:
     \begin{array}{ccc}
       \cos \epsilon  & \sin \epsilon & 0 \\
       -\sin \epsilon & \cos \epsilon & 0 \\
-      0 & 0 & 0
+      0 & 0 & 1
     \end{array}
   \right)
 \end{displaymath}
@@ -1788,13 +1813,13 @@ conservation laws for angular momentum around arbitrary axes.
 
 \paragraph{Particle in a Potential Field}
 
-If we now extend the typing context of our example with a arbitrary
-potential energy term, depending on the position of the particle, we
-can define the Lagrangian for a single particle acted upon by a
-potential field that depends on the position of the particle. The
-invariance properties of the whole system will depend upon the
-invariance properties of the potential field. If we assume the
-following contexts:
+If we now extend the typing context of our example with an arbitrary
+potential energy function $V$, depending on the position of the
+particle, we can define the Lagrangian for a single particle acted
+upon by a potential field that depends on the position of the
+particle. The invariance properties of the whole system will depend
+upon the invariance properties of the potential field. If we assume
+the following contexts:
 \begin{displaymath}
   \begin{array}{l@{\hspace{0.3em}}l}
     \Theta = & t_t : \mathsf{T}(1), o : \mathsf{O}(3) \\
@@ -1868,7 +1893,7 @@ All our examples above have used rectangular coordinate systems. Part
 of the power of the Lagrangian formulation of classical mechanics is
 the ability to use appropriate generalised coordinates to describe
 systems in simple terms. A standard example is that of a pendulum,
-where we take the angle of swing from the vertical, $\theta$ as the
+where we take the angle $\theta$ of swing from the vertical as the
 coordinate.
 
 We use the following kinding, typing and cartesian space contexts:
@@ -1878,7 +1903,7 @@ We use the following kinding, typing and cartesian space contexts:
     \Gamma = & m : \typeOfCartSp{\mathbb{R}\langle 1, 0 \rangle}, l : \typeOfCartSp{\mathbb{R}\langle 1, 0 \rangle} \\
     \Delta = &
     \begin{array}[t]{@{}l}
-      t : \mathbb{R}\langle 1, t_t \rangle, \theta : \mathbb{R}\langle 1, \underline{2\pi}*z \rangle. \dot{\theta} : \mathbb{R}\langle 1, 0 \rangle
+      t : \mathbb{R}\langle 1, t_t \rangle, \theta : \mathbb{R}\langle 1, \underline{2\pi}*z \rangle, \dot{\theta} : \mathbb{R}\langle 1, 0 \rangle
 \end{array}
   \end{array}
 \end{displaymath}
@@ -2016,25 +2041,27 @@ incorporate invariance properties into types, as we have done here.
 
 There has been prior work on programming languages inspired by
 theoretical physics. Quantum programming languages, which hope to
-exploit the properties of quantum computation in an understandable way
-have been the subject of study for several years now. We cite Abramsky
-\cite{abramsky04} as an introduction to this field.
+exploit the properties of quantum computation in an understandable
+way, have been the subject of study for several years now. We cite
+Abramsky \cite{abramsky04} as an introduction to this field.
 
 \paragraph{Future Work} We have barely scratched the surface of the
 applicability of Noether's theorem to theoretical
 physics. Conservation laws for classical and quantum field theories
-are derivable from generalisations of Noether's
-theorem. Neuenschwander's book \cite{neuenschwander11} describes in an
-easy to read way how Noether's theorem applies to field theories,
-allowing for relativistic and quantum systems to be studied, and how
-it naturally leads to the notion of Gauge invariance, an important
-principle in modern theories of particle physics.
+are derivable from the much more general theorem that Noether
+originally proved \cite{noether71}. Neuenschwander's book
+\cite{neuenschwander11} describes in an easy to read way how Noether's
+theorem applies to field theories, allowing for relativistic and
+quantum systems to be studied, and how it naturally leads to the
+notion of Gauge invariance, an important principle in modern theories
+of particle physics.
 
 From the type system point of view, it seems clear that greater
-expressiveness will be required in order to accomodate more detailed
-physical theories. Study of relational parametricity for dependent
-types, as done for example by Bernardy \emph{et al.}
-\cite{bernardy12proofs} may be useful here. Also, recent work on
+precision in the types will be required in order to accomodate more
+detailed physical theories. Study of relational parametricity for
+dependent types, as done for example by Bernardy \emph{et al.}
+\cite{bernardy12proofs} and Atkey \emph{et al.}
+\cite{atkey14relational} may be useful here. Also, recent work on
 homotopy type theory and, in particular $\infty$-groupoid models of
 type theory is almost certainly relevant \cite{hottbook2013}.
 
@@ -2060,6 +2087,10 @@ Proceedings, LICS, 2004.
 \bibitem{atkey12relational}
 R.~Atkey. Relational Parametricity for Higher Kinds.
 Proceedings, CSL, 2012.
+
+\bibitem{atkey14relational} R.~Atkey, N.~Ghani, and P.~Johann. A
+  Relationally Parametric Model of Dependent Type Theory. Proceedings,
+  POPL, 2014.
 
 \bibitem{atkey13abstraction}
 R.~Atkey, P.~Johann, and A.~J.~Kennedy. Abstraction and Invariance for Algebraically Indexed Types.
@@ -2119,7 +2150,7 @@ J.~C.~Reynolds. Types, Abstraction and Parametric Polymorphism.
 Graphs and Parametric Polymorphism.  {\em Proc., Logic in Computer
   Science}, pp. 364--371, 1994.
 
-\bibitem{sussman01structure} G.~J.Sussman and J.~Wisdom. Structure and
+\bibitem{sussman01structure} G.~J.~Sussman and J.~Wisdom. Structure and
   Interpretation of Classical Mechanics. MIT Press, 2001
 
 \bibitem{hottbook2013} The Univalent Foundations Program. {\em
