@@ -1,0 +1,90 @@
+\documentclass{article}
+
+\usepackage{geometry}
+\usepackage{stmaryrd}
+\usepackage{amssymb}
+\usepackage{mathpartir}
+
+\newcommand{\sepbar}{\mathrel|}
+
+\begin{document}
+
+\section{System F$\omega$ with a kind of quantities}
+
+System F$\omega$ with a commutative semiring kind, existential types, and
+(semiring) equality.
+
+Kinds:
+\begin{displaymath}
+  \kappa ::= * \sepbar \kappa_1 \to \kappa_2 \sepbar R
+\end{displaymath}
+Types:
+\begin{mathpar}
+  \inferrule*
+  {\alpha \mathord: \kappa \in \Delta}
+  {\Delta \vdash \alpha : \kappa}
+
+  \inferrule*
+  {\Delta, \alpha\mathord:\kappa_1 \vdash A : \kappa_2}
+  {\Delta \vdash \lambda \alpha\mathord:\kappa_1.A : \kappa_2}
+
+  \inferrule*
+  {\Delta \vdash F : \kappa_1 \to \kappa_2 \\ \Delta \vdash A : \kappa_1}
+  {\Delta \vdash FA : \kappa_2}
+\end{mathpar}
+\begin{mathpar}
+  \inferrule*
+  { }
+  {\Delta \vdash 0 : R}
+
+  \inferrule*
+  { }
+  {\Delta \vdash 1 : R}
+
+  \inferrule*
+  {\Delta \vdash r_1 : R \\ \Delta \vdash r_2 : R}
+  {\Delta \vdash r_1 + r_2 : R}
+
+  \inferrule*
+  {\Delta \vdash r_1 : R \\ \Delta \vdash r_2 : R}
+  {\Delta \vdash r_1 \cdot r_2 : R}
+\end{mathpar}
+\begin{mathpar}
+  \inferrule*
+  {\Delta \vdash A : * \\ \Delta \vdash B : *}
+  {\Delta \vdash A \to B : *}
+
+  \inferrule*
+  {\Delta \vdash A : * \\ \Delta \vdash B : *}
+  {\Delta \vdash A \times B : *}
+
+  \inferrule*
+  {\Delta \vdash A : * \\ \Delta \vdash B : *}
+  {\Delta \vdash A + B : *}
+
+  \inferrule*
+  {\Delta, \alpha\mathord:\kappa \vdash A : *}
+  {\Delta \vdash \forall \alpha\mathord:\kappa.A : *}
+\end{mathpar}
+Type equalities: $\beta\eta$-equality, and the semi-ring axioms.
+
+\section{Translating linear types into System F$\omega$Q}
+
+where $A, B : R \to *$.
+
+\begin{displaymath}
+  \begin{array}{lcl}
+    (!_sA)r          & = & \exists r_1.~[r \equiv r_1 \cdot s] \times Ar_1 \\
+    (A \otimes B)r   & = & \exists r_1, r_2.~[r \equiv r_1 \cdot r_2] \times Ar_1 \times Br_2 \\
+    (A \multimap B)r & = & \forall r_1.~Ar_1 \to B(r_1 \cdot r)
+  \end{array}
+\end{displaymath}
+
+or, where $r \cdot n$ means $r + \dots + r$:
+\begin{displaymath}
+  \begin{array}{lcl}
+    (!_nA)r & = & \exists r_1.~[r \equiv r_1 \cdot n] \times Ar_1
+  \end{array}
+\end{displaymath}
+
+\end{document}
