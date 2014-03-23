@@ -34,6 +34,19 @@ Types:
 \end{mathpar}
 \begin{mathpar}
   \inferrule*
+  {\Delta \vdash A : * \\ \Delta \vdash B : *}
+  {\Delta \vdash A \to B : *}
+
+  \inferrule*
+  {\Delta \vdash A : * \\ \Delta \vdash B : *}
+  {\Delta \vdash A \times B : *}
+
+  \inferrule*
+  {\Delta \vdash A : * \\ \Delta \vdash B : *}
+  {\Delta \vdash A + B : *}
+\end{mathpar}
+\begin{mathpar}
+  \inferrule*
   { }
   {\Delta \vdash 0 : R}
 
@@ -51,22 +64,102 @@ Types:
 \end{mathpar}
 \begin{mathpar}
   \inferrule*
-  {\Delta \vdash A : * \\ \Delta \vdash B : *}
-  {\Delta \vdash A \to B : *}
-
-  \inferrule*
-  {\Delta \vdash A : * \\ \Delta \vdash B : *}
-  {\Delta \vdash A \times B : *}
-
-  \inferrule*
-  {\Delta \vdash A : * \\ \Delta \vdash B : *}
-  {\Delta \vdash A + B : *}
+  {\Delta, \alpha\mathord:\kappa \vdash A : *}
+  {\Delta \vdash \forall \alpha\mathord:\kappa.A : *}
 
   \inferrule*
   {\Delta, \alpha\mathord:\kappa \vdash A : *}
-  {\Delta \vdash \forall \alpha\mathord:\kappa.A : *}
+  {\Delta \vdash \exists \alpha\mathord:\kappa.A : *}
+
+  \inferrule*
+  {\Delta \vdash r_1 : R \\ \Delta \vdash r_2 : R}
+  {\Delta \vdash [r_1 = r_2] : *}
 \end{mathpar}
 Type equalities: $\beta\eta$-equality, and the semi-ring axioms.
+\begin{mathpar}
+  \inferrule*
+  { }
+  { }
+\end{mathpar}
+Terms
+\begin{mathpar}
+  \inferrule*
+  {x\mathord:A \in \Gamma}
+  {\Delta; \Gamma \vdash x : A}
+
+  \inferrule*
+  {\Delta; \Gamma, x \mathord:A \vdash e : B}
+  {\Delta; \Gamma \vdash \lambda x.e : B}
+
+  \inferrule*
+  {\Delta; \Gamma \vdash e_1 : A \to B \\ \Delta; \Gamma \vdash e_2 : A}
+  {\Delta; \Gamma \vdash e_1 e_2 : B}
+
+  \inferrule*
+  {\Delta; \Gamma \vdash e_1 : A \\ \Delta; \Gamma \vdash e_2 : B}
+  {\Delta; \Gamma \vdash (e_1, e_2) : A \times B}
+
+  \inferrule*
+  {\Delta; \Gamma \vdash e : A \times B}
+  {\Delta; \Gamma \vdash \mathbf{fst}~e : A}
+
+  \inferrule*
+  {\Delta; \Gamma \vdash e : A \times B}
+  {\Delta; \Gamma \vdash \mathbf{snd}~e : B}
+
+  \inferrule*
+  {\Delta; \Gamma \vdash e : A}
+  {\Delta; \Gamma \vdash \mathbf{inl}~e : A + B}
+
+  \inferrule*
+  {\Delta; \Gamma \vdash e : A}
+  {\Delta; \Gamma \vdash \mathbf{inr}~e : A + B}
+
+  \inferrule*
+  {\Delta; \Gamma \vdash e_1 : A + B \\
+    \Delta; \Gamma, x\mathord:A \vdash e_2 : C \\
+    \Delta; \Gamma, x\mathord:B \vdash e_3 : C}
+  {\Delta; \Gamma \vdash \mathbf{case}~e_1~\mathbf{of}~\mathbf{inl}~x \to e_2; \mathbf{inr}~x \to e_3 : C}
+\end{mathpar}
+\begin{mathpar}
+  \inferrule*
+  {\Delta; \Gamma \vdash e : A \\ \Delta \vdash A \equiv B : *}
+  {\Delta; \Gamma \vdash e : B}
+\end{mathpar}
+\begin{mathpar}
+  \inferrule*
+  {\Delta, \alpha\mathord:\kappa; \Gamma \vdash e : A \\ \alpha \not\in \mathit{fv}(\Gamma)}
+  {\Delta; \Gamma \vdash \Lambda \alpha\mathord:\kappa. e : \forall \alpha\mathord:\kappa.A}
+
+  \inferrule*
+  {\Delta; \Gamma \vdash e : \forall \alpha\mathord:\kappa. A \\
+    \Delta \vdash B : \kappa}
+  {\Delta; \Gamma \vdash e[B] : A\{B/\alpha\}}
+
+  \inferrule*
+  {\Delta \vdash A : \kappa \\
+    \Delta, \alpha\mathord:\kappa \vdash B : * \\
+    \Delta; \Gamma \vdash e : B\{A/\alpha\}}
+  {\Delta; \Gamma \vdash \langle A, e \rangle : \exists \alpha:\kappa. B}
+
+  \inferrule*
+  {\Delta; \Gamma \vdash e_1 : \exists \alpha\mathord:\kappa. A \\
+    \Delta, \alpha\mathord:\kappa; \Gamma, x : A \vdash e_2 : B \\
+    \alpha \not\in \mathit{fv}(B)}
+  {\Delta; \Gamma \vdash \mathbf{unpack}~e_1~\mathbf{as}~\langle \alpha, x \rangle~\mathbf{in}~e_2 : B}
+
+  \inferrule*
+  {\Delta \vdash r : R}
+  {\Delta; \Gamma \vdash \mathbf{refl} : [r = r]}
+
+  \inferrule*
+  {\Delta \vdash r_1 : R \\
+    \Delta \vdash r_2 : R \\
+    \Delta; \Gamma \vdash e_1 : [r_1 = r_2] \\
+    \Delta, \alpha_1\mathord:R, \alpha_2\mathord:R \vdash C : * \\
+    \Delta, \alpha\mathord:R; \Gamma \vdash e_2 : C\{\alpha/\alpha_1,\alpha/\alpha_2\}}
+  {\Delta \vdash \mathbf{elimEq}~e_1~\mathbf{with}~e_2 : C\{r_1/\alpha_1,r_2/\alpha_2\}}
+\end{mathpar}
 
 \section{Translating linear types into System F$\omega$Q}
 
@@ -74,8 +167,8 @@ where $A, B : R \to *$.
 
 \begin{displaymath}
   \begin{array}{lcl}
-    (!_sA)r          & = & \exists r_1.~[r \equiv r_1 \cdot s] \times Ar_1 \\
-    (A \otimes B)r   & = & \exists r_1, r_2.~[r \equiv r_1 \cdot r_2] \times Ar_1 \times Br_2 \\
+    (!_sA)r          & = & \exists r_1.~[r = r_1 \cdot s] \times Ar_1 \\
+    (A \otimes B)r   & = & \exists r_1, r_2.~[r = r_1 \cdot r_2] \times Ar_1 \times Br_2 \\
     (A \multimap B)r & = & \forall r_1.~Ar_1 \to B(r_1 \cdot r)
   \end{array}
 \end{displaymath}
@@ -83,7 +176,7 @@ where $A, B : R \to *$.
 or, where $r \cdot n$ means $r + \dots + r$:
 \begin{displaymath}
   \begin{array}{lcl}
-    (!_nA)r & = & \exists r_1.~[r \equiv r_1 \cdot n] \times Ar_1
+    (!_nA)r & = & \exists r_1.~[r = r_1 \cdot n] \times Ar_1
   \end{array}
 \end{displaymath}
 
